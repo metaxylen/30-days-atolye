@@ -1,723 +1,1487 @@
 {
   "day": 5,
   "title": "Lists",
-  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "title_tr": "List (liste)",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__, and the learner's source code is available as the string __source__ (some hidden tests re-run that source with different input values to make sure the result is computed, not typed). expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly.",
   "blocks": [
     {
       "id": "d05-b1",
-      "concept": "list-access-slicing",
+      "concept": "list-access",
+      "concept_tr": "İndeks, negatif indeks, dilim ve paket açma",
       "tags": [
-        "lists",
-        "indexing",
-        "slicing"
+        "index",
+        "slice",
+        "unpacking",
+        "star"
       ],
       "worked_example": {
-        "code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nprint(fruits[0], fruits[-1])\nprint(fruits[1:3])",
+        "code": "it_companies = ['Facebook', 'Google', 'Microsoft', 'Apple', 'IBM', 'Oracle', 'Amazon']\nprint(it_companies[0], it_companies[-1])\nprint(it_companies[len(it_companies) // 2])\nprint(it_companies[:3], it_companies[-3:])\nfirst, *middle, last = it_companies\nprint(len(middle))",
         "notes": [
-          "Lists use the same indexes and slices as strings.",
-          "A slice gives a NEW list; the stop index is excluded."
+          "Index 0 is the first item and -1 the last, exactly as with strings.",
+          "len(...) // 2 gives the middle index of a list with an odd number of items (7 // 2 is 3), which mixes Day 3's floor division into indexing.",
+          "Slices return new lists, and a starred name in unpacking collects every item that the other names did not take."
         ],
         "notes_tr": [
-          "Listeler, string'lerle aynı indeks ve dilimleri kullanır.",
-          "Dilim YENİ bir liste verir; bitiş indeksi dahil değildir."
+          "0. indeks ilk, -1 son elemandır; tıpkı string'lerdeki gibi.",
+          "len(...) // 2 tek sayıda elemanı olan bir listenin orta indeksini verir (7 // 2 = 3); bu, Gün 3'teki tam bölmeyi indekslemeyle birleştirir.",
+          "Dilimler yeni listeler döndürür; paket açmadaki yıldızlı isim de diğer isimlerin almadığı her elemanı toplar."
         ]
       },
       "exercises": [
         {
           "id": "d05-b1-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nfruits[1] = 'apple'\nprint(fruits[-2])\nprint(fruits[1:3])",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "nums = [10, 20, 30, 40, 50]\nprint(nums[1], nums[-2], nums[1:3], nums[::-2])",
           "choices": [
-            "mango\n['apple', 'mango']",
-            "apple\n['apple', 'mango']",
-            "mango\n['orange', 'mango']",
-            "mango\n['apple', 'mango', 'lemon']"
+            "20 40 [20, 30] [50, 30, 10]",
+            "10 40 [10, 20, 30] [50, 30, 10]",
+            "20 40 [20, 30, 40] [50, 30, 10]",
+            "20 30 [20, 30] [50, 40]"
           ],
-          "expected_output": "mango\n['apple', 'mango']",
-          "explanation": "Lists can be changed: index 1 is now 'apple'. fruits[-2] is the second-last item, 'mango'. The slice [1:3] holds indexes 1 and 2.",
+          "expected_output": "20 40 [20, 30] [50, 30, 10]",
+          "explanation": "nums[1] is the second item, 20. nums[-2] is the second to last, 40. [1:3] takes indexes 1 and 2. [::-2] walks backwards by two from 50.",
+          "explanation_tr": "nums[1] ikinci eleman, 20'dir. nums[-2] sondan ikinci, 40'tır. [1:3] 1 ve 2. indeksleri alır. [::-2], 50'den ikişer geri yürür.",
           "misconceptions": {
-            "apple\n['apple', 'mango']": "-2 counts from the end: -1 is 'lemon', -2 is 'mango'.",
-            "mango\n['orange', 'mango']": "fruits[1] was replaced by 'apple' before printing.",
-            "mango\n['apple', 'mango', 'lemon']": "The stop index 3 is excluded, so 'lemon' is not part of the slice."
+            "10 40 [10, 20, 30] [50, 30, 10]": "Indexes start at 0, so nums[1] is the second item.",
+            "20 40 [20, 30, 40] [50, 30, 10]": "The stop index of a slice is excluded.",
+            "20 30 [20, 30] [50, 40]": "-2 counts from the end: 50 is -1, 40 is -2. The step -2 skips one item each time."
           },
-          "explanation_tr": "Liste değiştirilebilir: 1. indeks artık 'apple'. fruits[-2] sondan ikinci elemandır, yani 'mango'. [1:3] dilimi 1. ve 2. indeksleri alır.",
           "misconceptions_tr": {
-            "apple\n['apple', 'mango']": "-2 sondan sayar: -1 'lemon', -2 'mango'dur.",
-            "mango\n['orange', 'mango']": "fruits[1] yazdırmadan önce 'apple' ile değiştirilmişti.",
-            "mango\n['apple', 'mango', 'lemon']": "Bitiş indeksi 3 dahil değildir, bu yüzden 'lemon' dilimde yoktur."
+            "10 40 [10, 20, 30] [50, 30, 10]": "İndeksler 0'dan başlar; nums[1] ikinci elemandır.",
+            "20 40 [20, 30, 40] [50, 30, 10]": "Dilimin bitiş indeksi dahil değildir.",
+            "20 30 [20, 30] [50, 40]": "-2 sondan sayar: 50, -1; 40, -2'dir. -2 adımı her seferinde bir eleman atlar."
           }
         },
         {
           "id": "d05-b1-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so the program prints the last fruit (lemon).",
-          "prompt_tr": "Programın son meyveyi (lemon) yazdırması için boşluğu doldur.",
-          "starter_code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nprint(fruits[___])",
+          "prompt": "Fill the blanks so the program prints the first three and the last three companies.",
+          "prompt_tr": "Program ilk üç ve son üç şirketi yazdırsın diye boşlukları doldur.",
+          "starter_code": "companies = ['Facebook', 'Google', 'Microsoft', 'Apple', 'IBM', 'Oracle', 'Amazon']\nprint(companies[___])\nprint(companies[___])",
           "blanks": [
             {
               "answer": [
-                "-1",
-                "3"
+                ":3",
+                "0:3"
+              ]
+            },
+            {
+              "answer": [
+                "-3:",
+                "4:"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == 'lemon'",
+              "code": "assert __stdout__.rstrip() == \"['Facebook', 'Google', 'Microsoft']\\n['IBM', 'Oracle', 'Amazon']\", repr(__stdout__)",
               "visible": true,
-              "failure_message": "The program must print lemon.",
-              "failure_message_tr": "Program lemon yazdırmalı.",
-              "label_tr": "Program lemon yazdırıyor"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: ['Facebook', 'Google', 'Microsoft'] / ['IBM', 'Oracle', 'Amazon']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: ['Facebook', 'Google', 'Microsoft'] / ['IBM', 'Oracle', 'Amazon']"
             }
           ],
           "hints": [
-            "Which position in the list holds 'lemon'?",
-            "Python lets you count from the end of a list with a negative index.",
-            "Type -1 between the brackets: negative one means the last item."
+            "A slice gives a new list; you only need the start and the stop.",
+            "From the beginning, three items: the start can stay empty.",
+            "For the last three, start at a negative index and leave the stop empty."
           ],
           "hints_tr": [
-            "'lemon' listenin hangi sırasında?",
-            "Python'da negatif indeksle listeyi sondan sayabilirsin.",
-            "Köşeli parantezin içine -1 yaz: eksi bir, son elemandır."
+            "Dilim yeni bir liste verir; yalnızca başlangıç ve bitiş gerekir.",
+            "Baştan üç eleman: başlangıç boş kalabilir.",
+            "Son üç için negatif bir indeksle başla ve bitişi boş bırak."
           ]
         },
         {
           "id": "d05-b1-e3",
-          "type": "modify",
-          "prompt": "Change the program so it prints two lines: the first three countries as a list, then the last country (Denmark).",
-          "prompt_tr": "Programı iki satır yazdıracak şekilde değiştir: ilk üç ülke bir liste olarak, sonra son ülke (Denmark).",
-          "starter_code": "countries = ['Germany', 'France', 'Belgium', 'Sweden', 'Denmark']\nprint(countries[0])",
-          "tests": [
-            {
-              "code": "assert __stdout__.strip().split('\\n') == [\"['Germany', 'France', 'Belgium']\", 'Denmark']",
-              "visible": true,
-              "failure_message": "Expected the list of the first three countries, then Denmark.",
-              "failure_message_tr": "İlk üç ülkenin listesini, sonra Denmark'ı yazdırmalısın.",
-              "label_tr": "İlk üç ülke liste olarak, sonra son ülke yazdırılıyor"
-            },
-            {
-              "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Slice) for n in ast.walk(_t)) and sum(isinstance(n, ast.Subscript) for n in ast.walk(_t)) >= 2",
-              "visible": false,
-              "failure_message": "The output must come from the countries list (a slice and an index), not typed by hand.",
-              "failure_message_tr": "Çıktı elle yazılmamalı; countries listesinden bir dilim ve bir indeksle alınmalı.",
-              "anti_hardcode": true
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print the last item, Amazon, but crashes with IndexError: list index out of range. Fix it so it works for a list of any length.",
+          "prompt_tr": "Program son eleman olan Amazon'u yazdırmalı, ama IndexError: list index out of range ile çöküyor. Her uzunluktaki listede çalışacak şekilde düzelt.",
+          "starter_code": "companies = ['Facebook', 'Google', 'Amazon']\nprint(companies[len(companies)])",
           "hints": [
-            "The first line needs several items, the second just one.",
-            "A slice [start:stop] gives several items and the stop index is excluded. A negative index picks from the end.",
-            "Line 1: slice countries from 0 up to 3 inside print(). Line 2: pick the item at index -1 inside print()."
+            "A list of 3 items has which indexes?",
+            "The length is one more than the last index.",
+            "Use the negative index that always means 'the last one'."
+          ],
+          "hints_tr": [
+            "3 elemanlı bir listenin hangi indeksleri vardır?",
+            "Uzunluk, son indeksten bir fazladır.",
+            "Her zaman 'sonuncu' anlamına gelen negatif indeksi kullan."
           ],
           "solution": {
-            "approach": "Use a slice for the first three items and -1 for the last.",
-            "code": "countries = ['Germany', 'France', 'Belgium', 'Sweden', 'Denmark']\nprint(countries[0:3])\nprint(countries[-1])",
-            "approach_tr": "İlk üç ülke için dilim, son ülke için -1 indeksi kullan."
+            "approach": "The last index is len - 1; -1 is the shortest way.",
+            "approach_tr": "Son indeks len - 1'dir; en kısa yol -1'dir.",
+            "code": "companies = ['Facebook', 'Google', 'Amazon']\nprint(companies[-1])"
           },
-          "hints_tr": [
-            "İlk satır birkaç eleman, ikinci satır tek eleman istiyor.",
-            "[başlangıç:bitiş] dilimi birkaç eleman verir ve bitiş indeksi dahil değildir. Negatif indeks sondan eleman seçer.",
-            "1. satır: print() içinde countries'i 0'dan 3'e kadar dilimle. 2. satır: print() içinde -1 indeksindeki elemanı yaz."
+          "expected_output": "Amazon",
+          "tests": [
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^companies[ \\t]*=.*$', \"companies = ['A', 'B', 'C', 'D', 'E']\", __s, count=1)\nassert __n == 1, 'line companies = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __out.strip() == 'E'",
+              "visible": false,
+              "failure_message": "It must work for longer lists too.",
+              "failure_message_tr": "Daha uzun listelerde de çalışmalı."
+            }
           ]
         },
         {
           "id": "d05-b1-e4",
-          "type": "type_it",
-          "prompt": "Study the snippet, then retype it from memory.",
-          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz.",
-          "code": "fruits = ['banana', 'orange', 'mango']\nfruits.append('lime')\nprint(len(fruits))\nprint(fruits[-1])",
-          "expected_output": "4\nlime"
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "first, second, *rest = ['a', 'b', 'c', 'd']\n*start, end = [1, 2, 3]\nprint(rest, start, end)",
+          "choices": [
+            "['c', 'd'] [1, 2] 3",
+            "c d [1, 2] 3",
+            "['c', 'd'] 1 2 3",
+            "['d'] [1, 2] 3"
+          ],
+          "expected_output": "['c', 'd'] [1, 2] 3",
+          "explanation": "first and second take a and b; *rest collects the rest into a list. In the second line end takes the last item and *start the others, again as a list.",
+          "explanation_tr": "first ve second a ile b'yi alır; *rest kalanları bir listeye toplar. İkinci satırda end son elemanı, *start diğerlerini yine bir liste olarak alır.",
+          "misconceptions": {
+            "c d [1, 2] 3": "A starred name always becomes a list.",
+            "['c', 'd'] 1 2 3": "start is a list [1, 2], printed with brackets.",
+            "['d'] [1, 2] 3": "Only two names come before *rest, so it gets two items."
+          },
+          "misconceptions_tr": {
+            "c d [1, 2] 3": "Yıldızlı isim her zaman bir liste olur.",
+            "['c', 'd'] 1 2 3": "start bir listedir, [1, 2]; köşeli parantezlerle yazdırılır.",
+            "['d'] [1, 2] 3": "*rest'ten önce yalnızca iki isim var; bu yüzden ona iki eleman kalır."
+          }
+        },
+        {
+          "id": "d05-b1-e5",
+          "type": "modify",
+          "prompt": "The program prints the middle company of a list with 7 items using a fixed index 3. Change it so middle_index is computed from len() with //, the middle company is stored in middle, and the program prints it: Apple",
+          "prompt_tr": "Program 7 elemanlı bir listenin ortadaki şirketini sabit 3 indeksiyle yazdırıyor. middle_index len() ve // ile hesaplanacak, ortadaki şirket middle'a kaydedilecek ve program onu yazdıracak şekilde değiştir: Apple",
+          "starter_code": "companies = ['Facebook', 'Google', 'Microsoft', 'Apple', 'IBM', 'Oracle', 'Amazon']\nprint(companies[3])",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'Apple', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Apple",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Apple"
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^companies[ \\t]*=.*$', \"companies = ['a', 'b', 'c', 'd', 'e']\", __s, count=1)\nassert __n == 1, 'line companies = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['middle_index'] == 2 and __ns['middle'] == 'c'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "middle_index must be computed from the length of the list.",
+              "failure_message_tr": "middle_index listenin uzunluğundan hesaplanmalı."
+            }
+          ],
+          "hints": [
+            "For 7 items the middle index is 3. How do you get 3 from 7?",
+            "Floor division by 2 rounds 3.5 down to 3.",
+            "Store len(...) // 2 in middle_index and use it as the index."
+          ],
+          "hints_tr": [
+            "7 eleman için orta indeks 3'tür. 7'den 3'ü nasıl elde edersin?",
+            "2'ye tam bölme 3.5'i aşağı, 3'e yuvarlar.",
+            "len(...) // 2 sonucunu middle_index'e kaydet ve indeks olarak kullan."
+          ],
+          "solution": {
+            "approach": "middle_index = len(companies) // 2.",
+            "approach_tr": "middle_index = len(companies) // 2.",
+            "code": "companies = ['Facebook', 'Google', 'Microsoft', 'Apple', 'IBM', 'Oracle', 'Amazon']\nmiddle_index = len(companies) // 2\nmiddle = companies[middle_index]\nprint(middle)"
+          }
+        },
+        {
+          "id": "d05-b1-e6",
+          "type": "write",
+          "prompt": "Create countries = ['China', 'Russia', 'USA', 'Finland', 'Sweden', 'Norway', 'Denmark'] on its own line. Unpack it so the first three go into china, russia and usa and the rest into a list scandic (use *). Print usa and scandic on one line: USA ['Finland', 'Sweden', 'Norway', 'Denmark']",
+          "prompt_tr": "countries = ['China', 'Russia', 'USA', 'Finland', 'Sweden', 'Norway', 'Denmark'] değişkenini ayrı satırda oluştur. İlk üçü china, russia ve usa'ya, kalanlar da scandic listesine (* kullanarak) gidecek şekilde paketi aç. usa ve scandic'i tek satırda yazdır: USA ['Finland', 'Sweden', 'Norway', 'Denmark']",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == \"USA ['Finland', 'Sweden', 'Norway', 'Denmark']\", repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: USA ['Finland', 'Sweden', 'Norway', 'Denmark']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: USA ['Finland', 'Sweden', 'Norway', 'Denmark']"
+            },
+            {
+              "code": "assert china == 'China' and russia == 'Russia'",
+              "visible": false,
+              "failure_message": "china and russia must hold the first two countries.",
+              "failure_message_tr": "china ve russia ilk iki ülkeyi tutmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^countries[ \\t]*=.*$', \"countries = ['A', 'B', 'C']\", __s, count=1)\nassert __n == 1, 'line countries = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['usa'] == 'C' and __ns['scandic'] == []\nassert '*' in __source__",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Use unpacking with a starred name; with only three countries scandic must be an empty list.",
+              "failure_message_tr": "Yıldızlı isimle paket açma kullan; yalnızca üç ülke varsa scandic boş liste olmalı."
+            }
+          ],
+          "hints": [
+            "Unpacking puts names on the left of = and the list on the right.",
+            "Three plain names take the first three items.",
+            "A star before the last name collects all remaining items into a list."
+          ],
+          "hints_tr": [
+            "Paket açmada isimler = işaretinin soluna, liste sağına yazılır.",
+            "Üç düz isim ilk üç elemanı alır.",
+            "Son ismin önündeki yıldız kalan bütün elemanları bir listeye toplar."
+          ],
+          "solution": {
+            "approach": "Three names and one starred name on the left.",
+            "approach_tr": "Solda üç isim ve bir yıldızlı isim.",
+            "code": "countries = ['China', 'Russia', 'USA', 'Finland', 'Sweden', 'Norway', 'Denmark']\nchina, russia, usa, *scandic = countries\nprint(usa, scandic)"
+          },
+          "twin": "d05-b1-e7"
+        },
+        {
+          "id": "d05-b1-e7",
+          "type": "write",
+          "prompt": "Create countries = ['Türkiye', 'Almanya', 'Fransa', 'İtalya', 'İspanya', 'Portekiz'] on its own line. Store the first half in first_half and the second half in second_half using slices with half = len(countries) // 2. Print both halves on two lines.",
+          "prompt_tr": "countries = ['Türkiye', 'Almanya', 'Fransa', 'İtalya', 'İspanya', 'Portekiz'] değişkenini ayrı satırda oluştur. half = len(countries) // 2 kullanarak ilk yarıyı first_half'e, ikinci yarıyı second_half'e dilimlerle kaydet. İki yarıyı iki satırda yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == \"['Türkiye', 'Almanya', 'Fransa']\\n['İtalya', 'İspanya', 'Portekiz']\", repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: ['Türkiye', 'Almanya', 'Fransa'] / ['İtalya', 'İspanya', 'Portekiz']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: ['Türkiye', 'Almanya', 'Fransa'] / ['İtalya', 'İspanya', 'Portekiz']"
+            },
+            {
+              "code": "assert half == 3",
+              "visible": false,
+              "failure_message": "half must be len(countries) // 2, which is 3.",
+              "failure_message_tr": "half, len(countries) // 2 olmalı, yani 3."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^countries[ \\t]*=.*$', \"countries = ['a', 'b', 'c', 'd']\", __s, count=1)\nassert __n == 1, 'line countries = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['first_half'] == ['a', 'b'] and __ns['second_half'] == ['c', 'd']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The halves must be computed from countries with half.",
+              "failure_message_tr": "Yarılar countries üzerinden half ile hesaplanmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^countries[ \\t]*=.*$', 'countries = []', __s, count=1)\nassert __n == 1, 'line countries = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['first_half'] == [] and __ns['second_half'] == []",
+              "visible": false,
+              "failure_message": "Edge case: an empty list gives two empty halves.",
+              "failure_message_tr": "Uç durum: boş liste iki boş yarı verir."
+            }
+          ],
+          "hints": [
+            "half is the length divided by 2 with floor division.",
+            "The first half ends just before index half.",
+            "The second half starts at half and goes to the end; the two slices meet without overlap."
+          ],
+          "hints_tr": [
+            "half, uzunluğun 2'ye tam bölümüdür.",
+            "İlk yarı half indeksinden hemen önce biter.",
+            "İkinci yarı half'ten başlayıp sona gider; iki dilim çakışmadan birleşir."
+          ],
+          "solution": {
+            "approach": "Compute half, then slice [:half] and [half:].",
+            "approach_tr": "half'i hesapla, sonra [:half] ve [half:] dilimlerini al.",
+            "code": "countries = ['Türkiye', 'Almanya', 'Fransa', 'İtalya', 'İspanya', 'Portekiz']\nhalf = len(countries) // 2\nfirst_half = countries[:half]\nsecond_half = countries[half:]\nprint(first_half)\nprint(second_half)"
+          },
+          "twin": "d05-b1-e6"
         }
-      ],
-      "concept_tr": "Liste elemanına erişim ve dilimleme"
+      ]
     },
     {
       "id": "d05-b2",
-      "concept": "list-add-remove",
+      "concept": "add-remove",
+      "concept_tr": "Ekleme ve silme: append, insert, extend, remove, pop, del, clear",
       "tags": [
-        "lists",
         "append",
         "insert",
+        "extend",
         "remove",
-        "pop"
+        "pop",
+        "del",
+        "clear"
       ],
       "worked_example": {
-        "code": "nums = [1, 2]\nnums.append(3)\nnums.insert(0, 0)\nprint(nums)",
+        "code": "todo = ['alışveriş', 'ders']\ntodo.append('spor')\ntodo.insert(0, 'kahvaltı')\ndone = todo.pop(1)\ntodo.remove('spor')\nprint(done, todo)",
         "notes": [
-          "append adds at the end, insert(index, item) adds at a position.",
-          "These methods change the list itself and return None."
+          "append adds at the end and insert(0, ...) at the front; both change the list in place and return None.",
+          "pop(1) removes the item at index 1 and returns it, so done holds 'alışveriş' and can be used later.",
+          "remove('spor') deletes by value, the first equal item, and would raise a ValueError if the value were missing."
         ],
         "notes_tr": [
-          "append sona ekler, insert(indeks, eleman) belirli bir konuma ekler.",
-          "Bu metotlar listenin kendisini değiştirir ve None döndürür."
+          "append sona, insert(0, ...) başa ekler; ikisi de listeyi yerinde değiştirir ve None döndürür.",
+          "pop(1) 1. indeksteki elemanı siler ve döndürür; bu yüzden done 'alışveriş'i tutar ve sonra kullanılabilir.",
+          "remove('spor') değere göre, ilk eşit elemanı siler; değer listede olmasaydı ValueError verirdi."
         ]
       },
       "exercises": [
         {
           "id": "d05-b2-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "fruits = ['banana', 'orange', 'mango', 'lemon', 'banana']\nfruits.remove('banana')\nlast = fruits.pop()\nprint(fruits, last)",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "lst = ['a', 'b', 'c', 'b']\nlst.remove('b')\nx = lst.pop()\ndel lst[0]\nprint(lst, x)",
           "choices": [
-            "['orange', 'mango', 'lemon'] banana",
-            "['orange', 'mango', 'lemon', 'banana'] banana",
-            "['orange', 'mango', 'lemon'] lemon",
-            "['banana', 'orange', 'mango'] banana"
+            "['c'] b",
+            "['b', 'c'] b",
+            "['c', 'b'] b",
+            "['a', 'c'] c"
           ],
-          "expected_output": "['orange', 'mango', 'lemon'] banana",
-          "explanation": "remove deletes only the FIRST 'banana'. pop() then removes and returns the last item, which is the second 'banana'.",
+          "expected_output": "['c'] b",
+          "explanation": "remove deletes the first b: ['a', 'c', 'b']. pop() removes and returns the last item, b: ['a', 'c']. del lst[0] deletes a: ['c'].",
+          "explanation_tr": "remove ilk b'yi siler: ['a', 'c', 'b']. pop() son elemanı, b'yi silip döndürür: ['a', 'c']. del lst[0] a'yı siler: ['c'].",
           "misconceptions": {
-            "['orange', 'mango', 'lemon', 'banana'] banana": "pop() ran too: it removed the last item from the list and stored it in last.",
-            "['orange', 'mango', 'lemon'] lemon": "After remove, the last item is the second 'banana', not 'lemon'.",
-            "['banana', 'orange', 'mango'] banana": "remove deletes the first 'banana', and pop() takes the last item off the end."
+            "['b', 'c'] b": "remove deletes only the FIRST b, so the later b is the one pop() takes.",
+            "['c', 'b'] b": "pop() removed the last b before del ran.",
+            "['a', 'c'] c": "del lst[0] removes a, and pop() returned the last item, which was b."
           },
-          "explanation_tr": "remove yalnızca İLK 'banana'yı siler. pop() ise son elemanı çıkarır ve geri verir; bu da ikinci 'banana'dır.",
           "misconceptions_tr": {
-            "['orange', 'mango', 'lemon', 'banana'] banana": "pop() de çalıştı: son elemanı listeden çıkardı ve last değişkenine koydu.",
-            "['orange', 'mango', 'lemon'] lemon": "remove'dan sonra listenin son elemanı 'lemon' değil, ikinci 'banana'dır.",
-            "['banana', 'orange', 'mango'] banana": "remove ilk 'banana'yı siler, pop() ise sondaki elemanı alır."
+            "['b', 'c'] b": "remove yalnızca İLK b'yi siler; sonraki b'yi pop() alır.",
+            "['c', 'b'] b": "del çalışmadan önce pop() son b'yi çıkardı.",
+            "['a', 'c'] c": "del lst[0] a'yı siler; pop() de son elemanı, yani b'yi döndürdü."
           }
         },
         {
           "id": "d05-b2-e2",
           "type": "parsons",
-          "prompt": "Put the lines in order so the program prints ['banana', 'lime', 'orange', 'mango'].",
-          "prompt_tr": "Satırları, program ['banana', 'lime', 'orange', 'mango'] yazdıracak şekilde sırala.",
+          "prompt": "Arrange the lines so the program builds a to-do list and prints ['kahvaltı', 'ders', 'spor'].",
+          "prompt_tr": "Satırları, program bir yapılacaklar listesi kurup ['kahvaltı', 'ders', 'spor'] yazdıracak şekilde diz.",
           "lines": [
-            "fruits.insert(1, 'lime')",
-            "fruits = ['banana', 'orange']",
-            "print(fruits)",
-            "fruits.append('mango')"
+            "print(todo)",
+            "todo.append('spor')",
+            "todo = []",
+            "todo.insert(0, 'kahvaltı')",
+            "todo.append('ders')"
           ],
           "correct_order": [
+            2,
+            4,
             1,
             3,
-            0,
-            2
+            0
           ],
           "distractors": [
-            "fruits.add('mango')"
+            "todo = todo.append('spor')"
           ],
-          "expected_output": "['banana', 'lime', 'orange', 'mango']"
+          "expected_output": "['kahvaltı', 'ders', 'spor']"
         },
         {
           "id": "d05-b2-e3",
-          "type": "write",
-          "prompt": "Start with queue = ['Ada', 'Bo', 'Cem']. Add 'Dan' at the end, insert 'Eve' at the front (index 0), then remove 'Bo' with remove(). Print queue.",
-          "prompt_tr": "queue = ['Ada', 'Bo', 'Cem'] ile başla. Sona 'Dan' ekle, başa (0. indeks) 'Eve' ekle, sonra remove() ile 'Bo'yu sil. queue'yu yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert queue == ['Eve', 'Ada', 'Cem', 'Dan']",
-              "visible": true,
-              "failure_message": "Expected ['Eve', 'Ada', 'Cem', 'Dan'].",
-              "failure_message_tr": "Beklenen sonuç ['Eve', 'Ada', 'Cem', 'Dan'].",
-              "label_tr": "Kuyruk doğru sırada"
-            },
-            {
-              "code": "assert 'Bo' not in queue",
-              "visible": true,
-              "failure_message": "'Bo' should be removed.",
-              "failure_message_tr": "'Bo' silinmeli.",
-              "label_tr": "'Bo' kuyruktan çıkarılmış"
-            },
-            {
-              "code": "assert queue[0] == 'Eve' and queue[-1] == 'Dan'",
-              "visible": false,
-              "failure_message": "'Eve' must be inserted at index 0 and 'Dan' appended at the end.",
-              "failure_message_tr": "'Eve' 0. indekse eklenmeli, 'Dan' sona eklenmeli."
-            },
-            {
-              "code": "assert len(queue) == 4",
-              "visible": false,
-              "failure_message": "The final list should have 4 names.",
-              "failure_message_tr": "Son listede 4 isim olmalı."
-            },
-            {
-              "code": "assert __stdout__.strip() == \"['Eve', 'Ada', 'Cem', 'Dan']\"",
-              "visible": false,
-              "failure_message": "Print queue.",
-              "failure_message_tr": "queue'yu yazdırmalısın."
-            },
-            {
-              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert {'append', 'insert', 'remove'} <= _used",
-              "visible": false,
-              "failure_message": "Use the list methods append, insert and remove instead of typing the final list by hand.",
-              "failure_message_tr": "Son listeyi elle yazma; append, insert ve remove metotlarını kullan.",
-              "anti_hardcode": true
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print ['süt', 'ekmek', 'çay'] but crashes with AttributeError: 'NoneType' object has no attribute 'append'. Fix it.",
+          "prompt_tr": "Program ['süt', 'ekmek', 'çay'] yazdırmalı, ama AttributeError: 'NoneType' object has no attribute 'append' ile çöküyor. Düzelt.",
+          "starter_code": "cart = ['süt']\ncart = cart.append('ekmek')\ncart.append('çay')\nprint(cart)",
           "hints": [
-            "Declare queue first, then change it with one method per line.",
-            "Three methods: one adds at the end, one adds at a given position, one removes by value.",
-            "Use append for 'Dan', insert at index 0 for 'Eve', remove for 'Bo', then print queue."
+            "What does append return?",
+            "After line 2, what does the name cart point to?",
+            "Call append on its own line without the assignment."
+          ],
+          "hints_tr": [
+            "append ne döndürür?",
+            "2. satırdan sonra cart ismi neyi gösteriyor?",
+            "append'i atama olmadan kendi satırında çağır."
           ],
           "solution": {
-            "approach": "Three list methods, one per requirement.",
-            "code": "queue = ['Ada', 'Bo', 'Cem']\nqueue.append('Dan')\nqueue.insert(0, 'Eve')\nqueue.remove('Bo')\nprint(queue)",
-            "approach_tr": "Her istek için bir liste metodu kullan."
+            "approach": "append changes the list in place and returns None; do not assign its result.",
+            "approach_tr": "append listeyi yerinde değiştirir ve None döndürür; sonucunu atama.",
+            "code": "cart = ['süt']\ncart.append('ekmek')\ncart.append('çay')\nprint(cart)"
           },
-          "twin": "d05-b2-e4",
-          "hints_tr": [
-            "Önce queue'yu tanımla, sonra her satırda bir metotla değiştir.",
-            "Üç metot var: biri sona ekler, biri verilen konuma ekler, biri değere göre siler.",
-            "'Dan' için append, 'Eve' için 0. indekse insert, 'Bo' için remove kullan, sonra queue'yu yazdır."
-          ]
+          "expected_output": "['süt', 'ekmek', 'çay']"
         },
         {
           "id": "d05-b2-e4",
-          "type": "write",
-          "prompt": "Start with basket = ['milk', 'eggs', 'bread']. Append 'jam', insert 'tea' at index 1, then use pop() to take the last item off and keep it in removed. Print basket.",
-          "prompt_tr": "basket = ['milk', 'eggs', 'bread'] ile başla. 'jam' ekle, 1. indekse 'tea' ekle, sonra pop() ile son elemanı çıkarıp removed'da sakla. basket'i yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert basket == ['milk', 'tea', 'eggs', 'bread']",
-              "visible": true,
-              "failure_message": "Expected ['milk', 'tea', 'eggs', 'bread'].",
-              "failure_message_tr": "Beklenen sonuç ['milk', 'tea', 'eggs', 'bread'].",
-              "label_tr": "Sepet doğru sırada"
-            },
-            {
-              "code": "assert removed == 'jam'",
-              "visible": true,
-              "failure_message": "pop() returns the removed item, here 'jam'.",
-              "failure_message_tr": "pop() çıkarılan elemanı verir; burada 'jam'.",
-              "label_tr": "removed değişkeni çıkarılan elemanı tutuyor"
-            },
-            {
-              "code": "assert basket[1] == 'tea'",
-              "visible": false,
-              "failure_message": "'tea' must be inserted at index 1.",
-              "failure_message_tr": "'tea' 1. indekse eklenmeli."
-            },
-            {
-              "code": "assert 'jam' not in basket",
-              "visible": false,
-              "failure_message": "After pop(), 'jam' is no longer in basket.",
-              "failure_message_tr": "pop()'tan sonra 'jam' sepette olmamalı."
-            },
-            {
-              "code": "assert __stdout__.strip() == \"['milk', 'tea', 'eggs', 'bread']\"",
-              "visible": false,
-              "failure_message": "Print basket.",
-              "failure_message_tr": "basket'i yazdırmalısın."
-            },
-            {
-              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert {'append', 'insert', 'pop'} <= _used",
-              "visible": false,
-              "failure_message": "Use the list methods append, insert and pop instead of typing the result by hand.",
-              "failure_message_tr": "Sonucu elle yazma; append, insert ve pop metotlarını kullan.",
-              "anti_hardcode": true
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = [1, 2]\na.append([3])\na.extend([4, 5])\na += [6]\nprint(len(a), a[2])",
+          "choices": [
+            "6 [3]",
+            "7 3",
+            "6 3",
+            "4 [3]"
           ],
-          "hints": [
-            "Declare basket first.",
-            "append adds at the end, insert(index, item) adds at a position, and pop() removes the last item AND gives it back.",
-            "Keep the value pop() gives back in removed. One partial line: removed = basket.___()  Then print basket."
-          ],
-          "solution": {
-            "approach": "pop() both removes the last item and returns it.",
-            "code": "basket = ['milk', 'eggs', 'bread']\nbasket.append('jam')\nbasket.insert(1, 'tea')\nremoved = basket.pop()\nprint(basket)",
-            "approach_tr": "pop() son elemanı hem listeden çıkarır hem de geri verir."
+          "expected_output": "6 [3]",
+          "explanation": "append adds [3] as one item: [1, 2, [3]]. extend adds 4 and 5 separately, += adds 6: six items in total, and a[2] is the inner list [3].",
+          "explanation_tr": "append [3]'ü tek eleman olarak ekler: [1, 2, [3]]. extend 4 ve 5'i ayrı ayrı, += de 6'yı ekler: toplam altı eleman; a[2] iç listedir, [3].",
+          "misconceptions": {
+            "7 3": "append does not unpack the list; [3] stays one item.",
+            "6 3": "a[2] is the inner list itself, printed with brackets.",
+            "4 [3]": "+= on a list adds the items in place, like extend."
           },
-          "twin": "d05-b2-e3",
-          "hints_tr": [
-            "Önce basket'i tanımla.",
-            "append sona ekler, insert(indeks, eleman) belirli konuma ekler, pop() son elemanı hem siler hem geri verir.",
-            "pop()'un verdiği değeri removed'a koy. Kısmi satır: removed = basket.___()  Sonra basket'i yazdır."
-          ]
+          "misconceptions_tr": {
+            "7 3": "append listeyi açmaz; [3] tek eleman olarak kalır.",
+            "6 3": "a[2] iç listenin kendisidir; köşeli parantezle yazdırılır.",
+            "4 [3]": "Bir listede += elemanları extend gibi yerinde ekler."
+          }
         },
         {
           "id": "d05-b2-e5",
           "type": "debug",
-          "prompt": "This should print ['banana', 'orange', 'mango'] but prints None. Fix it.",
-          "prompt_tr": "Bu ['banana', 'orange', 'mango'] yazdırmalı ama None yazdırıyor. Düzelt.",
-          "starter_code": "fruits = ['banana', 'orange']\nfruits = fruits.append('mango')\nprint(fruits)",
-          "expected_output": "['banana', 'orange', 'mango']",
+          "prompt": "The program should remove banana from the list and print ['orange', 'mango'], but it crashes with ValueError: list.remove(x): x not in list. Read the message, look at the list and fix the call.",
+          "prompt_tr": "Program listeden banana'yı silip ['orange', 'mango'] yazdırmalı, ama ValueError: list.remove(x): x not in list ile çöküyor. Mesajı oku, listeye bak ve çağrıyı düzelt.",
+          "starter_code": "fruits = ['banana', 'orange', 'mango']\nfruits.remove('Banana')\nprint(fruits)",
           "hints": [
-            "Print fruits right after line 2. What did you store in it?",
-            "append changes the list in place and returns None. Assigning its result destroys your list.",
-            "Delete the 'fruits = ' part of line 2 so that append is only called, not assigned."
+            "The message says the value is not in the list. Is that true, letter by letter?",
+            "'Banana' and 'banana' are different strings.",
+            "Make the argument of remove match the stored item exactly."
+          ],
+          "hints_tr": [
+            "Mesaj değerin listede olmadığını söylüyor. Harf harf bakınca bu doğru mu?",
+            "'Banana' ile 'banana' farklı string'lerdir.",
+            "remove'un argümanını listedeki elemanla birebir aynı yap."
           ],
           "solution": {
-            "approach": "append returns None; do not assign its result.",
-            "code": "fruits = ['banana', 'orange']\nfruits.append('mango')\nprint(fruits)",
-            "approach_tr": "append None döndürür; sonucunu bir değişkene atama."
+            "approach": "remove() looks for an equal item and comparison is case-sensitive; use 'banana' exactly as it is stored.",
+            "approach_tr": "remove() eşit bir eleman arar ve karşılaştırma büyük-küçük harfe duyarlıdır; 'banana'yı listede saklandığı gibi yaz.",
+            "code": "fruits = ['banana', 'orange', 'mango']\nfruits.remove('banana')\nprint(fruits)"
           },
+          "expected_output": "['orange', 'mango']"
+        },
+        {
+          "id": "d05-b2-e6",
+          "type": "modify",
+          "prompt": "The program joins two lists with +. Change it so full_stack is a copy of the joined list, then 'Python' and 'SQL' are inserted right after 'Redux' (use index() to find Redux and insert()). Print full_stack.",
+          "prompt_tr": "Program iki listeyi + ile birleştiriyor. full_stack birleşik listenin bir kopyası olacak, sonra 'Python' ve 'SQL' 'Redux'un hemen arkasına eklenecek şekilde değiştir (Redux'u bulmak için index(), eklemek için insert() kullan). full_stack'i yazdır.",
+          "starter_code": "front_end = ['HTML', 'CSS', 'JS', 'React', 'Redux']\nback_end = ['Node', 'Express', 'MongoDB']\njoined = front_end + back_end\nprint(joined)",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == \"['HTML', 'CSS', 'JS', 'React', 'Redux', 'Python', 'SQL', 'Node', 'Express', 'MongoDB']\", repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: ['HTML', 'CSS', 'JS', 'React', 'Redux', 'Python', 'SQL', 'Node', 'Express', 'MongoDB']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: ['HTML', 'CSS', 'JS', 'React', 'Redux', 'Python', 'SQL', 'Node', 'Express', 'MongoDB']"
+            },
+            {
+              "code": "assert joined == ['HTML', 'CSS', 'JS', 'React', 'Redux', 'Node', 'Express', 'MongoDB']",
+              "visible": true,
+              "label": "joined is unchanged",
+              "label_tr": "joined değişmedi",
+              "failure_message": "full_stack must be a copy; joined itself must not change.",
+              "failure_message_tr": "full_stack bir kopya olmalı; joined değişmemeli."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^front_end[ \\t]*=.*$', \"front_end = ['Vue', 'Redux']\", __s, count=1)\nassert __n == 1, 'line front_end = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['full_stack'] == ['Vue', 'Redux', 'Python', 'SQL', 'Node', 'Express', 'MongoDB']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Find Redux with index() instead of using a fixed position.",
+              "failure_message_tr": "Sabit bir konum yerine Redux'u index() ile bul."
+            }
+          ],
+          "hints": [
+            "Make the copy with copy() so joined stays as it is.",
+            "index('Redux') tells you where Redux is; the new items go after it.",
+            "Insert Python at that position plus one, then SQL at that position plus two."
+          ],
           "hints_tr": [
-            "2. satırdan hemen sonra fruits'i yazdır. İçine ne koydun?",
-            "append listeyi yerinde değiştirir ve None döndürür. Sonucu atarsan listeni kaybedersin.",
-            "2. satırdaki 'fruits = ' kısmını sil; append yalnızca çağrılsın, bir değişkene atanmasın."
-          ]
+            "joined olduğu gibi kalsın diye kopyayı copy() ile yap.",
+            "index('Redux') Redux'un nerede olduğunu söyler; yeni elemanlar onun arkasına gelir.",
+            "Python'u o konumun bir fazlasına, SQL'i iki fazlasına ekle."
+          ],
+          "solution": {
+            "approach": "Copy, find Redux, insert at position + 1 and position + 2.",
+            "approach_tr": "Kopyala, Redux'u bul, position + 1 ve position + 2 konumlarına ekle.",
+            "code": "front_end = ['HTML', 'CSS', 'JS', 'React', 'Redux']\nback_end = ['Node', 'Express', 'MongoDB']\njoined = front_end + back_end\nfull_stack = joined.copy()\nposition = full_stack.index('Redux')\nfull_stack.insert(position + 1, 'Python')\nfull_stack.insert(position + 2, 'SQL')\nprint(full_stack)"
+          }
+        },
+        {
+          "id": "d05-b2-e7",
+          "type": "write",
+          "prompt": "Start with it_companies = ['Facebook', 'Google', 'Microsoft', 'Apple', 'IBM', 'Oracle', 'Amazon'] on its own line. In this order: append 'Twitter', remove the first company with pop(0) and store it in removed, delete the item 'IBM' with remove(), and change the second item to uppercase (it_companies[1] = it_companies[1].upper()). Print removed and the list on two lines.",
+          "prompt_tr": "it_companies = ['Facebook', 'Google', 'Microsoft', 'Apple', 'IBM', 'Oracle', 'Amazon'] ile ayrı satırda başla. Bu sırayla: 'Twitter' ekle (append), ilk şirketi pop(0) ile çıkarıp removed'a kaydet, 'IBM' elemanını remove() ile sil ve ikinci elemanı büyük harfe çevir (it_companies[1] = it_companies[1].upper()). removed'ı ve listeyi iki satırda yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == \"Facebook\\n['Google', 'MICROSOFT', 'Apple', 'Oracle', 'Amazon', 'Twitter']\", repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Facebook / ['Google', 'MICROSOFT', 'Apple', 'Oracle', 'Amazon', 'Twitter']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Facebook / ['Google', 'MICROSOFT', 'Apple', 'Oracle', 'Amazon', 'Twitter']"
+            },
+            {
+              "code": "assert removed == 'Facebook'",
+              "visible": false,
+              "failure_message": "removed must hold the value returned by pop(0).",
+              "failure_message_tr": "removed, pop(0)'ın döndürdüğü değeri tutmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^it_companies[ \\t]*=.*$', \"it_companies = ['A', 'b', 'IBM', 'c']\", __s, count=1)\nassert __n == 1, 'line it_companies = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['removed'] == 'A' and __ns['it_companies'] == ['b', 'C', 'Twitter']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "All the changes must be made with list methods on it_companies.",
+              "failure_message_tr": "Bütün değişiklikler it_companies üzerinde liste metotlarıyla yapılmalı."
+            }
+          ],
+          "hints": [
+            "Follow the steps in the given order; each one changes the list in place.",
+            "pop(0) returns the removed item, so assign it; remove and append return None, so do not assign them.",
+            "After pop(0) and remove, the second item is at index 1."
+          ],
+          "hints_tr": [
+            "Adımları verilen sırayla uygula; her biri listeyi yerinde değiştirir.",
+            "pop(0) silinen elemanı döndürür, onu ata; remove ve append None döndürür, onları atama.",
+            "pop(0) ve remove'dan sonra ikinci eleman 1. indekstedir."
+          ],
+          "solution": {
+            "approach": "append, pop(0), remove, index assignment, two prints.",
+            "approach_tr": "append, pop(0), remove, indeksle atama, iki print.",
+            "code": "it_companies = ['Facebook', 'Google', 'Microsoft', 'Apple', 'IBM', 'Oracle', 'Amazon']\nit_companies.append('Twitter')\nremoved = it_companies.pop(0)\nit_companies.remove('IBM')\nit_companies[1] = it_companies[1].upper()\nprint(removed)\nprint(it_companies)"
+          },
+          "twin": "d05-b2-e8"
+        },
+        {
+          "id": "d05-b2-e8",
+          "type": "write",
+          "prompt": "Start with queue = ['Ayşe', 'Mehmet'] on its own line. In this order: append 'Can' and 'Deniz', serve the first person with first = queue.pop(0), let 'Elif' jump to the front with insert(0, ...), and remove the last person with last = queue.pop(). Print first, last and the queue on one line: Ayşe Deniz ['Elif', 'Mehmet', 'Can']",
+          "prompt_tr": "queue = ['Ayşe', 'Mehmet'] ile ayrı satırda başla. Bu sırayla: 'Can' ve 'Deniz'i ekle (append), ilk kişiye first = queue.pop(0) ile hizmet ver, 'Elif'i insert(0, ...) ile en öne al ve son kişiyi last = queue.pop() ile çıkar. first, last ve queue'yu tek satırda yazdır: Ayşe Deniz ['Elif', 'Mehmet', 'Can']",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == \"Ayşe Deniz ['Elif', 'Mehmet', 'Can']\", repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Ayşe Deniz ['Elif', 'Mehmet', 'Can']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Ayşe Deniz ['Elif', 'Mehmet', 'Can']"
+            },
+            {
+              "code": "assert first == 'Ayşe' and last == 'Deniz'",
+              "visible": false,
+              "failure_message": "first and last must hold the values returned by pop.",
+              "failure_message_tr": "first ve last, pop'un döndürdüğü değerleri tutmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^queue[ \\t]*=.*$', \"queue = ['X']\", __s, count=1)\nassert __n == 1, 'line queue = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['first'] == 'X' and __ns['last'] == 'Deniz' and __ns['queue'] == ['Elif', 'Can']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The queue operations must be done with list methods on queue.",
+              "failure_message_tr": "Kuyruk işlemleri queue üzerinde liste metotlarıyla yapılmalı."
+            }
+          ],
+          "hints": [
+            "A queue takes from the front and adds at the end.",
+            "pop(0) takes from the front, pop() from the end; both return what they removed.",
+            "insert(0, item) puts someone at the very front."
+          ],
+          "hints_tr": [
+            "Kuyruk baştan alır, sona ekler.",
+            "pop(0) baştan, pop() sondan alır; ikisi de çıkardığını döndürür.",
+            "insert(0, eleman) birini en öne koyar."
+          ],
+          "solution": {
+            "approach": "Two appends, pop(0), insert(0, ...), pop().",
+            "approach_tr": "İki append, pop(0), insert(0, ...), pop().",
+            "code": "queue = ['Ayşe', 'Mehmet']\nqueue.append('Can')\nqueue.append('Deniz')\nfirst = queue.pop(0)\nqueue.insert(0, 'Elif')\nlast = queue.pop()\nprint(first, last, queue)"
+          },
+          "twin": "d05-b2-e7"
         }
-      ],
-      "concept_tr": "Listeye ekleme ve silme"
+      ]
     },
     {
       "id": "d05-b3",
-      "concept": "copying-aliasing",
+      "concept": "alias-copy",
+      "concept_tr": "Takma ad (alias) ve kopya: b = a, copy(), [:]",
       "tags": [
-        "lists",
+        "alias",
         "copy",
-        "references"
+        "mutable",
+        "identity"
       ],
       "worked_example": {
-        "code": "a = [1, 2]\nb = a.copy()\nb.append(3)\nprint(a, b)",
+        "code": "original = ['süt', 'ekmek']\nalias = original\ncopied = original.copy()\nalias.append('çay')\nprint(original, copied)\nprint(alias is original, copied is original)",
         "notes": [
-          "b = a would make a second NAME for the same list.",
-          "copy() makes a separate list with the same items."
+          "alias = original attaches a second name tag to the same list, so appending through alias changes original too.",
+          "copy() creates a new list object with the same items, so later changes to the original do not reach it.",
+          "is checks identity: alias is the same object as original, copied is not, even though its items started out equal."
         ],
         "notes_tr": [
-          "b = a yazmak aynı listeye ikinci bir AD vermektir.",
-          "copy() aynı elemanlarla ayrı bir liste yapar."
+          "alias = original aynı listeye ikinci bir isim etiketi takar; bu yüzden alias üzerinden ekleme original'ı da değiştirir.",
+          "copy() aynı elemanlarla yeni bir liste nesnesi oluşturur; orijinaldeki sonraki değişiklikler ona ulaşmaz.",
+          "is kimliği kontrol eder: alias, original ile aynı nesnedir; copied ise değildir, elemanları başta eşit olsa bile."
         ]
       },
       "exercises": [
         {
           "id": "d05-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "a = [1, 2, 3]\nb = a\nb.append(4)\nprint(a)\nprint(len(b))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = [1, 2, 3]\nb = a\nb[0] = 99\nprint(a)",
           "choices": [
-            "[1, 2, 3, 4]\n4",
-            "[1, 2, 3]\n4",
-            "[1, 2, 3]\n3",
-            "[1, 2, 3, 4]\n3"
+            "[99, 2, 3]",
+            "[1, 2, 3]",
+            "[99]",
+            "TypeError"
           ],
-          "expected_output": "[1, 2, 3, 4]\n4",
-          "explanation": "b = a does not copy anything: a and b are two names for ONE list, so appending through b changes a too.",
+          "expected_output": "[99, 2, 3]",
+          "explanation": "b = a does not copy; both names point at one list. Changing b[0] changes that list, which a also shows.",
+          "explanation_tr": "b = a kopyalamaz; iki isim de tek bir listeyi gösterir. b[0]'ı değiştirmek o listeyi değiştirir ve a da bunu gösterir.",
           "misconceptions": {
-            "[1, 2, 3]\n4": "a and b are the same list, so a also shows the 4.",
-            "[1, 2, 3]\n3": "b = a only gives the same list a second name; the append is visible through both names.",
-            "[1, 2, 3, 4]\n3": "The list has four items after append, and len(b) counts them."
+            "[1, 2, 3]": "b = a attached a second tag; there is still only one list.",
+            "[99]": "b[0] = 99 replaces one item; it does not replace the whole list.",
+            "TypeError": "Lists are mutable, so item assignment is allowed (unlike strings)."
           },
-          "explanation_tr": "b = a hiçbir şeyi kopyalamaz: a ve b TEK bir listenin iki adıdır. Bu yüzden b üzerinden ekleme yapmak a'yı da değiştirir.",
           "misconceptions_tr": {
-            "[1, 2, 3]\n4": "a ve b aynı listedir, bu yüzden a'da da 4 görünür.",
-            "[1, 2, 3]\n3": "b = a yalnızca aynı listeye ikinci bir ad verir; ekleme iki adda da görünür.",
-            "[1, 2, 3, 4]\n3": "append'den sonra listede dört eleman vardır ve len(b) hepsini sayar."
+            "[1, 2, 3]": "b = a ikinci bir etiket taktı; hâlâ tek bir liste var.",
+            "[99]": "b[0] = 99 tek bir elemanı değiştirir; listenin tamamını değil.",
+            "TypeError": "Listeler değiştirilebilir; eleman ataması serbesttir (string'lerin aksine)."
           }
         },
         {
           "id": "d05-b3-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so that original stays ['a', 'b'] after the copy is changed.",
-          "prompt_tr": "Kopya değiştirildikten sonra original'ın ['a', 'b'] kalması için boşluğu doldur.",
-          "starter_code": "original = ['a', 'b']\nduplicate = original.___()\nduplicate.append('c')\nprint(original)",
+          "prompt": "Fill the blank so backup is a real copy and the program prints ['a', 'b'] ['a', 'b', 'c'].",
+          "prompt_tr": "backup gerçek bir kopya olsun ve program ['a', 'b'] ['a', 'b', 'c'] yazdırsın diye boşluğu doldur.",
+          "starter_code": "letters = ['a', 'b']\nbackup = ___\nletters.append('c')\nprint(backup, letters)",
           "blanks": [
             {
               "answer": [
-                "copy"
+                "letters.copy()",
+                "letters[:]",
+                "list(letters)"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == \"['a', 'b']\"",
+              "code": "assert __stdout__.rstrip() == \"['a', 'b'] ['a', 'b', 'c']\", repr(__stdout__)",
               "visible": true,
-              "failure_message": "original must stay ['a', 'b'].",
-              "failure_message_tr": "original ['a', 'b'] olarak kalmalı.",
-              "label_tr": "original değişmeden kalıyor"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: ['a', 'b'] ['a', 'b', 'c']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: ['a', 'b'] ['a', 'b', 'c']"
+            },
+            {
+              "code": "assert backup is not letters",
+              "visible": false,
+              "failure_message": "backup must be a separate list, not a second name for letters.",
+              "failure_message_tr": "backup ayrı bir liste olmalı, letters için ikinci bir isim değil."
             }
           ],
           "hints": [
-            "You need a method that makes a separate list.",
-            "Its name is a synonym for 'duplicate'.",
-            "The method is spelled c-o-p-y; call it with empty parentheses after original."
+            "backup = letters would only attach a second tag.",
+            "You need a new list object with the same items.",
+            "Use the list method whose name means 'copy', or a full slice."
           ],
           "hints_tr": [
-            "Ayrı bir liste oluşturan bir metot lazım.",
-            "Adı 'duplicate' (çoğaltmak) ile aynı anlamda bir kelime.",
-            "Metodun adı c-o-p-y diye yazılır; original'ın ardından boş parantezle çağır."
+            "backup = letters yalnızca ikinci bir etiket takar.",
+            "Aynı elemanlara sahip yeni bir liste nesnesi gerekiyor.",
+            "Adı 'kopya' anlamına gelen liste metodunu ya da tam bir dilimi kullan."
           ]
         },
         {
           "id": "d05-b3-e3",
-          "type": "write",
-          "prompt": "Start with original = [3, 1, 2]. Make backup a real copy of it, then append 4 to original only. Print backup.",
-          "prompt_tr": "original = [3, 1, 2] ile başla. backup'ı gerçek bir kopya yap, sonra yalnızca original'a 4 ekle. backup'ı yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert original == [3, 1, 2, 4]",
-              "visible": true,
-              "failure_message": "original should end as [3, 1, 2, 4].",
-              "failure_message_tr": "original [3, 1, 2, 4] olmalı.",
-              "label_tr": "original'a 4 eklenmiş"
-            },
-            {
-              "code": "assert backup == [3, 1, 2]",
-              "visible": true,
-              "failure_message": "backup must keep the old items [3, 1, 2].",
-              "failure_message_tr": "backup eski elemanlarını [3, 1, 2] korumalı.",
-              "label_tr": "backup eski elemanları koruyor"
-            },
-            {
-              "code": "assert backup is not original",
-              "visible": false,
-              "failure_message": "backup must be a separate list: use backup = original.copy().",
-              "failure_message_tr": "backup ayrı bir liste olmalı: copy kullan."
-            },
-            {
-              "code": "assert len(backup) == 3 and len(original) == 4",
-              "visible": false,
-              "failure_message": "Only original should get the new item.",
-              "failure_message_tr": "Yalnızca original yeni eleman almalı."
-            },
-            {
-              "code": "assert __stdout__.strip() == '[3, 1, 2]'",
-              "visible": false,
-              "failure_message": "Print backup.",
-              "failure_message_tr": "backup'ı yazdırmalısın."
-            },
-            {
-              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\n_slice = any(isinstance(n, ast.Slice) for n in ast.walk(_t))\n_lst = 'list' in {n.func.id for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert 'append' in _used and ('copy' in _used or _slice or _lst)",
-              "visible": false,
-              "failure_message": "Make the copy with a real copy step (copy(), a full slice or list()) and use append; do not type the lists by hand.",
-              "failure_message_tr": "Kopyayı gerçekten oluştur (copy(), tam dilim ya da list()) ve append kullan; listeleri elle yazma.",
-              "anti_hardcode": true
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should keep the original prices and print [100, 200] [90.0, 180.0] after the discount, but the original list changes too. Fix the line that creates discounted.",
+          "prompt_tr": "Program orijinal fiyatları korumalı ve indirimden sonra [100, 200] [90.0, 180.0] yazdırmalı, ama orijinal liste de değişiyor. discounted'ı oluşturan satırı düzelt.",
+          "starter_code": "prices = [100, 200]\ndiscounted = prices\ndiscounted[0] = discounted[0] * 0.9\ndiscounted[1] = discounted[1] * 0.9\nprint(prices, discounted)",
           "hints": [
-            "Declare original first.",
-            "One list method makes a separate list; do it BEFORE changing original.",
-            "Order: create original, copy it into backup with that method, append 4 to original, then print backup."
+            "How many list objects exist after line 2?",
+            "Changing an item through one name is seen through every name of the same list.",
+            "Create discounted as a new list with the same items."
+          ],
+          "hints_tr": [
+            "2. satırdan sonra kaç liste nesnesi var?",
+            "Bir isim üzerinden yapılan eleman değişikliği aynı listenin her isminden görünür.",
+            "discounted'ı aynı elemanlara sahip yeni bir liste olarak oluştur."
           ],
           "solution": {
-            "approach": "copy() before the change.",
-            "code": "original = [3, 1, 2]\nbackup = original.copy()\noriginal.append(4)\nprint(backup)",
-            "approach_tr": "Değişiklikten önce copy() ile kopyala."
+            "approach": "discounted = prices is an alias; make a copy with prices.copy().",
+            "approach_tr": "discounted = prices bir takma addır; prices.copy() ile kopya yap.",
+            "code": "prices = [100, 200]\ndiscounted = prices.copy()\ndiscounted[0] = discounted[0] * 0.9\ndiscounted[1] = discounted[1] * 0.9\nprint(prices, discounted)"
           },
-          "twin": "d05-b3-e4",
-          "hints_tr": [
-            "Önce original'ı tanımla.",
-            "Bir liste metodu ayrı bir liste yapar; bunu original'ı değiştirmeden ÖNCE yap.",
-            "Sıra: original'ı oluştur, o metotla backup'a kopyala, original'a 4 ekle, sonra backup'ı yazdır."
-          ]
+          "expected_output": "[100, 200] [90.0, 180.0]"
         },
         {
           "id": "d05-b3-e4",
-          "type": "write",
-          "prompt": "Start with morning = ['tea', 'toast']. Create evening as a copy of morning, add 'soup' to evening only, then create full_day by joining morning + evening with the + operator. Print full_day.",
-          "prompt_tr": "morning = ['tea', 'toast'] ile başla. evening'i morning'in kopyası olarak oluştur, yalnızca evening'e 'soup' ekle, sonra + ile morning + evening birleştirip full_day oluştur. full_day'i yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert full_day == ['tea', 'toast', 'tea', 'toast', 'soup']",
-              "visible": true,
-              "failure_message": "Expected ['tea', 'toast', 'tea', 'toast', 'soup'].",
-              "failure_message_tr": "Beklenen sonuç ['tea', 'toast', 'tea', 'toast', 'soup'].",
-              "label_tr": "full_day doğru"
-            },
-            {
-              "code": "assert morning == ['tea', 'toast']",
-              "visible": true,
-              "failure_message": "morning must stay unchanged.",
-              "failure_message_tr": "morning değişmemeli.",
-              "label_tr": "morning değişmeden kalıyor"
-            },
-            {
-              "code": "assert evening is not morning",
-              "visible": false,
-              "failure_message": "evening must be a copy, not another name for morning.",
-              "failure_message_tr": "evening bir kopya olmalı, morning'in ikinci adı değil."
-            },
-            {
-              "code": "assert evening == ['tea', 'toast', 'soup']",
-              "visible": false,
-              "failure_message": "evening should have 'soup' appended.",
-              "failure_message_tr": "evening'e 'soup' eklenmiş olmalı."
-            },
-            {
-              "code": "assert __stdout__.strip() == str(full_day)",
-              "visible": false,
-              "failure_message": "Print full_day.",
-              "failure_message_tr": "full_day'i yazdırmalısın."
-            },
-            {
-              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\n_slice = any(isinstance(n, ast.Slice) for n in ast.walk(_t))\n_lst = 'list' in {n.func.id for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert 'append' in _used and ('copy' in _used or _slice or _lst) and any(isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add) for n in ast.walk(_t))",
-              "visible": false,
-              "failure_message": "Build the lists with a copy step, append, and the + operator instead of typing the result by hand.",
-              "failure_message_tr": "Sonucu elle yazma; kopyalama, append ve + operatörünü kullan.",
-              "anti_hardcode": true
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = [1, 2]\nb = a\na = a + [3]\nprint(a, b)",
+          "choices": [
+            "[1, 2, 3] [1, 2]",
+            "[1, 2, 3] [1, 2, 3]",
+            "[1, 2] [1, 2, 3]",
+            "[1, 2] [1, 2]"
           ],
-          "hints": [
-            "Declare morning first.",
-            "evening must be a copy (otherwise 'soup' also lands in morning); + joins two lists into a new one.",
-            "Order: copy morning into evening, append 'soup' to evening only, join morning and evening with + into full_day, and print full_day."
-          ],
-          "solution": {
-            "approach": "Copy, append to the copy, join with +.",
-            "code": "morning = ['tea', 'toast']\nevening = morning.copy()\nevening.append('soup')\nfull_day = morning + evening\nprint(full_day)",
-            "approach_tr": "Kopyala, kopyaya ekle, + ile birleştir."
+          "expected_output": "[1, 2, 3] [1, 2]",
+          "explanation": "a + [3] builds a NEW list and the assignment moves only the a tag to it. b still points at the old list [1, 2].",
+          "explanation_tr": "a + [3] YENİ bir liste kurar ve atama yalnızca a etiketini ona taşır. b hâlâ eski listeyi, [1, 2]'yi gösterir.",
+          "misconceptions": {
+            "[1, 2, 3] [1, 2, 3]": "+ does not change the list in place; it creates a new one (append or += would change it in place).",
+            "[1, 2] [1, 2, 3]": "The new list is assigned to a, not to b.",
+            "[1, 2] [1, 2]": "a was reassigned to the new list [1, 2, 3]."
           },
-          "twin": "d05-b3-e3",
-          "hints_tr": [
-            "Önce morning'i tanımla.",
-            "evening bir kopya olmalı (yoksa 'soup' morning'e de girer); + iki listeyi birleştirip yeni liste yapar.",
-            "Sıra: morning'i evening'e kopyala, yalnızca evening'e 'soup' ekle, morning ile evening'i + ile full_day'de birleştir ve full_day'i yazdır."
-          ]
+          "misconceptions_tr": {
+            "[1, 2, 3] [1, 2, 3]": "+ listeyi yerinde değiştirmez, yenisini oluşturur (append ya da += yerinde değiştirirdi).",
+            "[1, 2] [1, 2, 3]": "Yeni liste b'ye değil a'ya atanır.",
+            "[1, 2] [1, 2]": "a yeni listeye, [1, 2, 3]'e yeniden atandı."
+          }
         },
         {
           "id": "d05-b3-e5",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "grid = [[0, 0], [0, 0]]\ncopy_grid = grid.copy()\ncopy_grid[0][0] = 5\ncopy_grid[1] = [7, 7]\nprint(grid)",
+          "choices": [
+            "[[5, 0], [0, 0]]",
+            "[[0, 0], [0, 0]]",
+            "[[5, 0], [7, 7]]",
+            "[[0, 0], [7, 7]]"
+          ],
+          "expected_output": "[[5, 0], [0, 0]]",
+          "explanation": "copy() is shallow: the inner lists are shared, so changing copy_grid[0][0] changes grid's first row. Replacing copy_grid[1] with a new list only affects the copy.",
+          "explanation_tr": "copy() sığ kopyadır: iç listeler paylaşılır, bu yüzden copy_grid[0][0]'ı değiştirmek grid'in ilk satırını değiştirir. copy_grid[1]'i yeni bir listeyle değiştirmek yalnızca kopyayı etkiler.",
+          "misconceptions": {
+            "[[0, 0], [0, 0]]": "The outer list is new, but the inner lists are the same objects in both.",
+            "[[5, 0], [7, 7]]": "copy_grid[1] = ... moves a tag in the copy's outer list only.",
+            "[[0, 0], [7, 7]]": "It is the other way round: the change inside a shared row shows, the replacement does not."
+          },
+          "misconceptions_tr": {
+            "[[0, 0], [0, 0]]": "Dış liste yenidir, ama iç listeler ikisinde de aynı nesnelerdir.",
+            "[[5, 0], [7, 7]]": "copy_grid[1] = ... yalnızca kopyanın dış listesindeki bir etiketi taşır.",
+            "[[0, 0], [7, 7]]": "Tam tersi: paylaşılan satırın içindeki değişiklik görünür, satırın değiştirilmesi görünmez."
+          }
+        },
+        {
+          "id": "d05-b3-e6",
+          "type": "modify",
+          "prompt": "The program 'resets' a shared playlist with playlist = [], but shared still shows the old songs. Change it so the one list is emptied in place and both names print []: [] []",
+          "prompt_tr": "Program paylaşılan bir çalma listesini playlist = [] ile 'sıfırlıyor', ama shared hâlâ eski şarkıları gösteriyor. Tek liste yerinde boşaltılacak ve iki isim de [] yazdıracak şekilde değiştir: [] []",
+          "starter_code": "playlist = ['şarkı 1', 'şarkı 2']\nshared = playlist\nplaylist = []\nprint(playlist, shared)",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '[] []', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: [] []",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: [] []"
+            },
+            {
+              "code": "assert 'clear()' in __source__ and 'playlist = []' not in __source__",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Empty the list in place with clear() instead of creating a new list.",
+              "failure_message_tr": "Yeni liste oluşturmak yerine listeyi clear() ile yerinde boşalt."
+            }
+          ],
+          "hints": [
+            "playlist = [] creates a second list. Which list does shared point at?",
+            "You need a method that empties the existing object.",
+            "Replace the reassignment with that method call."
+          ],
+          "hints_tr": [
+            "playlist = [] ikinci bir liste oluşturur. shared hangi listeyi gösteriyor?",
+            "Var olan nesneyi boşaltan bir metot gerekiyor.",
+            "Yeniden atamayı bu metot çağrısıyla değiştir."
+          ],
+          "solution": {
+            "approach": "clear() empties the same object; = [] only moves one tag.",
+            "approach_tr": "clear() aynı nesneyi boşaltır; = [] yalnızca bir etiketi taşır.",
+            "code": "playlist = ['şarkı 1', 'şarkı 2']\nshared = playlist\nplaylist.clear()\nprint(playlist, shared)"
+          }
+        },
+        {
+          "id": "d05-b3-e7",
+          "type": "write",
+          "prompt": "Create template = ['ekmek', 'süt'] on its own line. Make monday = a copy of template and tuesday = another copy (use copy() or [:]). Append 'yumurta' to monday and 'peynir' to tuesday. Print the three lists on one line: ['ekmek', 'süt'] ['ekmek', 'süt', 'yumurta'] ['ekmek', 'süt', 'peynir']",
+          "prompt_tr": "template = ['ekmek', 'süt'] değişkenini ayrı satırda oluştur. monday = template'in bir kopyası, tuesday = başka bir kopyası olsun (copy() ya da [:] kullan). monday'e 'yumurta', tuesday'e 'peynir' ekle. Üç listeyi tek satırda yazdır: ['ekmek', 'süt'] ['ekmek', 'süt', 'yumurta'] ['ekmek', 'süt', 'peynir']",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == \"['ekmek', 'süt'] ['ekmek', 'süt', 'yumurta'] ['ekmek', 'süt', 'peynir']\", repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: ['ekmek', 'süt'] ['ekmek', 'süt', 'yumurta'] ['ekmek', 'süt', 'peynir']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: ['ekmek', 'süt'] ['ekmek', 'süt', 'yumurta'] ['ekmek', 'süt', 'peynir']"
+            },
+            {
+              "code": "assert monday is not template and tuesday is not template and monday is not tuesday",
+              "visible": false,
+              "failure_message": "The three names must point at three different lists.",
+              "failure_message_tr": "Üç isim üç farklı listeyi göstermeli."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^template[ \\t]*=.*$', \"template = ['çay']\", __s, count=1)\nassert __n == 1, 'line template = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['monday'] == ['çay', 'yumurta'] and __ns['tuesday'] == ['çay', 'peynir'] and __ns['template'] == ['çay']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "monday and tuesday must be copies of template.",
+              "failure_message_tr": "monday ve tuesday, template'in kopyaları olmalı."
+            }
+          ],
+          "hints": [
+            "monday = template would only add a second name to the same list.",
+            "Each day needs its own new list object.",
+            "Copy twice, then append to each copy separately."
+          ],
+          "hints_tr": [
+            "monday = template aynı listeye yalnızca ikinci bir isim ekler.",
+            "Her günün kendi yeni liste nesnesi olmalı.",
+            "İki kez kopyala, sonra her kopyaya ayrı ayrı ekle."
+          ],
+          "solution": {
+            "approach": "Two independent copies, one append each.",
+            "approach_tr": "İki bağımsız kopya, her birine bir append.",
+            "code": "template = ['ekmek', 'süt']\nmonday = template.copy()\ntuesday = template.copy()\nmonday.append('yumurta')\ntuesday.append('peynir')\nprint(template, monday, tuesday)"
+          },
+          "twin": "d05-b3-e8"
+        },
+        {
+          "id": "d05-b3-e8",
+          "type": "write",
+          "prompt": "Create scores = [70, 85, 90] on its own line. Store a sorted copy from highest to lowest in ranking using sorted(..., reverse=True) (scores itself must not change), and store in same_object whether ranking is scores. Print scores, ranking and same_object on one line: [70, 85, 90] [90, 85, 70] False",
+          "prompt_tr": "scores = [70, 85, 90] değişkenini ayrı satırda oluştur. Büyükten küçüğe sıralanmış bir kopyayı sorted(..., reverse=True) ile ranking'e kaydet (scores değişmemeli) ve ranking is scores sonucunu same_object'e kaydet. scores, ranking ve same_object'i tek satırda yazdır: [70, 85, 90] [90, 85, 70] False",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '[70, 85, 90] [90, 85, 70] False', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: [70, 85, 90] [90, 85, 70] False",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: [70, 85, 90] [90, 85, 70] False"
+            },
+            {
+              "code": "assert scores == [70, 85, 90]",
+              "visible": false,
+              "failure_message": "scores must stay in its original order.",
+              "failure_message_tr": "scores orijinal sırasında kalmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^scores[ \\t]*=.*$', 'scores = [3, 1, 2]', __s, count=1)\nassert __n == 1, 'line scores = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['ranking'] == [3, 2, 1] and __ns['scores'] == [3, 1, 2] and __ns['same_object'] is False",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "ranking must be computed from scores with sorted().",
+              "failure_message_tr": "ranking, scores üzerinden sorted() ile hesaplanmalı."
+            }
+          ],
+          "hints": [
+            "sort() would change scores; you need the function that returns a new list.",
+            "Pass reverse=True for highest first.",
+            "same_object compares the two names with the identity operator."
+          ],
+          "hints_tr": [
+            "sort() scores'u değiştirirdi; yeni liste döndüren fonksiyon gerekiyor.",
+            "En yüksek önce gelsin diye reverse=True ver.",
+            "same_object iki ismi kimlik operatörüyle karşılaştırır."
+          ],
+          "solution": {
+            "approach": "sorted() returns a new list; check identity with is.",
+            "approach_tr": "sorted() yeni bir liste döndürür; kimliği is ile kontrol et.",
+            "code": "scores = [70, 85, 90]\nranking = sorted(scores, reverse=True)\nsame_object = ranking is scores\nprint(scores, ranking, same_object)"
+          },
+          "twin": "d05-b3-e7"
+        },
+        {
+          "id": "d05-b3-e9",
           "type": "explain",
-          "prompt": "In your own words: why does list2 = list1 not give you an independent copy, and how do you make one?",
-          "prompt_tr": "Kendi cümlelerinle: list2 = list1 neden bağımsız bir kopya oluşturmaz ve nasıl oluşturursun?",
-          "model_answer": "list2 = list1 only gives the same list a second name, so both names point to one list in memory and a change through either name shows up in both. To get an independent list you call list1.copy().",
+          "prompt": "In your own words: what is the difference between b = a and b = a.copy() for a list, and why does it matter only for mutable objects?",
+          "prompt_tr": "Kendi cümlelerinle: bir liste için b = a ile b = a.copy() arasındaki fark ne ve bu fark neden yalnızca değiştirilebilir nesnelerde önemli?",
+          "model_answer": "b = a attaches a second name tag to the same list, so a change made through b (append, item assignment) is seen through a. b = a.copy() creates a new list object with the same items, so the two lists change independently. With immutable values such as numbers or strings nothing can change in place, so sharing an object never causes a surprise.",
+          "model_answer_tr": "b = a aynı listeye ikinci bir isim etiketi takar; b üzerinden yapılan bir değişiklik (append, eleman ataması) a'dan da görünür. b = a.copy() aynı elemanlarla yeni bir liste nesnesi oluşturur; iki liste bağımsız değişir. Sayılar ya da string'ler gibi değiştirilemez değerlerde hiçbir şey yerinde değişemediği için nesne paylaşmak sürpriz yaratmaz.",
           "keywords": [
-            "same list",
-            "reference",
-            "name",
+            "same",
+            "object",
+            "tag",
             "copy",
-            "both"
+            "mutable",
+            "change"
           ],
-          "model_answer_tr": "list2 = list1 yalnızca aynı listeye ikinci bir ad verir; iki ad da bellekteki tek listeyi gösterir ve birinden yapılan değişiklik ikisinde de görünür. Bağımsız bir liste için list1.copy() çağırırsın.",
           "keywords_tr": [
-            "aynı liste",
-            "referans",
-            "isim",
+            "aynı",
+            "nesne",
+            "etiket",
             "kopya",
-            "ikisi"
+            "değiştirilebilir",
+            "değiş"
           ],
-          "min_words": 6
+          "min_words": 15
         }
-      ],
-      "concept_tr": "Kopyalama ve aynı listeye iki ad verme"
+      ]
     },
     {
       "id": "d05-b4",
-      "concept": "sort-reverse-unpack",
+      "concept": "sort-reverse",
+      "concept_tr": "Sıralama ve ters çevirme: sort, sorted, reverse, key",
       "tags": [
-        "lists",
         "sort",
         "sorted",
-        "unpacking"
+        "reverse",
+        "key"
       ],
       "worked_example": {
-        "code": "ages = [22, 19, 24]\nages.sort()\nprint(ages)\nprint(sorted(ages, reverse=True))",
+        "code": "words = ['banana', 'Elma', 'kiwi', 'avokado']\nwords.sort()\nprint(words)\nprint(sorted(words, key=str.lower))\nprint(sorted(words, key=len, reverse=True))\nwords.reverse()\nprint(words)",
         "notes": [
-          "sort() changes the list and returns None; sorted() returns a new list.",
-          "reverse=True sorts from largest to smallest."
+          "sort() changes the list in place and orders texts by character codes, so the capitalised Elma comes first.",
+          "sorted() returns a new list; key=str.lower compares lowercase versions and key=len compares lengths.",
+          "reverse() only flips the current order in place; it does not sort."
         ],
         "notes_tr": [
-          "sort() listeyi değiştirir ve None döndürür; sorted() yeni bir liste döndürür.",
-          "reverse=True büyükten küçüğe sıralar."
+          "sort() listeyi yerinde değiştirir ve metinleri karakter kodlarına göre sıralar; bu yüzden büyük harfli Elma en öne gelir.",
+          "sorted() yeni bir liste döndürür; key=str.lower küçük harfli hâlleri, key=len uzunlukları karşılaştırır.",
+          "reverse() yalnızca var olan sırayı yerinde ters çevirir; sıralama yapmaz."
         ]
       },
       "exercises": [
         {
           "id": "d05-b4-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "nums = [3, 1, 2]\nresult = nums.sort()\nprint(result)\nprint(sorted(nums, reverse=True))\nprint(nums)",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "nums = [3, 1, 2]\nnew = sorted(nums)\nnums.reverse()\nprint(new, nums)",
           "choices": [
-            "None\n[3, 2, 1]\n[1, 2, 3]",
-            "[1, 2, 3]\n[3, 2, 1]\n[1, 2, 3]",
-            "None\n[3, 2, 1]\n[3, 1, 2]",
-            "None\n[1, 2, 3]\n[1, 2, 3]"
+            "[1, 2, 3] [2, 1, 3]",
+            "[1, 2, 3] [3, 2, 1]",
+            "[1, 2, 3] [1, 2, 3]",
+            "None [2, 1, 3]"
           ],
-          "expected_output": "None\n[3, 2, 1]\n[1, 2, 3]",
-          "explanation": "sort() changes nums in place and returns None, so result is None. sorted(..., reverse=True) returns a new descending list. nums itself stays sorted ascending.",
+          "expected_output": "[1, 2, 3] [2, 1, 3]",
+          "explanation": "sorted() returns a new sorted list and leaves nums as [3, 1, 2]. reverse() then flips that order: [2, 1, 3].",
+          "explanation_tr": "sorted() yeni sıralı bir liste döndürür ve nums'ı [3, 1, 2] olarak bırakır. reverse() sonra bu sırayı ters çevirir: [2, 1, 3].",
           "misconceptions": {
-            "[1, 2, 3]\n[3, 2, 1]\n[1, 2, 3]": "sort() returns None. The sorted list is stored in nums, not in result.",
-            "None\n[3, 2, 1]\n[3, 1, 2]": "nums.sort() already changed nums to [1, 2, 3] on line 2.",
-            "None\n[1, 2, 3]\n[1, 2, 3]": "reverse=True sorts from the largest to the smallest."
+            "[1, 2, 3] [3, 2, 1]": "reverse() does not sort; it reverses the current order [3, 1, 2].",
+            "[1, 2, 3] [1, 2, 3]": "sorted() does not change nums.",
+            "None [2, 1, 3]": "sorted() is a function that returns a new list; only sort() returns None."
           },
-          "explanation_tr": "sort() nums'u yerinde değiştirir ve None döndürür, bu yüzden result None olur. sorted(..., reverse=True) yeni bir azalan liste döndürür. nums ise artan sıralı kalır.",
           "misconceptions_tr": {
-            "[1, 2, 3]\n[3, 2, 1]\n[1, 2, 3]": "sort() None döndürür. Sıralı liste result'ta değil, nums'ta durur.",
-            "None\n[3, 2, 1]\n[3, 1, 2]": "nums.sort() 2. satırda nums'u zaten [1, 2, 3] yaptı.",
-            "None\n[1, 2, 3]\n[1, 2, 3]": "reverse=True büyükten küçüğe sıralar."
+            "[1, 2, 3] [3, 2, 1]": "reverse() sıralamaz; var olan [3, 1, 2] sırasını ters çevirir.",
+            "[1, 2, 3] [1, 2, 3]": "sorted() nums'ı değiştirmez.",
+            "None [2, 1, 3]": "sorted() yeni liste döndüren bir fonksiyondur; yalnızca sort() None döndürür."
           }
         },
         {
           "id": "d05-b4-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank to print the items left after the first one: [20, 30, 40].",
-          "prompt_tr": "İlk elemandan sonra kalanları yazdırmak için boşluğu doldur: [20, 30, 40].",
-          "starter_code": "first, *rest = [10, 20, 30, 40]\nprint(___)",
+          "prompt": "Fill the blank so the ages are sorted from oldest to youngest in place: [26, 25, 24, 22, 19]",
+          "prompt_tr": "Yaşlar yerinde en büyükten en küçüğe sıralansın diye boşluğu doldur: [26, 25, 24, 22, 19]",
+          "starter_code": "ages = [22, 19, 24, 26, 25]\nages.sort(___)\nprint(ages)",
           "blanks": [
             {
               "answer": [
-                "rest"
+                "reverse=True"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == '[20, 30, 40]'",
+              "code": "assert __stdout__.rstrip() == '[26, 25, 24, 22, 19]', repr(__stdout__)",
               "visible": true,
-              "failure_message": "The program must print [20, 30, 40].",
-              "failure_message_tr": "Program [20, 30, 40] yazdırmalı.",
-              "label_tr": "Kalan elemanlar yazdırılıyor"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: [26, 25, 24, 22, 19]",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: [26, 25, 24, 22, 19]"
             }
           ],
           "hints": [
-            "Which variable collected the remaining items?",
-            "It is the one with the star in front of its name.",
-            "That variable is called rest; put just that name inside print()."
+            "sort() alone sorts from smallest to largest.",
+            "A keyword setting flips the direction.",
+            "The setting is named reverse and takes a boolean."
           ],
           "hints_tr": [
-            "Kalan elemanları hangi değişken topladı?",
-            "Adının önünde yıldız olan değişken.",
-            "O değişkenin adı rest; sadece o adı print() içine yaz."
+            "sort() tek başına küçükten büyüğe sıralar.",
+            "Bir anahtar kelime ayarı yönü çevirir.",
+            "Ayarın adı reverse'tür ve bir boolean alır."
           ]
         },
         {
           "id": "d05-b4-e3",
+          "type": "debug",
+          "prompt": "The program should print the top score, 95, but crashes with TypeError: 'NoneType' object is not subscriptable. Fix it so ranking holds a sorted list.",
+          "prompt_tr": "Program en yüksek puanı, 95'i yazdırmalı, ama TypeError: 'NoneType' object is not subscriptable ile çöküyor. ranking sıralı bir liste tutacak şekilde düzelt.",
+          "starter_code": "scores = [72, 95, 64]\nranking = scores.sort(reverse=True)\nprint(ranking[0])",
+          "hints": [
+            "What value does sort() return?",
+            "'NoneType object is not subscriptable' means you used [ ] on None.",
+            "Use the built-in function that returns a new sorted list, with the same reverse setting."
+          ],
+          "hints_tr": [
+            "sort() hangi değeri döndürür?",
+            "'NoneType object is not subscriptable', None üzerinde [ ] kullandın demektir.",
+            "Aynı reverse ayarıyla, yeni sıralı liste döndüren yerleşik fonksiyonu kullan."
+          ],
+          "solution": {
+            "approach": "sort() returns None; use sorted() to get a new list you can index.",
+            "approach_tr": "sort() None döndürür; indeksleyebileceğin yeni bir liste için sorted() kullan.",
+            "code": "scores = [72, 95, 64]\nranking = sorted(scores, reverse=True)\nprint(ranking[0])"
+          },
+          "expected_output": "95"
+        },
+        {
+          "id": "d05-b4-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "words = ['bb', 'A', 'ccc', 'a']\nprint(sorted(words), sorted(words, key=len))",
+          "choices": [
+            "['A', 'a', 'bb', 'ccc'] ['A', 'a', 'bb', 'ccc']",
+            "['a', 'A', 'bb', 'ccc'] ['A', 'a', 'bb', 'ccc']",
+            "['A', 'a', 'bb', 'ccc'] ['a', 'A', 'bb', 'ccc']",
+            "['A', 'bb', 'ccc', 'a'] ['A', 'a', 'bb', 'ccc']"
+          ],
+          "expected_output": "['A', 'a', 'bb', 'ccc'] ['A', 'a', 'bb', 'ccc']",
+          "explanation": "By character codes A comes before a, and a before b and c. By length A and a both have length 1 and keep their original order (stable sort): A first.",
+          "explanation_tr": "Karakter kodlarına göre A, a'dan; a da b ve c'den önce gelir. Uzunluğa göre A ve a ikisi de 1 uzunluğundadır ve orijinal sıralarını korur (kararlı sıralama): önce A.",
+          "misconceptions": {
+            "['a', 'A', 'bb', 'ccc'] ['A', 'a', 'bb', 'ccc']": "Capital letters have smaller character codes than lowercase ones.",
+            "['A', 'a', 'bb', 'ccc'] ['a', 'A', 'bb', 'ccc']": "Python's sort is stable: equal keys keep the order they had in words, where A comes before a.",
+            "['A', 'bb', 'ccc', 'a'] ['A', 'a', 'bb', 'ccc']": "All lowercase words are compared by their letters; a comes before b."
+          },
+          "misconceptions_tr": {
+            "['a', 'A', 'bb', 'ccc'] ['A', 'a', 'bb', 'ccc']": "Büyük harflerin karakter kodu küçük harflerinkinden küçüktür.",
+            "['A', 'a', 'bb', 'ccc'] ['a', 'A', 'bb', 'ccc']": "Python'un sıralaması kararlıdır: eşit anahtarlar words'teki sıralarını korur ve orada A, a'dan önce gelir.",
+            "['A', 'bb', 'ccc', 'a'] ['A', 'a', 'bb', 'ccc']": "Bütün küçük harfli kelimeler harfleriyle karşılaştırılır; a, b'den önce gelir."
+          }
+        },
+        {
+          "id": "d05-b4-e5",
           "type": "modify",
-          "prompt": "Change the program so it prints three lines: the smallest age, the largest age, and the ages sorted from largest to smallest.",
-          "prompt_tr": "Programı üç satır yazdıracak şekilde değiştir: en küçük yaş, en büyük yaş ve yaşların büyükten küçüğe sıralı hali.",
-          "starter_code": "ages = [22, 19, 24, 25, 26, 24, 25, 24]\nprint(ages.count(24))",
+          "prompt": "The program sorts names, but capital letters jump ahead. Change it so sorted_names is a new list sorted while ignoring case (key=str.lower), and names keeps its original order. Print sorted_names: ['ali', 'Burak', 'can', 'Deniz']",
+          "prompt_tr": "Program isimleri sıralıyor ama büyük harfliler öne kaçıyor. sorted_names büyük-küçük harf farkını yok sayarak (key=str.lower) sıralanmış yeni bir liste olacak ve names orijinal sırasını koruyacak şekilde değiştir. sorted_names'i yazdır: ['ali', 'Burak', 'can', 'Deniz']",
+          "starter_code": "names = ['can', 'Deniz', 'ali', 'Burak']\nnames.sort()\nprint(names)",
           "tests": [
             {
-              "code": "assert __stdout__.strip().split('\\n') == ['19', '26', '[26, 25, 25, 24, 24, 24, 22, 19]']",
+              "code": "assert __stdout__.rstrip() == \"['ali', 'Burak', 'can', 'Deniz']\", repr(__stdout__)",
               "visible": true,
-              "failure_message": "Expected 19, 26 and the descending list.",
-              "failure_message_tr": "19, 26 ve azalan sıralı listeyi bekliyorum.",
-              "label_tr": "En küçük, en büyük ve azalan sıralı liste yazdırılıyor"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: ['ali', 'Burak', 'can', 'Deniz']",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: ['ali', 'Burak', 'can', 'Deniz']"
             },
             {
-              "code": "import ast\n_t = ast.parse(__source__)\n_names = {n.id for n in ast.walk(_t) if isinstance(n, ast.Name)}\nassert {'min', 'max', 'sorted'} <= _names",
+              "code": "assert names == ['can', 'Deniz', 'ali', 'Burak']",
+              "visible": true,
+              "label": "names is unchanged",
+              "label_tr": "names değişmedi",
+              "failure_message": "Do not sort names in place; use sorted().",
+              "failure_message_tr": "names'i yerinde sıralama; sorted() kullan."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^names[ \\t]*=.*$', \"names = ['b', 'A', 'c']\", __s, count=1)\nassert __n == 1, 'line names = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['sorted_names'] == ['A', 'b', 'c']",
               "visible": false,
-              "failure_message": "Compute the values with min, max and sorted instead of typing them by hand.",
-              "failure_message_tr": "Değerleri elle yazma; min, max ve sorted ile hesapla.",
-              "anti_hardcode": true
+              "anti_hardcode": true,
+              "failure_message": "sorted_names must be computed from names with sorted() and key=str.lower.",
+              "failure_message_tr": "sorted_names, names üzerinden sorted() ve key=str.lower ile hesaplanmalı."
             }
           ],
           "hints": [
-            "Three print lines; two built-in functions and one sorting helper.",
-            "min() and max() take the list; sorted() returns a new list, and reverse=True makes it descending.",
-            "Replace the count line with three print calls that use min, max and sorted(..., reverse=True) on ages."
+            "sort() changes names; the task asks for a new list.",
+            "key= takes a function without calling it, without parentheses.",
+            "The function that makes a string lowercase is str.lower."
+          ],
+          "hints_tr": [
+            "sort() names'i değiştirir; görev yeni bir liste istiyor.",
+            "key= bir fonksiyonu çağırmadan, parantezsiz alır.",
+            "Bir string'i küçük harfe çeviren fonksiyon str.lower'dır."
           ],
           "solution": {
-            "approach": "Use min, max and sorted with reverse=True.",
-            "code": "ages = [22, 19, 24, 25, 26, 24, 25, 24]\nprint(min(ages))\nprint(max(ages))\nprint(sorted(ages, reverse=True))",
-            "approach_tr": "min, max ve reverse=True ile sorted kullan."
-          },
+            "approach": "sorted(names, key=str.lower) into a new variable.",
+            "approach_tr": "sorted(names, key=str.lower) sonucunu yeni bir değişkene ata.",
+            "code": "names = ['can', 'Deniz', 'ali', 'Burak']\nsorted_names = sorted(names, key=str.lower)\nprint(sorted_names)"
+          }
+        },
+        {
+          "id": "d05-b4-e6",
+          "type": "write",
+          "prompt": "Create ages = [19, 22, 19, 24, 20, 25, 26, 24, 25, 24] on its own line. Sort it in place, then store youngest = ages[0], oldest = ages[-1] and age_range = oldest - youngest. Print the sorted list and on a second line youngest, oldest and age_range: 19 26 7",
+          "prompt_tr": "ages = [19, 22, 19, 24, 20, 25, 26, 24, 25, 24] değişkenini ayrı satırda oluştur. Yerinde sırala, sonra youngest = ages[0], oldest = ages[-1] ve age_range = oldest - youngest değerlerini kaydet. Sıralı listeyi ve ikinci satırda youngest, oldest ve age_range'i yazdır: 19 26 7",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '[19, 19, 20, 22, 24, 24, 24, 25, 25, 26]\\n19 26 7', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: [19, 19, 20, 22, 24, 24, 24, 25, 25, 26] / 19 26 7",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: [19, 19, 20, 22, 24, 24, 24, 25, 25, 26] / 19 26 7"
+            },
+            {
+              "code": "assert '.sort()' in __source__",
+              "visible": false,
+              "failure_message": "Sort ages in place with sort().",
+              "failure_message_tr": "ages'i sort() ile yerinde sırala."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^ages[ \\t]*=.*$', 'ages = [40, 18, 30]', __s, count=1)\nassert __n == 1, 'line ages = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['youngest'], __ns['oldest'], __ns['age_range']) == (18, 40, 22) and __ns['ages'] == [18, 30, 40]",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The values must come from the sorted list.",
+              "failure_message_tr": "Değerler sıralı listeden gelmeli."
+            }
+          ],
+          "hints": [
+            "After sorting, the smallest value is first and the largest last.",
+            "Index 0 and index -1 give those two values.",
+            "The range is the difference of the two."
+          ],
           "hints_tr": [
-            "Üç print satırı; iki yerleşik fonksiyon ve bir sıralama yardımcısı.",
-            "min() ve max() listeyi alır; sorted() yeni bir liste döndürür, reverse=True ile azalan olur.",
-            "count satırını, ages üzerinde min, max ve sorted(..., reverse=True) kullanan üç print çağrısıyla değiştir."
-          ]
+            "Sıraladıktan sonra en küçük değer başta, en büyük sonda olur.",
+            "0 ve -1 indeksleri bu iki değeri verir.",
+            "Aralık, ikisinin farkıdır."
+          ],
+          "solution": {
+            "approach": "sort(), then the first and last items of the sorted list.",
+            "approach_tr": "sort(), sonra sıralı listenin ilk ve son elemanları.",
+            "code": "ages = [19, 22, 19, 24, 20, 25, 26, 24, 25, 24]\nages.sort()\nyoungest = ages[0]\noldest = ages[-1]\nage_range = oldest - youngest\nprint(ages)\nprint(youngest, oldest, age_range)"
+          },
+          "twin": "d05-b4-e7"
+        },
+        {
+          "id": "d05-b4-e7",
+          "type": "write",
+          "prompt": "Create words = ['python', 'is', 'a', 'wonderful', 'language'] on its own line. Store in by_length a new list sorted by length (key=len), longest = the last item of by_length, and shortest = the first item. Print longest and shortest on one line: wonderful a",
+          "prompt_tr": "words = ['python', 'is', 'a', 'wonderful', 'language'] değişkenini ayrı satırda oluştur. Uzunluğa göre (key=len) sıralanmış yeni bir listeyi by_length'e, by_length'in son elemanını longest'a, ilk elemanını shortest'a kaydet. longest ve shortest'ı tek satırda yazdır: wonderful a",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'wonderful a', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: wonderful a",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: wonderful a"
+            },
+            {
+              "code": "assert by_length == ['a', 'is', 'python', 'language', 'wonderful']",
+              "visible": false,
+              "failure_message": "by_length must be sorted from shortest to longest.",
+              "failure_message_tr": "by_length en kısadan en uzuna sıralanmış olmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^words[ \\t]*=.*$', \"words = ['orta', 'en_uzun_kelime', 'x']\", __s, count=1)\nassert __n == 1, 'line words = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['longest'], __ns['shortest']) == ('en_uzun_kelime', 'x')",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "longest and shortest must come from the list sorted with key=len.",
+              "failure_message_tr": "longest ve shortest, key=len ile sıralanmış listeden gelmeli."
+            }
+          ],
+          "hints": [
+            "key=len makes sorted() compare the lengths of the words.",
+            "The sorted list goes from shortest to longest.",
+            "Take the last and the first item of that list."
+          ],
+          "hints_tr": [
+            "key=len, sorted()'ın kelimelerin uzunluklarını karşılaştırmasını sağlar.",
+            "Sıralı liste en kısadan en uzuna gider.",
+            "O listenin son ve ilk elemanını al."
+          ],
+          "solution": {
+            "approach": "sorted with key=len, then index -1 and 0.",
+            "approach_tr": "key=len ile sorted, sonra -1 ve 0 indeksleri.",
+            "code": "words = ['python', 'is', 'a', 'wonderful', 'language']\nby_length = sorted(words, key=len)\nlongest = by_length[-1]\nshortest = by_length[0]\nprint(longest, shortest)"
+          },
+          "twin": "d05-b4-e6"
+        },
+        {
+          "id": "d05-b4-e8",
+          "type": "type_it",
+          "prompt": "Read the snippet, close it, then type it from memory and run it.",
+          "prompt_tr": "Kodu oku, kapat, sonra aklından yaz ve çalıştır.",
+          "code": "fruits = ['muz', 'elma', 'kiraz']\nfruits.append('armut')\nfruits.sort()\nprint(fruits)\nprint(sorted(fruits, key=len))",
+          "expected_output": "['armut', 'elma', 'kiraz', 'muz']\n['muz', 'elma', 'armut', 'kiraz']"
         }
+      ]
+    },
+    {
+      "id": "d05-b5",
+      "concept": "count-index-stats",
+      "concept_tr": "count, index, in ve listelerle istatistik",
+      "tags": [
+        "count",
+        "index",
+        "in",
+        "statistics",
+        "f-string"
       ],
-      "concept_tr": "Sıralama, ters çevirme ve açma (unpacking)"
+      "worked_example": {
+        "code": "ages = [19, 22, 19, 24, 20, 25, 26, 24, 25, 24]\nprint(ages.count(24), ages.index(24), 30 in ages)\naverage = sum(ages) / len(ages)\nprint(f'Ortalama: {average:.1f}')\nages.sort()\nprint(ages[len(ages) // 2 - 1], ages[len(ages) // 2])",
+        "notes": [
+          "count(x) counts equal items, index(x) gives the position of the first one, and in answers whether x is there at all.",
+          "sum / len gives the average, and an f-string with :.1f shows it with one decimal, which combines Days 2, 3 and 4.",
+          "After sorting an even-length list, the two middle values are at len // 2 - 1 and len // 2; their average is the median."
+        ],
+        "notes_tr": [
+          "count(x) eşit elemanları sayar, index(x) ilkinin konumunu verir, in de x'in hiç var olup olmadığını cevaplar.",
+          "sum / len ortalamayı verir; :.1f içeren bir f-string onu tek ondalıkla gösterir; bu, Gün 2, 3 ve 4'ü birleştirir.",
+          "Çift uzunluktaki bir listeyi sıraladıktan sonra iki orta değer len // 2 - 1 ve len // 2 indekslerindedir; ortalamaları ortancadır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d05-b5-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "data = [3, 1, 3, 2, 3]\nprint(data.count(3), data.index(3), data.index(2), 4 in data)",
+          "choices": [
+            "3 0 3 False",
+            "3 2 3 False",
+            "3 0 2 False",
+            "2 0 3 True"
+          ],
+          "expected_output": "3 0 3 False",
+          "explanation": "There are three 3s. index(3) gives the first one, at 0. The 2 is at index 3. 4 is not in the list.",
+          "explanation_tr": "Üç tane 3 var. index(3) ilkini, 0. konumu verir. 2, 3. indekstedir. 4 listede yok.",
+          "misconceptions": {
+            "3 2 3 False": "index() returns the FIRST position, and the first 3 is at index 0.",
+            "3 0 2 False": "index(2) looks for the value 2, which sits at position 3.",
+            "2 0 3 True": "Count every 3: positions 0, 2 and 4. And no item equals 4."
+          },
+          "misconceptions_tr": {
+            "3 2 3 False": "index() İLK konumu döndürür; ilk 3, 0. indekstedir.",
+            "3 0 2 False": "index(2) 2 değerini arar; o da 3. konumdadır.",
+            "2 0 3 True": "Her 3'ü say: 0, 2 ve 4. konumlar. Ayrıca 4'e eşit bir eleman yok."
+          }
+        },
+        {
+          "id": "d05-b5-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blanks so the program prints how many times 'elma' appears and where the first one is: 2 1",
+          "prompt_tr": "Program 'elma'nın kaç kez geçtiğini ve ilkinin nerede olduğunu yazdırsın diye boşlukları doldur: 2 1",
+          "starter_code": "basket = ['muz', 'elma', 'kiraz', 'elma']\nprint(basket.___('elma'), basket.___('elma'))",
+          "blanks": [
+            {
+              "answer": [
+                "count"
+              ]
+            },
+            {
+              "answer": [
+                "index"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '2 1', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 2 1",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 2 1"
+            }
+          ],
+          "hints": [
+            "One method counts, the other finds a position.",
+            "Both take the value you are looking for as their argument.",
+            "The first is the English word for counting, the second the word for the position in a book's back pages."
+          ],
+          "hints_tr": [
+            "Bir metot sayar, diğeri konum bulur.",
+            "İkisi de aradığın değeri argüman olarak alır.",
+            "İlki saymanın İngilizcesi, ikincisi kitap sonundaki dizin kelimesinin İngilizcesidir."
+          ]
+        },
+        {
+          "id": "d05-b5-e3",
+          "type": "debug",
+          "prompt": "The program should print the position of 'İzmir' in the list, 1, but crashes with AttributeError: 'list' object has no attribute 'find'. Lists do not have find(). Fix it with the list method that gives a position.",
+          "prompt_tr": "Program 'İzmir'in listedeki konumunu, 1'i yazdırmalı, ama AttributeError: 'list' object has no attribute 'find' ile çöküyor. Listelerde find() yok. Konum veren liste metoduyla düzelt.",
+          "starter_code": "cities = ['Ankara', 'İzmir', 'Bursa']\nposition = cities.find('İzmir')\nprint(position)",
+          "hints": [
+            "AttributeError means the object has no method with that name.",
+            "Strings have find() and index(); lists have only one of them.",
+            "Replace find with the other method name."
+          ],
+          "hints_tr": [
+            "AttributeError, nesnenin o isimde bir metodu olmadığı anlamına gelir.",
+            "String'lerde find() ve index() var; listelerde yalnızca biri var.",
+            "find'ı diğer metodun adıyla değiştir."
+          ],
+          "solution": {
+            "approach": "find() belongs to strings; on a list use index().",
+            "approach_tr": "find() string'lere aittir; listede index() kullan.",
+            "code": "cities = ['Ankara', 'İzmir', 'Bursa']\nposition = cities.index('İzmir')\nprint(position)"
+          },
+          "expected_output": "1",
+          "tests": [
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^cities[ \\t]*=.*$', \"cities = ['Bursa', 'Van', 'İzmir']\", __s, count=1)\nassert __n == 1, 'line cities = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __out.strip() == '2'",
+              "visible": false,
+              "failure_message": "The position must be found with a list method.",
+              "failure_message_tr": "Konum bir liste metoduyla bulunmalı."
+            }
+          ]
+        },
+        {
+          "id": "d05-b5-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "ages = [20, 30, 40, 50]\nprint(f'{sum(ages) / len(ages):.1f} {max(ages) - min(ages)} {ages[len(ages) // 2]}')",
+          "choices": [
+            "35.0 30 40",
+            "35 30 40",
+            "35.0 30 30",
+            "35.0 50 40"
+          ],
+          "expected_output": "35.0 30 40",
+          "explanation": "The average is 140 / 4 = 35.0, shown with one decimal. The range is 50 - 20 = 30. len // 2 is 2 and ages[2] is 40.",
+          "explanation_tr": "Ortalama 140 / 4 = 35.0'dır ve tek ondalıkla gösterilir. Aralık 50 - 20 = 30'dur. len // 2, 2'dir ve ages[2], 40'tır.",
+          "misconceptions": {
+            "35 30 40": ":.1f always shows one decimal place.",
+            "35.0 30 30": "4 // 2 is 2, and index 2 is the third item, 40.",
+            "35.0 50 40": "The range is max minus min, not max."
+          },
+          "misconceptions_tr": {
+            "35 30 40": ":.1f her zaman bir ondalık basamak gösterir.",
+            "35.0 30 30": "4 // 2 = 2'dir ve 2. indeks üçüncü elemandır, 40.",
+            "35.0 50 40": "Aralık max değil, max eksi min'dir."
+          }
+        },
+        {
+          "id": "d05-b5-e5",
+          "type": "modify",
+          "prompt": "The program prints only the average age. Extend it so it also computes median for this even-length list (sort a copy first, then average the two middle values) and prints both with one decimal: Ortalama: 22.8 Ortanca: 24.0",
+          "prompt_tr": "Program yalnızca ortalama yaşı yazdırıyor. Bu çift uzunluktaki liste için median'ı da hesaplayacak (önce bir kopyayı sırala, sonra iki orta değerin ortalamasını al) ve ikisini tek ondalıkla yazdıracak şekilde genişlet: Ortalama: 22.8 Ortanca: 24.0",
+          "starter_code": "ages = [19, 22, 19, 24, 20, 25, 26, 24, 25, 24]\naverage = sum(ages) / len(ages)\nprint(f'Ortalama: {average:.1f}')",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'Ortalama: 22.8 Ortanca: 24.0', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Ortalama: 22.8 Ortanca: 24.0",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Ortalama: 22.8 Ortanca: 24.0"
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^ages[ \\t]*=.*$', 'ages = [10, 40, 20, 30]', __s, count=1)\nassert __n == 1, 'line ages = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['median'] == 25.0 and __out.strip() == 'Ortalama: 25.0 Ortanca: 25.0'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "median must be computed from the sorted ages.",
+              "failure_message_tr": "median sıralanmış yaşlardan hesaplanmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^ages[ \\t]*=.*$', 'ages = [1, 2, 3, 100]', __s, count=1)\nassert __n == 1, 'line ages = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['median'] == 2.5",
+              "visible": false,
+              "failure_message": "The median uses the two middle values of the SORTED list.",
+              "failure_message_tr": "Ortanca, SIRALI listenin iki orta değerini kullanır."
+            }
+          ],
+          "hints": [
+            "The median needs the list in order; sorted() gives an ordered copy.",
+            "For 10 items the middle ones are at 4 and 5: len // 2 - 1 and len // 2.",
+            "Add the two middle values, divide by 2, and add {median:.1f} to the f-string."
+          ],
+          "hints_tr": [
+            "Ortanca sıralı listeye ihtiyaç duyar; sorted() sıralı bir kopya verir.",
+            "10 eleman için ortadakiler 4 ve 5'tedir: len // 2 - 1 ve len // 2.",
+            "İki orta değeri topla, 2'ye böl ve f-string'e {median:.1f} ekle."
+          ],
+          "solution": {
+            "approach": "sorted copy, mid = len // 2, average of indexes mid - 1 and mid.",
+            "approach_tr": "Sıralı kopya, mid = len // 2, mid - 1 ve mid indekslerinin ortalaması.",
+            "code": "ages = [19, 22, 19, 24, 20, 25, 26, 24, 25, 24]\naverage = sum(ages) / len(ages)\nordered = sorted(ages)\nmid = len(ordered) // 2\nmedian = (ordered[mid - 1] + ordered[mid]) / 2\nprint(f'Ortalama: {average:.1f} Ortanca: {median:.1f}')"
+          }
+        },
+        {
+          "id": "d05-b5-e6",
+          "type": "write",
+          "prompt": "Create votes = ['evet', 'hayır', 'evet', 'evet', 'çekimser', 'hayır'] on its own line. Store yes_count, no_count and total (the number of votes), and yes_share = yes_count / total. Print exactly: Evet: 3, Hayır: 2, Evet oranı: 50.0% (use an f-string with :.1% for the share).",
+          "prompt_tr": "votes = ['evet', 'hayır', 'evet', 'evet', 'çekimser', 'hayır'] değişkenini ayrı satırda oluştur. yes_count, no_count ve total (oy sayısı) ile yes_share = yes_count / total değerlerini kaydet. Tam olarak şunu yazdır: Evet: 3, Hayır: 2, Evet oranı: 50.0% (oran için :.1% içeren bir f-string kullan).",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'Evet: 3, Hayır: 2, Evet oranı: 50.0%', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Evet: 3, Hayır: 2, Evet oranı: 50.0%",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Evet: 3, Hayır: 2, Evet oranı: 50.0%"
+            },
+            {
+              "code": "assert (yes_count, no_count, total) == (3, 2, 6)",
+              "visible": false,
+              "failure_message": "Check yes_count, no_count and total.",
+              "failure_message_tr": "yes_count, no_count ve total değerlerini kontrol et."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^votes[ \\t]*=.*$', \"votes = ['evet', 'hayır', 'hayır', 'hayır']\", __s, count=1)\nassert __n == 1, 'line votes = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __out.strip() == 'Evet: 1, Hayır: 3, Evet oranı: 25.0%'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The counts must be computed from votes with count() and len().",
+              "failure_message_tr": "Sayılar votes üzerinden count() ve len() ile hesaplanmalı."
+            }
+          ],
+          "hints": [
+            "count('evet') counts the items equal to 'evet'.",
+            "The share is a fraction between 0 and 1; the % specifier multiplies it by 100 for you.",
+            "Build the line with one f-string and three {...} parts."
+          ],
+          "hints_tr": [
+            "count('evet'), 'evet'e eşit elemanları sayar.",
+            "Oran 0 ile 1 arasında bir kesirdir; % belirteci onu senin yerine 100 ile çarpar.",
+            "Satırı tek bir f-string ve üç {...} parçasıyla kur."
+          ],
+          "solution": {
+            "approach": "count() twice, len(), one division, one f-string with :.1%.",
+            "approach_tr": "İki kez count(), len(), bir bölme, :.1% içeren bir f-string.",
+            "code": "votes = ['evet', 'hayır', 'evet', 'evet', 'çekimser', 'hayır']\nyes_count = votes.count('evet')\nno_count = votes.count('hayır')\ntotal = len(votes)\nyes_share = yes_count / total\nprint(f'Evet: {yes_count}, Hayır: {no_count}, Evet oranı: {yes_share:.1%}')"
+          },
+          "twin": "d05-b5-e7"
+        },
+        {
+          "id": "d05-b5-e7",
+          "type": "write",
+          "prompt": "Create temps = [12, 18, 9, 21, 15, 18] on its own line. Store hottest = max(temps), hottest_day = temps.index(hottest) + 1 (days are numbered from 1), and repeats = temps.count(18). Print exactly: En sıcak: 21 derece, 4. gün; 18 derece 2 kez",
+          "prompt_tr": "temps = [12, 18, 9, 21, 15, 18] değişkenini ayrı satırda oluştur. hottest = max(temps), hottest_day = temps.index(hottest) + 1 (günler 1'den numaralanır) ve repeats = temps.count(18) değerlerini kaydet. Tam olarak şunu yazdır: En sıcak: 21 derece, 4. gün; 18 derece 2 kez",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'En sıcak: 21 derece, 4. gün; 18 derece 2 kez', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: En sıcak: 21 derece, 4. gün; 18 derece 2 kez",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: En sıcak: 21 derece, 4. gün; 18 derece 2 kez"
+            },
+            {
+              "code": "assert (hottest, hottest_day, repeats) == (21, 4, 2)",
+              "visible": false,
+              "failure_message": "Check hottest, hottest_day and repeats.",
+              "failure_message_tr": "hottest, hottest_day ve repeats değerlerini kontrol et."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^temps[ \\t]*=.*$', 'temps = [30, 18, 5]', __s, count=1)\nassert __n == 1, 'line temps = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __out.strip() == 'En sıcak: 30 derece, 1. gün; 18 derece 1 kez'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The values must be computed from temps.",
+              "failure_message_tr": "Değerler temps üzerinden hesaplanmalı."
+            }
+          ],
+          "hints": [
+            "max() finds the hottest temperature.",
+            "index() gives a 0-based position; add 1 to turn it into a day number.",
+            "count(18) counts the days with exactly 18 degrees."
+          ],
+          "hints_tr": [
+            "max() en sıcak dereceyi bulur.",
+            "index() 0'dan başlayan bir konum verir; gün numarasına çevirmek için 1 ekle.",
+            "count(18) tam 18 derecelik günleri sayar."
+          ],
+          "solution": {
+            "approach": "max, index + 1, count, one f-string.",
+            "approach_tr": "max, index + 1, count, bir f-string.",
+            "code": "temps = [12, 18, 9, 21, 15, 18]\nhottest = max(temps)\nhottest_day = temps.index(hottest) + 1\nrepeats = temps.count(18)\nprint(f'En sıcak: {hottest} derece, {hottest_day}. gün; 18 derece {repeats} kez')"
+          },
+          "twin": "d05-b5-e6"
+        }
+      ]
     }
   ],
   "review_pool": [
     "d05-b1-e1",
-    "d05-b2-e1",
-    "d05-b2-e3",
+    "d05-b1-e6",
+    "d05-b2-e4",
     "d05-b3-e1",
-    "d05-b3-e3",
-    "d05-b4-e1"
-  ],
-  "title_tr": "Listeler"
+    "d05-b3-e5",
+    "d05-b4-e4",
+    "d05-b5-e7"
+  ]
 }
