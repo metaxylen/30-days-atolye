@@ -40,8 +40,8 @@
             "2 1 True"
           ],
           "expected_output": "2 2 True",
-          "explanation": "The same dict object is appended twice, so both list items are one object. The second insert overwrote its `_id` with 2, and both items show that.",
-          "explanation_tr": "Aynı dict nesnesi iki kez ekleniyor; list'teki iki öğe tek bir nesnedir. İkinci ekleme onun `_id`'sini 2 yaptı ve iki öğe de bunu gösterir.",
+          "explanation": "The same dict object is appended twice, so both list items are one object. This toy `insert_one` overwrote its `_id` with 2, and both items show that. (Real `pymongo` keeps the first `_id` and the database refuses the second insert with DuplicateKeyError.)",
+          "explanation_tr": "Aynı dict nesnesi iki kez ekleniyor; list'teki iki öğe tek bir nesnedir. Bu oyuncak `insert_one` onun `_id`'sini 2 yaptı ve iki öğe de bunu gösterir. (Gerçek `pymongo` ilk `_id`'yi korur ve veritabanı ikinci eklemeyi DuplicateKeyError ile reddeder.)",
           "misconceptions": {
             "2 1 False": "`append` does not copy the dict; both entries are the same object, so `is` is True.",
             "1 1 True": "`append` ran twice, so the list has two entries, even though they are the same object.",
@@ -398,7 +398,7 @@
           ],
           "expected_output": "True True False",
           "explanation": "The empty query has no pairs, so `all` gives True. Can has no city, so `get` returns None, which equals the query's None; it does not equal 'İzmir'.",
-          "explanation_tr": "Boş sorguda çift yoktur, `all` True verir. Can'in şehri yok, `get` None döndürür ve bu sorgudaki None'a eşittir; 'İzmir'e ise eşit değildir.",
+          "explanation_tr": "Boş sorguda çift yoktur, `all` True verir. Can'ın şehri yok, `get` None döndürür ve bu sorgudaki None'a eşittir; 'İzmir'e ise eşit değildir.",
           "misconceptions": {
             "False True False": "`all` of an empty sequence is True: with no condition, nothing can fail.",
             "True False False": "`doc.get('city')` returns None for a missing key, and None == None is True.",
@@ -587,8 +587,8 @@
         {
           "id": "d27-b2-e6",
           "type": "write",
-          "prompt": "Write `matches(doc, query)` that returns True when every key in the dict `query` exists in `doc` with an equal value, and False otherwise. An empty query matches every document. Example: `matches({'a': 1, 'b': 2}, {'a': 1})` returns True.",
-          "prompt_tr": "`matches(doc, query)` yaz: `query` dict'indeki her anahtar `doc` içinde eşit bir değerle varsa True, yoksa False döndürsün. Boş sorgu her belgeyle eşleşir. Örnek: `matches({'a': 1, 'b': 2}, {'a': 1})` True döndürür.",
+          "prompt": "Write `matches(doc, query)` that returns True when every key in the dict `query` exists in `doc` with an equal value, and False otherwise. An empty query matches every document. (Note: real MongoDB also lets `{'x': None}` match documents without `x`; here a missing key never matches.) Example: `matches({'a': 1, 'b': 2}, {'a': 1})` returns True.",
+          "prompt_tr": "`matches(doc, query)` yaz: `query` dict'indeki her anahtar `doc` içinde eşit bir değerle varsa True, yoksa False döndürsün. Boş sorgu her belgeyle eşleşir. (Not: gerçek MongoDB'de `{'x': None}`, `x` alanı olmayan belgelerle de eşleşir; burada eksik anahtar hiçbir zaman eşleşmez.) Örnek: `matches({'a': 1, 'b': 2}, {'a': 1})` True döndürür.",
           "starter_code": "",
           "signature": "def matches(doc, query):",
           "tests": [
@@ -784,7 +784,7 @@
           },
           "misconceptions_tr": {
             "['John', 'Sami']": "Bunlar 30'un altındaki yaşlar (28 ve 25): bu `$lt`'dir, dersten kopyalanan hata.",
-            "['David']": "250 de 30'dan büyüktür, inanılmaz bir yaş olsa bile.",
+            "['David']": "250 de 30'dan büyüktür, gerçekçi olmayan bir yaş olsa bile.",
             "['Asabeneh', 'David', 'John', 'Sami']": "Operatör filtreler; yalnızca `a > 30`'u geçen yaşlar kalır."
           },
           "concept": "operators-sort-limit",

@@ -219,13 +219,13 @@
         {
           "id": "d29-b1-e6",
           "type": "write",
-          "prompt": "Write `serialize(doc)` that returns a new dict where every `datetime` value is replaced by its `isoformat()` text and every other value is kept. The original dict must not change. Import `datetime` yourself. Example: `serialize({'a': datetime(2026, 1, 2, 3, 4)})` returns `{'a': '2026-01-02T03:04:00'}`.",
-          "prompt_tr": "Her `datetime` değerinin `isoformat()` metniyle değiştirildiği, diğer değerlerin korunduğu yeni bir dict döndüren `serialize(doc)` yaz. Orijinal dict değişmemeli. `datetime`'ı kendin içe aktar. Örnek: `serialize({'a': datetime(2026, 1, 2, 3, 4)})` `{'a': '2026-01-02T03:04:00'}` döndürür.",
+          "prompt": "Write `serialize(doc)` that returns a new dict where every `datetime` value is replaced by its `isoformat()` text and every other value is kept. The original dict must not change. Import `datetime` yourself; `from datetime import datetime` and `import datetime` both work. Example: `serialize({'a': datetime(2026, 1, 2, 3, 4)})` returns `{'a': '2026-01-02T03:04:00'}`.",
+          "prompt_tr": "Her `datetime` değerinin `isoformat()` metniyle değiştirildiği, diğer değerlerin korunduğu yeni bir dict döndüren `serialize(doc)` yaz. Orijinal dict değişmemeli. `datetime`'ı kendin içe aktar; `from datetime import datetime` da `import datetime` da olur. Örnek: `serialize({'a': datetime(2026, 1, 2, 3, 4)})` `{'a': '2026-01-02T03:04:00'}` döndürür.",
           "starter_code": "",
           "signature": "def serialize(doc):",
           "tests": [
             {
-              "code": "assert serialize({'a': datetime(2026, 1, 2, 3, 4)}) == {'a': '2026-01-02T03:04:00'}",
+              "code": "from datetime import datetime as _dt\nassert serialize({'a': _dt(2026, 1, 2, 3, 4)}) == {'a': '2026-01-02T03:04:00'}",
               "visible": true,
               "label": "One datetime",
               "label_tr": "Bir datetime"
@@ -237,7 +237,7 @@
               "label_tr": "Diğer değerler değişmiyor"
             },
             {
-              "code": "d = {'t': datetime(2026, 11, 2, 9, 30), 'x': [1]}\nr = serialize(d)\nassert r == {'t': '2026-11-02T09:30:00', 'x': [1]} and isinstance(d['t'], datetime)",
+              "code": "from datetime import datetime as _dt\nd = {'t': _dt(2026, 11, 2, 9, 30), 'x': [1]}\nr = serialize(d)\nassert r == {'t': '2026-11-02T09:30:00', 'x': [1]} and isinstance(d['t'], _dt)",
               "visible": false,
               "failure_message": "Return a new dict; the original must still hold the datetime object.",
               "failure_message_tr": "Yeni bir dict döndür; orijinal hâlâ datetime nesnesini tutmalı."
@@ -642,8 +642,8 @@
         {
           "id": "d29-b2-e7",
           "type": "write",
-          "prompt": "Write `dispatch(routes, method, path)`. `routes` is a list of `(method, pattern, view)` tuples; patterns may contain `<name>` segments (strip slashes, split on '/', equal segment counts, capture as strings). Call the first view whose pattern matches the path and whose method equals `method`, as `view(**params)`, and return its result. If some pattern matches the path but no method does, return `(405, {'error': 'method not allowed'})`; if no pattern matches, return `(404, {'error': 'not found'})`.",
-          "prompt_tr": "`dispatch(routes, method, path)` yaz. `routes`, `(metot, kalıp, view)` tuple'larından oluşan bir list; kalıplar `<isim>` bölümleri içerebilir (eğik çizgileri sil, '/' ile böl, bölüm sayıları eşit olsun, string olarak yakala). Kalıbı yolla eşleşen ve metodu `method`'a eşit olan ilk view'ı `view(**params)` biçiminde çağır ve sonucunu döndür. Bir kalıp yolla eşleşiyor ama hiçbir metot eşleşmiyorsa `(405, {'error': 'method not allowed'})`; hiçbir kalıp eşleşmiyorsa `(404, {'error': 'not found'})` döndür.",
+          "prompt": "Write `dispatch(routes, method, path)`. `routes` is a list of `(method, pattern, view)` tuples; patterns may contain `<name>` segments (strip slashes, split on '/', equal segment counts, capture as strings). Call the first view whose pattern matches the path and whose method equals `method`, as `view(**params)`, and return its result. If some pattern matches the path but no method does, return `(405, {'error': 'method not allowed'})`; if no pattern matches, return `(404, {'error': 'not found'})`. Example: with `routes = [('GET', '/students/<sid>', lambda sid: (200, sid))]`, `dispatch(routes, 'GET', '/students/7')` returns `(200, '7')` and `dispatch(routes, 'DELETE', '/students/7')` returns `(405, {'error': 'method not allowed'})`.",
+          "prompt_tr": "`dispatch(routes, method, path)` yaz. `routes`, `(metot, kalıp, view)` tuple'larından oluşan bir list; kalıplar `<isim>` bölümleri içerebilir (eğik çizgileri sil, '/' ile böl, bölüm sayıları eşit olsun, string olarak yakala). Kalıbı yolla eşleşen ve metodu `method`'a eşit olan ilk view'ı `view(**params)` biçiminde çağır ve sonucunu döndür. Bir kalıp yolla eşleşiyor ama hiçbir metot eşleşmiyorsa `(405, {'error': 'method not allowed'})`; hiçbir kalıp eşleşmiyorsa `(404, {'error': 'not found'})` döndür. Örnek: `routes = [('GET', '/students/<sid>', lambda sid: (200, sid))]` iken `dispatch(routes, 'GET', '/students/7')` `(200, '7')`, `dispatch(routes, 'DELETE', '/students/7')` ise `(405, {'error': 'method not allowed'})` döndürür.",
           "starter_code": "",
           "signature": "def dispatch(routes, method, path):",
           "tests": [
@@ -717,7 +717,7 @@
           "keywords_tr": [
             "404",
             "405",
-            "metod"
+            "meto"
           ],
           "min_words": 12,
           "concept": "routing-path-params",
