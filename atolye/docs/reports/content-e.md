@@ -1,0 +1,23 @@
+# Report: content-e (Days 21-25)
+
+## Plan (written before the content)
+
+### Day 21 — Classes and Objects
+Sections → sequences: everything is an object (type of built-ins) → why classes (dict + loose functions vs one package) → `class`, CamelCase, the class statement runs → calling the class makes an instance, two calls = two objects, `b = a` = second name tag (trace) → `__init__` and `self` (trace), what `Person('Ada')` does underneath (create, call `__init__`, hand back) → several attributes, `__dict__` → mistakes: missing `self`, `name = name` → methods, `p.m()` is `Person.m(p)` (trace) → shopping cart → mistakes: method without `self`, attribute without `self.` → defaults in `__init__`, keyword arguments → mutable default trap and the `None` fix → methods that change state (trace) → class vs instance attributes → `__repr__`/`__str__` → `@property` + validating setter → inheritance and method lookup → `super().__init__` (trace) → mistake: child `__init__` without `super()` → overriding and extending with `super().method()` → polymorphism in a payroll loop → recap.
+Exercise blocks: constructor & attributes · methods & state (PersonAccount from the original Level 2) · defaults, mutable default, class attributes · `__repr__` & `@property` · inheritance/override (+ the Statistics class from the original Level 1, with the original's wrong expected values fixed).
+
+### Day 22 — Web scraping (offline, honest illustration)
+Sequences: what scraping is and when it is (not) allowed → HTML as a tree of tags with attributes; classes/ids as targets → `requests.get` / status codes, shown with a stand-in `fake_get` that returns a small response object (a Day 21 class) → `raise_for_status` style error handling → parsing with the standard library `html.parser.HTMLParser` (subclass + override, interleaving Day 21) → extracting text, links (`urljoin`) and a table into a list of dicts → why regex on HTML is fragile (Day 18 interleave) → cleaning text (`strip`, `split`, numbers with `,`) → saving as JSON (`json.dumps`, Day 19) → `robots.txt` with `urllib.robotparser` and polite scraping → the real version with `requests` + BeautifulSoup in words → recap.
+Exercise blocks: HTML structure & selecting · stand-in requests & status handling · HTMLParser extraction · table → records → JSON.
+
+### Day 23 — Virtual environments
+Sequences: the problem (two projects need different versions of one package) → what a venv is (a folder with its own interpreter link and `site-packages`) → creating (`python -m venv venv`), activating per OS, the prompt change, deactivating → how activation works (PATH lookup simulated in Python) → how `import` finds packages (`sys.path`, first match wins, simulated) → `pip freeze` format and `requirements.txt` (parsing it in Python) → version specifiers `==`, `>=`, `~=` → mistake: comparing versions as strings, the tuple fix → `.gitignore` for `venv/` → recap.
+Exercise blocks: isolation model (dict of environments) · PATH / sys.path lookup · requirements parsing · version comparison and conflict checks.
+
+### Day 24 — Statistics and NumPy
+Sequences: `statistics` module (mean, median, mode, stdev vs pstdev) → why NumPy (vectorised maths, one dtype) → creating arrays from lists/tuples, dtype int/float/bool, `tolist` → shape, size, ndim, dtype → element-wise arithmetic (+ - * / % // **) and broadcasting → mistake: list `*` vs array `*` → dtype conversion `astype` (float→int truncates) → 2-D indexing rows/columns, slicing, reversing → views vs copies (aliasing trace) → boolean masks → missing values with `np.nan`, `isnan`, `nanmean` → zeros/ones/reshape/flatten/hstack/vstack → arange/linspace → seeded random (`default_rng`) → statistical functions with `axis` → histogram counts instead of a plot → tile/repeat → dot/matmul/det → recap.
+Exercise blocks: statistics module · array creation & attributes · vectorised arithmetic & broadcasting · indexing, slicing, masks · aggregation with axis & missing values.
+
+### Day 25 — Pandas
+Sequences: Series (default/custom index, from dict, constant, linspace) → index lookup vs position (`loc`/`iloc`) → DataFrame from list of lists / dict / list of dicts → reading CSV (from a string with `io.StringIO`; the real version reads a path) → exploring (head, tail, shape, columns, describe) → selecting columns → adding and modifying columns, vectorised BMI instead of a loop, `round` → dtypes and `astype` → boolean indexing, `&`/`|` with parentheses (the `and` mistake) → missing values (`isna`, `fillna`, `dropna`) → sorting, `value_counts`, `groupby` → `str.contains` for the hacker-news style exercise → recap.
+Exercise blocks: Series · DataFrame creation & exploration · columns (add/modify/astype) · filtering · missing values & groupby.
