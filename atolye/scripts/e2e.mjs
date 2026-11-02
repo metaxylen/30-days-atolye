@@ -48,6 +48,8 @@ async function newPage(opts = {}) {
   return page
 }
 let lastPage = null
+// web fonts load with display=swap; layout measurements wait for them so a slow font download cannot shift the boxes
+const fontsReady = (page) => page.evaluate(() => document.fonts.ready.then(() => true))
 // page.evaluate has no timeout of its own: a frozen page would hang the run, so reading the store is raced against 20 s
 const store = (page) =>
   Promise.race([
@@ -1471,6 +1473,7 @@ T('r6-lang-switch-same-place-on-every-route', async () => {
   for (const r of routes) {
     await page.goto(BASE + r)
     await langSwitch(page).waitFor({ timeout: 20000 })
+    await fontsReady(page)
     const box = await langSwitch(page).boundingBox()
     assert(box && box.width > 80 && box.height >= 44, `${r}: the switch is visible and thumb-sized: ${JSON.stringify(box)}`)
     const vp = page.viewportSize()
