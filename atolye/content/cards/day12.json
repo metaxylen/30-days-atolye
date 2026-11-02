@@ -2,275 +2,400 @@
   "day": 12,
   "title_tr": "Modüller",
   "title": "Modules",
-  "est_minutes": 22,
+  "est_minutes": 45,
   "cards": [
     {
       "id": "d12-c01",
       "type": "explain",
       "section": "What is a Module",
-      "title_tr": "Modül nedir?",
-      "title": "What is a module?",
-      "body_tr": "Modül, içinde fonksiyon, değişken ya da kod bulunan bir `.py` dosyasıdır. Başka dosyalarda `import` ile kullanırsın; böylece aynı kodu tekrar yazmazsın.",
-      "body": "A module is a `.py` file holding functions, variables or code. You `import` it elsewhere, so you never rewrite the same code."
+      "title_tr": "Tek dosya yetmez",
+      "title": "One file is not enough",
+      "body_tr": "11. günden kalan fonksiyonların birikmeye başlıyor: fiyat yardımcıları, tarih yardımcıları, metin temizleyiciler. Hepsini 2000 satırlık tek bir dosyada tutmak bir şey bulmayı zorlaştırır; onları bir sonraki projeye kopyalamak da kopyala-yapıştır sorununu geri getirir.\n\n**Modül**, isimleri (fonksiyonları, değişkenleri, sabitleri) başka dosyalar tarafından kullanılabilen bir `.py` dosyasından ibarettir. `pricing.py` dosyası `pricing` modülüdür. Python ayrıca yüzlerce hazır modülle gelir; buna standart kütüphane denir: `math`, `random`, `statistics`, `os`, `sys`, `json` ve daha fazlası.\n\nJavaScript'te bunu `import { x } from './file.js'` ya da `require` olarak biliyorsun. Python'daki fikir aynı, yalnızca anahtar kelimeleri kendine has: `import`, `from` ve `as`.",
+      "body": "Your functions from Day 11 start to pile up: price helpers, date helpers, text cleaners. Keeping them all in one 2000-line file makes it hard to find anything, and copying them into the next project brings back the copy-paste problem.\n\nA **module** is simply a `.py` file whose names (functions, variables, constants) other files can use. The file `pricing.py` is the module `pricing`. Python also ships with hundreds of ready modules, the standard library: `math`, `random`, `statistics`, `os`, `sys`, `json` and many more.\n\nIn JavaScript you know this as `import { x } from './file.js'` or `require`. Python's idea is the same, with its own keywords: `import`, `from` and `as`."
     },
     {
       "id": "d12-c02",
       "type": "explain",
       "section": "Creating a Module",
-      "title_tr": "Kendi modülünü yaz",
-      "title": "Create your own module",
-      "body_tr": "Normalde `mymodule.py` dosyasını editörde yazarsın. Tarayıcıda dosyayı kodla yazıyoruz; sonuç aynı: diskte bir modül dosyası.",
-      "body": "Normally you write `mymodule.py` in an editor. Here we write the file from code; the result is the same: a module file.",
-      "code": "src = 'def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n'\nwith open('mymodule.py', 'w') as f:\n    f.write(src)\nprint(open('mymodule.py').read())",
-      "expected_output": "def generate_full_name(firstname, lastname):\n    return firstname + ' ' + lastname"
+      "title_tr": "Modül oluşturmak",
+      "title": "Creating a module",
+      "body_tr": "Modül oluşturmak için bir dosyaya sıradan Python kodu yazar ve onu `.py` uzantısıyla kaydedersin; örneğin `main.py` dosyanın yanına `mymodule.py`. Kod, böyle bir dosyanın neler içerebileceğini gösteriyor: iki fonksiyon, bir sabit ve bir dict. Tek başına çalıştırınca hiçbir şey yazdırmaz, çünkü yalnızca isim tanımlar.\n\nDosya adı modül adı olur; bu yüzden geçerli bir Python ismi olmalıdır: `my_module.py` çalışır, `my-module.py` import edilemez. Kendi dosyana asla bir standart modülün adını verme, örneğin `random.py` ya da `math.py`: Python önce senin dosyanı bulur ve gerçek modül gizlenir.\n\nBu tarayıcı kursunda her alıştırma tek bir dosyadır; bu yüzden çalıştırılabilir örnekler standart modülleri import eder. İşleyiş tamamen aynıdır.",
+      "body": "To create a module you write ordinary Python in a file and save it with a `.py` ending, for example `mymodule.py` next to your `main.py`. The code shows what such a file could contain: two functions, a constant and a dict. Running it alone prints nothing, because it only defines names.\n\nThe file name becomes the module name, so it must be a valid Python name: `my_module.py` works, `my-module.py` cannot be imported. Never name your own file after a standard module, such as `random.py` or `math.py`: Python would find your file first and the real module would be hidden.\n\nIn this browser course every exercise is a single file, so the runnable examples import standard modules. The mechanics are exactly the same.",
+      "code": "# mymodule.py\ndef generate_full_name(firstname, lastname):\n    return firstname + ' ' + lastname\n\ndef sum_two_nums(num1, num2):\n    return num1 + num2\n\ngravity = 9.81\nperson = {'firstname': 'Asabeneh', 'country': 'Finland'}"
     },
     {
       "id": "d12-c03",
       "type": "explain",
       "section": "Importing a Module",
-      "title_tr": "import modül",
-      "title": "import module",
-      "body_tr": "`import mymodule` dosyayı yükler (`.py` yazmazsın). İçindekilere `mymodule.ad` ile ulaşırsın. (Kodun ilk iki satırı sadece modül dosyasını hazırlar.)",
-      "body": "`import mymodule` loads the file (no `.py`). Reach its contents with `mymodule.name`. (The first two code lines just prepare the module file.)",
-      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nimport mymodule\nprint(mymodule.generate_full_name('Asabeneh', 'Yetayeh'))",
-      "expected_output": "Asabeneh Yetayeh",
+      "title_tr": "import gerçekte ne yapar",
+      "title": "What import really does",
+      "body_tr": "`main.py` içinde `import mymodule` yazarsın; dosya adını `.py` olmadan kullanırsın. Python bunun üzerine üç şey yapar: dosyayı **bulur**, onu baştan sona bir kez **çalıştırır** ve dosyanın tanımladığı bütün isimleri tutan bir modül nesnesi oluşturur. Son olarak senin dosyanda o nesneye `mymodule` isim etiketini takar.\n\nİçerideki isimlere nokta ile ulaşırsın: `mymodule.generate_full_name('Asabeneh', 'Yetayeh')`. Nokta \"bu modülün içine bak\" demektir; JavaScript'teki `obj.prop` gibi.\n\nÇalıştırılabilir örnek aynı şeyi standart modül `math` ile yapıyor. Adım adım izle: import satırından sonra yalnızca tek bir yeni isim, `math`, beliriyor; geri kalan her şeye onun üzerinden ulaşılıyor.",
+      "body": "In `main.py` you write `import mymodule`, using the file name without `.py`. Python then does three things: it **finds** the file, **runs** it from top to bottom once, and creates a module object holding every name the file defined. Finally it attaches the name tag `mymodule` to that object in your file.\n\nYou reach the names inside with a dot: `mymodule.generate_full_name('Asabeneh', 'Yetayeh')`. The dot means \"look inside this module\", just like `obj.prop` in JavaScript.\n\nThe runnable example does the same with the standard module `math`. Step through it: after the import line, a single new name `math` appears, and everything else is reached through it.",
+      "code": "import math\n\nprint(type(math))\narea = math.pi * 3 ** 2\nprint(round(area, 2))\nprint(math.sqrt(16))",
+      "expected_output": "<class 'module'>\n28.27\n4.0",
       "trace": true
     },
     {
       "id": "d12-c04",
       "type": "predict",
       "section": "Importing a Module",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nimport mymodule\nprint(mymodule.sum_two_nums(1, 9))",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "import math\n\nside = math.sqrt(49)\nprint(side, math.floor(7.9), math.ceil(7.1))",
       "choices": [
-        "10",
-        "19",
-        "Hata verir"
+        "7.0 7 8",
+        "7 7 8",
+        "7.0 8 8",
+        "7.0 7.9 7.1"
       ],
-      "answer": "10",
-      "why_tr": "`mymodule.sum_two_nums` 1 + 9 hesaplar.",
-      "why": "`mymodule.sum_two_nums` computes 1 + 9."
+      "answer": "7.0 7 8",
+      "why_tr": "`math.sqrt` her zaman float döndürür, yani 49 için `7.0`. `floor` aşağı yuvarlayıp 7, `ceil` yukarı yuvarlayıp 8 verir; ikisi de int döndürür.",
+      "why": "`math.sqrt` always returns a float, so 49 gives `7.0`. `floor` rounds down to 7 and `ceil` rounds up to 8; both return ints."
     },
     {
       "id": "d12-c05",
       "type": "explain",
-      "section": "Import Functions from a Module",
-      "title_tr": "from ... import",
-      "title": "from ... import",
-      "body_tr": "Yalnız ihtiyacın olanları `from modül import ad` ile alırsan başına modül adı yazmadan kullanırsın.",
-      "body": "Take only what you need with `from module import name` and use it without the module prefix.",
-      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nfrom mymodule import generate_full_name, sum_two_nums, person, gravity\nprint(generate_full_name('Asabeneh', 'Yetayeh'))\nprint(sum_two_nums(1, 9))\nmass = 100\nprint(mass * gravity)\nprint(person['firstname'])",
-      "expected_output": "Asabeneh Yetayeh\n10\n981.0\nAsabeneh"
+      "section": "Importing a Module",
+      "title_tr": "import ile yaygın hatalar",
+      "title": "Common mistakes with import",
+      "body_tr": "`import math` sonrasında dosyanda yalnızca `math` ismi vardır. Tek başına `sqrt(16)` yazmak hata verir:\n\n`NameError: name 'sqrt' is not defined`\n\nBunu ön ekle, `math.sqrt(16)` yazarak ya da ismi doğrudan import ederek (sonraki kart) düzeltirsin.\n\nModül adındaki bir yazım hatası doğrudan import satırında patlar:\n\n`ModuleNotFoundError: No module named 'maths'`\n\nKelimesi kelimesine oku: Python modül aradığı her yere baktı ve `maths` adında bir dosya ya da paket bulamadı. Önce yazımı kontrol et; üçüncü taraf bir paketse kurulu olup olmadığına bak. Bu tarayıcıda yalnızca standart kütüphane var, 24-25. günlerde de numpy ile pandas.",
+      "body": "After `import math`, only the name `math` exists in your file. Writing `sqrt(16)` alone fails:\n\n`NameError: name 'sqrt' is not defined`\n\nFix it with the prefix, `math.sqrt(16)`, or import the name directly (next card).\n\nA typo in the module name fails at the import line itself:\n\n`ModuleNotFoundError: No module named 'maths'`\n\nRead it literally: Python searched every place it looks for modules and found no file or package called `maths`. Check the spelling first; for a third-party package, check that it is installed. In this browser only the standard library is available, plus numpy and pandas on Days 24-25."
     },
     {
       "id": "d12-c06",
-      "type": "fill",
-      "section": "Import Functions from a Module",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nfrom mymodule ___ sum_two_nums\nprint(sum_two_nums(2, 3))",
-      "answers": [
-        "import"
-      ],
-      "expected_output": "5",
-      "why_tr": "Sözdizimi `from modül import ad` şeklindedir.",
-      "why": "The syntax is `from module import name`."
+      "type": "truefalse",
+      "section": "Importing a Module",
+      "statement_tr": "İki farklı dosya da `import math` yazarsa Python aynı programda `math` modülünün kodunu iki kez çalıştırır.",
+      "statement": "If two different files both write `import math`, Python runs the `math` module's code twice in the same program.",
+      "answer": false,
+      "why_tr": "Bir modül yalnızca ilk import edildiğinde çalışır; Python modül nesnesini saklar ve sonraki her `import` ona yalnızca bir isim etiketi daha takar.",
+      "why": "A module runs only on its first import; Python keeps the module object and every later `import` just attaches another name tag to it."
     },
     {
       "id": "d12-c07",
       "type": "explain",
-      "section": "Import Functions from a Module and Renaming",
-      "title_tr": "as ile yeniden adlandır",
-      "title": "Rename with as",
-      "body_tr": "`as` ile içe aktarırken kısa bir takma ad verebilirsin.",
-      "body": "`as` gives the imported name a shorter alias.",
-      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nfrom mymodule import generate_full_name as fullname, sum_two_nums as total\nprint(fullname('Asabeneh', 'Yetayeh'))\nprint(total(1, 9))",
-      "expected_output": "Asabeneh Yetayeh\n10"
+      "section": "Import Functions from a Module",
+      "title_tr": "from ... import: isim seçmek",
+      "title": "from ... import: pick names",
+      "body_tr": "`from mymodule import generate_full_name, gravity` modülü yine aynı şekilde çalıştırır; ama modülün adı yerine seçtiğin isimleri doğrudan senin dosyana koyar. Artık `generate_full_name(...)` ve `gravity` yazarsın, ön ek yok.\n\nZihinsel model: `import math` sana bütün modüle takılı tek bir etiket verir: `math`. `from math import sqrt, pi` ise modülün içindeki o iki nesneye takılı iki etiket verir: `sqrt` ve `pi`; bu durumda `math` isminin kendisi yoktur.\n\nHangisini seçmeli? Ön ekler bir ismin nereden geldiğini açıkça gösterir (`math.sqrt`); bu, uzun dosyalarda işe yarar. Sık kullandığın birkaç ismi import etmek kısa kodu okunaklı tutar. Adım adım izle ve tam olarak hangi isimlerin belirdiğine bak.",
+      "body": "`from mymodule import generate_full_name, gravity` runs the module the same way, but instead of the module name it puts the chosen names directly into your file. You then write `generate_full_name(...)` and `gravity` with no prefix.\n\nMental model: `import math` gives you one tag, `math`, on the whole module. `from math import sqrt, pi` gives you two tags, `sqrt` and `pi`, on those two objects inside it; the name `math` itself does not exist then.\n\nWhich to choose? Prefixes make it obvious where a name comes from (`math.sqrt`), which helps in long files. Importing a few names you use often keeps short code readable. Step through and watch exactly which names appear.",
+      "code": "from math import sqrt, pi\n\nr = sqrt(25)\nprint(r, round(pi, 3))\nprint('math' in dir())",
+      "expected_output": "5.0 3.142\nFalse",
+      "trace": true
     },
     {
       "id": "d12-c08",
-      "type": "explain",
-      "section": "Import Built-in Modules",
-      "title_tr": "Hazır modüller",
-      "title": "Built-in modules",
-      "body_tr": "Python ile gelen birçok hazır modül var: `math`, `datetime`, `os`, `sys`, `random`, `statistics`, `collections`, `json`, `re`. Aynı `import` söz dizimiyle kullanılırlar.",
-      "body": "Python ships many ready modules: `math`, `datetime`, `os`, `sys`, `random`, `statistics`, `collections`, `json`, `re`. They use the same `import` syntax."
+      "type": "fill",
+      "section": "Import Functions from a Module",
+      "prompt_tr": "Kod gösterilen çıktıyı versin diye boşluğu doldur.",
+      "prompt": "Fill in the blank so the code prints the output shown.",
+      "code": "from math import ___\n\nprint(floor(9.81), ceil(9.81))",
+      "answers": [
+        "floor, ceil",
+        "ceil, floor",
+        "floor,ceil",
+        "ceil,floor"
+      ],
+      "expected_output": "9 10",
+      "why_tr": "Kod `floor` ve `ceil`'i ön eksiz çağırıyor; bu yüzden iki ismin de `math`'ten doğrudan, virgülle ayrılarak import edilmesi gerekir.",
+      "why": "The code calls `floor` and `ceil` without a prefix, so both names must be imported directly from `math`, separated by a comma."
     },
     {
       "id": "d12-c09",
       "type": "explain",
-      "section": "OS Module",
-      "title_tr": "os modülü",
-      "title": "The os module",
-      "body_tr": "`os`, işletim sistemi işlerini yapar: klasör oluşturma, silme, bulunduğun klasörü öğrenme. Tarayıcıda sanal bir dosya sistemi var, bu yüzden güvenle deneyebilirsin.",
-      "body": "`os` does operating system tasks: creating or removing folders, finding the current folder. The browser has a virtual file system, so it is safe to try.",
-      "code": "import os\n\nos.mkdir('demo')\nprint(os.path.isdir('demo'))\nos.rmdir('demo')\nprint(os.path.isdir('demo'))",
-      "expected_output": "True\nFalse",
-      "trace": true
+      "section": "Import Functions from a Module and Renaming",
+      "title_tr": "as ile yeniden adlandırma",
+      "title": "Renaming with as",
+      "body_tr": "`as`, import ettiğin şeye senin dosyanda başka bir isim verir. Hem modüller hem tek tek isimler için çalışır:\n\n`import statistics as st` sayesinde `st.mean(...)` yazarsın. `from mymodule import generate_full_name as fullname` sayesinde `fullname(...)` yazarsın.\n\nYeniden adlandırmanın iki iyi nedeni var: sürekli kullandığın uzun bir modül adı (veri dünyasının tamamı `import pandas as pd` yazar; bunu 24. günde göreceksin) ve çakışmadan kaçınmak, örneğin iki modülde de `load` adında bir isim varsa.\n\n`import math as m` sonrasında yalnızca `m` vardır. O zaman `math.pi` yazmak `NameError: name 'math' is not defined. Did you forget to import 'math'?` hatası verir, çünkü etiketin adı artık `m`.",
+      "body": "`as` gives an imported thing a different name in your file. It works for modules and for single names:\n\n`import statistics as st` lets you write `st.mean(...)`. `from mymodule import generate_full_name as fullname` lets you write `fullname(...)`.\n\nTwo good reasons to rename: a long module name you use constantly (the whole data world writes `import pandas as pd`, which you will see on Day 24), and avoiding a clash, for example when two modules both have a name `load`.\n\nAfter `import math as m`, only `m` exists. Writing `math.pi` then fails with `NameError: name 'math' is not defined. Did you forget to import 'math'?`, because the tag is called `m` now.",
+      "code": "import statistics as st\nfrom math import pi as PI\n\nscores = [70, 85, 90]\nprint(st.mean(scores))\nprint(round(PI, 2))",
+      "expected_output": "81.66666666666667\n3.14"
     },
     {
       "id": "d12-c10",
-      "type": "order",
-      "section": "OS Module",
-      "prompt_tr": "Satırları doğru sıraya diz.",
-      "lines": [
-        "os.rmdir('demo')",
-        "import os",
-        "print(os.path.isdir('demo'))",
-        "print(os.path.isdir('demo'))",
-        "os.mkdir('demo')"
+      "type": "predict",
+      "section": "Import Functions from a Module and Renaming",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "from math import sqrt as root\nimport math as m\n\nprint(root(81) + m.floor(2.7))",
+      "choices": [
+        "11",
+        "9.0",
+        "NameError",
+        "11.0"
       ],
-      "correct_order": [
-        1,
-        4,
-        3,
-        0,
-        2
-      ],
-      "expected_output": "True\nFalse"
+      "answer": "11.0",
+      "why_tr": "`root`, `math.sqrt` için başka bir isimdir ve `9.0` verir; `m.floor(2.7)` ise `2`'dir. float ile int toplanınca float çıkar; sonuç `11.0`.",
+      "why": "`root` is another name for `math.sqrt`, giving `9.0`; `m.floor(2.7)` is `2`. A float plus an int is a float, so the result is `11.0`."
     },
     {
       "id": "d12-c11",
       "type": "explain",
-      "section": "Sys Module",
-      "title_tr": "sys modülü",
-      "title": "The sys module",
-      "body_tr": "`sys.argv`, komut satırından verilen argümanların listesidir; 0. eleman betiğin adıdır. Burada komut satırı yok, bu yüzden listeyi kendimiz taklit ediyoruz. `sys.exit()` programı bitirir, `sys.version` sürümü verir.",
-      "body": "`sys.argv` is the list of command line arguments; item 0 is the script name. There is no command line here, so we fake the list. `sys.exit()` ends the program and `sys.version` gives the version.",
-      "code": "import sys\n\nsys.argv = ['script.py', 'Asabeneh', '30DaysOfPython']\nprint('Welcome {}. Enjoy {} challenge!'.format(sys.argv[1], sys.argv[2]))",
-      "expected_output": "Welcome Asabeneh. Enjoy 30DaysOfPython challenge!"
+      "section": "Math Module",
+      "title_tr": "Neden import * kullanmamalı",
+      "title": "Why to avoid import *",
+      "body_tr": "`from math import *`, `math` modülündeki **bütün** genel isimleri dosyana kopyalar. Pratik görünür ama artık bir ismin nereden geldiğini göremezsin ve zaten sahip olduğun isimlerin yerine sessizce geçebilir.\n\nGerçek bir örnek: Python'da int `8` döndüren hazır bir `pow(2, 3)` vardır. `math` modülünde de her zaman float döndüren bir `pow` bulunur. `from math import *` sonrasında hazır fonksiyon gizlenir ve `pow(2, 3)` birden `8.0` verir. Hata yok, yalnızca farklı davranış: bulması bir saat süren türden bir hata.\n\n`import math` ya da `from math import sqrt, pi` gibi kısa ve açık bir liste tercih et. Orijinal derste ayrıca yalnızca `from math import ...` yazıldıktan sonra `math.log10` kullanılmıştı; o satır `NameError` verirdi.",
+      "body": "`from math import *` copies **every** public name of `math` into your file. It looks convenient, but you can no longer see where a name came from, and it can silently replace names you already had.\n\nA real example: Python has a built-in `pow(2, 3)` that returns the int `8`. `math` also has a `pow`, which always returns a float. After `from math import *` the built-in is hidden, so `pow(2, 3)` suddenly gives `8.0`. No error, just different behaviour, the kind of bug that takes an hour to find.\n\nPrefer `import math` or a short, explicit list such as `from math import sqrt, pi`. The original lesson also used `math.log10` after only `from math import ...`; that line would raise `NameError`.",
+      "code": "print(pow(2, 3))\n\nfrom math import *\nprint(pow(2, 3))",
+      "expected_output": "8\n8.0"
     },
     {
       "id": "d12-c12",
       "type": "explain",
-      "section": "Statistics Module",
-      "title_tr": "statistics modülü",
-      "title": "The statistics module",
-      "body_tr": "`mean`, `median`, `mode` ve `stdev` gibi istatistik fonksiyonlarını verir. Ortalamayı tahmin et, sonra çalıştır. (Derste yazan ~22.9 yanlış; gerçek değeri kod hesaplar.)",
-      "body": "It provides `mean`, `median`, `mode`, `stdev` and more. Guess the mean, then run. (The lesson's ~22.9 is wrong; the code computes the real value.)",
-      "code": "from statistics import mean, median, mode, stdev\n\nages = [20, 20, 4, 24, 25, 22, 26, 20, 23, 22, 26]\nprint(round(mean(ages), 2))\nprint(median(ages))\nprint(mode(ages))\nprint(round(stdev(ages), 2))",
-      "expected_output": "21.09\n22\n20\n6.11",
-      "hide_output": true
+      "section": "Importing a Module",
+      "title_tr": "Hem betik hem modül olan dosya",
+      "title": "A file that is both script and module",
+      "body_tr": "Her modülün `__name__` adında hazır bir değişkeni vardır. Bir dosyayı doğrudan çalıştırdığında Python ona `'__main__'` string'ini atar. Aynı dosya import edildiğinde ise `__name__`, `'mymodule'` gibi modülün adı olur.\n\nBu, dosyanın en altında yaygın bir kalıba izin verir:\n\n```\nif __name__ == '__main__':\n    print(generate_full_name('Ada', 'Lovelace'))\n```\n\n`if`'in içindeki deneme satırları dosyayı sen başlattığında çalışır, ama başka bir dosya onu fonksiyonları için import ettiğinde çalışmaz. Bu koruma olmasaydı her `import mymodule` deneme print'lerini de çalıştırırdı, çünkü import etmek bütün dosyayı çalıştırır. Bu satırı neredeyse her gerçek Python projesinde göreceksin.",
+      "body": "Every module has a built-in variable `__name__`. When you run a file directly, Python sets it to the string `'__main__'`. When the same file is imported, `__name__` is the module's name, such as `'mymodule'`.\n\nThis allows a common pattern at the bottom of a file:\n\n```\nif __name__ == '__main__':\n    print(generate_full_name('Ada', 'Lovelace'))\n```\n\nThe demo lines inside the `if` run when you start the file yourself, but not when another file imports it for its functions. Without this guard, every `import mymodule` would also run the demo prints, because importing runs the whole file. You will see this line in almost every real Python project.",
+      "code": "def generate_full_name(first, last):\n    return first + ' ' + last\n\nprint(__name__)\nif __name__ == '__main__':\n    print(generate_full_name('Ada', 'Lovelace'))",
+      "expected_output": "__main__\nAda Lovelace"
     },
     {
       "id": "d12-c13",
-      "type": "predict",
-      "section": "Statistics Module",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "from statistics import median, mode\n\nprint(median([1, 3, 9]), mode([2, 2, 5]))",
-      "choices": [
-        "3 2",
-        "9 2",
-        "3 5",
-        "4.33 2"
-      ],
-      "answer": "3 2",
-      "why_tr": "Ortanca 3, en sık görülen 2.",
-      "why": "The median is 3, the most frequent value is 2."
+      "type": "truefalse",
+      "section": "Importing a Module",
+      "statement_tr": "`main.py` dosyası `import mymodule` yaptığında `mymodule.py` içindeki `if __name__ == '__main__':` bloğu da çalışır.",
+      "statement": "When `main.py` does `import mymodule`, the code inside `if __name__ == '__main__':` in `mymodule.py` runs too.",
+      "answer": false,
+      "why_tr": "Import edilirken modülün `__name__` değeri `'__main__'` değil `'mymodule'` olur; koşul yanlıştır ve blok atlanır.",
+      "why": "While being imported, the module's `__name__` is `'mymodule'`, not `'__main__'`, so the condition is false and the block is skipped."
     },
     {
       "id": "d12-c14",
       "type": "explain",
-      "section": "Math Module",
-      "title_tr": "math modülü",
-      "title": "The math module",
-      "body_tr": "`math` sabitler (`pi`) ve fonksiyonlar (`sqrt`, `pow`, `floor`, `ceil`, `log10`) içerir. `dir(math)` ile içindekileri listeleyebilirsin.",
-      "body": "`math` has constants (`pi`) and functions (`sqrt`, `pow`, `floor`, `ceil`, `log10`). `dir(math)` lists what is inside.",
-      "code": "import math\n\nprint(math.pi)\nprint(math.sqrt(2))\nprint(math.pow(2, 3))\nprint(math.floor(9.81))\nprint(math.ceil(9.81))\nprint(math.log10(100))",
-      "expected_output": "3.141592653589793\n1.4142135623730951\n8.0\n9\n10\n2.0"
+      "section": "Import Built-in Modules",
+      "title_tr": "Bir modülü keşfetmek: dir ve help",
+      "title": "Exploring a module: dir and help",
+      "body_tr": "Bir modülü ezberlemen gerekmez. İki hazır araç onu keşfetmeni sağlar:\n\n`dir(math)`, `math` içindeki bütün isimlerin sıralı bir list'ini döndürür: `ceil`, `floor`, `pi`, `sqrt` ve onlarca isim daha. `help(math.floor)` ise tek bir fonksiyonun belgesini yazdırır: ne aldığını ve ne döndürdüğünü.\n\n`dir` bir list döndürdüğü için ona örnekteki gibi soru da sorabilirsin: `'sqrt'` içinde var mı? Pratikte docs.python.org adresindeki resmî belgeleri de okuyacaksın; orada her standart modül listelenir.\n\nBu kursta karşılaşacağın bazı modüller: bugün `math`, `random`, `statistics`, `string`, `os` ve `sys`; 16. günde `datetime`; 18. günde `re`; 19. günde `json`; daha sonra işe yarar bir ek olarak `collections`.",
+      "body": "You do not need to memorise a module. Two built-in tools let you explore it:\n\n`dir(math)` returns a sorted list of every name inside `math`: `ceil`, `floor`, `pi`, `sqrt` and dozens more. `help(math.floor)` prints the documentation of one function, including what it takes and returns.\n\nBecause `dir` returns a list, you can also ask questions about it, as in the example: is `'sqrt'` in it? In practice you will also read the official documentation at docs.python.org, which lists every standard module.\n\nSome modules you will meet in this course: `math`, `random`, `statistics`, `string`, `os` and `sys` today; `datetime` on Day 16; `re` on Day 18; `json` on Day 19; `collections` later as a useful extra.",
+      "code": "import math\n\nnames = dir(math)\nprint('sqrt' in names, 'PI' in names, 'pi' in names)\nprint(type(names))",
+      "expected_output": "True False True\n<class 'list'>"
     },
     {
       "id": "d12-c15",
-      "type": "predict",
-      "section": "Math Module",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "import math\n\nprint(math.floor(9.81), math.ceil(9.01))",
-      "choices": [
-        "9 10",
-        "10 10",
-        "9 9",
-        "10 9"
-      ],
-      "answer": "9 10",
-      "why_tr": "`floor` aşağı, `ceil` yukarı yuvarlar.",
-      "why": "`floor` rounds down, `ceil` rounds up."
+      "type": "explain",
+      "section": "OS Module",
+      "title_tr": "os modülü",
+      "title": "The os module",
+      "body_tr": "`os`, bir programın işletim sistemiyle konuşmasını sağlar: geçerli klasör, klasör oluşturmak ve silmek, dosyaları listelemek, yol (path) kurmak. Tipik çağrılar: `os.getcwd()` (geçerli çalışma klasörü), `os.mkdir('notes')`, `os.listdir('.')`, `os.rmdir('notes')`.\n\n`os.path` yol yardımcılarını barındırır. `os.path.join('data', '2025', 'rapor.txt')` parçaları sisteme uygun ayırıcıyla birleştirir: Linux ve macOS'ta `/`, Windows'ta `\\`. Yolları asla elle `+ '/' +` ile yapıştırma.\n\nDürüst bir not: Bu tarayıcıda Python, bellekte yaşayan küçük bir sanal dosya sisteminde çalışır; yani bu çağrılar çalışır ama bilgisayarındaki gerçek klasörlere dokunmaz. Kendi makinende aynı kod gerçek klasörleri değiştirir; `rmdir` ile dikkatli ol.",
+      "body": "`os` lets a program talk to the operating system: the current folder, creating and removing folders, listing files, building paths. Typical calls: `os.getcwd()` (current working directory), `os.mkdir('notes')`, `os.listdir('.')`, `os.rmdir('notes')`.\n\n`os.path` holds path helpers. `os.path.join('data', '2025', 'rapor.txt')` glues parts with the right separator for the system: `/` on Linux and macOS, `\\` on Windows. Never glue paths with `+ '/' +` by hand.\n\nHonest note: in this browser Python runs in a small virtual file system that lives in memory, so these calls work but touch no real folders on your computer. On your own machine the same code changes real folders, so be careful with `rmdir`.",
+      "code": "import os\n\nos.mkdir('notes')\nprint(os.path.exists('notes'))\nos.rmdir('notes')\nprint(os.path.exists('notes'))\nprint(os.path.join('data', '2025', 'rapor.txt'))",
+      "expected_output": "True\nFalse\ndata/2025/rapor.txt"
     },
     {
       "id": "d12-c16",
-      "type": "explain",
-      "section": "Math Module",
-      "title_tr": "Sadece gerekeni içe aktar",
-      "title": "Import only what you need",
-      "body_tr": "`from math import pi, sqrt` ile modül adı olmadan kullanırsın. `as` ile ad değiştirebilirsin. `from math import *` hepsini getirir ama hangi ad nereden geldi karışır; kaçın. Not: derste `import *` sonrası `math.log10` yazılmış, bu hata verir (`math` içe aktarılmadı).",
-      "body": "`from math import pi, sqrt` lets you skip the module prefix, and `as` renames. `from math import *` brings everything but hides where names come from; avoid it. Note: the lesson writes `math.log10` after `import *`, which errors (`math` was not imported).",
-      "code": "from math import pi as PI, sqrt, log10\n\nprint(PI)\nprint(sqrt(2))\nprint(log10(100))",
-      "expected_output": "3.141592653589793\n1.4142135623730951\n2.0"
+      "type": "predict",
+      "section": "OS Module",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "import os\n\nname, ext = os.path.splitext('rapor.final.pdf')\nprint(name)\nprint(ext)",
+      "choices": [
+        "rapor\n.final.pdf",
+        "rapor.final\npdf",
+        "rapor.final\n.pdf",
+        "rapor.final.pdf\n"
+      ],
+      "answer": "rapor.final\n.pdf",
+      "why_tr": "`splitext` **son** noktadan böler ve noktayı uzantıyla birlikte tutar: `('rapor.final', '.pdf')`; bu tuple iki isme açılır.",
+      "why": "`splitext` splits at the **last** dot and keeps the dot with the extension: `('rapor.final', '.pdf')`, which is unpacked into two names."
     },
     {
       "id": "d12-c17",
-      "type": "truefalse",
-      "section": "Math Module",
-      "statement_tr": "`from math import sqrt` yaptıktan sonra `math.sqrt(4)` de çalışır.",
-      "statement": "After `from math import sqrt`, `math.sqrt(4)` also works.",
-      "answer": false,
-      "why_tr": "Yalnız `sqrt` adı gelir; `math` adı tanımlanmaz, NameError olur.",
-      "why": "Only the name `sqrt` is imported; `math` is not defined, giving a NameError."
+      "type": "explain",
+      "section": "Sys Module",
+      "title_tr": "sys modülü ve komut satırı argümanları",
+      "title": "The sys module and command-line arguments",
+      "body_tr": "`sys`, çalışan Python'ın kendisine erişim verir. En ünlü üyesi `sys.argv`'dir: komut satırında yazılan kelimelerin bir list'i. `python script.py Asabeneh 30DaysOfPython` komutundan sonra değeri `['script.py', 'Asabeneh', '30DaysOfPython']` olur: 0 indeksi her zaman betiğin adıdır, gerçek argümanlar 1 indeksinden başlar.\n\nTarayıcıda komut satırı yok; bu yüzden örnek, bir betiğin onu nasıl okuduğunu göstermek için aynı list'i elle kuruyor. Diğer işe yarar üyeler: `sys.version` (Python sürümü, metin olarak), `sys.path` (`import`'un aradığı klasörler) ve `sys.exit()` (programı durdurur).\n\n`sys.maxsize` bir list'in alabileceği en büyük indekstir, en büyük tam sayı değil: Python int'lerinin sabit bir sınırı yoktur.",
+      "body": "`sys` gives access to the running Python itself. The most famous member is `sys.argv`, a list of the words typed on the command line. After `python script.py Asabeneh 30DaysOfPython`, it is `['script.py', 'Asabeneh', '30DaysOfPython']`: index 0 is always the script name, the real arguments start at index 1.\n\nIn the browser there is no command line, so the example builds the same list by hand to show how a script reads it. Other useful members: `sys.version` (the Python version as text), `sys.path` (the folders searched by `import`) and `sys.exit()` (stop the program).\n\n`sys.maxsize` is the largest index a list can have, not the largest integer: Python ints have no fixed limit.",
+      "code": "import sys\n\nprint(type(sys.argv))\nargv = ['script.py', 'Asabeneh', '30DaysOfPython']\nprint(f'Welcome {argv[1]}. Enjoy {argv[2]} challenge!')\nprint(len(argv) - 1, 'arguments')",
+      "expected_output": "<class 'list'>\nWelcome Asabeneh. Enjoy 30DaysOfPython challenge!\n2 arguments"
     },
     {
       "id": "d12-c18",
-      "type": "explain",
-      "section": "String Module",
-      "title_tr": "string modülü",
-      "title": "The string module",
-      "body_tr": "`string` hazır karakter kümeleri verir: harfler, rakamlar, noktalama.",
-      "body": "`string` provides ready character sets: letters, digits, punctuation.",
-      "code": "import string\n\nprint(string.ascii_letters)\nprint(string.digits)\nprint(string.punctuation)",
-      "expected_output": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789\n!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+      "type": "truefalse",
+      "section": "Sys Module",
+      "statement_tr": "`python script.py Ankara 7` komutundan sonra `sys.argv[0]` değeri `'Ankara'` olur.",
+      "statement": "After `python script.py Ankara 7`, `sys.argv[0]` is `'Ankara'`.",
+      "answer": false,
+      "why_tr": "0 indeksi betiğin adıdır, `'script.py'`; `'Ankara'` 1 indeksinde, `'7'` ise (int değil, string olarak) 2 indeksindedir.",
+      "why": "Index 0 is the script name `'script.py'`; `'Ankara'` is at index 1 and `'7'` (a string, not an int) at index 2."
     },
     {
       "id": "d12-c19",
       "type": "explain",
-      "section": "Random Module",
-      "title_tr": "random modülü",
-      "title": "The random module",
-      "body_tr": "`random()` 0 ile 1 arasında (1 hariç) bir ondalık sayı, `randint(a, b)` iki ucu da dahil bir tam sayı verir. Sonuç her seferinde değiştiği için aralıkları kontrol ediyoruz.",
-      "body": "`random()` gives a float from 0 up to (not including) 1; `randint(a, b)` gives an integer including both ends. Results change every run, so we check ranges.",
-      "code": "from random import random, randint\n\nprint(0 <= random() < 1)\nprint(5 <= randint(5, 20) <= 20)",
-      "expected_output": "True\nTrue"
+      "section": "Statistics Module",
+      "title_tr": "statistics modülü, doğru sayılarla",
+      "title": "The statistics module, with correct numbers",
+      "body_tr": "`statistics`, sayısal verilerin bilinen özetlerini hesaplar: `mean` (ortalama), `median` (sıralamadan sonraki orta değer), `mode` (en sık görülen değer) ve `stdev` (standart sapma, verinin ne kadar dağınık olduğu).\n\nOrijinal ders tam olarak bu list için yanlış sayılar yazdırmıştı (ortalamayı yaklaşık 22.9, medyanı 23, standart sapmayı yaklaşık 2.3 diye vermişti). Çalıştır: gerçek ortalama yaklaşık 21.09, medyan 22, mod 20, standart sapma yaklaşık 6.11. Tek bir küçük yaş olan `4` ortalamayı aşağı çeker ve dağılımı büyütür; medyan ise neredeyse hiç kıpırdamaz. Maaşlar gibi aykırı değerli verilerde medyanın tercih edilmesinin nedeni budur.\n\nBurada olduğu gibi import ettiklerini adıyla yazmayı `from statistics import *` yazımına tercih et.",
+      "body": "`statistics` computes the usual summaries of numeric data: `mean` (average), `median` (middle value after sorting), `mode` (most common value) and `stdev` (standard deviation, how spread out the data is).\n\nThe original lesson printed wrong numbers for this exact list (it claimed a mean of about 22.9, a median of 23 and a stdev of about 2.3). Run it: the real mean is about 21.09, the median 22, the mode 20, the stdev about 6.11. The single small age `4` pulls the mean down and makes the spread large, while the median barely moves. That is why the median is preferred for data with outliers, such as salaries.\n\nPrefer naming what you import, as here, over `from statistics import *`.",
+      "code": "from statistics import mean, median, mode, stdev\n\nages = [20, 20, 4, 24, 25, 22, 26, 20, 23, 22, 26]\nprint(round(mean(ages), 2))\nprint(median(ages))\nprint(mode(ages))\nprint(round(stdev(ages), 2))",
+      "expected_output": "21.09\n22\n20\n6.11",
+      "trace": true
     },
     {
       "id": "d12-c20",
-      "type": "fill",
-      "section": "Random Module",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "from random import ___\n\nprint(randint(7, 7))",
-      "answers": [
-        "randint"
+      "type": "predict",
+      "section": "Statistics Module",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "from statistics import median, mean\n\nprint(median([1, 3, 5, 7]))\nprint(mean([1, 3, 5, 7]))",
+      "choices": [
+        "4\n4",
+        "4.0\n4",
+        "3\n4.0",
+        "5\n4.0"
       ],
-      "expected_output": "7",
-      "why_tr": "`randint(7, 7)` her zaman 7 verir; fonksiyon adı `randint`.",
-      "why": "`randint(7, 7)` always gives 7; the function is `randint`."
+      "answer": "4.0\n4",
+      "why_tr": "Eleman sayısı çift olunca tek bir orta değer yoktur; `median` ortadaki iki değerin, 3 ile 5'in ortalamasını alır ve `4.0` verir. 16 / 4 ortalaması ise int `4`'tür, çünkü tüm girdiler int ve bölme tam çıkar.",
+      "why": "With an even count there is no single middle value, so `median` averages the two middle ones, 3 and 5, giving `4.0`. The mean of 16 / 4 is the int `4`, because all inputs are ints and the division comes out exact."
     },
     {
       "id": "d12-c21",
+      "type": "explain",
+      "section": "Statistics Module",
+      "title_tr": "Yaygın hata: boş list üzerinde istatistik",
+      "title": "Common mistake: statistics on an empty list",
+      "body_tr": "`mean([])` hesaplanamaz ve modül bunu tam olarak söyler:\n\n`statistics.StatisticsError: mean requires at least one data point`\n\nİlk kısım, `statistics.StatisticsError`, bu hata türünün Python'ın çekirdeğine değil `statistics` modülünün kendisine ait olduğunu söyler. İki noktadan sonraki mesaj neyin yanlış olduğunu anlatır.\n\nGerçek kodda boş list genellikle bir filtre hiçbir şey bulamadığında ortaya çıkar; örneğin henüz kimsenin olmadığı \"9C sınıfındaki öğrencilerin notları\". Çözüm hesaplamadan önce kontrol etmektir: `if scores:` (boş list yanlış sayılır, falsy) ve değilse `0` ya da `None` gibi makul bir değer döndürmek. Kod korumalı hâli gösteriyor.",
+      "body": "`mean([])` cannot be computed, and the module says so precisely:\n\n`statistics.StatisticsError: mean requires at least one data point`\n\nThe first part, `statistics.StatisticsError`, tells you this error type belongs to the `statistics` module itself, not to Python's core. The message after the colon tells you what was wrong.\n\nIn real code an empty list usually appears when a filter matched nothing, for example \"scores of students in class 9C\" when nobody is in 9C yet. The fix is to check before computing: `if scores:` (an empty list is falsy) and return a sensible value like `0` or `None` otherwise. The code shows the guarded version.",
+      "code": "from statistics import mean\n\ndef safe_mean(scores):\n    if scores:\n        return mean(scores)\n    return None\n\nprint(safe_mean([80, 90]))\nprint(safe_mean([]))",
+      "expected_output": "85\nNone"
+    },
+    {
+      "id": "d12-c22",
+      "type": "explain",
+      "section": "Math Module",
+      "title_tr": "math modülü",
+      "title": "The math module",
+      "body_tr": "`math`, matematiksel sabitleri ve fonksiyonları barındırır: `math.pi`, `math.e`, `math.sqrt`, `math.pow`, `math.log10`, `math.floor`, `math.ceil` ve daha fazlası.\n\nİki ayrıntı insanları şaşırtır. Birincisi, `math.sqrt`, `math.pow` ve `math.log10` her zaman float döndürür: `math.log10(100)` sonucu `2` değil `2.0`'dır. İkincisi, `floor` ile `int()` aynı şey değildir. `math.floor` eksi sonsuza doğru, yani **aşağı** yuvarlar; `int()` ise ondalıkları keser ve sıfıra doğru yuvarlar. Pozitif sayılarda ikisi aynı sonucu verir, negatiflerde vermez: `math.floor(-2.5)` `-3`, ama `int(-2.5)` `-2`'dir.\n\nJavaScript bilenler için: `math.floor`, `Math.floor`'dur; Python'ın `//` operatörü de aşağı yuvarlar.",
+      "body": "`math` holds mathematical constants and functions: `math.pi`, `math.e`, `math.sqrt`, `math.pow`, `math.log10`, `math.floor`, `math.ceil` and many more.\n\nTwo details trip people up. First, `math.sqrt`, `math.pow` and `math.log10` always return floats: `math.log10(100)` is `2.0`, not `2`. Second, `floor` is not the same as `int()`. `math.floor` rounds **down** toward minus infinity, while `int()` simply cuts off the decimals, rounding toward zero. For positive numbers they agree; for negative numbers they do not: `math.floor(-2.5)` is `-3`, but `int(-2.5)` is `-2`.\n\nJavaScript readers: `math.floor` is `Math.floor`, and Python's `//` operator also floors.",
+      "code": "import math\n\nprint(math.log10(100), math.pow(2, 3))\nprint(math.floor(2.5), int(2.5))\nprint(math.floor(-2.5), int(-2.5))\nprint(-5 // 2)",
+      "expected_output": "2.0 8.0\n2 2\n-3 -2\n-3"
+    },
+    {
+      "id": "d12-c23",
+      "type": "predict",
+      "section": "Math Module",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "import math\n\nprint(math.ceil(-1.2), math.floor(-1.2), int(-1.2))",
+      "choices": [
+        "-2 -1 -1",
+        "-1 -1 -1",
+        "-1 -2 -1",
+        "-2 -2 -1"
+      ],
+      "answer": "-1 -2 -1",
+      "why_tr": "`ceil` artı sonsuza doğru, yukarı yuvarlar: -1.2, -1 olur. `floor` aşağı yuvarlar: -2. `int` ondalıkları sıfıra doğru keser: -1.",
+      "why": "`ceil` rounds up, toward plus infinity: -1.2 becomes -1. `floor` rounds down: -2. `int` cuts the decimals toward zero: -1."
+    },
+    {
+      "id": "d12-c24",
+      "type": "explain",
+      "section": "String Module",
+      "title_tr": "string modülü",
+      "title": "The string module",
+      "body_tr": "`string`, hazır karakter kümelerini sıradan string'ler olarak içerir: `string.ascii_lowercase` (a'dan z'ye), `string.ascii_uppercase`, `string.ascii_letters` (ikisi birden), `string.digits` ('0123456789') ve `string.punctuation` (`!` ve `?` gibi simgeler).\n\n`in` ile yapılan kontroller için biçilmiş kaftandır. Örnek, bir şifredeki karakterlerden kaçının rakam, kaçının noktalama işareti olduğunu sayıyor; \"en az bir rakam ve bir simge\" gibi tipik bir kural.\n\nBu kümelerin yalnızca İngilizce harfleri içerdiğine dikkat et: `'ş' in string.ascii_letters` sonucu `False`'tur. Türkçe harfler için `ch.isalpha()` gibi, her alfabeyi bilen string metotlarını kullan. `string` modülünü `str` türüyle karıştırma; `.upper()` gibi metotlar `str` üzerinde yaşar.",
+      "body": "`string` contains ready-made character sets as plain strings: `string.ascii_lowercase` (a to z), `string.ascii_uppercase`, `string.ascii_letters` (both), `string.digits` ('0123456789') and `string.punctuation` (symbols like `!` and `?`).\n\nThey are perfect for checks with `in`. The example counts how many characters of a password are digits and how many are punctuation, a typical rule like \"at least one digit and one symbol\".\n\nNote that these sets contain only English letters: `'ş' in string.ascii_letters` is `False`. For Turkish letters use string methods such as `ch.isalpha()`, which know about every alphabet. Do not confuse the module `string` with the type `str`; the methods like `.upper()` live on `str`.",
+      "code": "import string\n\npassword = 'Kedi_2024!'\ndigits = 0\nsymbols = 0\nfor ch in password:\n    if ch in string.digits:\n        digits += 1\n    elif ch in string.punctuation:\n        symbols += 1\nprint(digits, symbols)",
+      "expected_output": "4 2"
+    },
+    {
+      "id": "d12-c25",
+      "type": "fill",
+      "section": "String Module",
+      "prompt_tr": "Kod gösterilen çıktıyı versin diye boşluğu doldur.",
+      "prompt": "Fill in the blank so the code prints the output shown.",
+      "code": "import string\n\ncode = 'TR-42x'\nletters = 0\nfor ch in code:\n    if ch in string.___:\n        letters += 1\nprint(letters)",
+      "answers": [
+        "ascii_letters"
+      ],
+      "expected_output": "3",
+      "why_tr": "`ascii_letters` hem küçük hem büyük harfleri içerir; bu yüzden T, R ve x sayılır: 3. Yalnızca `ascii_lowercase` olsaydı sadece x sayılırdı.",
+      "why": "`ascii_letters` contains both lowercase and uppercase letters, so T, R and x are counted: 3. `ascii_lowercase` alone would count only x."
+    },
+    {
+      "id": "d12-c26",
+      "type": "explain",
+      "section": "Random Module",
+      "title_tr": "random modülü ve seed",
+      "title": "The random module and seed",
+      "body_tr": "`random.random()`, 0.0 ile 1.0 arasında (1.0 hariç) bir float döndürür. `random.randint(a, b)` ise a ile b arasında, **iki uç da dahil**, bir int döndürür: `randint(1, 6)` bir zar atışıdır. Bu, JavaScript'teki `Math.random()` numaralarından ve bitişini dahil etmeyen `range`'den farklıdır. `randint(10, 1)` gibi ters bir aralık `ValueError: empty range in randint(10, 1)` hatası verir.\n\nSayılar sözde rastgeledir (pseudo-random): bir formül onları bir başlangıç değerinden üretir. `random.seed(42)` bu başlangıcı sabitler; böylece her çalıştırmada, her bilgisayarda aynı dizi çıkar. Testler ve bu kurs, rastgele kod için sana tam çıktıyı bu sayede gösterebiliyor. `seed` olmadan her çalıştırma farklıdır.",
+      "body": "`random.random()` returns a float from 0.0 up to, but not including, 1.0. `random.randint(a, b)` returns an int between a and b, **including both ends**: `randint(1, 6)` is a dice roll. That differs from JavaScript's `Math.random()` tricks and from `range`, which excludes its end. A reversed range like `randint(10, 1)` fails with `ValueError: empty range in randint(10, 1)`.\n\nThe numbers are pseudo-random: a formula produces them from a starting value. `random.seed(42)` fixes that start, so the same sequence comes out on every run, on any computer. That is how tests and this course can show you exact output for random code. Without `seed`, every run differs.",
+      "code": "import random\n\nrandom.seed(42)\nprint(random.random())\nprint(random.randint(1, 6))\nrandom.seed(42)\nprint(random.random())",
+      "expected_output": "0.6394267984578837\n1\n0.6394267984578837"
+    },
+    {
+      "id": "d12-c27",
+      "type": "explain",
+      "section": "Random Module",
+      "title_tr": "choice, sample ve shuffle",
+      "title": "choice, sample and shuffle",
+      "body_tr": "Üç araç daha günlük ihtiyaçların çoğunu karşılar:\n\n`random.choice(seq)` tek bir eleman seçer; örneğin rastgele bir kazanan. `random.sample(seq, k)` `k` tane **farklı** eleman seçer ve yeni bir list döndürür; tekrar etmeyen üç piyango numarası çekmek gibi. `random.shuffle(lst)` ise bir list'i **yerinde** karıştırır.\n\nSonuncusuna dikkat et. `shuffle` list nesnesinin kendisini değiştirir ve `None` döndürür, tıpkı `lst.sort()` gibi. Bu yüzden `cards = random.shuffle(cards)` bir hatadır: `cards` etiketini `None`'a bağlar ve karışmış list kaybolur. `random.shuffle(cards)` satırını tek başına yaz.\n\nÖrneği adım adım izle: `cards` yerinde değişirken `hand` yeni bir list.",
+      "body": "Three more tools cover most everyday needs:\n\n`random.choice(seq)` picks one item, for example a random winner. `random.sample(seq, k)` picks `k` **different** items and returns a new list, like drawing three lottery numbers without repeats. `random.shuffle(lst)` reorders a list **in place**.\n\nWatch the last one closely. `shuffle` changes the list object itself and returns `None`, just like `lst.sort()`. So `cards = random.shuffle(cards)` is a bug: it attaches `cards` to `None` and the shuffled list is lost. Write `random.shuffle(cards)` on its own line.\n\nStep through the example and watch `cards` change in place while `hand` is a new list.",
+      "code": "import random\n\nrandom.seed(1)\ncards = ['A', 'K', 'Q', 'J', '10']\nprint(random.choice(cards))\nhand = random.sample(cards, 2)\nrandom.shuffle(cards)\nprint(hand)\nprint(cards)",
+      "expected_output": "K\n['10', 'A']\n['J', '10', 'K', 'A', 'Q']",
+      "trace": true
+    },
+    {
+      "id": "d12-c28",
+      "type": "predict",
+      "section": "Random Module",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "import random\n\ndeck = ['A', 'K', 'Q', 'J']\nresult = random.shuffle(deck)\nprint(len(deck), sorted(deck) == ['A', 'J', 'K', 'Q'])\nprint(result)",
+      "choices": [
+        "4 False\nNone",
+        "4 True\n['A', 'K', 'Q', 'J']",
+        "0 True\nNone",
+        "4 True\nNone"
+      ],
+      "answer": "4 True\nNone",
+      "why_tr": "`shuffle` hangi sırayı üretirse üretsin deste yine aynı 4 elemana sahiptir; sıralı karşılaştırma `True` olur. `shuffle` yerinde çalışır ve `None` döndürür.",
+      "why": "Whatever order `shuffle` produces, the deck still has the same 4 items, so the sorted comparison is `True`. `shuffle` works in place and returns `None`."
+    },
+    {
+      "id": "d12-c29",
+      "type": "order",
+      "section": "Statistics Module",
+      "prompt_tr": "Satırları sırala: mean'i import et, bir fonksiyonda kullan, raporu yazdır. `:.1f` tek ondalık gösterir.",
+      "prompt": "Put the lines in order: import mean, use it in a function, print the report. `:.1f` shows one decimal.",
+      "lines": [
+        "def report(scores):",
+        "    avg = mean(scores)",
+        "print(report([70, 85, 92]))",
+        "from statistics import mean",
+        "    return f'Ortalama: {avg:.1f}'"
+      ],
+      "correct_order": [
+        3,
+        0,
+        1,
+        4,
+        2
+      ],
+      "expected_output": "Ortalama: 82.3"
+    },
+    {
+      "id": "d12-c30",
       "type": "recap",
       "section": "Recap",
       "title_tr": "Özet",
       "title": "Summary",
       "points_tr": [
-        "Modül bir `.py` dosyasıdır; `import modül` ya da `from modül import ad` ile kullanılır.",
-        "`as` ile takma ad verilir; `import *` karışıklık yaratır.",
-        "`os`, `sys`, `statistics`, `math`, `string`, `random` hazır modüllerdir.",
-        "Değişen sonuçları (random) aralıkla test et."
+        "Modül bir `.py` dosyasıdır; `import isim` onu bulur, bir kez çalıştırır ve modül nesnesine `isim` etiketini takar; sonra `isim.şey` yazarsın.",
+        "`from m import a, b` dosyana yalnızca `a` ve `b`'yi koyar, `as` yeniden adlandırır; `import *`'dan kaçın, çünkü isimlerin nereden geldiğini gizler ve var olanların yerine geçebilir.",
+        "`if __name__ == '__main__':` altındaki kod yalnızca dosya doğrudan başlatıldığında çalışır, import edildiğinde çalışmaz.",
+        "`math.floor` aşağı yuvarlar, `int()` ise sıfıra doğru keser; `math.sqrt` ve `math.pow` float döndürür; `statistics` `mean`, `median`, `mode`, `stdev` verir ve boş list'te hata verir.",
+        "`randint(a, b)` iki ucu da içerir, `seed` rastgele sonuçları tekrarlanabilir yapar, `shuffle` ise list'i yerinde değiştirir ve `None` döndürür."
       ],
       "points": [
-        "A module is a `.py` file; use it with `import module` or `from module import name`.",
-        "`as` gives an alias; `import *` causes confusion.",
-        "`os`, `sys`, `statistics`, `math`, `string`, `random` are built-in modules.",
-        "Test changing results (random) by range."
+        "A module is a `.py` file; `import name` finds it, runs it once and attaches the tag `name` to the module object, so you write `name.thing`.",
+        "`from m import a, b` puts only `a` and `b` into your file, `as` renames, and `import *` should be avoided because it hides where names come from and can replace existing ones.",
+        "Code under `if __name__ == '__main__':` runs only when the file is started directly, not when it is imported.",
+        "`math.floor` rounds down while `int()` cuts toward zero; `math.sqrt` and `math.pow` return floats; `statistics` gives `mean`, `median`, `mode`, `stdev` and fails on an empty list.",
+        "`randint(a, b)` includes both ends, `seed` makes random results repeatable, and `shuffle` changes the list in place and returns `None`."
       ],
-      "link": "learn",
-      "link_label_tr": "Şimdi alıştırmalara geç",
-      "link_label": "Go to the exercises"
+      "link": "learn"
     }
   ]
 }

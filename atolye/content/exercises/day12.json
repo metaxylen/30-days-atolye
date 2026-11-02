@@ -1,661 +1,1251 @@
 {
   "day": 12,
   "title": "Modules",
-  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "title_tr": "Modüller",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
   "blocks": [
     {
       "id": "d12-b1",
       "concept": "import-forms",
+      "concept_tr": "import modül adını dosyana bağlar ve içine nokta ile ulaşırsın; from ... import yalnızca seçilen isimleri getirir; as yeniden adlandırır.",
       "tags": [
         "modules",
         "import",
-        "math"
+        "from-import",
+        "as"
       ],
       "worked_example": {
-        "code": "import math\nfrom math import sqrt as root\n\nprint(math.pi)\nprint(root(16))",
+        "code": "import math\nfrom statistics import mean as avg\n\nradius = 2\narea = math.pi * radius ** 2\nprint(round(area, 2))\nprint(avg([4, 8, 9]))",
         "notes": [
-          "import math: use the module name as a prefix (math.pi).",
-          "from ... import ... as ... brings one name in under a short name of your choice."
+          "import math attaches one name, math, to the whole module object, so every function inside is reached with the math. prefix.",
+          "from statistics import mean as avg brings only that one function into the file and gives it the local name avg; the name statistics is not defined here.",
+          "Both forms run the module's file once; they differ only in which name tags end up in your own file."
         ],
         "notes_tr": [
-          "import math: modülün adını ön ek olarak kullanırsın (math.pi).",
-          "from ... import ... as ... ile tek bir ismi, seçtiğin kısa adla getirirsin."
+          "import math tüm modül nesnesine tek bir isim, math, bağlar; içerideki her fonksiyona math. ön ekiyle ulaşılır.",
+          "from statistics import mean as avg dosyaya yalnızca o tek fonksiyonu getirir ve ona yerel olarak avg adını verir; statistics ismi burada tanımlı değildir.",
+          "İki biçim de modülün dosyasını bir kez çalıştırır; yalnızca senin dosyanda hangi isim etiketlerinin oluştuğu konusunda farklıdırlar."
         ]
       },
       "exercises": [
         {
           "id": "d12-b1-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "from math import floor, ceil\n\nprint(floor(9.81), ceil(9.81))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "from math import floor\nimport math as m\n\nprint(floor(3.9), m.ceil(3.1), m.floor(-0.5))",
           "choices": [
-            "10 9",
-            "9 10",
-            "9 9"
+            "3 4 0",
+            "3 4 -1",
+            "4 4 -1",
+            "NameError"
           ],
-          "expected_output": "9 10",
-          "explanation": "floor(9.81) rounds down to 9 and ceil(9.81) rounds up to 10. print separates the two values with a space.",
+          "expected_output": "3 4 -1",
+          "explanation": "floor(3.9) is 3, m.ceil(3.1) is 4 and m.floor(-0.5) is -1: floor always rounds down.",
+          "explanation_tr": "floor(3.9) 3, m.ceil(3.1) 4, m.floor(-0.5) ise -1'dir: floor her zaman aşağı yuvarlar.",
           "misconceptions": {
-            "10 9": "floor rounds down and ceil rounds up, so the order is 9 then 10.",
-            "9 9": "ceil rounds UP to the next whole number."
+            "3 4 0": "floor rounds down toward minus infinity, so -0.5 becomes -1, not 0.",
+            "4 4 -1": "floor never rounds 3.9 up; it always goes down to 3.",
+            "NameError": "floor was imported directly and math was imported under the name m, so every name used here exists."
           },
-          "explanation_tr": "floor(9.81) aşağı yuvarlayıp 9, ceil(9.81) yukarı yuvarlayıp 10 verir. print iki değeri boşlukla ayırır.",
           "misconceptions_tr": {
-            "10 9": "floor aşağı, ceil yukarı yuvarlar; yani sıra önce 9 sonra 10 olur.",
-            "9 9": "ceil bir sonraki tam sayıya YUKARI yuvarlar."
+            "3 4 0": "floor eksi sonsuza doğru, aşağı yuvarlar; -0.5, 0 değil -1 olur.",
+            "4 4 -1": "floor 3.9'u asla yukarı yuvarlamaz; her zaman aşağı, 3'e iner.",
+            "NameError": "floor doğrudan import edildi, math ise m adıyla import edildi; burada kullanılan her isim var."
           }
         },
         {
           "id": "d12-b1-e2",
-          "type": "fill_blank",
-          "prompt": "Import pi under the name PI, and import the whole math module.",
-          "prompt_tr": "pi'yi PI adıyla içe aktarın ve tüm math modülünü içe aktarın.",
-          "starter_code": "from math import ___ as PI\nimport ___\n\nprint(PI)\nprint(math.sqrt(16))",
-          "blanks": [
-            {
-              "answer": [
-                "pi"
-              ]
-            },
-            {
-              "answer": [
-                "math"
-              ]
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "import math as m\n\nprint(m.sqrt(9))\nprint('math' in dir(), 'm' in dir())",
+          "choices": [
+            "3\nTrue True",
+            "3.0\nFalse True",
+            "3.0\nTrue False",
+            "3.0\nTrue True"
           ],
-          "tests": [
-            {
-              "code": "assert PI == 3.141592653589793",
-              "visible": true,
-              "label_tr": "PI, pi sabitine eşit"
-            },
-            {
-              "code": "assert math.sqrt(16) == 4.0",
-              "visible": true,
-              "label_tr": "math.sqrt(16) 4.0 veriyor"
-            }
-          ],
-          "hints": [
-            "The constant in the math module is written in lower case.",
-            "The second import must make the name math available."
-          ],
-          "hints_tr": [
-            "math modülündeki sabit küçük harfle yazılır.",
-            "İkinci import, math ismini kullanılabilir yapmalı."
-          ]
+          "expected_output": "3.0\nFalse True",
+          "explanation": "m.sqrt(9) is 3.0. dir() lists the names in the current file: m is there, math is not.",
+          "explanation_tr": "m.sqrt(9) sonucu 3.0'dır. dir() geçerli dosyadaki isimleri listeler: m vardır, math yoktur.",
+          "misconceptions": {
+            "3\nTrue True": "sqrt always returns a float, and after import math as m only the name m exists.",
+            "3.0\nTrue False": "as replaces the name: the tag in your file is m, not math.",
+            "3.0\nTrue True": "Renaming does not keep the old name as well; only m is created."
+          },
+          "misconceptions_tr": {
+            "3\nTrue True": "sqrt her zaman float döndürür; import math as m sonrasında da yalnızca m ismi vardır.",
+            "3.0\nTrue False": "as ismin yerini alır: dosyandaki etiket math değil, m'dir.",
+            "3.0\nTrue True": "Yeniden adlandırma eski ismi de tutmaz; yalnızca m oluşturulur."
+          }
         },
         {
           "id": "d12-b1-e3",
-          "type": "write",
-          "prompt": "Write circle_area(r) that returns the area of a circle with radius r, using the constant pi from the math module (not 3.14).",
-          "prompt_tr": "math modülündeki pi sabitini kullanarak (3.14 değil) r yarıçaplı dairenin alanını döndüren circle_area(r) yazın.",
-          "starter_code": "",
-          "signature": "def circle_area(r):",
+          "type": "fill_blank",
+          "prompt": "Complete the imports so the program prints the hypotenuse 5.0 and pi rounded to 2 decimals. Use from-import for sqrt and rename pi to PI.",
+          "prompt_tr": "Program hipotenüs olarak 5.0'ı ve 2 ondalığa yuvarlanmış pi'yi yazdırsın diye import'ları tamamla. sqrt için from-import kullan, pi'yi PI olarak yeniden adlandır.",
+          "starter_code": "from math import ___\nfrom math import pi ___ PI\n\nprint(sqrt(3 ** 2 + 4 ** 2))\nprint(round(PI, 2))",
+          "blanks": [
+            {
+              "answer": [
+                "sqrt"
+              ]
+            },
+            {
+              "answer": [
+                "as"
+              ]
+            }
+          ],
           "tests": [
             {
-              "code": "assert round(circle_area(1), 5) == 3.14159",
+              "code": "assert __stdout__.split() == ['5.0', '3.14']",
               "visible": true,
-              "label_tr": "circle_area(1) yaklaşık 3.14159"
+              "label": "Prints 5.0 and 3.14",
+              "label_tr": "5.0 ve 3.14 yazdırıyor"
             },
             {
-              "code": "assert circle_area(0) == 0",
+              "code": "assert sqrt(16) == 4.0 and PI > 3.14",
               "visible": true,
-              "label_tr": "circle_area(0) sıfır"
-            },
-            {
-              "code": "assert round(circle_area(10), 2) == 314.16",
-              "visible": false,
-              "failure_message": "Use math.pi (3.14159...), not 3.14, and square r with r ** 2.",
-              "failure_message_tr": "math.pi (3.14159...) kullan, 3.14 değil; r'yi r ** 2 ile karele."
-            },
-            {
-              "code": "assert abs(circle_area(2) - 12.566370614359172) < 1e-9",
-              "visible": false,
-              "failure_message": "Area is pi * r ** 2.",
-              "failure_message_tr": "Alan pi * r ** 2'dir."
-            },
-            {
-              "code": "assert circle_area(3) > circle_area(2)",
-              "visible": false,
-              "failure_message": "A bigger radius must give a bigger area.",
-              "failure_message_tr": "Yarıçap büyüdükçe alan da büyümeli."
-            },
-            {
-              "code": "assert abs(circle_area(7.5) - 176.71458676442586) < 1e-9",
-              "visible": false,
-              "failure_message": "Compute the area from r; do not hard-code results.",
-              "failure_message_tr": "Alanı r'den hesapla; sonuçları elle yazma."
+              "label": "sqrt and PI exist",
+              "label_tr": "sqrt ve PI var"
             }
           ],
           "hints": [
-            "You must import something before you can use pi.",
-            "Either import math and use math.pi, or from math import pi.",
-            "Area is pi times the radius squared: return math.pi * r ** ___ (which power goes in the blank?)"
+            "The first line must bring the name the program calls without a prefix.",
+            "The second line gives pi a new local name.",
+            "A function name in the first blank, the renaming keyword in the second."
           ],
-          "solution": {
-            "approach": "Import the math module, then compute pi * r squared.",
-            "code": "import math\n\ndef circle_area(r):\n    return math.pi * r ** 2",
-            "approach_tr": "math modülünü import et, sonra pi * r'nin karesini hesapla."
-          },
-          "twin": "d12-b1-e4",
           "hints_tr": [
-            "pi'yi kullanmadan önce bir şey import etmelisin.",
-            "Ya import math yapıp math.pi kullan, ya da from math import pi yaz.",
-            "Alan, pi çarpı yarıçapın karesidir: return math.pi * r ** ___ (boşluğa hangi üs gelir?)"
+            "İlk satır, programın ön eksiz çağırdığı ismi getirmeli.",
+            "İkinci satır pi'ye yeni bir yerel isim veriyor.",
+            "İlk boşluğa bir fonksiyon adı, ikinciye yeniden adlandırma anahtar kelimesi."
           ]
         },
         {
           "id": "d12-b1-e4",
+          "type": "debug",
+          "prompt": "The program should print 4.0 and 2.0. It stops with NameError: name 'sqrt' is not defined. Fix the import line only, keeping the two print lines unchanged.",
+          "prompt_tr": "Program 4.0 ve 2.0 yazdırmalı. NameError: name 'sqrt' is not defined hatasıyla duruyor. İki print satırını değiştirmeden yalnızca import satırını düzelt.",
+          "starter_code": "import math\n\nprint(sqrt(16))\nprint(log10(100))",
+          "expected_output": "4.0\n2.0",
+          "tests": [
+            {
+              "code": "assert __stdout__.split() == ['4.0', '2.0']",
+              "visible": true,
+              "label": "Prints 4.0 and 2.0",
+              "label_tr": "4.0 ve 2.0 yazdırıyor"
+            },
+            {
+              "code": "assert 'print(sqrt(16))' in __source__ and 'print(log10(100))' in __source__",
+              "visible": false,
+              "failure_message": "Keep the print lines as they are; change the import.",
+              "failure_message_tr": "print satırlarını olduğu gibi bırak; import'u değiştir."
+            }
+          ],
+          "hints": [
+            "After import math, which single name exists in the file?",
+            "The prints call sqrt and log10 without a prefix, so those two names must be imported directly.",
+            "Use the from ... import ... form with both names, separated by a comma."
+          ],
+          "hints_tr": [
+            "import math sonrasında dosyada hangi tek isim var?",
+            "print'ler sqrt ve log10'u ön eksiz çağırıyor; bu iki ismin doğrudan import edilmesi gerekiyor.",
+            "from ... import ... biçimini iki isimle, virgülle ayırarak kullan."
+          ],
+          "solution": {
+            "approach": "import math binds only math. from math import sqrt, log10 binds the two names the prints use.",
+            "approach_tr": "import math yalnızca math'i bağlar. from math import sqrt, log10 ise print'lerin kullandığı iki ismi bağlar.",
+            "code": "from math import sqrt, log10\n\nprint(sqrt(16))\nprint(log10(100))"
+          }
+        },
+        {
+          "id": "d12-b1-e5",
+          "type": "modify",
+          "prompt": "This program uses from math import *, which hides the built-in pow. Change only the import line to import math, and fix the lines that use math names so the output becomes 8, 3.0 and 10.",
+          "prompt_tr": "Bu program from math import * kullanıyor ve bu, hazır pow fonksiyonunu gizliyor. Yalnızca import satırını import math yap ve math isimlerini kullanan satırları düzelt; çıktı 8, 3.0 ve 10 olsun.",
+          "starter_code": "from math import *\n\nprint(pow(2, 3))\nprint(sqrt(9))\nprint(ceil(9.2))",
+          "expected_output": "8\n3.0\n10",
+          "tests": [
+            {
+              "code": "assert __stdout__.split() == ['8', '3.0', '10']",
+              "visible": true,
+              "label": "Prints 8, 3.0 and 10",
+              "label_tr": "8, 3.0 ve 10 yazdırıyor"
+            },
+            {
+              "code": "assert 'import *' not in __source__",
+              "visible": false,
+              "failure_message": "Remove the star import.",
+              "failure_message_tr": "Yıldızlı import'u kaldır."
+            },
+            {
+              "code": "assert 'math.sqrt' in __source__ and 'math.ceil' in __source__",
+              "visible": false,
+              "failure_message": "Reach sqrt and ceil through the math. prefix.",
+              "failure_message_tr": "sqrt ve ceil'e math. ön ekiyle ulaş."
+            }
+          ],
+          "hints": [
+            "With import math, which names exist in the file, and which pow will pow(2, 3) use?",
+            "The built-in pow returns the int 8; math names now need a prefix.",
+            "Change the first line, then write math. before sqrt and ceil."
+          ],
+          "hints_tr": [
+            "import math ile dosyada hangi isimler olur ve pow(2, 3) hangi pow'u kullanır?",
+            "Hazır pow int 8 döndürür; math isimleri artık ön ek ister.",
+            "İlk satırı değiştir, sonra sqrt ve ceil'in önüne math. yaz."
+          ],
+          "solution": {
+            "approach": "Without the star import, pow is the built-in again and returns an int; the math functions are reached through the module name.",
+            "approach_tr": "Yıldızlı import olmayınca pow yeniden hazır fonksiyondur ve int döndürür; math fonksiyonlarına modül adıyla ulaşılır.",
+            "code": "import math\n\nprint(pow(2, 3))\nprint(math.sqrt(9))\nprint(math.ceil(9.2))"
+          }
+        },
+        {
+          "id": "d12-b1-e6",
           "type": "write",
-          "prompt": "Write hypotenuse(a, b) that returns the length of the hypotenuse of a right triangle with sides a and b. Use sqrt from the math module.",
-          "prompt_tr": "a ve b kenarlı bir dik üçgenin hipotenüs uzunluğunu döndüren hypotenuse(a, b) yazın. math modülünden sqrt kullanın.",
+          "prompt": "Write a function circle_stats(r) that imports math (inside or above the function) and returns a tuple (area, circumference), each rounded to 2 decimals. Use math.pi. Example: circle_stats(1) returns (3.14, 6.28).",
+          "prompt_tr": "circle_stats(r) fonksiyonunu yaz: math'i (fonksiyonun içinde ya da üstünde) import etsin ve her biri 2 ondalığa yuvarlanmış (alan, çevre) tuple'ını döndürsün. math.pi kullan. Örnek: circle_stats(1) (3.14, 6.28) döndürür.",
+          "starter_code": "",
+          "signature": "def circle_stats(r):",
+          "tests": [
+            {
+              "code": "assert circle_stats(1) == (3.14, 6.28)",
+              "visible": true,
+              "label": "r = 1 gives (3.14, 6.28)",
+              "label_tr": "r = 1 için (3.14, 6.28)"
+            },
+            {
+              "code": "assert circle_stats(0) == (0.0, 0.0)",
+              "visible": true,
+              "label": "r = 0 gives (0.0, 0.0)",
+              "label_tr": "r = 0 için (0.0, 0.0)"
+            },
+            {
+              "code": "assert circle_stats(10) == (314.16, 62.83)",
+              "visible": false,
+              "failure_message": "Use math.pi, not 3.14: circle_stats(10) must be (314.16, 62.83).",
+              "failure_message_tr": "3.14 değil math.pi kullan: circle_stats(10) sonucu (314.16, 62.83) olmalı."
+            },
+            {
+              "code": "assert circle_stats(2.5) == (19.63, 15.71)",
+              "visible": false,
+              "failure_message": "Area is pi * r ** 2 and circumference 2 * pi * r, each rounded to 2 decimals.",
+              "failure_message_tr": "Alan pi * r ** 2, çevre 2 * pi * r; her biri 2 ondalığa yuvarlanmalı."
+            }
+          ],
+          "hints": [
+            "Area is pi times r squared; circumference is 2 times pi times r.",
+            "round(value, 2) keeps two decimals; return two values separated by a comma to get a tuple.",
+            "return round(math.pi * r ** 2, 2), round(___, 2)"
+          ],
+          "hints_tr": [
+            "Alan pi çarpı r'nin karesidir; çevre 2 çarpı pi çarpı r'dir.",
+            "round(değer, 2) iki ondalık bırakır; tuple elde etmek için iki değeri virgülle ayırarak döndür.",
+            "return round(math.pi * r ** 2, 2), round(___, 2)"
+          ],
+          "solution": {
+            "approach": "math.pi is far more precise than 3.14, which matters for large radii; returning two values packs them into a tuple.",
+            "approach_tr": "math.pi 3.14'ten çok daha hassastır ve bu büyük yarıçaplarda önem taşır; iki değer döndürmek onları bir tuple'da paketler.",
+            "code": "import math\n\ndef circle_stats(r):\n    return round(math.pi * r ** 2, 2), round(2 * math.pi * r, 2)"
+          },
+          "twin": "d12-b1-e7"
+        },
+        {
+          "id": "d12-b1-e7",
+          "type": "write",
+          "prompt": "Write a function hypotenuse(a, b) that returns the length of the long side of a right triangle, sqrt(a*a + b*b), using sqrt imported with from math import sqrt. Example: hypotenuse(3, 4) returns 5.0.",
+          "prompt_tr": "hypotenuse(a, b) fonksiyonunu yaz: dik üçgenin uzun kenarını, sqrt(a*a + b*b) değerini, from math import sqrt ile import edilmiş sqrt kullanarak döndürsün. Örnek: hypotenuse(3, 4) 5.0 döndürür.",
           "starter_code": "",
           "signature": "def hypotenuse(a, b):",
           "tests": [
             {
               "code": "assert hypotenuse(3, 4) == 5.0",
               "visible": true,
-              "label_tr": "hypotenuse(3, 4) 5.0 veriyor"
-            },
-            {
-              "code": "assert hypotenuse(5, 12) == 13.0",
-              "visible": true,
-              "label_tr": "hypotenuse(5, 12) 13.0 veriyor"
-            },
-            {
-              "code": "assert abs(hypotenuse(1, 1) - 1.4142135623730951) < 1e-12",
-              "visible": false,
-              "failure_message": "sqrt(a**2 + b**2); do not forget to square both sides.",
-              "failure_message_tr": "sqrt(a**2 + b**2); iki kenarı da karelemeyi unutma."
-            },
-            {
-              "code": "assert hypotenuse(0, 7) == 7.0",
-              "visible": false,
-              "failure_message": "One side can be zero.",
-              "failure_message_tr": "Kenarlardan biri sıfır olabilir."
+              "label": "hypotenuse(3, 4) is 5.0",
+              "label_tr": "hypotenuse(3, 4) 5.0"
             },
             {
               "code": "assert hypotenuse(6, 8) == 10.0",
-              "visible": false,
-              "failure_message": "Square each side, add, then take the square root.",
-              "failure_message_tr": "Her kenarın karesini al, topla, sonra karekökünü al."
+              "visible": true,
+              "label": "hypotenuse(6, 8) is 10.0",
+              "label_tr": "hypotenuse(6, 8) 10.0"
             },
             {
-              "code": "assert hypotenuse(8, 15) == 17.0",
+              "code": "assert abs(hypotenuse(1, 1) - 2 ** 0.5) < 1e-12",
               "visible": false,
-              "failure_message": "Compute the result from a and b; do not hard-code results.",
-              "failure_message_tr": "Sonucu a ve b'den hesapla; sonuçları elle yazma."
+              "failure_message": "hypotenuse(1, 1) is the square root of 2.",
+              "failure_message_tr": "hypotenuse(1, 1) 2'nin kareköküdür."
+            },
+            {
+              "code": "assert 'from math import' in __source__ and 'sqrt' in __source__",
+              "visible": false,
+              "failure_message": "Import sqrt with from math import sqrt.",
+              "failure_message_tr": "sqrt'yi from math import sqrt ile import et."
             }
           ],
           "hints": [
-            "Pythagoras: c squared is a squared plus b squared.",
-            "Take the square root of the sum of the squares of both sides.",
-            "return sqrt(___) after importing sqrt from math (what goes inside the parentheses?)"
+            "Pythagoras: the long side squared equals a squared plus b squared.",
+            "Put the import line above the function, then call sqrt with no prefix.",
+            "return sqrt(___) where the blank is a * a + b * b."
+          ],
+          "hints_tr": [
+            "Pisagor: uzun kenarın karesi, a'nın karesi artı b'nin karesine eşittir.",
+            "import satırını fonksiyonun üstüne koy, sonra sqrt'yi ön eksiz çağır.",
+            "return sqrt(___) ifadesinde boşluk a * a + b * b olsun."
           ],
           "solution": {
-            "approach": "Square both sides, add them and take the square root.",
-            "code": "from math import sqrt\n\ndef hypotenuse(a, b):\n    return sqrt(a ** 2 + b ** 2)",
-            "approach_tr": "İki kenarın karesini al, topla ve karekökünü hesapla."
+            "approach": "from math import sqrt brings the one function needed; the body is the Pythagorean formula.",
+            "approach_tr": "from math import sqrt gereken tek fonksiyonu getirir; gövde Pisagor formülüdür.",
+            "code": "from math import sqrt\n\ndef hypotenuse(a, b):\n    return sqrt(a * a + b * b)"
           },
-          "twin": "d12-b1-e3",
-          "hints_tr": [
-            "Pisagor: c'nin karesi, a'nın karesi artı b'nin karesidir.",
-            "İki kenarın karelerinin toplamının karekökünü al.",
-            "return sqrt(___) (sqrt'ı math'ten import ettikten sonra; parantezin içine ne gelir?)"
-          ]
+          "twin": "d12-b1-e6"
+        },
+        {
+          "id": "d12-b1-e8",
+          "type": "explain",
+          "prompt": "Explain the difference between import math and from math import sqrt: which names exist in your file afterwards, and how do you call sqrt in each case?",
+          "prompt_tr": "import math ile from math import sqrt arasındaki farkı açıkla: sonrasında dosyanda hangi isimler olur ve her durumda sqrt'yi nasıl çağırırsın?",
+          "model_answer": "import math creates one name, math, for the whole module, so you call math.sqrt(16). from math import sqrt creates only the name sqrt, so you call sqrt(16) directly and the name math does not exist.",
+          "model_answer_tr": "import math bütün modül için tek bir isim, math, oluşturur; bu yüzden math.sqrt(16) diye çağırırsın. from math import sqrt ise yalnızca sqrt ismini oluşturur; sqrt(16) diye doğrudan çağırırsın ve math ismi yoktur.",
+          "keywords": [
+            "math.sqrt",
+            "name",
+            "module"
+          ],
+          "keywords_tr": [
+            "math.sqrt",
+            "isim",
+            "modül"
+          ],
+          "min_words": 12
         }
-      ],
-      "concept_tr": "Modül, başkasının yazdığı hazır kodu kullanmanı sağlayan bir dosyadır. import ile tamamını, from ... import ile yalnızca istediğin parçayı alırsın."
+      ]
     },
     {
       "id": "d12-b2",
-      "concept": "statistics-module",
+      "concept": "math-and-statistics",
+      "concept_tr": "math matematik sabitleri ve fonksiyonları verir (floor aşağı, ceil yukarı yuvarlar, sqrt float döndürür); statistics mean, median, mode ve stdev ile veriyi özetler.",
       "tags": [
         "modules",
+        "math",
         "statistics"
       ],
       "worked_example": {
-        "code": "from statistics import mean, median, mode\n\nages = [20, 20, 30, 40]\nprint(mean(ages))\nprint(median(ages))\nprint(mode(ages))",
+        "code": "from statistics import mean, median\nimport math\n\nprices = [120, 95, 130, 2000, 110]\nprint(mean(prices), median(prices))\nprint(math.ceil(len(prices) / 2), 'kutu gerekli')",
         "notes": [
-          "mean is the average; median is the middle value; mode is the most common value.",
-          "Import only the names you need from the module."
+          "One extreme price, 2000, pulls the mean up to 491, while the median, the middle value after sorting, stays at a typical 120.",
+          "math.ceil rounds up, which is what you need for questions like how many boxes of two are required for five items.",
+          "Both modules are imported once at the top and used by name, which keeps it obvious where mean, median and ceil come from."
         ],
         "notes_tr": [
-          "mean ortalamadır; median ortadaki değerdir; mode en çok tekrar eden değerdir.",
-          "Modülden sadece ihtiyacın olan isimleri import et."
+          "Tek bir aşırı fiyat, 2000, ortalamayı 491'e çekerken sıralamadan sonraki orta değer olan medyan tipik bir 120'de kalır.",
+          "math.ceil yukarı yuvarlar; beş ürün için ikişerlik kaç kutu gerektiği gibi sorularda ihtiyacın olan budur.",
+          "İki modül de en üstte bir kez import edilir ve isimleriyle kullanılır; böylece mean, median ve ceil'in nereden geldiği açık kalır."
         ]
       },
       "exercises": [
         {
           "id": "d12-b2-e1",
           "type": "predict",
-          "prompt": "What does this print? (mean is rounded to 2 decimals.)",
-          "prompt_tr": "Bu ne yazdırır? (mean 2 ondalığa yuvarlanmıştır.)",
-          "code": "from statistics import mean, median, mode\n\nages = [20, 20, 4, 24, 25, 22, 26, 20, 23, 22, 26]\nprint(round(mean(ages), 2))\nprint(median(ages))\nprint(mode(ages))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "from statistics import mean, median, mode\n\ndata = [3, 7, 7, 2, 9, 7, 1]\nprint(mean(data), median(data), mode(data))",
           "choices": [
-            "22.9\n23\n20",
-            "21.09\n22\n26",
-            "21.09\n22\n20"
+            "5.142857142857143 2 7",
+            "5.142857142857143 7 7",
+            "5 7 7",
+            "5.142857142857143 7 3"
           ],
-          "expected_output": "21.09\n22\n20",
-          "explanation": "232 divided by 11 gives 21.09. Sorted, the middle (6th) value is 22. The most common value is 20 (three times). Note: the lesson's own comment says about 22.9 for the mean, which does not match the data; trust the run.",
+          "expected_output": "5.142857142857143 7 7",
+          "explanation": "mean is 36 / 7, the sorted middle value is 7, and 7 is also the most common value.",
+          "explanation_tr": "mean 36 / 7'dir, sıralı orta değer 7'dir ve en sık görülen değer de 7'dir.",
           "misconceptions": {
-            "22.9\n23\n20": "That is the value in the lesson's comment, but the sum is 232 and there are 11 ages: 232 / 11 is not 22.9.",
-            "21.09\n22\n26": "median is the middle value of the SORTED list, and mode is the most frequent value (20 appears 3 times, 26 only 2)."
+            "5.142857142857143 2 7": "median sorts the data first: [1, 2, 3, 7, 7, 7, 9], so the middle is 7, not the middle of the unsorted list.",
+            "5 7 7": "mean is the exact average 36 / 7, which is not a whole number.",
+            "5.142857142857143 7 3": "mode is the most common value; 7 appears three times."
           },
-          "explanation_tr": "Toplam 232, yaş sayısı 11: 232 / 11 = 21.09. Sıralı listede ortadaki (6.) değer 22'dir. En sık değer 20'dir (3 kez). Not: dersteki yorum ortalamayı yaklaşık 22.9 gösteriyor ama veriyle uyuşmuyor; kodu çalıştırdığında çıkana güven.",
           "misconceptions_tr": {
-            "22.9\n23\n20": "Bu, dersteki yorumda yazan değer; ama toplam 232 ve 11 yaş var: 232 / 11, 22.9 etmez.",
-            "21.09\n22\n26": "median SIRALI listenin ortadaki değeridir, mode ise en sık geçen değerdir (20 üç kez, 26 sadece iki kez)."
+            "5.142857142857143 2 7": "median önce veriyi sıralar: [1, 2, 3, 7, 7, 7, 9]; orta değer sıralanmamış list'in ortası değil, 7'dir.",
+            "5 7 7": "mean tam ortalamadır, 36 / 7; bu bir tam sayı değildir.",
+            "5.142857142857143 7 3": "mode en sık görülen değerdir; 7 üç kez geçer."
           }
         },
         {
           "id": "d12-b2-e2",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "import math\n\nprint(math.floor(-3.5) + int(-3.5))",
+          "choices": [
+            "-7",
+            "-6",
+            "-8",
+            "-7.0"
+          ],
+          "expected_output": "-7",
+          "explanation": "math.floor(-3.5) is -4 (down toward minus infinity); int(-3.5) is -3 (toward zero). The sum is -7.",
+          "explanation_tr": "math.floor(-3.5) -4'tür (eksi sonsuza doğru); int(-3.5) -3'tür (sıfıra doğru). Toplam -7'dir.",
+          "misconceptions": {
+            "-6": "int cuts toward zero, giving -3, but floor rounds down to -4.",
+            "-8": "int does not round down; it simply drops the decimals of -3.5, giving -3.",
+            "-7.0": "Both floor and int return ints, so the sum is an int without .0."
+          },
+          "misconceptions_tr": {
+            "-6": "int sıfıra doğru keser ve -3 verir, ama floor aşağı, -4'e yuvarlar.",
+            "-8": "int aşağı yuvarlamaz; -3.5'in ondalıklarını atar ve -3 verir.",
+            "-7.0": "floor da int de int döndürür; toplam .0 olmadan bir int'tir."
+          }
+        },
+        {
+          "id": "d12-b2-e3",
           "type": "parsons",
-          "prompt": "Order the lines to print the median and the mode of the scores.",
-          "prompt_tr": "Notların medyanını ve modunu yazdıracak şekilde satırları sıralayın.",
+          "prompt": "Build a function boxes_needed(items, per_box) that returns how many boxes are needed (round up), then print it for 23 items, 5 per box. One line is a distractor.",
+          "prompt_tr": "Gereken kutu sayısını (yukarı yuvarlayarak) döndüren boxes_needed(items, per_box) fonksiyonunu kur, sonra 23 ürün ve kutu başına 5 için yazdır. Satırlardan biri çeldirici.",
           "lines": [
-            "print(mode(scores))",
-            "from statistics import median, mode",
-            "print(median(scores))",
-            "scores = [70, 85, 85, 90, 100]"
+            "print(boxes_needed(23, 5))",
+            "def boxes_needed(items, per_box):",
+            "    return math.ceil(items / per_box)",
+            "import math"
           ],
           "correct_order": [
-            1,
             3,
+            1,
             2,
             0
           ],
           "distractors": [
-            "import statistic"
+            "    return math.floor(items / per_box)"
           ],
-          "expected_output": "85\n85"
-        },
-        {
-          "id": "d12-b2-e3",
-          "type": "write",
-          "prompt": "Write describe(numbers) that returns a dictionary with the keys 'mean', 'median' and 'mode' for the list of numbers. Use the statistics module.",
-          "prompt_tr": "Sayı listesi için 'mean', 'median' ve 'mode' anahtarlarını içeren bir sözlük döndüren describe(numbers) yazın. statistics modülünü kullanın.",
-          "starter_code": "",
-          "signature": "def describe(numbers):",
-          "tests": [
-            {
-              "code": "assert describe([1, 2, 2, 3, 4]) == {'mean': 2.4, 'median': 2, 'mode': 2}",
-              "visible": true,
-              "label_tr": "describe([1, 2, 2, 3, 4]) doğru sözlüğü veriyor"
-            },
-            {
-              "code": "assert describe([10]) == {'mean': 10, 'median': 10, 'mode': 10}",
-              "visible": true,
-              "label_tr": "describe([10]) tek elemanlı listede çalışıyor"
-            },
-            {
-              "code": "assert describe([5, 5, 7, 9]) == {'mean': 6.5, 'median': 6.0, 'mode': 5}",
-              "visible": false,
-              "failure_message": "median of an even-length list is the average of the two middle values.",
-              "failure_message_tr": "Çift uzunluktaki listede median, ortadaki iki değerin ortalamasıdır."
-            },
-            {
-              "code": "assert set(describe([1, 1, 2])) == {'mean', 'median', 'mode'}",
-              "visible": false,
-              "failure_message": "The dictionary must have exactly the keys 'mean', 'median' and 'mode'.",
-              "failure_message_tr": "Sözlükte tam olarak 'mean', 'median' ve 'mode' anahtarları olmalı."
-            },
-            {
-              "code": "assert describe([2, 4, 4, 4, 6])['mode'] == 4",
-              "visible": false,
-              "failure_message": "mode is the most common value.",
-              "failure_message_tr": "mode en sık geçen değerdir."
-            },
-            {
-              "code": "assert describe([3, 3, 9, 15]) == {'mean': 7.5, 'median': 6.0, 'mode': 3}",
-              "visible": false,
-              "failure_message": "Compute the statistics from the list given; do not hard-code results.",
-              "failure_message_tr": "İstatistikleri verilen listeden hesapla; sonuçları elle yazma."
-            }
-          ],
-          "hints": [
-            "The statistics module has functions with exactly these three names.",
-            "Call each one on numbers and put the results in a dict under those keys.",
-            "return {'mean': ___(numbers), ...} (which function calculates the average?)"
-          ],
-          "solution": {
-            "approach": "Import mean, median and mode, then build the dictionary.",
-            "code": "from statistics import mean, median, mode\n\ndef describe(numbers):\n    return {'mean': mean(numbers), 'median': median(numbers), 'mode': mode(numbers)}",
-            "approach_tr": "mean, median ve mode fonksiyonlarını import et, sonra sözlüğü oluştur."
-          },
-          "twin": "d12-b2-e4",
-          "hints_tr": [
-            "statistics modülünde tam olarak bu üç isimde fonksiyon var.",
-            "Her birini numbers üzerinde çağır ve sonuçları bu anahtarlarla bir dict'e koy.",
-            "return {'mean': ___(numbers), ...} (ortalamayı hangi fonksiyon hesaplar?)"
-          ]
+          "expected_output": "5"
         },
         {
           "id": "d12-b2-e4",
-          "type": "write",
-          "prompt": "Write above_average(numbers) that returns a new list with only the numbers greater than the mean, in their original order. Use statistics.mean.",
-          "prompt_tr": "Yalnızca ortalamadan büyük sayıları, özgün sırasıyla yeni bir listede döndüren above_average(numbers) yazın. statistics.mean kullanın.",
-          "starter_code": "",
-          "signature": "def above_average(numbers):",
+          "type": "debug",
+          "prompt": "class_report should print 'Ortalama: 0' for an empty class instead of crashing with StatisticsError. Fix the function so an empty list returns 0, and other lists return the mean.",
+          "prompt_tr": "class_report boş bir sınıf için StatisticsError ile çökmek yerine 'Ortalama: 0' yazdırmalı. Fonksiyonu boş list'te 0, diğer list'lerde ortalamayı döndürecek şekilde düzelt.",
+          "starter_code": "from statistics import mean\n\ndef class_average(scores):\n    return mean(scores)\n\nprint('Ortalama:', class_average([]))",
+          "expected_output": "Ortalama: 0",
           "tests": [
             {
-              "code": "assert above_average([1, 2, 3, 10]) == [10]",
+              "code": "assert __stdout__.strip() == 'Ortalama: 0'",
               "visible": true,
-              "label_tr": "above_average([1, 2, 3, 10]) [10] veriyor"
+              "label": "Prints 'Ortalama: 0'",
+              "label_tr": "'Ortalama: 0' yazdırıyor"
             },
             {
-              "code": "assert above_average([5, 6, 7]) == [7]",
+              "code": "assert class_average([60, 80]) == 70",
               "visible": true,
-              "label_tr": "above_average([5, 6, 7]) [7] veriyor"
+              "label": "Mean of [60, 80] is 70",
+              "label_tr": "[60, 80] ortalaması 70"
             },
             {
-              "code": "assert above_average([4, 4, 4]) == []",
+              "code": "assert class_average([5]) == 5 and class_average([1, 2]) == 1.5",
               "visible": false,
-              "failure_message": "Numbers equal to the mean are NOT above average.",
-              "failure_message_tr": "Ortalamaya EŞİT sayılar ortalamanın üstünde sayılmaz."
-            },
-            {
-              "code": "assert above_average([9, 1, 8, 2]) == [9, 8]",
-              "visible": false,
-              "failure_message": "Keep the original order of the list.",
-              "failure_message_tr": "Listenin özgün sırasını koru."
-            },
-            {
-              "code": "assert above_average([3]) == []",
-              "visible": false,
-              "failure_message": "A single number equals its own mean.",
-              "failure_message_tr": "Tek bir sayı kendi ortalamasına eşittir."
-            },
-            {
-              "code": "assert above_average([10, 2, 7, 1, 20]) == [10, 20]",
-              "visible": false,
-              "failure_message": "Work it out from the list given; do not hard-code results.",
-              "failure_message_tr": "Sonucu verilen listeden hesapla; sonuçları elle yazma."
+              "failure_message": "Non-empty lists must still return their mean.",
+              "failure_message_tr": "Boş olmayan list'ler yine ortalamalarını döndürmeli."
             }
           ],
           "hints": [
-            "First compute the mean once.",
-            "Loop over numbers and keep only those that are larger than the mean.",
-            "Build the result list with a loop (or comprehension): keep n if n ___ avg (which comparison?)"
+            "Read the error: mean requires at least one data point. Which input causes it?",
+            "An empty list is falsy, so if not scores: is True only for an empty list.",
+            "Return 0 early for the empty case, before calling mean."
+          ],
+          "hints_tr": [
+            "Hatayı oku: mean requires at least one data point. Bunu hangi girdi tetikliyor?",
+            "Boş list falsy'dir; if not scores: yalnızca boş list için True olur.",
+            "mean'i çağırmadan önce boş durum için erkenden 0 döndür."
           ],
           "solution": {
-            "approach": "Compute the mean once, then collect the items larger than it.",
-            "code": "from statistics import mean\n\ndef above_average(numbers):\n    avg = mean(numbers)\n    result = []\n    for n in numbers:\n        if n > avg:\n            result.append(n)\n    return result",
-            "approach_tr": "Ortalamayı bir kez hesapla, sonra ondan büyük olanları topla."
-          },
-          "twin": "d12-b2-e3",
+            "approach": "mean cannot work on no data. An early return for the empty list keeps the function safe.",
+            "approach_tr": "mean veri olmadan çalışamaz. Boş list için erken return fonksiyonu güvenli tutar.",
+            "code": "from statistics import mean\n\ndef class_average(scores):\n    if not scores:\n        return 0\n    return mean(scores)\n\nprint('Ortalama:', class_average([]))"
+          }
+        },
+        {
+          "id": "d12-b2-e5",
+          "type": "modify",
+          "prompt": "summary(values) returns only the mean. Change it to return a tuple (mean, median, max - min) where the third item is the range. Keep the import style; add what you need. Example: summary([4, 8, 6]) returns (6, 6, 4).",
+          "prompt_tr": "summary(values) yalnızca ortalamayı döndürüyor. (ortalama, medyan, max - min) tuple'ını döndürecek şekilde değiştir; üçüncü eleman açıklıktır (range). import biçimini koru, gerekeni ekle. Örnek: summary([4, 8, 6]) (6, 6, 4) döndürür.",
+          "starter_code": "from statistics import mean\n\ndef summary(values):\n    return mean(values)\n\nprint(summary([4, 8, 6]))",
+          "signature": "def summary(values):",
+          "tests": [
+            {
+              "code": "assert summary([4, 8, 6]) == (6, 6, 4)",
+              "visible": true,
+              "label": "summary([4, 8, 6]) is (6, 6, 4)",
+              "label_tr": "summary([4, 8, 6]) (6, 6, 4)"
+            },
+            {
+              "code": "assert __stdout__.strip() == '(6, 6, 4)'",
+              "visible": true,
+              "label": "Prints (6, 6, 4)",
+              "label_tr": "(6, 6, 4) yazdırıyor"
+            },
+            {
+              "code": "assert summary([1, 2, 3, 10]) == (4, 2.5, 9)",
+              "visible": false,
+              "failure_message": "For an even count the median is the average of the two middle values.",
+              "failure_message_tr": "Eleman sayısı çiftse medyan ortadaki iki değerin ortalamasıdır."
+            },
+            {
+              "code": "assert summary([5]) == (5, 5, 0)",
+              "visible": false,
+              "failure_message": "A single value has range 0.",
+              "failure_message_tr": "Tek bir değerin açıklığı 0'dır."
+            }
+          ],
+          "hints": [
+            "Which other function from statistics gives the middle value?",
+            "Add it to the from-import line; max and min are built-ins and need no import.",
+            "return mean(values), median(values), ___"
+          ],
           "hints_tr": [
-            "Önce ortalamayı bir kez hesapla.",
-            "numbers üzerinde dolaş ve sadece ortalamadan büyük olanları tut.",
-            "Sonuç listesini bir döngü (ya da comprehension) ile kur: n ___ avg ise n'i tut (hangi karşılaştırma?)"
-          ]
+            "statistics'teki hangi diğer fonksiyon orta değeri verir?",
+            "Onu from-import satırına ekle; max ve min hazır fonksiyonlardır, import gerekmez.",
+            "return mean(values), median(values), ___"
+          ],
+          "solution": {
+            "approach": "Import median next to mean; the range comes from the built-ins max and min.",
+            "approach_tr": "median'ı mean'in yanına import et; açıklık hazır max ve min fonksiyonlarından gelir.",
+            "code": "from statistics import mean, median\n\ndef summary(values):\n    return mean(values), median(values), max(values) - min(values)\n\nprint(summary([4, 8, 6]))"
+          }
+        },
+        {
+          "id": "d12-b2-e6",
+          "type": "write",
+          "prompt": "Write a function normal_salary(salaries) that returns the median of the list using statistics.median, rounded with round() to a whole number (an int). Example: normal_salary([30000, 32000, 31000, 250000]) returns 31500.",
+          "prompt_tr": "normal_salary(salaries) fonksiyonunu yaz: list'in medyanını statistics.median ile bulsun ve round() ile tam sayıya (int) yuvarlayıp döndürsün. Örnek: normal_salary([30000, 32000, 31000, 250000]) 31500 döndürür.",
+          "starter_code": "",
+          "signature": "def normal_salary(salaries):",
+          "tests": [
+            {
+              "code": "assert normal_salary([30000, 32000, 31000, 250000]) == 31500",
+              "visible": true,
+              "label": "The median ignores the 250000 outlier",
+              "label_tr": "Medyan 250000 aykırı değerinden etkilenmiyor"
+            },
+            {
+              "code": "assert normal_salary([10, 20, 30]) == 20",
+              "visible": true,
+              "label": "Odd count gives the middle value",
+              "label_tr": "Tek sayıda eleman orta değeri veriyor"
+            },
+            {
+              "code": "assert normal_salary([1, 2]) == 2 and isinstance(normal_salary([1, 2]), int)",
+              "visible": false,
+              "failure_message": "round() of 1.5 gives 2 and must be an int.",
+              "failure_message_tr": "1.5'in round() sonucu 2'dir ve int olmalıdır."
+            },
+            {
+              "code": "assert normal_salary([7, 1, 4]) == 4",
+              "visible": false,
+              "failure_message": "median sorts the values itself; do not take the middle of the unsorted list.",
+              "failure_message_tr": "median değerleri kendisi sıralar; sıralanmamış list'in ortasını alma."
+            }
+          ],
+          "hints": [
+            "Import median from statistics.",
+            "median already sorts and handles even counts by averaging the two middle values.",
+            "Wrap the median in round() with no second argument to get an int."
+          ],
+          "hints_tr": [
+            "statistics'ten median'ı import et.",
+            "median zaten sıralar ve çift sayıda elemanda ortadaki iki değerin ortalamasını alır.",
+            "int elde etmek için median'ı ikinci argümansız round() içine al."
+          ],
+          "solution": {
+            "approach": "The median is robust to the single huge salary; round() without digits returns an int.",
+            "approach_tr": "Medyan tek bir dev maaştan etkilenmez; basamak verilmeyen round() int döndürür.",
+            "code": "from statistics import median\n\ndef normal_salary(salaries):\n    return round(median(salaries))"
+          },
+          "twin": "d12-b2-e7"
+        },
+        {
+          "id": "d12-b2-e7",
+          "type": "write",
+          "prompt": "Write a function pages_needed(lines, per_page) that returns how many pages are needed to print lines lines when one page holds per_page lines. Use math.ceil. Zero lines need 0 pages. Example: pages_needed(101, 50) returns 3.",
+          "prompt_tr": "pages_needed(lines, per_page) fonksiyonunu yaz: bir sayfa per_page satır alıyorsa lines satırı basmak için kaç sayfa gerektiğini döndürsün. math.ceil kullan. Sıfır satır için 0 sayfa gerekir. Örnek: pages_needed(101, 50) 3 döndürür.",
+          "starter_code": "",
+          "signature": "def pages_needed(lines, per_page):",
+          "tests": [
+            {
+              "code": "assert pages_needed(101, 50) == 3",
+              "visible": true,
+              "label": "101 lines at 50 per page need 3 pages",
+              "label_tr": "Sayfada 50 satırla 101 satır 3 sayfa ister"
+            },
+            {
+              "code": "assert pages_needed(100, 50) == 2",
+              "visible": true,
+              "label": "Exactly full pages need no extra page",
+              "label_tr": "Tam dolu sayfalar ek sayfa istemez"
+            },
+            {
+              "code": "assert pages_needed(0, 30) == 0",
+              "visible": false,
+              "failure_message": "Zero lines need zero pages.",
+              "failure_message_tr": "Sıfır satır sıfır sayfa ister."
+            },
+            {
+              "code": "assert pages_needed(1, 30) == 1 and pages_needed(61, 30) == 3",
+              "visible": false,
+              "failure_message": "Any leftover line needs one more page: round up.",
+              "failure_message_tr": "Artan her satır bir sayfa daha ister: yukarı yuvarla."
+            }
+          ],
+          "hints": [
+            "Divide lines by per_page with /; the result may have decimals.",
+            "A partly filled page still counts as a page, so round up, never down.",
+            "return math.ceil(___) after import math."
+          ],
+          "hints_tr": [
+            "lines'ı per_page'e / ile böl; sonuç ondalıklı olabilir.",
+            "Kısmen dolu bir sayfa da sayfa sayılır; aşağı değil, yukarı yuvarla.",
+            "import math sonrasında return math.ceil(___)."
+          ],
+          "solution": {
+            "approach": "Division gives the exact number of pages, and ceil rounds any partial page up to a whole page.",
+            "approach_tr": "Bölme tam sayfa sayısını verir; ceil kısmi sayfaları tam bir sayfaya yuvarlar.",
+            "code": "import math\n\ndef pages_needed(lines, per_page):\n    return math.ceil(lines / per_page)"
+          },
+          "twin": "d12-b2-e6"
         }
-      ],
-      "concept_tr": "statistics modülü ortalama, ortanca (median) ve en sık değer (mode) gibi hazır istatistik fonksiyonlarını verir."
+      ]
     },
     {
       "id": "d12-b3",
-      "concept": "string-and-random-modules",
+      "concept": "random-module",
+      "concept_tr": "random sözde rastgele değerler üretir: randint iki ucu da içerir, choice bir eleman, sample tekrarsız elemanlar seçer, shuffle list'i yerinde karıştırıp None döndürür; seed sonuçları tekrarlanabilir yapar.",
       "tags": [
         "modules",
-        "string",
-        "random"
+        "random",
+        "seed"
       ],
       "worked_example": {
-        "code": "import string\nfrom random import randint\n\nprint(string.digits)\nvalue = randint(5, 20)\nprint(5 <= value <= 20)",
+        "code": "import random\n\nrandom.seed(7)\ndice = random.randint(1, 6)\nwinner = random.choice(['Ali', 'Ece', 'Can'])\nnumbers = random.sample(range(1, 50), 3)\nprint(dice, winner, numbers)",
         "notes": [
-          "string has ready-made constants such as digits and punctuation.",
-          "randint(a, b) includes both ends, so the value is always between 5 and 20."
+          "random.seed(7) fixes the starting point of the generator, so this program prints the same values on every run and every computer.",
+          "randint(1, 6) can return both 1 and 6, unlike range(1, 6), which stops before 6.",
+          "sample returns a new list of distinct items, so three lottery numbers never repeat, while choice returns a single item."
         ],
         "notes_tr": [
-          "string içinde digits ve punctuation gibi hazır sabitler var.",
-          "randint(a, b) iki ucu da kapsar, bu yüzden değer her zaman 5 ile 20 arasındadır."
+          "random.seed(7) üretecin başlangıç noktasını sabitler; bu program her çalıştırmada ve her bilgisayarda aynı değerleri yazdırır.",
+          "randint(1, 6) hem 1'i hem 6'yı döndürebilir; 6'dan önce duran range(1, 6) gibi değildir.",
+          "sample farklı elemanlardan oluşan yeni bir list döndürür, yani üç piyango numarası asla tekrar etmez; choice ise tek bir eleman döndürür."
         ]
       },
       "exercises": [
         {
           "id": "d12-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "import string\n\nprint(string.digits)\nprint(len(string.ascii_letters))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "import random\n\ncolors = ['kırmızı', 'mavi', 'yeşil']\npicked = random.sample(colors, 3)\nprint(len(picked), sorted(picked) == sorted(colors), picked is colors)",
           "choices": [
-            "0123456789\n26",
-            "0123456789\n52",
-            "123456789\n52"
+            "3 True True",
+            "3 True False",
+            "3 False False",
+            "Error"
           ],
-          "expected_output": "0123456789\n52",
-          "explanation": "string.digits is '0123456789'. ascii_letters contains the 26 lower case and the 26 upper case letters, so its length is 52.",
+          "expected_output": "3 True False",
+          "explanation": "Whatever order it picks, sample(colors, 3) contains the same three colors, in a new list object.",
+          "explanation_tr": "Hangi sırayı seçerse seçsin sample(colors, 3) aynı üç rengi yeni bir list nesnesinde içerir.",
           "misconceptions": {
-            "0123456789\n26": "ascii_letters holds both lower and upper case letters: 26 + 26.",
-            "123456789\n52": "digits starts at 0."
+            "3 True True": "sample builds a new list; it never returns the original list object.",
+            "3 False False": "sample picks all three distinct items, so after sorting both lists are equal.",
+            "Error": "Asking for exactly as many items as the list has is allowed; it is a random reordering."
           },
-          "explanation_tr": "string.digits '0123456789' değerindedir. ascii_letters 26 küçük ve 26 büyük harf içerir, uzunluğu 52'dir.",
           "misconceptions_tr": {
-            "0123456789\n26": "ascii_letters hem küçük hem büyük harfleri içerir: 26 + 26.",
-            "123456789\n52": "digits 0 ile başlar."
+            "3 True True": "sample yeni bir list kurar; asla orijinal list nesnesini döndürmez.",
+            "3 False False": "sample üç farklı elemanın hepsini seçer; sıralandıktan sonra iki list eşittir.",
+            "Error": "list'teki eleman sayısı kadar eleman istemek serbesttir; bu rastgele bir yeniden sıralamadır."
           }
         },
         {
           "id": "d12-b3-e2",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "import random\n\nrandom.seed(3)\na = random.randint(1, 100)\nrandom.seed(3)\nb = random.randint(1, 100)\nprint(a == b, 1 <= a <= 100)",
+          "choices": [
+            "True True",
+            "False True",
+            "True False",
+            "It changes every run"
+          ],
+          "expected_output": "True True",
+          "explanation": "seed(3) resets the generator to the same start twice, so both draws are the same number, which lies in 1..100.",
+          "explanation_tr": "seed(3) üreteci iki kez aynı başlangıca döndürür; iki çekiliş de aynı sayıdır ve 1..100 aralığındadır.",
+          "misconceptions": {
+            "False True": "Re-seeding with the same value restarts the same sequence, so a and b are equal.",
+            "True False": "randint(1, 100) always stays within 1 and 100, both included.",
+            "It changes every run": "With a fixed seed the result is the same on every run."
+          },
+          "misconceptions_tr": {
+            "False True": "Aynı değerle yeniden seed vermek aynı diziyi baştan başlatır; a ile b eşittir.",
+            "True False": "randint(1, 100) her zaman 1 ile 100 arasında kalır, ikisi de dahil.",
+            "It changes every run": "Sabit bir seed ile sonuç her çalıştırmada aynıdır."
+          }
+        },
+        {
+          "id": "d12-b3-e3",
           "type": "fill_blank",
-          "prompt": "Count how many punctuation characters the text has by using the string module.",
-          "prompt_tr": "string modülünü kullanarak metinde kaç noktalama işareti olduğunu sayın.",
-          "starter_code": "import string\n\ncount = 0\nfor ch in 'Hello, World 2024!':\n    if ch in string.___:\n        count += 1\nprint(count)",
+          "prompt": "Complete the code so it rolls three dice (each 1 to 6) with a fixed seed and prints the list.",
+          "prompt_tr": "Kodu, sabit bir seed ile üç zar (her biri 1-6) atıp list'i yazdıracak şekilde tamamla.",
+          "starter_code": "import random\n\nrandom.___(10)\nrolls = []\nfor i in range(3):\n    rolls.append(random.___(1, 6))\nprint(rolls)",
           "blanks": [
             {
               "answer": [
-                "punctuation"
+                "seed"
+              ]
+            },
+            {
+              "answer": [
+                "randint"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert count == 2",
+              "code": "assert len(rolls) == 3 and all(1 <= r <= 6 for r in rolls)",
               "visible": true,
-              "label_tr": "count 2 olmalı"
+              "label": "Three rolls between 1 and 6",
+              "label_tr": "1 ile 6 arasında üç atış"
             },
             {
-              "code": "assert __stdout__.strip() == '2'",
+              "code": "import random as _r\n_r.seed(10)\nassert rolls == [_r.randint(1, 6) for _ in range(3)]",
               "visible": true,
-              "label_tr": "Program 2 yazdırıyor"
+              "label": "The rolls come from seed 10",
+              "label_tr": "Atışlar seed 10'dan geliyor"
             }
           ],
           "hints": [
-            "Which constant of the string module holds characters like ! and , ?"
+            "The first blank fixes the generator's start value.",
+            "The second blank returns a whole number with both ends included.",
+            "random.seed and random.randint."
           ],
           "hints_tr": [
-            "string modülünün hangi sabiti ! ve , gibi karakterleri tutar?"
-          ]
-        },
-        {
-          "id": "d12-b3-e3",
-          "type": "write",
-          "prompt": "Write count_digits(text) that returns how many characters of text are digits. Use string.digits.",
-          "prompt_tr": "text içindeki rakam sayısını döndüren count_digits(text) yazın. string.digits kullanın.",
-          "starter_code": "",
-          "signature": "def count_digits(text):",
-          "tests": [
-            {
-              "code": "assert count_digits('a1b22') == 3",
-              "visible": true,
-              "label_tr": "count_digits('a1b22') 3 veriyor"
-            },
-            {
-              "code": "assert count_digits('Python') == 0",
-              "visible": true,
-              "label_tr": "count_digits('Python') 0 veriyor"
-            },
-            {
-              "code": "assert count_digits('') == 0",
-              "visible": false,
-              "failure_message": "Empty text has no digits.",
-              "failure_message_tr": "Boş metinde rakam yoktur."
-            },
-            {
-              "code": "assert count_digits('2024-11-02') == 8",
-              "visible": false,
-              "failure_message": "Dashes are not digits; count only 0-9.",
-              "failure_message_tr": "Tire rakam değildir; sadece 0-9 say."
-            },
-            {
-              "code": "assert count_digits('٣') == 0",
-              "visible": false,
-              "failure_message": "Only the characters in string.digits count (0-9).",
-              "failure_message_tr": "Sadece string.digits içindeki karakterler (0-9) sayılır."
-            },
-            {
-              "code": "assert count_digits('abc 9 x 87 y 6') == 4",
-              "visible": false,
-              "failure_message": "Count the digits in the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metindeki rakamları say; sonuçları elle yazma."
-            }
-          ],
-          "hints": [
-            "Loop over the characters of text.",
-            "Check each character for membership in string.digits and keep a counter.",
-            "Inside the loop: if ch ___ string.digits: count += 1 (which operator tests membership?)"
-          ],
-          "solution": {
-            "approach": "Count the characters that appear in string.digits.",
-            "code": "import string\n\ndef count_digits(text):\n    count = 0\n    for ch in text:\n        if ch in string.digits:\n            count += 1\n    return count",
-            "approach_tr": "string.digits içinde geçen karakterleri say."
-          },
-          "twin": "d12-b3-e4",
-          "hints_tr": [
-            "text'in karakterleri üzerinde dolaş.",
-            "Her karakterin string.digits içinde olup olmadığına bak ve bir sayaç tut.",
-            "Döngünün içinde: if ch ___ string.digits: count += 1 (üyelik testi için hangi operatör?)"
+            "İlk boşluk üretecin başlangıç değerini sabitler.",
+            "İkinci boşluk iki ucu da dahil bir tam sayı döndürür.",
+            "random.seed ve random.randint."
           ]
         },
         {
           "id": "d12-b3-e4",
-          "type": "write",
-          "prompt": "Write count_punctuation(text) that returns how many characters of text are punctuation. Use string.punctuation.",
-          "prompt_tr": "text içindeki noktalama işareti sayısını döndüren count_punctuation(text) yazın. string.punctuation kullanın.",
-          "starter_code": "",
-          "signature": "def count_punctuation(text):",
+          "type": "debug",
+          "prompt": "deal should return the shuffled deck, so the program prints 5 cards. It prints None. Fix the function.",
+          "prompt_tr": "deal karıştırılmış desteyi döndürmeli ve program 5 kart yazdırmalı. Program None yazdırıyor. Fonksiyonu düzelt.",
+          "starter_code": "import random\n\ndef deal(deck):\n    shuffled = random.shuffle(deck)\n    return shuffled\n\nprint(len(deal(['A', 'K', 'Q', 'J', '10'])))",
           "tests": [
             {
-              "code": "assert count_punctuation('Hi, there!') == 2",
+              "code": "assert __stdout__.strip() == '5'",
               "visible": true,
-              "label_tr": "count_punctuation('Hi, there!') 2 veriyor"
+              "label": "Prints 5",
+              "label_tr": "5 yazdırıyor"
             },
             {
-              "code": "assert count_punctuation('Python') == 0",
+              "code": "r = deal([1, 2, 3]); assert sorted(r) == [1, 2, 3]",
               "visible": true,
-              "label_tr": "count_punctuation('Python') 0 veriyor"
-            },
-            {
-              "code": "assert count_punctuation('') == 0",
-              "visible": false,
-              "failure_message": "Empty text has no punctuation.",
-              "failure_message_tr": "Boş metinde noktalama yoktur."
-            },
-            {
-              "code": "assert count_punctuation('a b c') == 0",
-              "visible": false,
-              "failure_message": "Spaces are not punctuation.",
-              "failure_message_tr": "Boşluk noktalama işareti değildir."
-            },
-            {
-              "code": "assert count_punctuation('e-mail: x@y.z') == 4",
-              "visible": false,
-              "failure_message": "Count -, :, @ and . (each punctuation mark once).",
-              "failure_message_tr": "-, :, @ ve . karakterlerini say (her işaret bir kez)."
-            },
-            {
-              "code": "assert count_punctuation('Wait... what?! (really)') == 7",
-              "visible": false,
-              "failure_message": "Count the punctuation in the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metindeki noktalama işaretlerini say; sonuçları elle yazma."
+              "label": "deal returns the same cards",
+              "label_tr": "deal aynı kartları döndürüyor"
             }
           ],
           "hints": [
-            "Loop over the characters of text.",
-            "Check each character for membership in string.punctuation and keep a counter.",
-            "Inside the loop: if ch ___ string.punctuation: count += 1 (which operator tests membership?)"
+            "The error mentions NoneType. What does random.shuffle return?",
+            "shuffle reorders the list in place, like sort(); it returns None.",
+            "Call shuffle on its own line, then return the deck list itself."
+          ],
+          "hints_tr": [
+            "Hata NoneType'tan bahsediyor. random.shuffle ne döndürür?",
+            "shuffle list'i sort() gibi yerinde yeniden sıralar; None döndürür.",
+            "shuffle'ı kendi satırında çağır, sonra deck list'inin kendisini döndür."
           ],
           "solution": {
-            "approach": "Count the characters that appear in string.punctuation.",
-            "code": "import string\n\ndef count_punctuation(text):\n    count = 0\n    for ch in text:\n        if ch in string.punctuation:\n            count += 1\n    return count",
-            "approach_tr": "string.punctuation içinde geçen karakterleri say."
-          },
-          "twin": "d12-b3-e3",
-          "hints_tr": [
-            "text'in karakterleri üzerinde dolaş.",
-            "Her karakterin string.punctuation içinde olup olmadığına bak ve bir sayaç tut.",
-            "Döngünün içinde: if ch ___ string.punctuation: count += 1 (üyelik testi için hangi operatör?)"
-          ]
+            "approach": "shuffle changes deck in place and returns None, so the result must be the deck list, not shuffle's return value.",
+            "approach_tr": "shuffle deck'i yerinde değiştirir ve None döndürür; sonuç shuffle'ın dönüş değeri değil, deck list'inin kendisi olmalı.",
+            "code": "import random\n\ndef deal(deck):\n    random.shuffle(deck)\n    return deck\n\nprint(len(deal(['A', 'K', 'Q', 'J', '10'])))"
+          }
         },
         {
           "id": "d12-b3-e5",
-          "type": "debug",
-          "prompt": "This should store a random whole number between 5 and 20 (inclusive) in value, but it crashes. Fix it.",
-          "prompt_tr": "Bu kod value içine 5 ile 20 arasında (uçlar dahil) rastgele bir tam sayı koymalı ama hata veriyor. Düzeltin.",
-          "starter_code": "import random\n\nvalue = random.random(5, 20)\nprint(5 <= value <= 20)",
-          "expected_output": "True",
+          "type": "modify",
+          "prompt": "roll() always returns a number from 1 to 6. Change it to roll(sides=6) so it returns a number from 1 to sides, both included. roll() must still behave like a normal die, and roll(20) like a 20-sided die.",
+          "prompt_tr": "roll() her zaman 1 ile 6 arasında bir sayı döndürüyor. Onu roll(sides=6) yap; 1 ile sides arasında, iki uç dahil bir sayı döndürsün. roll() yine normal bir zar gibi, roll(20) ise 20 yüzlü bir zar gibi davranmalı.",
+          "starter_code": "import random\n\ndef roll():\n    return random.randint(1, 6)\n\nprint(1 <= roll() <= 6)",
+          "signature": "def roll(sides=6):",
           "tests": [
             {
-              "code": "assert isinstance(value, int)",
+              "code": "assert all(1 <= roll() <= 6 for _ in range(200))",
               "visible": true,
-              "label_tr": "value bir int olmalı"
+              "label": "roll() stays in 1..6",
+              "label_tr": "roll() 1..6 aralığında"
             },
             {
-              "code": "assert 5 <= value <= 20",
+              "code": "assert __stdout__.strip() == 'True'",
               "visible": true,
-              "label_tr": "value 5 ile 20 arasında olmalı"
+              "label": "Prints True",
+              "label_tr": "True yazdırıyor"
+            },
+            {
+              "code": "r = {roll(20) for _ in range(2000)}; assert min(r) == 1 and max(r) == 20",
+              "visible": false,
+              "failure_message": "roll(20) must reach both 1 and 20.",
+              "failure_message_tr": "roll(20) hem 1'e hem 20'ye ulaşabilmeli."
+            },
+            {
+              "code": "assert all(roll(1) == 1 for _ in range(20))",
+              "visible": false,
+              "failure_message": "roll(1) can only be 1.",
+              "failure_message_tr": "roll(1) yalnızca 1 olabilir."
             }
           ],
           "hints": [
-            "Read the last line of the error message.",
-            "random.random() takes no arguments and returns a float between 0 and 1.",
-            "Use the random function whose name starts with 'rand' and ends with 'int'."
+            "Add a parameter with a default value of 6 to the header.",
+            "Use that parameter as the upper end of randint.",
+            "def roll(sides=6): and randint(1, ___)."
+          ],
+          "hints_tr": [
+            "Başlığa varsayılan değeri 6 olan bir parametre ekle.",
+            "Bu parametreyi randint'in üst ucu olarak kullan.",
+            "def roll(sides=6): ve randint(1, ___)."
           ],
           "solution": {
-            "approach": "random() takes no arguments; randint(a, b) is the function that returns an integer between a and b.",
-            "code": "import random\n\nvalue = random.randint(5, 20)\nprint(5 <= value <= 20)",
-            "approach_tr": "random() argüman almaz; a ile b arasında tam sayı veren fonksiyon randint(a, b)'dir."
-          },
-          "hints_tr": [
-            "Hata mesajının son satırını oku.",
-            "random.random() argüman almaz ve 0 ile 1 arasında ondalıklı sayı verir.",
-            "Adı 'rand' ile başlayıp 'int' ile biten random fonksiyonunu kullan."
-          ]
+            "approach": "A default parameter keeps the old call working; randint includes the upper end, so sides itself can come up.",
+            "approach_tr": "Varsayılan parametre eski çağrının çalışmasını sağlar; randint üst ucu da içerdiği için sides'ın kendisi de gelebilir.",
+            "code": "import random\n\ndef roll(sides=6):\n    return random.randint(1, sides)\n\nprint(1 <= roll() <= 6)"
+          }
         },
         {
           "id": "d12-b3-e6",
-          "type": "explain",
-          "prompt": "In your own words: what is the difference between 'import math' and 'from math import pi'?",
-          "prompt_tr": "Kendi cümlelerinizle: 'import math' ile 'from math import pi' arasındaki fark nedir?",
-          "model_answer": "import math loads the whole module and you reach its contents with the module name as a prefix, like math.pi. from math import pi brings only the name pi into your program, so you write pi directly. from math import * brings everything and can overwrite your own names.",
-          "keywords": [
-            "prefix",
-            "from",
-            "pi"
+          "type": "write",
+          "prompt": "Write a function random_user_id() that returns a 6-character string made of random lowercase letters and digits, using the string and random modules. Each character is picked independently (repeats allowed). Example: random_user_id() might return 'k3q0zt'.",
+          "prompt_tr": "random_user_id() fonksiyonunu yaz: string ve random modüllerini kullanarak rastgele küçük harfler ve rakamlardan oluşan 6 karakterlik bir string döndürsün. Her karakter bağımsız seçilsin (tekrar olabilir). Örnek: random_user_id() 'k3q0zt' gibi bir değer döndürebilir.",
+          "starter_code": "",
+          "signature": "def random_user_id():",
+          "tests": [
+            {
+              "code": "u = random_user_id(); assert isinstance(u, str) and len(u) == 6",
+              "visible": true,
+              "label": "Returns a 6-character string",
+              "label_tr": "6 karakterlik bir string döndürüyor"
+            },
+            {
+              "code": "import string as _s\nfor _ in range(200):\n    assert all(c in _s.ascii_lowercase + _s.digits for c in random_user_id())",
+              "visible": false,
+              "failure_message": "Use only lowercase letters and digits.",
+              "failure_message_tr": "Yalnızca küçük harf ve rakam kullan."
+            },
+            {
+              "code": "assert len({random_user_id() for _ in range(50)}) > 40",
+              "visible": false,
+              "failure_message": "The id must be random: different calls should give different ids.",
+              "failure_message_tr": "Kimlik rastgele olmalı: farklı çağrılar farklı kimlikler vermeli."
+            },
+            {
+              "code": "chars = ''.join(random_user_id() for _ in range(500)); assert any(c.isdigit() for c in chars) and any(c.isalpha() for c in chars)",
+              "visible": false,
+              "failure_message": "Pick from letters and digits together.",
+              "failure_message_tr": "Harf ve rakamların birleşiminden seç."
+            }
           ],
-          "model_answer_tr": "import math modülün tamamını yükler ve içindekilere modül adını ön ek yaparak ulaşırsın, örneğin math.pi. from math import pi ise sadece pi ismini programına getirir, yani doğrudan pi yazarsın. from math import * her şeyi getirir ve kendi isimlerinin üzerine yazabilir.",
-          "keywords_tr": [
-            "ön ek",
-            "from",
-            "pi",
-            "modül"
+          "hints": [
+            "Build the pool of allowed characters: string.ascii_lowercase + string.digits.",
+            "random.choice(pool) picks one character; you need six of them glued together.",
+            "Start with an empty string and add one choice per round of a loop that runs 6 times."
           ],
-          "min_words": 6
+          "hints_tr": [
+            "İzin verilen karakter havuzunu kur: string.ascii_lowercase + string.digits.",
+            "random.choice(pool) tek bir karakter seçer; altısını yan yana yapıştırman gerekiyor.",
+            "Boş bir string ile başla ve 6 kez dönen bir döngünün her turunda bir seçim ekle."
+          ],
+          "solution": {
+            "approach": "The string module supplies the allowed characters and random.choice picks each position independently.",
+            "approach_tr": "string modülü izin verilen karakterleri sağlar; random.choice her konumu bağımsız olarak seçer.",
+            "code": "import random\nimport string\n\ndef random_user_id():\n    pool = string.ascii_lowercase + string.digits\n    uid = ''\n    for _ in range(6):\n        uid += random.choice(pool)\n    return uid"
+          },
+          "twin": "d12-b3-e7"
+        },
+        {
+          "id": "d12-b3-e7",
+          "type": "write",
+          "prompt": "Write a function pick_winners(names, k) that returns a list of k different names chosen at random from names, using random.sample. If k is larger than len(names), return all names in random order instead. Example: pick_winners(['Ali', 'Ece', 'Can'], 2) might return ['Can', 'Ali'].",
+          "prompt_tr": "pick_winners(names, k) fonksiyonunu yaz: random.sample ile names içinden rastgele seçilmiş k farklı ismin list'ini döndürsün. k, len(names)'ten büyükse bunun yerine bütün isimleri rastgele sırada döndürsün. Örnek: pick_winners(['Ali', 'Ece', 'Can'], 2) ['Can', 'Ali'] döndürebilir.",
+          "starter_code": "",
+          "signature": "def pick_winners(names, k):",
+          "tests": [
+            {
+              "code": "w = pick_winners(['Ali', 'Ece', 'Can'], 2); assert len(w) == 2 and len(set(w)) == 2 and set(w) <= {'Ali', 'Ece', 'Can'}",
+              "visible": true,
+              "label": "Two different names from the list",
+              "label_tr": "list'ten iki farklı isim"
+            },
+            {
+              "code": "assert pick_winners(['Ali'], 1) == ['Ali']",
+              "visible": true,
+              "label": "One name, k = 1",
+              "label_tr": "Tek isim, k = 1"
+            },
+            {
+              "code": "w = pick_winners(['a', 'b', 'c'], 5); assert sorted(w) == ['a', 'b', 'c']",
+              "visible": false,
+              "failure_message": "If k is too large, return all names (each once).",
+              "failure_message_tr": "k çok büyükse bütün isimleri (her birini bir kez) döndür."
+            },
+            {
+              "code": "names = ['x', 'y', 'z', 'w']; pick_winners(names, 2); assert names == ['x', 'y', 'z', 'w']",
+              "visible": false,
+              "failure_message": "Do not change the input list.",
+              "failure_message_tr": "Girdi list'ini değiştirme."
+            },
+            {
+              "code": "assert len({tuple(pick_winners(list('abcdef'), 3)) for _ in range(60)}) > 10",
+              "visible": false,
+              "failure_message": "The winners must be random.",
+              "failure_message_tr": "Kazananlar rastgele olmalı."
+            }
+          ],
+          "hints": [
+            "random.sample(names, k) returns a new list of k distinct items and leaves names unchanged.",
+            "sample raises ValueError if k is larger than the list, so limit k first.",
+            "min(k, len(names)) gives the largest allowed sample size."
+          ],
+          "hints_tr": [
+            "random.sample(names, k) k farklı elemandan yeni bir list döndürür ve names'i değiştirmez.",
+            "k list'ten büyükse sample ValueError verir; önce k'yı sınırla.",
+            "min(k, len(names)) izin verilen en büyük örneklem boyutunu verir."
+          ],
+          "solution": {
+            "approach": "Limiting k with min avoids the ValueError, and sample returns a fresh list so the input stays intact.",
+            "approach_tr": "k'yı min ile sınırlamak ValueError'ı önler; sample yeni bir list döndürdüğü için girdi bozulmaz.",
+            "code": "import random\n\ndef pick_winners(names, k):\n    k = min(k, len(names))\n    return random.sample(names, k)"
+          },
+          "twin": "d12-b3-e6"
         }
+      ]
+    },
+    {
+      "id": "d12-b4",
+      "concept": "string-os-sys",
+      "concept_tr": "string hazır karakter kümeleri verir; os ve os.path dosya sistemiyle ve yollarla çalışır; sys çalışan Python'a erişir ve sys.argv komut satırı kelimelerini bir list olarak tutar.",
+      "tags": [
+        "modules",
+        "string",
+        "os",
+        "sys",
+        "interleaving"
       ],
-      "concept_tr": "string modülü hazır karakter takımlarını (digits, punctuation) verir; random modülü rastgele sayı üretir."
+      "worked_example": {
+        "code": "import os\nimport string\n\npath = os.path.join('raporlar', '2025', 'ocak.csv')\nfolder, filename = os.path.split(path)\nname, ext = os.path.splitext(filename)\nprint(folder, name, ext)\nsymbols = 0\nfor ch in 'Ocak-2025!':\n    if ch in string.punctuation:\n        symbols += 1\nprint(symbols)",
+        "notes": [
+          "os.path.join builds a path with the correct separator for the system, so the same code works on Linux, macOS and Windows.",
+          "os.path.split separates the folder from the file name, and splitext separates the extension at the last dot, both returning tuples you can unpack.",
+          "string.punctuation is an ordinary string of symbols, so the in operator checks each character against it."
+        ],
+        "notes_tr": [
+          "os.path.join yolu sisteme uygun ayırıcıyla kurar; böylece aynı kod Linux, macOS ve Windows'ta çalışır.",
+          "os.path.split klasörü dosya adından, splitext ise uzantıyı son noktadan ayırır; ikisi de açılabilen tuple'lar döndürür.",
+          "string.punctuation sıradan bir simge string'idir; in operatörü her karakteri ona karşı kontrol eder."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d12-b4-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "import string\n\nword = 'Şeker42'\ncount = 0\nfor ch in word:\n    if ch in string.ascii_letters:\n        count += 1\nprint(count)",
+          "choices": [
+            "6",
+            "4",
+            "5",
+            "7"
+          ],
+          "expected_output": "4",
+          "explanation": "Only e, k, e and r are English letters. Ş is outside ascii_letters and 4, 2 are digits, so the count is 4.",
+          "explanation_tr": "Yalnızca e, k, e ve r İngilizce harflerdir. Ş ascii_letters'ın dışındadır, 4 ve 2 de rakamdır; sayı 4 olur.",
+          "misconceptions": {
+            "6": "Ş is a Turkish letter and is not in ascii_letters, and the digits are not letters either.",
+            "5": "ascii_letters holds only English a-z and A-Z; Ş is not counted.",
+            "7": "The digits 4 and 2 are in string.digits, not in ascii_letters."
+          },
+          "misconceptions_tr": {
+            "6": "Ş bir Türkçe harftir ve ascii_letters içinde değildir; rakamlar da harf değildir.",
+            "5": "ascii_letters yalnızca İngilizce a-z ve A-Z'yi tutar; Ş sayılmaz.",
+            "7": "4 ve 2 rakamları ascii_letters'ta değil, string.digits içindedir."
+          }
+        },
+        {
+          "id": "d12-b4-e2",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "argv = ['greet.py', 'Zeynep', '3']\nname = argv[1]\ntimes = argv[2]\nprint(name * 2, times * 2)",
+          "choices": [
+            "ZeynepZeynep 6",
+            "ZeynepZeynep 33",
+            "Zeynep 33",
+            "greet.pygreet.py 33"
+          ],
+          "expected_output": "ZeynepZeynep 33",
+          "explanation": "Command-line arguments are strings: argv[1] is 'Zeynep' and argv[2] is '3', and * 2 repeats each string.",
+          "explanation_tr": "Komut satırı argümanları string'tir: argv[1] 'Zeynep', argv[2] '3'tür; * 2 her string'i tekrarlar.",
+          "misconceptions": {
+            "ZeynepZeynep 6": "Everything in sys.argv is a string, so '3' * 2 repeats the text: '33'.",
+            "Zeynep 33": "name * 2 repeats the string as well.",
+            "greet.pygreet.py 33": "Index 0 is the script name; argv[1] is the first real argument."
+          },
+          "misconceptions_tr": {
+            "ZeynepZeynep 6": "sys.argv'deki her şey string'tir; '3' * 2 metni tekrarlar: '33'.",
+            "Zeynep 33": "name * 2 de string'i tekrarlar.",
+            "greet.pygreet.py 33": "0 indeksi betiğin adıdır; argv[1] ilk gerçek argümandır."
+          }
+        },
+        {
+          "id": "d12-b4-e3",
+          "type": "fill_blank",
+          "prompt": "Complete the code so it prints the extension '.png' and the folder 'resimler' of the path.",
+          "prompt_tr": "Kodu, yolun uzantısını '.png' ve klasörünü 'resimler' olarak yazdıracak şekilde tamamla.",
+          "starter_code": "import os\n\npath = os.path.join('resimler', 'kedi.png')\nname, ext = os.path.___(path)\nfolder, file = os.path.___(path)\nprint(ext, folder)",
+          "blanks": [
+            {
+              "answer": [
+                "splitext"
+              ]
+            },
+            {
+              "answer": [
+                "split"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '.png resimler'",
+              "visible": true,
+              "label": "Prints '.png resimler'",
+              "label_tr": "'.png resimler' yazdırıyor"
+            },
+            {
+              "code": "assert file == 'kedi.png'",
+              "visible": true,
+              "label": "file is 'kedi.png'",
+              "label_tr": "file 'kedi.png'"
+            }
+          ],
+          "hints": [
+            "One helper cuts at the last dot, the other at the last path separator.",
+            "The extension helper's name ends in 'ext'.",
+            "splitext for the extension, split for the folder."
+          ],
+          "hints_tr": [
+            "Yardımcılardan biri son noktadan, diğeri son yol ayırıcısından keser.",
+            "Uzantı yardımcısının adı 'ext' ile biter.",
+            "Uzantı için splitext, klasör için split."
+          ]
+        },
+        {
+          "id": "d12-b4-e4",
+          "type": "debug",
+          "prompt": "total_from_args should add the numbers given on the command line (simulated here as argv) and print 'Toplam: 15'. It prints 'Toplam: 0510' instead. Fix the function.",
+          "prompt_tr": "total_from_args komut satırında verilen sayıları (burada argv ile taklit ediliyor) toplamalı ve 'Toplam: 15' yazdırmalı. Bunun yerine 'Toplam: 0510' yazdırıyor. Fonksiyonu düzelt.",
+          "starter_code": "def total_from_args(argv):\n    total = ''\n    for value in argv[1:]:\n        total += value\n    return total\n\nargv = ['sum.py', '0', '5', '10']\nprint('Toplam:', total_from_args(argv))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Toplam: 15'",
+              "visible": true,
+              "label": "Prints 'Toplam: 15'",
+              "label_tr": "'Toplam: 15' yazdırıyor"
+            },
+            {
+              "code": "assert total_from_args(['x.py', '7', '8']) == 15",
+              "visible": false,
+              "failure_message": "Convert each argument with int() and add numbers, starting from 0.",
+              "failure_message_tr": "Her argümanı int() ile çevir ve 0'dan başlayarak sayıları topla."
+            },
+            {
+              "code": "assert total_from_args(['x.py']) == 0",
+              "visible": false,
+              "failure_message": "With no arguments the total is 0.",
+              "failure_message_tr": "Argüman yoksa toplam 0'dır."
+            }
+          ],
+          "hints": [
+            "Look at the output: '0510' is the three strings glued together. Why did + glue instead of add?",
+            "Command-line arguments are always strings, and the total starts as an empty string.",
+            "Start total at the number 0 and convert each value with int() before adding."
+          ],
+          "hints_tr": [
+            "Çıktıya bak: '0510' üç string'in yapışmış hâli. + neden toplamak yerine yapıştırdı?",
+            "Komut satırı argümanları her zaman string'tir ve toplam boş bir string olarak başlıyor.",
+            "total'ı 0 sayısıyla başlat ve her değeri eklemeden önce int() ile çevir."
+          ],
+          "solution": {
+            "approach": "Arguments arrive as text. Starting from 0 and converting with int() turns concatenation into addition.",
+            "approach_tr": "Argümanlar metin olarak gelir. 0'dan başlayıp int() ile çevirmek yapıştırmayı toplamaya dönüştürür.",
+            "code": "def total_from_args(argv):\n    total = 0\n    for value in argv[1:]:\n        total += int(value)\n    return total\n\nargv = ['sum.py', '0', '5', '10']\nprint('Toplam:', total_from_args(argv))"
+          }
+        },
+        {
+          "id": "d12-b4-e5",
+          "type": "modify",
+          "prompt": "password_report(pw) counts only digits. Change it to return a dict {'digits': d, 'symbols': s, 'upper': u} counting digits (string.digits), punctuation symbols (string.punctuation) and uppercase English letters (string.ascii_uppercase). Example: password_report('Ab1!') returns {'digits': 1, 'symbols': 1, 'upper': 1}.",
+          "prompt_tr": "password_report(pw) yalnızca rakamları sayıyor. Onu, rakamları (string.digits), noktalama simgelerini (string.punctuation) ve büyük İngilizce harfleri (string.ascii_uppercase) sayan {'digits': d, 'symbols': s, 'upper': u} dict'ini döndürecek şekilde değiştir. Örnek: password_report('Ab1!') {'digits': 1, 'symbols': 1, 'upper': 1} döndürür.",
+          "starter_code": "import string\n\ndef password_report(pw):\n    digits = 0\n    for ch in pw:\n        if ch in string.digits:\n            digits += 1\n    return digits\n\nprint(password_report('Ab1!'))",
+          "signature": "def password_report(pw):",
+          "tests": [
+            {
+              "code": "assert password_report('Ab1!') == {'digits': 1, 'symbols': 1, 'upper': 1}",
+              "visible": true,
+              "label": "'Ab1!' gives one of each",
+              "label_tr": "'Ab1!' her birinden bir tane veriyor"
+            },
+            {
+              "code": "assert password_report('') == {'digits': 0, 'symbols': 0, 'upper': 0}",
+              "visible": true,
+              "label": "Empty password gives zeros",
+              "label_tr": "Boş şifre sıfırlar veriyor"
+            },
+            {
+              "code": "assert password_report('KEDI_2024!!') == {'digits': 4, 'symbols': 3, 'upper': 4}",
+              "visible": false,
+              "failure_message": "Count every digit, symbol and uppercase letter.",
+              "failure_message_tr": "Her rakamı, simgeyi ve büyük harfi say."
+            },
+            {
+              "code": "assert password_report('şifreÇ') == {'digits': 0, 'symbols': 0, 'upper': 0}",
+              "visible": false,
+              "failure_message": "Use the string module sets: Turkish letters like Ç are not in ascii_uppercase.",
+              "failure_message_tr": "string modülündeki kümeleri kullan: Ç gibi Türkçe harfler ascii_uppercase içinde değildir."
+            }
+          ],
+          "hints": [
+            "Keep three counters, one per category, all starting at 0.",
+            "Inside the loop use if / elif / elif with string.digits, string.punctuation and string.ascii_uppercase.",
+            "At the end return {'digits': digits, 'symbols': ___, 'upper': ___}."
+          ],
+          "hints_tr": [
+            "Her kategori için bir tane olmak üzere, hepsi 0'dan başlayan üç sayaç tut.",
+            "Döngünün içinde string.digits, string.punctuation ve string.ascii_uppercase ile if / elif / elif kullan.",
+            "Sonda {'digits': digits, 'symbols': ___, 'upper': ___} döndür."
+          ],
+          "solution": {
+            "approach": "One loop with three membership checks against the string module sets fills a small dict report.",
+            "approach_tr": "string modülü kümelerine karşı üç üyelik kontrolü yapan tek bir döngü küçük bir dict raporunu doldurur.",
+            "code": "import string\n\ndef password_report(pw):\n    digits = symbols = upper = 0\n    for ch in pw:\n        if ch in string.digits:\n            digits += 1\n        elif ch in string.punctuation:\n            symbols += 1\n        elif ch in string.ascii_uppercase:\n            upper += 1\n    return {'digits': digits, 'symbols': symbols, 'upper': upper}\n\nprint(password_report('Ab1!'))"
+          }
+        },
+        {
+          "id": "d12-b4-e6",
+          "type": "write",
+          "prompt": "Interleaving with Day 8 dicts: write a function count_extensions(filenames) that returns a dict mapping each extension (from os.path.splitext, e.g. '.pdf') to how many file names have it. Names without an extension count under ''. Example: count_extensions(['a.pdf', 'b.PDF', 'c.txt']) returns {'.pdf': 1, '.PDF': 1, '.txt': 1}.",
+          "prompt_tr": "8. günün dict'leriyle tekrar: count_extensions(filenames) fonksiyonunu yaz: her uzantıyı (os.path.splitext'ten, örn. '.pdf') kaç dosya adında geçtiğine eşleyen bir dict döndürsün. Uzantısız adlar '' altında sayılsın. Örnek: count_extensions(['a.pdf', 'b.PDF', 'c.txt']) {'.pdf': 1, '.PDF': 1, '.txt': 1} döndürür.",
+          "starter_code": "",
+          "signature": "def count_extensions(filenames):",
+          "tests": [
+            {
+              "code": "assert count_extensions(['a.pdf', 'b.pdf', 'c.txt']) == {'.pdf': 2, '.txt': 1}",
+              "visible": true,
+              "label": "Two pdf, one txt",
+              "label_tr": "İki pdf, bir txt"
+            },
+            {
+              "code": "assert count_extensions([]) == {}",
+              "visible": true,
+              "label": "No names give {}",
+              "label_tr": "İsim yoksa {}"
+            },
+            {
+              "code": "assert count_extensions(['README', 'x.tar.gz', 'y.gz']) == {'': 1, '.gz': 2}",
+              "visible": false,
+              "failure_message": "splitext takes only the last extension, and names without one count under ''.",
+              "failure_message_tr": "splitext yalnızca son uzantıyı alır; uzantısız adlar '' altında sayılır."
+            },
+            {
+              "code": "assert count_extensions(['A.PNG', 'b.png']) == {'.PNG': 1, '.png': 1}",
+              "visible": false,
+              "failure_message": "Keep the extension exactly as splitext returns it.",
+              "failure_message_tr": "Uzantıyı splitext'in döndürdüğü hâliyle tut."
+            }
+          ],
+          "hints": [
+            "Loop over the names and get the extension with os.path.splitext(name)[1].",
+            "counts.get(ext, 0) gives the current count or 0 for a new extension.",
+            "Store counts[ext] = counts.get(ext, 0) + 1 in the loop and return counts."
+          ],
+          "hints_tr": [
+            "İsimler üzerinde döngü kur ve uzantıyı os.path.splitext(name)[1] ile al.",
+            "counts.get(ext, 0) mevcut sayıyı, yeni bir uzantı için 0'ı verir.",
+            "Döngüde counts[ext] = counts.get(ext, 0) + 1 yaz ve counts'u döndür."
+          ],
+          "solution": {
+            "approach": "splitext does the parsing, and dict.get with a default of 0 turns the dict into a counter.",
+            "approach_tr": "Ayrıştırmayı splitext yapar; varsayılanı 0 olan dict.get dict'i bir sayaca dönüştürür.",
+            "code": "import os\n\ndef count_extensions(filenames):\n    counts = {}\n    for name in filenames:\n        ext = os.path.splitext(name)[1]\n        counts[ext] = counts.get(ext, 0) + 1\n    return counts"
+          },
+          "twin": "d12-b4-e7"
+        },
+        {
+          "id": "d12-b4-e7",
+          "type": "write",
+          "prompt": "Write a function parse_args(argv) that receives a list like sys.argv and returns a dict {'script': argv[0], 'args': the remaining items as a list}. Example: parse_args(['run.py', 'a', 'b']) returns {'script': 'run.py', 'args': ['a', 'b']}.",
+          "prompt_tr": "parse_args(argv) fonksiyonunu yaz: sys.argv gibi bir list alsın ve {'script': argv[0], 'args': geri kalan elemanların list'i} dict'ini döndürsün. Örnek: parse_args(['run.py', 'a', 'b']) {'script': 'run.py', 'args': ['a', 'b']} döndürür.",
+          "starter_code": "",
+          "signature": "def parse_args(argv):",
+          "tests": [
+            {
+              "code": "assert parse_args(['run.py', 'a', 'b']) == {'script': 'run.py', 'args': ['a', 'b']}",
+              "visible": true,
+              "label": "Script name and two args",
+              "label_tr": "Betik adı ve iki argüman"
+            },
+            {
+              "code": "assert parse_args(['only.py']) == {'script': 'only.py', 'args': []}",
+              "visible": true,
+              "label": "No args gives an empty list",
+              "label_tr": "Argüman yoksa boş list"
+            },
+            {
+              "code": "r = parse_args(['x.py', '1', '2', '3']); assert r['args'] == ['1', '2', '3'] and r['script'] == 'x.py'",
+              "visible": false,
+              "failure_message": "Index 0 is the script; everything from index 1 on is args.",
+              "failure_message_tr": "0 indeksi betiktir; 1 indeksinden itibaren her şey args'tır."
+            },
+            {
+              "code": "a = ['p.py', 'k']; parse_args(a)['args'].append('z'); assert a == ['p.py', 'k']",
+              "visible": false,
+              "failure_message": "Return a new list for args (a slice), not the original list.",
+              "failure_message_tr": "args için orijinal list'i değil, yeni bir list (dilim) döndür."
+            }
+          ],
+          "hints": [
+            "argv[0] is the script name.",
+            "The slice argv[1:] is a new list of every item after the first; it is empty when there are none.",
+            "Return a dict literal with the two keys 'script' and 'args'."
+          ],
+          "hints_tr": [
+            "argv[0] betiğin adıdır.",
+            "argv[1:] dilimi ilk elemandan sonraki her şeyin yeni bir list'idir; eleman yoksa boştur.",
+            "'script' ve 'args' anahtarlarına sahip bir dict döndür."
+          ],
+          "solution": {
+            "approach": "Index 0 and the slice from 1 split argv the way every command-line script needs; the slice is a fresh list.",
+            "approach_tr": "0 indeksi ve 1'den başlayan dilim, argv'yi her komut satırı betiğinin ihtiyaç duyduğu şekilde böler; dilim yeni bir list'tir.",
+            "code": "def parse_args(argv):\n    return {'script': argv[0], 'args': argv[1:]}"
+          },
+          "twin": "d12-b4-e6"
+        }
+      ]
     }
   ],
   "review_pool": [
     "d12-b1-e1",
-    "d12-b1-e3",
+    "d12-b1-e6",
     "d12-b2-e1",
-    "d12-b2-e3",
-    "d12-b3-e1",
-    "d12-b3-e3"
-  ],
-  "title_tr": "Modüller"
+    "d12-b2-e6",
+    "d12-b4-e1",
+    "d12-b4-e6"
+  ]
 }
