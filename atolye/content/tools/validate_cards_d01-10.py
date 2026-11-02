@@ -3,9 +3,11 @@
 
 Run: .venv/bin/python atolye/content/tools/validate_cards_d01-10.py [first last]
 Every code run happens in a fresh subprocess with a 5 s timeout (python -I).
+Explain bodies: at most 160 words each (body_tr and body); per day the median explain-body word count must be >= 45
+in both languages.
 Last line: "VALIDATOR RESULT: 0 failures" on success.
 """
-import glob, json, os, re, subprocess, sys, tempfile
+import glob, json, os, re, statistics, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
@@ -249,6 +251,11 @@ for day in range(FIRST, LAST + 1):
             if c.get("target") != "learn":
                 fail(day, cid, "recap target must be 'learn'")
             need_pair(day, cid, c, "cta")
+    # explain-body depth: the median explain body (each language) must be >= 45 words
+    for k in ("body_tr", "body"):
+        wc = [words(c.get(k, "")) for c in cards if c.get("type") == "explain"]
+        if wc and statistics.median(wc) < 45:
+            fail(day, "-", "median explain %s is %s words (< 45)" % (k, statistics.median(wc)))
     if cards and cards[-1].get("type") != "recap":
         fail(day, "-", "last card must be recap")
     # checkpoint spacing: every window of 4 consecutive (non-recap) cards has a checkpoint
