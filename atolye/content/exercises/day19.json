@@ -1,57 +1,65 @@
 {
   "day": 19,
-  "title": "File handling",
+  "title": "File Handling",
+  "title_tr": "Dosya İşlemleri",
   "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
   "blocks": [
     {
       "id": "d19-b1",
-      "concept": "reading-files",
+      "concept": "reading-text-files",
+      "concept_tr": "`with open(yol, encoding='utf-8') as f:` dosyayı açar ve blok bitince kapatır; `read()` tüm metni, `readlines()` satırları `\\n` ile, `read().splitlines()` `\\n`'siz verir; `for line in f:` satır satır okur ve okunan her şey string'tir.",
       "tags": [
         "files",
         "open",
-        "read"
+        "read",
+        "with"
       ],
       "worked_example": {
-        "code": "with open('notes19.txt', 'w') as f:\n    f.write('line one\\nline two')\nwith open('notes19.txt') as f:\n    print(f.read().splitlines())",
+        "code": "with open('shop_d19.txt', 'w', encoding='utf-8') as f:\n    f.write('çay,7.5\\nkek,32\\nsu,5\\n')\n\ntotal = 0\nwith open('shop_d19.txt', encoding='utf-8') as f:\n    for line in f:\n        name, price = line.strip().split(',')\n        total += float(price)\nprint(total)",
         "notes": [
-          "with open(...) as f closes the file for you when the block ends.",
-          "read().splitlines() gives the lines without the newline characters."
+          "The first `with` block writes three lines; `\\n` has to be written by hand because `write` adds nothing.",
+          "Looping over the file object reads one line per round, and `strip()` removes the trailing newline before splitting.",
+          "Everything read from a file is a string, so the price must go through `float()` before it can be added."
         ],
         "notes_tr": [
-          "with open(...) as f blok bitince dosyayı senin için kapatır.",
-          "read().splitlines() satırları satır sonu karakterleri olmadan verir."
+          "İlk `with` bloğu üç satır yazar; `write` hiçbir şey eklemediği için `\\n` elle yazılmalı.",
+          "Dosya nesnesini gezmek her turda bir satır okur; `strip()` bölmeden önce sondaki satır sonunu atar.",
+          "Dosyadan okunan her şey string'tir; fiyatın toplanabilmesi için önce `float()`'tan geçmesi gerekir."
         ]
       },
       "exercises": [
         {
           "id": "d19-b1-e1",
           "type": "predict",
-          "prompt": "The program first creates a small file. What does it print?",
-          "prompt_tr": "Program önce küçük bir dosya oluşturuyor. Ne yazdırır?",
-          "code": "with open('demo19a.txt', 'w') as f:\n    f.write('This is an example\\nSecond line')\nwith open('demo19a.txt') as f:\n    print(f.read(7))\nwith open('demo19a.txt') as f:\n    print(f.readlines())\nwith open('demo19a.txt') as f:\n    print(f.read().splitlines())",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "with open('b1e1_d19.txt', 'w') as f:\n    f.write('x\\ny\\n')\nwith open('b1e1_d19.txt') as f:\n    lines = f.readlines()\n    print(len(lines), repr(f.read()))",
           "choices": [
-            "This is an example\n['This is an example', 'Second line']\n['This is an example', 'Second line']",
-            "This is\n['This is an example', 'Second line']\n['This is an example', 'Second line']",
-            "This is\n['This is an example\\n', 'Second line']\n['This is an example', 'Second line']"
+            "2 ''",
+            "3 ''",
+            "2 'x\\ny\\n'",
+            "2 None"
           ],
-          "expected_output": "This is\n['This is an example\\n', 'Second line']\n['This is an example', 'Second line']",
-          "explanation": "read(7) returns the first 7 characters: 'This is'. readlines() returns the lines WITH their '\\n' endings. read().splitlines() returns the lines without line endings.",
+          "expected_output": "2 ''",
+          "explanation": "`readlines()` reads both lines and moves the cursor to the end, so the next `read()` returns the empty string.",
+          "explanation_tr": "`readlines()` iki satırı okur ve imleci sona taşır; bu yüzden sonraki `read()` boş string döndürür.",
           "misconceptions": {
-            "This is an example\n['This is an example', 'Second line']\n['This is an example', 'Second line']": "read(7) reads only 7 characters, not a whole line.",
-            "This is\n['This is an example', 'Second line']\n['This is an example', 'Second line']": "readlines() keeps the newline character at the end of each line except possibly the last; splitlines() removes it."
+            "3 ''": "The text ends with `\\n`, but that does not create a third, empty line in `readlines()`.",
+            "2 'x\\ny\\n'": "Reading moves the cursor; the file is not read again from the beginning.",
+            "2 None": "`read()` at the end of a file returns an empty string, not `None`."
           },
-          "explanation_tr": "read(7) ilk 7 karakteri verir: 'This is'. readlines() satırları '\\n' sonlarıyla birlikte verir. read().splitlines() ise satırları satır sonları olmadan verir.",
           "misconceptions_tr": {
-            "This is an example\n['This is an example', 'Second line']\n['This is an example', 'Second line']": "read(7) tüm bir satırı değil, sadece 7 karakter okur.",
-            "This is\n['This is an example', 'Second line']\n['This is an example', 'Second line']": "readlines() her satırın sonundaki satır sonu karakterini korur (son satır hariç olabilir); splitlines() onu kaldırır."
+            "3 ''": "Metin `\\n` ile bitiyor, ama bu `readlines()`'ta üçüncü, boş bir satır oluşturmaz.",
+            "2 'x\\ny\\n'": "Okumak imleci taşır; dosya baştan yeniden okunmaz.",
+            "2 None": "Dosya sonunda `read()` `None` değil boş string döndürür."
           }
         },
         {
           "id": "d19-b1-e2",
           "type": "fill_blank",
-          "prompt": "Complete the program: open the file and read it as a list of lines without newline characters.",
-          "prompt_tr": "Programı tamamlayın: dosyayı açın ve satırları yeni satır karakteri olmadan bir liste olarak okuyun.",
-          "starter_code": "with open('poem19.txt', 'w') as f:\n    f.write('Roses are red\\nViolets are blue')\nwith ___('poem19.txt') as f:\n    lines = f.read().___()\nprint(lines)",
+          "prompt": "Read the file back into the list `fruits`, one item per line, without the newline characters.",
+          "prompt_tr": "Dosyayı satır başına bir eleman olacak şekilde, satır sonu karakterleri olmadan `fruits` list'ine geri oku.",
+          "starter_code": "with open('b1e2_d19.txt', 'w', encoding='utf-8') as f:\n    f.write('elma\\narmut\\nkiraz')\nwith ___('b1e2_d19.txt', encoding='utf-8') as f:\n    fruits = f.read().___()\nprint(fruits)",
           "blanks": [
             {
               "answer": [
@@ -66,353 +74,541 @@
           ],
           "tests": [
             {
-              "code": "assert lines == ['Roses are red', 'Violets are blue']",
+              "code": "assert fruits == ['elma', 'armut', 'kiraz']",
               "visible": true,
-              "label_tr": "lines ['Roses are red', 'Violets are blue'] olmalı"
+              "label": "fruits holds three fruits",
+              "label_tr": "fruits üç meyve tutuyor"
+            },
+            {
+              "code": "assert __stdout__.strip() == \"['elma', 'armut', 'kiraz']\"",
+              "visible": true,
+              "label": "Prints the list",
+              "label_tr": "list yazdırılıyor"
             }
-          ],
-          "hints": [
-            "Which built-in function opens a file?",
-            "Which string method splits text into lines and drops the line endings?"
-          ],
-          "hints_tr": [
-            "Hangi yerleşik fonksiyon bir dosyayı açar?",
-            "Hangi string metodu metni satırlara böler ve satır sonlarını atar?"
           ]
         },
         {
           "id": "d19-b1-e3",
-          "type": "write",
-          "prompt": "Write read_lines(filename) that returns the lines of a text file as a list of strings without the newline characters. An empty file gives an empty list.",
-          "prompt_tr": "Bir metin dosyasının satırlarını yeni satır karakteri olmadan string listesi olarak döndüren read_lines(filename) yazın. Boş dosya boş liste vermeli.",
-          "starter_code": "",
-          "signature": "def read_lines(filename):",
-          "tests": [
-            {
-              "code": "with open('rl19a.txt', 'w') as f:\n    f.write('one\\ntwo')\nassert read_lines('rl19a.txt') == ['one', 'two']",
-              "visible": true,
-              "label_tr": "İki satırlı dosya ['one', 'two'] veriyor"
-            },
-            {
-              "code": "with open('rl19b.txt', 'w') as f:\n    f.write('Finland\\nSweden\\nNorway\\n')\nassert read_lines('rl19b.txt') == ['Finland', 'Sweden', 'Norway']",
-              "visible": true,
-              "label_tr": "Sonunda satır sonu olan dosya satırları temiz veriyor"
-            },
-            {
-              "code": "with open('rl19c.txt', 'w') as f:\n    f.write('')\nassert read_lines('rl19c.txt') == []",
-              "visible": false,
-              "failure_message": "An empty file has no lines: return an empty list.",
-              "failure_message_tr": "Boş dosyada satır yoktur: boş liste döndür."
-            },
-            {
-              "code": "with open('rl19d.txt', 'w') as f:\n    f.write('a\\n\\nb')\nassert read_lines('rl19d.txt') == ['a', '', 'b']",
-              "visible": false,
-              "failure_message": "Blank lines in the middle must stay as empty strings.",
-              "failure_message_tr": "Aradaki boş satırlar boş string olarak kalmalı."
-            },
-            {
-              "code": "with open('rl19e.txt', 'w') as f:\n    f.write('x\\ny')\nassert all('\\n' not in line for line in read_lines('rl19e.txt'))",
-              "visible": false,
-              "failure_message": "Remove the newline characters from every line.",
-              "failure_message_tr": "Her satırdan satır sonu karakterlerini kaldır."
-            },
-            {
-              "code": "with open('rl19f.txt', 'w') as f:\n    f.write('red\\ngreen\\nblue')\nassert read_lines('rl19f.txt') == ['red', 'green', 'blue']",
-              "visible": false,
-              "failure_message": "Read the file you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen dosyayı oku; sonuçları elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print the sum of the scores in the file, `60`, but crashes with `TypeError: unsupported operand type(s) for +=: 'int' and 'str'`. Fix it.",
+          "prompt_tr": "Program dosyadaki puanların toplamını, `60`'ı yazdırmalı, ama `TypeError: unsupported operand type(s) for +=: 'int' and 'str'` hatasıyla çöküyor. Düzelt.",
+          "starter_code": "with open('b1e3_d19.txt', 'w') as f:\n    f.write('10\\n20\\n30\\n')\ntotal = 0\nwith open('b1e3_d19.txt') as f:\n    for line in f:\n        total += line\nprint(total)",
+          "expected_output": "60",
           "hints": [
-            "Open the file with a with block.",
-            "Read the whole content with f.read(), then use the string method that cuts text into lines.",
-            "with open(filename) as f: return f.read().___() (which method drops the line endings?)"
+            "What is the type of `line` in each round?",
+            "Every line is a string like `'10\\n'`; you need a number.",
+            "Convert the line with `int()` before adding; `int()` ignores the surrounding whitespace."
+          ],
+          "hints_tr": [
+            "Her turda `line`'ın türü ne?",
+            "Her satır `'10\\n'` gibi bir string; sana sayı lazım.",
+            "Toplamadan önce satırı `int()` ile çevir; `int()` çevresindeki boşlukları yok sayar."
           ],
           "solution": {
-            "approach": "Open with a with block, read everything and split into lines.",
-            "code": "def read_lines(filename):\n    with open(filename) as f:\n        return f.read().splitlines()",
-            "approach_tr": "with bloğuyla aç, her şeyi oku ve satırlara böl."
-          },
-          "twin": "d19-b1-e4",
-          "hints_tr": [
-            "Dosyayı bir with bloğuyla aç.",
-            "Tüm içeriği f.read() ile oku, sonra metni satırlara bölen string metodunu kullan.",
-            "with open(filename) as f: return f.read().___() (satır sonlarını atan metod hangisi?)"
-          ]
+            "approach": "Lines read from a file are strings; convert each with `int()`.",
+            "approach_tr": "Dosyadan okunan satırlar string'tir; her birini `int()` ile çevir.",
+            "code": "with open('b1e3_d19.txt', 'w') as f:\n    f.write('10\\n20\\n30\\n')\ntotal = 0\nwith open('b1e3_d19.txt') as f:\n    for line in f:\n        total += int(line)\nprint(total)"
+          }
         },
         {
           "id": "d19-b1-e4",
-          "type": "write",
-          "prompt": "Write longest_line(filename) that returns the longest line of a text file (without the newline). If several lines tie, return the first one. For an empty file return an empty string.",
-          "prompt_tr": "Bir metin dosyasının en uzun satırını (yeni satır karakteri olmadan) döndüren longest_line(filename) yazın. Eşitlikte ilkini döndürün. Boş dosyada boş string döndürün.",
-          "starter_code": "",
-          "signature": "def longest_line(filename):",
+          "type": "predict",
+          "prompt": "What does this print? (Blank lines count.)",
+          "prompt_tr": "Bu kod ne yazdırır? (Boş satırlar da sayılır.)",
+          "code": "with open('b1e4_d19.txt', 'w') as f:\n    f.write('a\\nb\\n')\nwith open('b1e4_d19.txt') as f:\n    for line in f:\n        print(line)",
+          "choices": [
+            "a\n\nb",
+            "a\nb",
+            "ab",
+            "a\\nb\\n"
+          ],
+          "expected_output": "a\n\nb",
+          "explanation": "Each line already ends with `\\n`, and `print` adds another one, so an empty line appears after each line.",
+          "explanation_tr": "Her satır zaten `\\n` ile bitiyor ve `print` bir tane daha ekliyor; bu yüzden her satırdan sonra boş bir satır çıkar.",
+          "misconceptions": {
+            "a\nb": "That would need `line.strip()` or `print(line, end='')`; the `\\n` inside the line is still there.",
+            "ab": "`print` always ends with a newline unless you change `end`.",
+            "a\\nb\\n": "`print` shows the newline as a real line break, not as the characters backslash and n."
+          },
+          "misconceptions_tr": {
+            "a\nb": "Bunun için `line.strip()` ya da `print(line, end='')` gerekirdi; satırın içindeki `\\n` hâlâ orada.",
+            "ab": "`end`'i değiştirmedikçe `print` her zaman yeni satırla biter.",
+            "a\\nb\\n": "`print` yeni satırı ters eğik çizgi ve n karakterleri olarak değil, gerçek bir satır sonu olarak gösterir."
+          }
+        },
+        {
+          "id": "d19-b1-e5",
+          "type": "modify",
+          "prompt": "`count_lines(path)` counts every line. Change it so it counts only lines that contain something other than whitespace. Example: for a file `'a\\n\\nb\\n   \\nc'` it returns `3`.",
+          "prompt_tr": "`count_lines(path)` her satırı sayıyor. Sadece boşluk dışında bir şey içeren satırları sayacak şekilde değiştir. Örnek: `'a\\n\\nb\\n   \\nc'` içerikli bir dosya için `3` döndürür.",
+          "starter_code": "def count_lines(path):\n    with open(path, encoding='utf-8') as f:\n        return len(f.readlines())",
+          "signature": "def count_lines(path):",
           "tests": [
             {
-              "code": "with open('ll19a.txt', 'w') as f:\n    f.write('hi\\nhello\\nhey')\nassert longest_line('ll19a.txt') == 'hello'",
+              "code": "with open('_t_b1e5a_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('a\\n\\nb\\n   \\nc')\nassert count_lines('_t_b1e5a_d19.txt') == 3",
               "visible": true,
-              "label_tr": "En uzun satır 'hello' olarak bulunuyor"
+              "label": "Blank lines are skipped",
+              "label_tr": "Boş satırlar atlanıyor"
             },
             {
-              "code": "with open('ll19b.txt', 'w') as f:\n    f.write('only line')\nassert longest_line('ll19b.txt') == 'only line'",
-              "visible": true,
-              "label_tr": "Tek satırlı dosyada o satır dönüyor"
-            },
-            {
-              "code": "with open('ll19c.txt', 'w') as f:\n    f.write('')\nassert longest_line('ll19c.txt') == ''",
+              "code": "with open('_t_b1e5b_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('')\nassert count_lines('_t_b1e5b_d19.txt') == 0",
               "visible": false,
-              "failure_message": "An empty file has no lines: return ''.",
-              "failure_message_tr": "Boş dosyada satır yoktur: '' döndür."
+              "failure_message": "An empty file has 0 lines.",
+              "failure_message_tr": "Boş dosyada 0 satır var."
             },
             {
-              "code": "with open('ll19d.txt', 'w') as f:\n    f.write('abc\\nxyz\\nq')\nassert longest_line('ll19d.txt') == 'abc'",
+              "code": "with open('_t_b1e5c_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('x\\ny\\nz\\n\\t\\n')\nassert count_lines('_t_b1e5c_d19.txt') == 3",
               "visible": false,
-              "failure_message": "On a tie return the first line: compare with > not >=.",
-              "failure_message_tr": "Eşitlikte ilk satırı döndür: >= değil > kullan."
-            },
-            {
-              "code": "with open('ll19e.txt', 'w') as f:\n    f.write('ab\\n\\nabcd\\n')\nassert longest_line('ll19e.txt') == 'abcd'",
-              "visible": false,
-              "failure_message": "Count the length without the newline character.",
-              "failure_message_tr": "Uzunluğu satır sonu karakteri olmadan say."
-            },
-            {
-              "code": "with open('ll19f.txt', 'w') as f:\n    f.write('aa\\nbbbbbb\\ncccc')\nassert longest_line('ll19f.txt') == 'bbbbbb'",
-              "visible": false,
-              "failure_message": "Read the file you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen dosyayı oku; sonuçları elle yazma."
+              "failure_message": "A line with only a tab is blank too.",
+              "failure_message_tr": "Sadece tab içeren satır da boştur."
             }
           ],
           "hints": [
-            "Get the lines first without newlines.",
-            "Keep a best line and replace it only when a line is strictly longer.",
-            "Inside the loop: if len(line) ___ len(best): best = line (> or >=? think about ties)"
+            "Loop over the lines instead of taking the length of the whole list.",
+            "`line.strip()` is an empty string for a blank line, and an empty string is falsy.",
+            "Count the lines for which `line.strip()` is truthy, for example with `sum(1 for line in f if line.strip())`."
+          ],
+          "hints_tr": [
+            "Tüm list'in uzunluğunu almak yerine satırları gez.",
+            "Boş bir satır için `line.strip()` boş string'tir ve boş string yanlış (falsy) sayılır.",
+            "`line.strip()`'in doğru (truthy) olduğu satırları say; örneğin `sum(1 for line in f if line.strip())` ile."
           ],
           "solution": {
-            "approach": "Read the lines, then loop keeping the longest so far (strict comparison keeps the first on a tie).",
-            "code": "def longest_line(filename):\n    with open(filename) as f:\n        lines = f.read().splitlines()\n    best = ''\n    for line in lines:\n        if len(line) > len(best):\n            best = line\n    return best",
-            "approach_tr": "Satırları oku, sonra şimdiye kadarki en uzununu tutarak dolaş (kesin karşılaştırma eşitlikte ilkini korur)."
-          },
-          "twin": "d19-b1-e3",
+            "approach": "Count only the lines whose stripped text is not empty.",
+            "approach_tr": "Sadece kırpılmış metni boş olmayan satırları say.",
+            "code": "def count_lines(path):\n    with open(path, encoding='utf-8') as f:\n        return sum(1 for line in f if line.strip())"
+          }
+        },
+        {
+          "id": "d19-b1-e6",
+          "type": "write",
+          "prompt": "Write `read_words(path)` that returns a list of all words in a text file, in order. Words are separated by any whitespace (spaces, tabs, newlines). Example: for a file containing `'merhaba dünya\\nnasılsın'` it returns `['merhaba', 'dünya', 'nasılsın']`.",
+          "prompt_tr": "Bir metin dosyasındaki tüm kelimeleri sırasıyla bir list olarak döndüren `read_words(path)` fonksiyonunu yaz. Kelimeler herhangi bir boşluk karakteriyle (boşluk, tab, yeni satır) ayrılır. Örnek: içeriği `'merhaba dünya\\nnasılsın'` olan bir dosya için `['merhaba', 'dünya', 'nasılsın']` döndürür.",
+          "starter_code": "",
+          "signature": "def read_words(path):",
+          "tests": [
+            {
+              "code": "with open('_t_b1e6a_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('merhaba dünya\\nnasılsın')\nassert read_words('_t_b1e6a_d19.txt') == ['merhaba', 'dünya', 'nasılsın']",
+              "visible": true,
+              "label": "Three words in order",
+              "label_tr": "Sırasıyla üç kelime"
+            },
+            {
+              "code": "with open('_t_b1e6b_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('')\nassert read_words('_t_b1e6b_d19.txt') == []",
+              "visible": false,
+              "failure_message": "An empty file gives an empty list.",
+              "failure_message_tr": "Boş dosya boş list verir."
+            },
+            {
+              "code": "with open('_t_b1e6c_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('  a\\tb\\n\\n c  ')\nassert read_words('_t_b1e6c_d19.txt') == ['a', 'b', 'c']",
+              "visible": false,
+              "failure_message": "Tabs, blank lines and extra spaces must not create empty words.",
+              "failure_message_tr": "Tab'lar, boş satırlar ve fazla boşluklar boş kelime üretmemeli."
+            },
+            {
+              "code": "with open('_t_b1e6d_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('şeker çiçek')\nassert read_words('_t_b1e6d_d19.txt') == ['şeker', 'çiçek']",
+              "visible": false,
+              "failure_message": "Open the file with encoding='utf-8' so Turkish letters survive.",
+              "failure_message_tr": "Türkçe harfler bozulmasın diye dosyayı encoding='utf-8' ile aç."
+            }
+          ],
+          "hints": [
+            "Open the file with `with` and `encoding='utf-8'`, then read the whole text.",
+            "`str.split()` without an argument splits on any whitespace and drops empty pieces.",
+            "Return `f.read().split()`."
+          ],
           "hints_tr": [
-            "Önce satırları satır sonu olmadan al.",
-            "En iyi satırı tut ve yalnızca bir satır kesinlikle daha uzunsa değiştir.",
-            "Döngünün içinde: if len(line) ___ len(best): best = line (> mi >= mi? eşitlik durumunu düşün)"
-          ]
+            "Dosyayı `with` ve `encoding='utf-8'` ile aç, sonra tüm metni oku.",
+            "Argümansız `str.split()` her türlü boşlukta böler ve boş parçaları atar.",
+            "`f.read().split()` döndür."
+          ],
+          "solution": {
+            "approach": "Read the whole file and split it with no argument.",
+            "approach_tr": "Tüm dosyayı oku ve argümansız böl.",
+            "code": "def read_words(path):\n    with open(path, encoding='utf-8') as f:\n        return f.read().split()"
+          },
+          "twin": "d19-b1-e7"
+        },
+        {
+          "id": "d19-b1-e7",
+          "type": "write",
+          "prompt": "Write `grep(path, word)` that returns a list of `(line_number, line)` tuples for every line that contains `word`, ignoring case. Line numbers start at 1 and lines are returned without the trailing newline. Example: for a file `'Python is fun\\nI like tea\\npython rocks'`, `grep(path, 'PYTHON')` returns `[(1, 'Python is fun'), (3, 'python rocks')]`.",
+          "prompt_tr": "`word`'ü içeren her satır için, büyük/küçük harfi yok sayarak, `(satır_no, satır)` tuple'larından oluşan bir list döndüren `grep(path, word)` fonksiyonunu yaz. Satır numaraları 1'den başlar ve satırlar sondaki satır sonu olmadan döndürülür. Örnek: `'Python is fun\\nI like tea\\npython rocks'` içerikli dosya için `grep(path, 'PYTHON')` sonucu `[(1, 'Python is fun'), (3, 'python rocks')]`.",
+          "starter_code": "",
+          "signature": "def grep(path, word):",
+          "tests": [
+            {
+              "code": "with open('_t_b1e7a_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('Python is fun\\nI like tea\\npython rocks')\nassert grep('_t_b1e7a_d19.txt', 'PYTHON') == [(1, 'Python is fun'), (3, 'python rocks')]",
+              "visible": true,
+              "label": "Matching lines with numbers",
+              "label_tr": "Numaralarıyla eşleşen satırlar"
+            },
+            {
+              "code": "with open('_t_b1e7b_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('a\\nb\\n')\nassert grep('_t_b1e7b_d19.txt', 'z') == []",
+              "visible": false,
+              "failure_message": "No matching line gives an empty list.",
+              "failure_message_tr": "Eşleşen satır yoksa boş list."
+            },
+            {
+              "code": "with open('_t_b1e7c_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('ERROR one\\nok\\nerror two\\n')\nassert grep('_t_b1e7c_d19.txt', 'error') == [(1, 'ERROR one'), (3, 'error two')]",
+              "visible": false,
+              "failure_message": "Return lines without their newline and count from 1.",
+              "failure_message_tr": "Satırları satır sonu olmadan döndür ve 1'den say."
+            },
+            {
+              "code": "with open('_t_b1e7d_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('x\\n\\ny tea\\n')\nassert grep('_t_b1e7d_d19.txt', 'TEA') == [(3, 'y tea')]",
+              "visible": false,
+              "failure_message": "Blank lines still count when numbering.",
+              "failure_message_tr": "Numaralandırırken boş satırlar da sayılır."
+            }
+          ],
+          "hints": [
+            "`enumerate(f, start=1)` gives line numbers together with lines (Day 17).",
+            "Compare in lowercase: `word.lower() in line.lower()`.",
+            "Append `(n, line.rstrip('\\n'))` for the matching lines and return the list."
+          ],
+          "hints_tr": [
+            "`enumerate(f, start=1)` satırları numaralarıyla birlikte verir (Day 17).",
+            "Küçük harfle karşılaştır: `word.lower() in line.lower()`.",
+            "Eşleşen satırlar için `(n, line.rstrip('\\n'))` ekle ve list'i döndür."
+          ],
+          "solution": {
+            "approach": "Enumerate the lines from 1, keep the ones containing the word case-insensitively, strip the newline.",
+            "approach_tr": "Satırları 1'den numaralandır, kelimeyi büyük/küçük harf duyarsız içerenleri tut, satır sonunu at.",
+            "code": "def grep(path, word):\n    result = []\n    with open(path, encoding='utf-8') as f:\n        for n, line in enumerate(f, start=1):\n            if word.lower() in line.lower():\n                result.append((n, line.rstrip('\\n')))\n    return result"
+          },
+          "twin": "d19-b1-e6"
+        },
+        {
+          "id": "d19-b1-e8",
+          "type": "explain",
+          "prompt": "In your own words: why should you open files with `with open(...) as f:` instead of `f = open(...)` and `f.close()`?",
+          "prompt_tr": "Kendi cümlelerinle: dosyaları neden `f = open(...)` ve `f.close()` yerine `with open(...) as f:` ile açmalısın?",
+          "model_answer": "The with block closes the file automatically when the block ends, even if an exception happens inside it. With a manual close it is easy to forget it, or an error can skip the close line, so data may not be saved.",
+          "model_answer_tr": "with bloğu, blok bittiğinde, içinde bir istisna oluşsa bile, dosyayı otomatik olarak kapatır. Elle kapatırken bunu unutmak kolaydır ya da bir hata close satırını atlatabilir, böylece veri kaydedilmeyebilir.",
+          "keywords": [
+            "close",
+            "exception"
+          ],
+          "keywords_tr": [
+            "kapat",
+            "istisna"
+          ],
+          "min_words": 12
         }
-      ],
-      "concept_tr": "with open(...) as f ile dosyayı güvenle açarsın; blok bitince dosya kendiliğinden kapanır. İçeriği read(), readlines() ya da read().splitlines() ile okursun."
+      ]
     },
     {
       "id": "d19-b2",
       "concept": "writing-appending-deleting",
+      "concept_tr": "`'w'` dosyayı silip yeniden yazar, `'a'` sona ekler; `write` satır sonu eklemez ve sadece string alır; `os.remove` dosyayı siler, yoksa `FileNotFoundError` verir.",
       "tags": [
         "files",
-        "write-mode",
-        "append-mode",
-        "os"
+        "write",
+        "append",
+        "os.remove"
       ],
       "worked_example": {
-        "code": "with open('log19w.txt', 'w') as f:\n    f.write('first\\n')\nwith open('log19w.txt', 'a') as f:\n    f.write('second\\n')\nprint(open('log19w.txt').read())",
+        "code": "import os\n\nwith open('todo2_d19.txt', 'w', encoding='utf-8') as f:\n    for task in ['ekmek al', 'ödev yap']:\n        f.write(task + '\\n')\nwith open('todo2_d19.txt', 'a', encoding='utf-8') as f:\n    f.write('spor\\n')\nwith open('todo2_d19.txt', encoding='utf-8') as f:\n    print(f.read().splitlines())\nos.remove('todo2_d19.txt')\nprint(os.path.exists('todo2_d19.txt'))",
         "notes": [
-          "'w' creates the file or ERASES the old content; 'a' adds to the end.",
-          "write does not add a newline for you: put \\n where you need it."
+          "The file is opened once with `'w'` outside the loop, so every task is written into the same fresh file.",
+          "Opening with `'a'` keeps the two existing lines and adds the third at the end.",
+          "`os.remove` deletes the file for good; `os.path.exists` confirms it is gone."
         ],
         "notes_tr": [
-          "'w' dosyayı oluşturur ya da eski içeriği SİLER; 'a' sona ekler.",
-          "write senin yerine satır sonu eklemez: \\n'yi gereken yere kendin koy."
+          "Dosya döngünün dışında bir kez `'w'` ile açılıyor; böylece her görev aynı yeni dosyaya yazılıyor.",
+          "`'a'` ile açmak var olan iki satırı korur ve üçüncüyü sona ekler.",
+          "`os.remove` dosyayı kalıcı olarak siler; `os.path.exists` gittiğini doğrular."
         ]
       },
       "exercises": [
         {
           "id": "d19-b2-e1",
           "type": "predict",
-          "prompt": "What does this print? (repr shows the exact text, including \\n.)",
-          "prompt_tr": "Bu ne yazdırır? (repr, \\n dahil olmak üzere metni birebir gösterir.)",
-          "code": "with open('demo19b.txt', 'w') as f:\n    f.write('one\\n')\nwith open('demo19b.txt', 'a') as f:\n    f.write('two\\n')\nwith open('demo19b.txt', 'w') as f:\n    f.write('three\\n')\nwith open('demo19b.txt') as f:\n    print(repr(f.read()))",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "with open('b2e1_d19.txt', 'w') as f:\n    f.write('one\\n')\nwith open('b2e1_d19.txt', 'a') as f:\n    f.write('two\\n')\nwith open('b2e1_d19.txt', 'w') as f:\n    f.write('three\\n')\nwith open('b2e1_d19.txt') as f:\n    print(f.read().splitlines())",
           "choices": [
-            "'one\\ntwo\\nthree\\n'",
-            "'one\\ntwo\\n'",
-            "'three\\n'"
+            "['three']",
+            "['one', 'two', 'three']",
+            "['two', 'three']",
+            "['one', 'two']"
           ],
-          "expected_output": "'three\\n'",
-          "explanation": "'w' wipes the file each time it opens. After the third block only 'three\\n' remains. The 'a' mode would have kept the earlier text.",
+          "expected_output": "['three']",
+          "explanation": "The last open uses `'w'`, which wipes everything written before, so only 'three' remains.",
+          "explanation_tr": "Son açılış `'w'` kullanıyor; o, öncesinde yazılan her şeyi siler, sadece 'three' kalır.",
           "misconceptions": {
-            "'one\\ntwo\\nthree\\n'": "The last open uses 'w', which erases everything written before.",
-            "'one\\ntwo\\n'": "The third block uses 'w' and writes 'three' too, replacing the old content."
+            "['one', 'two', 'three']": "That would need `'a'` in the last open; `'w'` empties the file first.",
+            "['two', 'three']": "`'w'` wipes the whole file, not just the first line.",
+            "['one', 'two']": "The third block runs too and replaces the content with 'three'."
           },
-          "explanation_tr": "'w' dosyayı her açılışında siler. Üçüncü bloktan sonra sadece 'three\\n' kalır. 'a' modu önceki metni korurdu.",
           "misconceptions_tr": {
-            "'one\\ntwo\\nthree\\n'": "Son open 'w' kullanıyor ve daha önce yazılan her şeyi siliyor.",
-            "'one\\ntwo\\n'": "Üçüncü blok da 'w' kullanıp 'three' yazıyor, eski içeriğin yerini alıyor."
+            "['one', 'two', 'three']": "Bunun için son açılışta `'a'` gerekirdi; `'w'` önce dosyayı boşaltır.",
+            "['two', 'three']": "`'w'` sadece ilk satırı değil tüm dosyayı siler.",
+            "['one', 'two']": "Üçüncü blok da çalışır ve içeriği 'three' ile değiştirir."
           }
         },
         {
           "id": "d19-b2-e2",
-          "type": "parsons",
-          "prompt": "Order the lines: create a file, delete it only if it exists, then check that it is gone.",
-          "prompt_tr": "Satırları sıralayın: bir dosya oluşturun, yalnızca varsa silin, sonra silindiğini kontrol edin.",
-          "lines": [
-            "    f.write('x')",
-            "if os.path.exists('temp19.txt'):",
-            "print(os.path.exists('temp19.txt'))",
-            "import os",
-            "    os.remove('temp19.txt')",
-            "with open('temp19.txt', 'w') as f:"
+          "type": "fill_blank",
+          "prompt": "Complete `log` so every call adds one line to the end of the file instead of replacing it.",
+          "prompt_tr": "`log`'u, her çağrı dosyayı değiştirmek yerine sonuna bir satır ekleyecek şekilde tamamla.",
+          "starter_code": "def log(path, event):\n    with open(path, ___, encoding='utf-8') as f:\n        f.write(event + '\\n')",
+          "blanks": [
+            {
+              "answer": [
+                "'a'",
+                "\"a\""
+              ]
+            }
           ],
-          "correct_order": [
-            3,
-            5,
-            0,
-            1,
-            4,
-            2
-          ],
-          "distractors": [
-            "    os.delete('temp19.txt')"
-          ],
-          "expected_output": "False"
+          "tests": [
+            {
+              "code": "open('_t_b2e2_d19.log', 'w').close()\nlog('_t_b2e2_d19.log', 'start')\nlog('_t_b2e2_d19.log', 'stop')\nassert open('_t_b2e2_d19.log').read() == 'start\\nstop\\n'",
+              "visible": true,
+              "label": "Two calls give two lines",
+              "label_tr": "İki çağrı iki satır veriyor"
+            }
+          ]
         },
         {
           "id": "d19-b2-e3",
-          "type": "write",
-          "prompt": "Write save_lines(filename, lines) that writes each string of lines on its own line (every line ends with a newline). It must replace any old content of the file.",
-          "prompt_tr": "lines içindeki her string'i kendi satırına yazan (her satır yeni satırla biter) save_lines(filename, lines) yazın. Dosyanın eski içeriğini silip yerine yazmalıdır.",
-          "starter_code": "",
-          "signature": "def save_lines(filename, lines):",
-          "tests": [
-            {
-              "code": "save_lines('sl19a.txt', ['a', 'b'])\nassert open('sl19a.txt').read() == 'a\\nb\\n'",
-              "visible": true,
-              "label_tr": "save_lines('sl19a.txt', ['a', 'b']) 'a\\nb\\n' yazıyor"
-            },
-            {
-              "code": "save_lines('sl19b.txt', ['Finland'])\nassert open('sl19b.txt').read() == 'Finland\\n'",
-              "visible": true,
-              "label_tr": "save_lines('sl19b.txt', ['Finland']) 'Finland\\n' yazıyor"
-            },
-            {
-              "code": "save_lines('sl19c.txt', [])\nassert open('sl19c.txt').read() == ''",
-              "visible": false,
-              "failure_message": "An empty list must still create an empty file.",
-              "failure_message_tr": "Boş liste yine de boş bir dosya oluşturmalı."
-            },
-            {
-              "code": "save_lines('sl19d.txt', ['long', 'long', 'long'])\nsave_lines('sl19d.txt', ['x'])\nassert open('sl19d.txt').read() == 'x\\n'",
-              "visible": false,
-              "failure_message": "Use mode 'w' so the old content is replaced.",
-              "failure_message_tr": "Eski içeriğin yerine yenisi gelsin diye 'w' modunu kullan."
-            },
-            {
-              "code": "save_lines('sl19e.txt', ['1', '2', '3'])\nassert open('sl19e.txt').read().count('\\n') == 3",
-              "visible": false,
-              "failure_message": "Every line, including the last one, ends with a newline.",
-              "failure_message_tr": "Son satır dahil her satır satır sonuyla bitmeli."
-            },
-            {
-              "code": "save_lines('sl19f.txt', ['red', 'green'])\nassert open('sl19f.txt').read() == 'red\\ngreen\\n'",
-              "visible": false,
-              "failure_message": "Write the lines you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen satırları yaz; sonuçları elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should save all three names, one per line, but the file ends up with only `Can`. Fix it so a re-run still gives exactly three lines.",
+          "prompt_tr": "Program üç ismi de satır başına bir isim olacak şekilde kaydetmeli, ama dosyada sadece `Can` kalıyor. Yeniden çalıştırıldığında da tam üç satır verecek şekilde düzelt.",
+          "starter_code": "names = ['Ali', 'Ece', 'Can']\nfor name in names:\n    with open('b2e3_d19.txt', 'w') as f:\n        f.write(name + '\\n')\nwith open('b2e3_d19.txt') as f:\n    print(f.read().splitlines())",
+          "expected_output": "['Ali', 'Ece', 'Can']",
           "hints": [
-            "Which mode erases the old content?",
-            "Open with 'w' and loop over the lines.",
-            "f.write(line + ___) inside the loop (what must end every line?)"
+            "How many times is the file opened with `'w'`, and what does `'w'` do each time?",
+            "Switching to `'a'` would keep growing the file on every run. Open it only once instead.",
+            "Move the `with open(..., 'w')` line above the `for` loop and indent the loop inside it."
+          ],
+          "hints_tr": [
+            "Dosya kaç kez `'w'` ile açılıyor ve `'w'` her seferinde ne yapıyor?",
+            "`'a'`'ya geçmek dosyayı her çalıştırmada büyütür. Onun yerine dosyayı sadece bir kez aç.",
+            "`with open(..., 'w')` satırını `for` döngüsünün üstüne taşı ve döngüyü onun içine girintile."
           ],
           "solution": {
-            "approach": "Open in 'w' mode and write every line followed by a newline.",
-            "code": "def save_lines(filename, lines):\n    with open(filename, 'w') as f:\n        for line in lines:\n            f.write(line + '\\n')",
-            "approach_tr": "'w' modunda aç ve her satırı bir satır sonuyla yaz."
-          },
-          "twin": "d19-b2-e4",
-          "hints_tr": [
-            "Hangi mod eski içeriği siler?",
-            "'w' ile aç ve satırlarda dolaş.",
-            "Döngünün içinde f.write(line + ___) (her satırı ne bitirmeli?)"
-          ]
+            "approach": "Open the file once with `'w'` and write all names inside that single block.",
+            "approach_tr": "Dosyayı bir kez `'w'` ile aç ve tüm isimleri o tek bloğun içinde yaz.",
+            "code": "names = ['Ali', 'Ece', 'Can']\nwith open('b2e3_d19.txt', 'w') as f:\n    for name in names:\n        f.write(name + '\\n')\nwith open('b2e3_d19.txt') as f:\n    print(f.read().splitlines())"
+          }
         },
         {
           "id": "d19-b2-e4",
-          "type": "write",
-          "prompt": "Write append_line(filename, text) that adds text plus a newline at the end of the file. If the file does not exist yet, it must be created. Old content must stay.",
-          "prompt_tr": "text ve bir yeni satırı dosyanın sonuna ekleyen append_line(filename, text) yazın. Dosya yoksa oluşturulmalı. Eski içerik korunmalı.",
-          "starter_code": "",
-          "signature": "def append_line(filename, text):",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "with open('b2e4_d19.txt', 'w') as f:\n    n = f.write('hi')\n    m = f.write('\\n')\nprint(n + m)",
+          "choices": [
+            "3",
+            "2",
+            "4",
+            "None"
+          ],
+          "expected_output": "3",
+          "explanation": "`write` returns how many characters it wrote: 2 for 'hi' and 1 for the newline.",
+          "explanation_tr": "`write` kaç karakter yazdığını döndürür: 'hi' için 2, satır sonu için 1.",
+          "misconceptions": {
+            "2": "The newline is one character too, and the second call returns 1.",
+            "4": "`'\\n'` is a single newline character, not two characters.",
+            "None": "Unlike `list.append`, `write` returns a number."
+          },
+          "misconceptions_tr": {
+            "2": "Satır sonu da bir karakterdir; ikinci çağrı 1 döndürür.",
+            "4": "`'\\n'` iki değil tek bir satır sonu karakteridir.",
+            "None": "`list.append`'in aksine `write` bir sayı döndürür."
+          }
+        },
+        {
+          "id": "d19-b2-e5",
+          "type": "modify",
+          "prompt": "`save_list(path, items)` writes all items glued together on one line. Change it so each item is on its own line and the file ends with a newline. Example: `save_list(p, ['a', 'b'])` makes the file content `'a\\nb\\n'`.",
+          "prompt_tr": "`save_list(path, items)` tüm elemanları tek satırda yapışık yazıyor. Her eleman kendi satırında olacak ve dosya bir satır sonuyla bitecek şekilde değiştir. Örnek: `save_list(p, ['a', 'b'])` dosya içeriğini `'a\\nb\\n'` yapar.",
+          "starter_code": "def save_list(path, items):\n    with open(path, 'w', encoding='utf-8') as f:\n        f.write(''.join(items))",
+          "signature": "def save_list(path, items):",
           "tests": [
             {
-              "code": "import os\nos.path.exists('al19a.txt') and os.remove('al19a.txt')\nappend_line('al19a.txt', 'first')\nassert open('al19a.txt').read() == 'first\\n'",
+              "code": "save_list('_t_b2e5a_d19.txt', ['a', 'b'])\nassert open('_t_b2e5a_d19.txt').read() == 'a\\nb\\n'",
               "visible": true,
-              "label_tr": "Yeni dosyaya 'first' satırı ekleniyor"
+              "label": "Two items, two lines",
+              "label_tr": "İki eleman, iki satır"
             },
             {
-              "code": "import os\nos.path.exists('al19b.txt') and os.remove('al19b.txt')\nappend_line('al19b.txt', 'a')\nappend_line('al19b.txt', 'b')\nassert open('al19b.txt').read() == 'a\\nb\\n'",
-              "visible": true,
-              "label_tr": "İki çağrı iki satır ekliyor"
-            },
-            {
-              "code": "with open('al19c.txt', 'w') as f:\n    f.write('old\\n')\nappend_line('al19c.txt', 'new')\nassert open('al19c.txt').read() == 'old\\nnew\\n'",
+              "code": "save_list('_t_b2e5b_d19.txt', [])\nassert open('_t_b2e5b_d19.txt').read() == ''",
               "visible": false,
-              "failure_message": "Use mode 'a' so the old content stays.",
-              "failure_message_tr": "Eski içerik kalsın diye 'a' modunu kullan."
+              "failure_message": "An empty list should give an empty file.",
+              "failure_message_tr": "Boş list boş dosya vermeli."
             },
             {
-              "code": "import os\nos.path.exists('al19d.txt') and os.remove('al19d.txt')\nappend_line('al19d.txt', '')\nassert open('al19d.txt').read() == '\\n'",
+              "code": "save_list('_t_b2e5c_d19.txt', ['çay', 'kek', 'su'])\nassert open('_t_b2e5c_d19.txt', encoding='utf-8').read().splitlines() == ['çay', 'kek', 'su']",
               "visible": false,
-              "failure_message": "Even empty text adds a newline.",
-              "failure_message_tr": "Boş metin bile bir satır sonu ekler."
-            },
-            {
-              "code": "import os\nos.path.exists('al19e.txt') and os.remove('al19e.txt')\nappend_line('al19e.txt', 'x')\nappend_line('al19e.txt', 'x')\nappend_line('al19e.txt', 'x')\nassert open('al19e.txt').read().count('x') == 3",
-              "visible": false,
-              "failure_message": "Each call must add one more line.",
-              "failure_message_tr": "Her çağrı bir satır daha eklemeli."
-            },
-            {
-              "code": "import os\nos.path.exists('al19f.txt') and os.remove('al19f.txt')\nappend_line('al19f.txt', 'x1')\nappend_line('al19f.txt', 'x2')\nassert open('al19f.txt').read() == 'x1\\nx2\\n'",
-              "visible": false,
-              "failure_message": "Append the text you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen metni ekle; sonuçları elle yazma."
+              "failure_message": "Every item must end up on its own line.",
+              "failure_message_tr": "Her eleman kendi satırında olmalı."
             }
           ],
           "hints": [
-            "Which mode adds to the end and creates the file if needed?",
-            "Open with that mode and write the text plus a newline.",
-            "with open(filename, '___') as f: f.write(text + '\\n') (which mode appends?)"
+            "`write` adds no newline, so you must add one after every item.",
+            "Writing in a loop, `f.write(item + '\\n')` handles each item.",
+            "Replace the single `write` with a `for` loop over `items`."
+          ],
+          "hints_tr": [
+            "`write` satır sonu eklemez; her elemandan sonra kendin eklemelisin.",
+            "Bir döngüde yazarken `f.write(item + '\\n')` her elemanı halleder.",
+            "Tek `write`'ı `items` üzerinde dönen bir `for` döngüsüyle değiştir."
           ],
           "solution": {
-            "approach": "Open in 'a' mode and write the text followed by a newline.",
-            "code": "def append_line(filename, text):\n    with open(filename, 'a') as f:\n        f.write(text + '\\n')",
-            "approach_tr": "'a' modunda aç ve metni bir satır sonuyla yaz."
-          },
-          "twin": "d19-b2-e3",
+            "approach": "Write every item followed by a newline.",
+            "approach_tr": "Her elemanı ardından bir satır sonuyla yaz.",
+            "code": "def save_list(path, items):\n    with open(path, 'w', encoding='utf-8') as f:\n        for item in items:\n            f.write(item + '\\n')"
+          }
+        },
+        {
+          "id": "d19-b2-e6",
+          "type": "write",
+          "prompt": "Write `delete_if_exists(path)` that deletes the file and returns `True`, or returns `False` if the file does not exist (without raising). Example: on a missing file it returns `False`.",
+          "prompt_tr": "Dosyayı silip `True` döndüren, dosya yoksa (istisna fırlatmadan) `False` döndüren `delete_if_exists(path)` fonksiyonunu yaz. Örnek: olmayan bir dosyada `False` döndürür.",
+          "starter_code": "import os\n",
+          "signature": "def delete_if_exists(path):",
+          "tests": [
+            {
+              "code": "open('_t_b2e6a_d19.txt', 'w').close()\nassert delete_if_exists('_t_b2e6a_d19.txt') is True",
+              "visible": true,
+              "label": "An existing file is deleted",
+              "label_tr": "Var olan dosya siliniyor"
+            },
+            {
+              "code": "import os\nopen('_t_b2e6b_d19.txt', 'w').close()\ndelete_if_exists('_t_b2e6b_d19.txt')\nassert not os.path.exists('_t_b2e6b_d19.txt')",
+              "visible": false,
+              "failure_message": "The file must really be gone afterwards.",
+              "failure_message_tr": "Dosya sonrasında gerçekten yok olmalı."
+            },
+            {
+              "code": "assert delete_if_exists('_t_never_there_d19.txt') is False",
+              "visible": false,
+              "failure_message": "A missing file returns False and does not crash.",
+              "failure_message_tr": "Olmayan dosya False döndürür ve çökmez."
+            },
+            {
+              "code": "open('_t_b2e6c_d19.txt', 'w').close()\ndelete_if_exists('_t_b2e6c_d19.txt')\nassert delete_if_exists('_t_b2e6c_d19.txt') is False",
+              "visible": false,
+              "failure_message": "Deleting twice: the second call returns False.",
+              "failure_message_tr": "İki kez silmek: ikinci çağrı False döndürür."
+            }
+          ],
+          "hints": [
+            "You need the `os` module.",
+            "Either check `os.path.exists(path)` first, or try `os.remove(path)` and catch the error.",
+            "The error for a missing file is `FileNotFoundError`; return `False` in that branch."
+          ],
           "hints_tr": [
-            "Hangi mod sona ekler ve gerekirse dosyayı oluşturur?",
-            "O modla aç ve metni bir satır sonuyla yaz.",
-            "with open(filename, '___') as f: f.write(text + '\\n') (hangi mod ekler?)"
-          ]
+            "`os` modülü gerekiyor.",
+            "Ya önce `os.path.exists(path)`'e bak ya da `os.remove(path)`'i dene ve hatayı yakala.",
+            "Olmayan dosyanın hatası `FileNotFoundError`'dır; o dalda `False` döndür."
+          ],
+          "solution": {
+            "approach": "Try to remove the file and return True; catch FileNotFoundError and return False.",
+            "approach_tr": "Dosyayı silmeyi dene ve True döndür; FileNotFoundError'ı yakala ve False döndür.",
+            "code": "import os\n\ndef delete_if_exists(path):\n    try:\n        os.remove(path)\n        return True\n    except FileNotFoundError:\n        return False"
+          },
+          "twin": "d19-b2-e7"
+        },
+        {
+          "id": "d19-b2-e7",
+          "type": "write",
+          "prompt": "A note-taking app appends numbered notes to a file. Write `add_note(path, note)` that appends one line `'N. note'` to the file, where N is one more than the number of lines already in the file (1 if the file does not exist), and returns the line it wrote without the newline. Example: on a new file, `add_note(p, 'süt al')` returns `'1. süt al'`; the next call `add_note(p, 'ödev')` returns `'2. ödev'`.",
+          "prompt_tr": "Bir not uygulaması numaralı notları bir dosyanın sonuna ekliyor. Dosyaya `'N. not'` biçiminde bir satır ekleyen ve yazdığı satırı satır sonu olmadan döndüren `add_note(path, note)` fonksiyonunu yaz; N, dosyadaki mevcut satır sayısından bir fazladır (dosya yoksa 1). Örnek: yeni bir dosyada `add_note(p, 'süt al')` sonucu `'1. süt al'`; sonraki çağrı `add_note(p, 'ödev')` sonucu `'2. ödev'`.",
+          "starter_code": "import os\n",
+          "signature": "def add_note(path, note):",
+          "tests": [
+            {
+              "code": "import os\nif os.path.exists('_t_b2e7a_d19.txt'): os.remove('_t_b2e7a_d19.txt')\nassert add_note('_t_b2e7a_d19.txt', 'süt al') == '1. süt al'\nassert add_note('_t_b2e7a_d19.txt', 'ödev') == '2. ödev'",
+              "visible": true,
+              "label": "Numbers continue from 1",
+              "label_tr": "Numaralar 1'den devam ediyor"
+            },
+            {
+              "code": "import os\nif os.path.exists('_t_b2e7b_d19.txt'): os.remove('_t_b2e7b_d19.txt')\nadd_note('_t_b2e7b_d19.txt', 'a')\nadd_note('_t_b2e7b_d19.txt', 'b')\nassert open('_t_b2e7b_d19.txt', encoding='utf-8').read() == '1. a\\n2. b\\n'",
+              "visible": false,
+              "failure_message": "The file must contain one numbered line per note, each ending with a newline.",
+              "failure_message_tr": "Dosyada her not için, satır sonuyla biten numaralı bir satır olmalı."
+            },
+            {
+              "code": "with open('_t_b2e7c_d19.txt', 'w', encoding='utf-8') as _f:\n    _f.write('x\\ny\\nz\\n')\nassert add_note('_t_b2e7c_d19.txt', 'new') == '4. new'",
+              "visible": false,
+              "failure_message": "Count the lines already in the file to find the next number.",
+              "failure_message_tr": "Sıradaki numarayı bulmak için dosyadaki mevcut satırları say."
+            },
+            {
+              "code": "import os\nif os.path.exists('_t_b2e7d_d19.txt'): os.remove('_t_b2e7d_d19.txt')\nassert add_note('_t_b2e7d_d19.txt', 'tek') == '1. tek'",
+              "visible": false,
+              "failure_message": "A missing file starts at 1 and must not crash.",
+              "failure_message_tr": "Olmayan dosya 1'den başlar ve çökmemeli."
+            }
+          ],
+          "hints": [
+            "First find how many lines exist: read the file if it exists, otherwise the count is 0.",
+            "Build the line with an f-string: `f'{count + 1}. {note}'`.",
+            "Open with `'a'` and write the line plus `'\\n'`, then return the line."
+          ],
+          "hints_tr": [
+            "Önce kaç satır olduğunu bul: dosya varsa oku, yoksa sayı 0'dır.",
+            "Satırı bir f-string ile kur: `f'{count + 1}. {note}'`.",
+            "`'a'` ile aç ve satırı artı `'\\n'` yaz, sonra satırı döndür."
+          ],
+          "solution": {
+            "approach": "Count existing lines (0 when missing), then append the numbered line.",
+            "approach_tr": "Mevcut satırları say (dosya yoksa 0), sonra numaralı satırı sona ekle.",
+            "code": "import os\n\ndef add_note(path, note):\n    count = 0\n    if os.path.exists(path):\n        with open(path, encoding='utf-8') as f:\n            count = len(f.read().splitlines())\n    line = f'{count + 1}. {note}'\n    with open(path, 'a', encoding='utf-8') as f:\n        f.write(line + '\\n')\n    return line"
+          },
+          "twin": "d19-b2-e6"
+        },
+        {
+          "id": "d19-b2-e8",
+          "type": "parsons",
+          "prompt": "Arrange the lines so the program writes a two-line file and then prints its lines: `['first', 'second']`.",
+          "prompt_tr": "Satırları, program iki satırlık bir dosya yazıp sonra satırlarını (`['first', 'second']`) yazdıracak şekilde sırala.",
+          "lines": [
+            "with open('b2e8_d19.txt') as f:",
+            "    f.write('first\\n')",
+            "    print(f.read().splitlines())",
+            "with open('b2e8_d19.txt', 'w') as f:",
+            "    f.write('second\\n')"
+          ],
+          "correct_order": [
+            3,
+            1,
+            4,
+            0,
+            2
+          ],
+          "distractors": [
+            "    print(f.readlines())"
+          ],
+          "expected_output": "['first', 'second']"
         }
-      ],
-      "concept_tr": "'w' modu dosyayı oluşturur ya da eski içeriği SİLER, 'a' modu sonuna ekler. write satır sonu eklemez; \\n'yi kendin yazarsın."
+      ]
     },
     {
       "id": "d19-b3",
       "concept": "json",
+      "concept_tr": "JSON metin biçimidir: `json.loads`/`json.dumps` string ile, `json.load`/`json.dump` dosya ile çalışır; JSON çift tırnak, `true/false/null` kullanır ve Türkçe karakterler için `ensure_ascii=False` gerekir.",
       "tags": [
         "json",
-        "dictionaries",
-        "strings"
+        "files",
+        "serialization"
       ],
       "worked_example": {
-        "code": "import json\nperson = {'name': 'Asabeneh', 'city': 'Helsinki'}\ntext = json.dumps(person)\nprint(text)\nprint(json.loads(text)['city'])",
+        "code": "import json\n\ntext = '{\"name\": \"Ayşe\", \"scores\": [90, 75], \"admin\": false}'\nuser = json.loads(text)\nuser['scores'].append(100)\nwith open('user_d19.json', 'w', encoding='utf-8') as f:\n    json.dump(user, f, ensure_ascii=False, indent=2)\nwith open('user_d19.json', encoding='utf-8') as f:\n    again = json.load(f)\nprint(again['name'], sum(again['scores']), again['admin'])",
         "notes": [
-          "json.dumps turns a dictionary into JSON text; json.loads turns JSON text into a dictionary.",
-          "JSON text always uses double quotes."
+          "`json.loads` turns the JSON text into a real dict, so the list inside can be changed with `append`.",
+          "`json.dump` writes the dict straight into the open file; `ensure_ascii=False` keeps 'ş' readable in the file.",
+          "`json.load` reads the file back into an equal dict, and JSON `false` comes back as Python `False`."
         ],
         "notes_tr": [
-          "json.dumps sözlüğü JSON metnine, json.loads JSON metnini sözlüğe çevirir.",
-          "JSON metni her zaman çift tırnak kullanır."
+          "`json.loads` JSON metnini gerçek bir dict'e çevirir; içindeki list `append` ile değiştirilebilir.",
+          "`json.dump` dict'i doğrudan açık dosyaya yazar; `ensure_ascii=False` dosyada 'ş' harfini okunur tutar.",
+          "`json.load` dosyayı eşit bir dict olarak geri okur ve JSON'daki `false` Python'da `False` olarak gelir."
         ]
       },
       "exercises": [
@@ -420,204 +616,294 @@
           "id": "d19-b3-e1",
           "type": "predict",
           "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "import json\nperson = {'name': 'Asabeneh', 'skills': ['Python', 'React']}\ntext = json.dumps(person)\nprint(type(text).__name__)\nprint(text)\nback = json.loads(text)\nprint(back['skills'][0])",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\nprint(json.dumps({'a': True, 'b': None, 'c': (1, 2)}))",
           "choices": [
-            "dict\n{'name': 'Asabeneh', 'skills': ['Python', 'React']}\nPython",
-            "str\n{\"name\": \"Asabeneh\", \"skills\": [\"Python\", \"React\"]}\nskills",
-            "str\n{\"name\": \"Asabeneh\", \"skills\": [\"Python\", \"React\"]}\nPython"
+            "{\"a\": true, \"b\": null, \"c\": [1, 2]}",
+            "{'a': True, 'b': None, 'c': (1, 2)}",
+            "{\"a\": True, \"b\": None, \"c\": [1, 2]}",
+            "{\"a\": true, \"b\": null, \"c\": (1, 2)}"
           ],
-          "expected_output": "str\n{\"name\": \"Asabeneh\", \"skills\": [\"Python\", \"React\"]}\nPython",
-          "explanation": "json.dumps returns a str. JSON text uses double quotes, with a space after each colon and comma. json.loads gives the dictionary back, so back['skills'][0] is 'Python'.",
+          "expected_output": "{\"a\": true, \"b\": null, \"c\": [1, 2]}",
+          "explanation": "`dumps` writes JSON: double quotes, lowercase `true`, `null` for None, and a tuple becomes a JSON array in square brackets.",
+          "explanation_tr": "`dumps` JSON yazar: çift tırnak, küçük harfli `true`, None için `null` ve tuple köşeli parantezli bir JSON dizisine dönüşür.",
           "misconceptions": {
-            "dict\n{'name': 'Asabeneh', 'skills': ['Python', 'React']}\nPython": "dumps returns a STRING, and JSON uses double quotes.",
-            "str\n{\"name\": \"Asabeneh\", \"skills\": [\"Python\", \"React\"]}\nskills": "back['skills'] is a list; index 0 is its first item."
+            "{'a': True, 'b': None, 'c': (1, 2)}": "That is how Python prints the dict itself; `dumps` produces JSON text.",
+            "{\"a\": True, \"b\": None, \"c\": [1, 2]}": "JSON spells the values `true` and `null`; `True` and `None` are Python words.",
+            "{\"a\": true, \"b\": null, \"c\": (1, 2)}": "JSON has no tuples; every sequence becomes an array with square brackets."
           },
-          "explanation_tr": "json.dumps bir str döndürür. JSON metni çift tırnak kullanır; iki noktadan ve virgülden sonra boşluk bırakır. json.loads sözlüğü geri verir, yani back['skills'][0] 'Python' olur.",
           "misconceptions_tr": {
-            "dict\n{'name': 'Asabeneh', 'skills': ['Python', 'React']}\nPython": "dumps bir STRING döndürür ve JSON çift tırnak kullanır.",
-            "str\n{\"name\": \"Asabeneh\", \"skills\": [\"Python\", \"React\"]}\nskills": "back['skills'] bir listedir; 0. indeks ilk elemanıdır."
+            "{'a': True, 'b': None, 'c': (1, 2)}": "Python dict'in kendisini böyle yazdırır; `dumps` ise JSON metni üretir.",
+            "{\"a\": True, \"b\": None, \"c\": [1, 2]}": "JSON bu değerleri `true` ve `null` diye yazar; `True` ve `None` Python kelimeleridir.",
+            "{\"a\": true, \"b\": null, \"c\": (1, 2)}": "JSON'da tuple yoktur; her dizi köşeli parantezli bir array olur."
           }
         },
         {
           "id": "d19-b3-e2",
           "type": "fill_blank",
-          "prompt": "Convert the JSON text into a dictionary, then convert the dictionary back to indented JSON text.",
-          "prompt_tr": "JSON metnini sözlüğe, sonra sözlüğü girintili JSON metnine dönüştürün.",
-          "starter_code": "import json\nperson_json = '{\"name\": \"Lidiya\", \"city\": \"Oslo\"}'\nperson = json.___(person_json)\nprint(person['city'])\ntext = json.___(person, indent=2)\nprint(text)",
+          "prompt": "Turn the JSON text into a dict called `data` and print the name.",
+          "prompt_tr": "JSON metnini `data` adlı bir dict'e çevir ve adı yazdır.",
+          "starter_code": "import json\n\ntext = '{\"name\": \"Can\", \"age\": 25}'\ndata = json.___(text)\nprint(data['name'])",
           "blanks": [
             {
               "answer": [
                 "loads"
               ]
-            },
-            {
-              "answer": [
-                "dumps"
-              ]
             }
           ],
           "tests": [
             {
-              "code": "assert person['name'] == 'Lidiya'",
+              "code": "assert data == {'name': 'Can', 'age': 25}",
               "visible": true,
-              "label_tr": "person['name'] 'Lidiya' olmalı"
+              "label": "data is the parsed dict",
+              "label_tr": "data çözümlenmiş dict"
             },
             {
-              "code": "assert '\"name\": \"Lidiya\"' in text",
+              "code": "assert __stdout__.strip() == 'Can'",
               "visible": true,
-              "label_tr": "Çıktı \"name\": \"Lidiya\" satırını içeriyor"
+              "label": "Prints Can",
+              "label_tr": "Can yazdırılıyor"
             }
-          ],
-          "hints": [
-            "The s in the name stands for string: it reads from a string.",
-            "Going from dictionary to text is 'dump to string'."
-          ],
-          "hints_tr": [
-            "İsimdeki s 'string' demek: bir string'den okur.",
-            "Sözlükten metne geçiş 'string'e dök' demektir."
           ]
         },
         {
           "id": "d19-b3-e3",
-          "type": "write",
-          "prompt": "Write get_field(json_text, field) that parses the JSON text and returns the value of the given field, or None if the field does not exist.",
-          "prompt_tr": "JSON metnini ayrıştırıp verilen alanın değerini döndüren, alan yoksa None döndüren get_field(json_text, field) yazın.",
-          "starter_code": "",
-          "signature": "def get_field(json_text, field):",
-          "tests": [
-            {
-              "code": "assert get_field('{\"name\": \"Asabeneh\", \"age\": 250}', 'name') == 'Asabeneh'",
-              "visible": true,
-              "label_tr": "'name' alanı 'Asabeneh' dönüyor"
-            },
-            {
-              "code": "assert get_field('{\"age\": 250}', 'age') == 250",
-              "visible": true,
-              "label_tr": "'age' alanı 250 dönüyor"
-            },
-            {
-              "code": "assert get_field('{\"name\": \"Asabeneh\"}', 'city') is None",
-              "visible": false,
-              "failure_message": "A missing field gives None.",
-              "failure_message_tr": "Olmayan alan None vermeli."
-            },
-            {
-              "code": "assert get_field('{\"skills\": [\"Python\", \"React\"]}', 'skills') == ['Python', 'React']",
-              "visible": false,
-              "failure_message": "Lists inside JSON become Python lists.",
-              "failure_message_tr": "JSON içindeki listeler Python listesi olur."
-            },
-            {
-              "code": "assert get_field('{}', 'x') is None",
-              "visible": false,
-              "failure_message": "An empty object has no fields.",
-              "failure_message_tr": "Boş nesnenin alanı yoktur."
-            },
-            {
-              "code": "assert get_field('{\"k\": [1, 2], \"z\": 7}', 'z') == 7",
-              "visible": false,
-              "failure_message": "Read the field of the JSON text given; do not hard-code results.",
-              "failure_message_tr": "Verilen JSON metninin alanını oku; sonuçları elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print `22` but crashes with `AttributeError: 'str' object has no attribute 'read'`. Fix it.",
+          "prompt_tr": "Program `22` yazdırmalı ama `AttributeError: 'str' object has no attribute 'read'` hatasıyla çöküyor. Düzelt.",
+          "starter_code": "import json\n\ntext = '{\"city\": \"İzmir\", \"temp\": 21}'\ndata = json.load(text)\nprint(data['temp'] + 1)",
+          "expected_output": "22",
           "hints": [
-            "First turn the text into a dictionary.",
-            "json.loads does that; then look the field up safely.",
-            "return data.___(field) (which dict method gives None for a missing key?)"
+            "`json.load` expects something it can call `.read()` on. What is `text`?",
+            "There are two functions: one for files and one for strings.",
+            "The string version has an `s` at the end of its name."
+          ],
+          "hints_tr": [
+            "`json.load` üzerinde `.read()` çağırabileceği bir şey bekliyor. `text` ne?",
+            "İki fonksiyon var: biri dosyalar, biri string'ler için.",
+            "String olanın adının sonunda bir `s` var."
           ],
           "solution": {
-            "approach": "Parse with json.loads, then use dict.get so a missing key gives None.",
-            "code": "import json\n\ndef get_field(json_text, field):\n    data = json.loads(json_text)\n    return data.get(field)",
-            "approach_tr": "json.loads ile ayrıştır, sonra dict.get ile eksik anahtar None versin."
-          },
-          "twin": "d19-b3-e4",
-          "hints_tr": [
-            "Önce metni sözlüğe çevir.",
-            "json.loads bunu yapar; sonra alanı güvenle ara.",
-            "return data.___(field) (eksik anahtar için None veren sözlük metodu hangisi?)"
-          ]
+            "approach": "Use `json.loads` for a string; `json.load` is for file objects.",
+            "approach_tr": "String için `json.loads` kullan; `json.load` dosya nesneleri içindir.",
+            "code": "import json\n\ntext = '{\"city\": \"İzmir\", \"temp\": 21}'\ndata = json.loads(text)\nprint(data['temp'] + 1)"
+          }
         },
         {
           "id": "d19-b3-e4",
-          "type": "write",
-          "prompt": "Write set_field(json_text, field, value) that parses the JSON text, sets the field to value (adding it if missing) and returns the new JSON text. The result must parse back to the updated dictionary.",
-          "prompt_tr": "JSON metnini ayrıştırıp alanı value olarak ayarlayan (yoksa ekleyen) ve yeni JSON metnini döndüren set_field(json_text, field, value) yazın. Sonuç, güncellenmiş sözlüğe geri ayrıştırılabilmelidir.",
-          "starter_code": "",
-          "signature": "def set_field(json_text, field, value):",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\nprint(json.loads('[1, \"2\", 3.5, false]'))",
+          "choices": [
+            "[1, '2', 3.5, False]",
+            "[1, 2, 3.5, False]",
+            "['1', '2', '3.5', 'false']",
+            "[1, '2', 3.5, false]"
+          ],
+          "expected_output": "[1, '2', 3.5, False]",
+          "explanation": "JSON keeps types: 1 is a number, \"2\" is a string, 3.5 a float, and `false` becomes Python `False`.",
+          "explanation_tr": "JSON türleri korur: 1 sayı, \"2\" string, 3.5 float'tır ve `false` Python'da `False` olur.",
+          "misconceptions": {
+            "[1, 2, 3.5, False]": "`\"2\"` is in quotes in the JSON, so it stays a string.",
+            "['1', '2', '3.5', 'false']": "Unlike CSV, JSON has number and boolean types, and `loads` converts them.",
+            "[1, '2', 3.5, false]": "After `loads` the value is a Python object, so it prints as `False`."
+          },
+          "misconceptions_tr": {
+            "[1, 2, 3.5, False]": "`\"2\"` JSON'da tırnak içinde, bu yüzden string kalır.",
+            "['1', '2', '3.5', 'false']": "CSV'nin aksine JSON'da sayı ve boolean türleri var ve `loads` onları çevirir.",
+            "[1, '2', 3.5, false]": "`loads`'tan sonra değer bir Python nesnesidir, `False` diye yazdırılır."
+          }
+        },
+        {
+          "id": "d19-b3-e5",
+          "type": "modify",
+          "prompt": "`to_json(d)` escapes Turkish letters (`\\u0130zmir`) and writes everything on one line. Change it so it keeps the characters as they are and indents with 2 spaces.",
+          "prompt_tr": "`to_json(d)` Türkçe harfleri kaçış dizisine çeviriyor (`\\u0130zmir`) ve her şeyi tek satıra yazıyor. Karakterleri olduğu gibi bırakacak ve 2 boşlukla girintileyecek şekilde değiştir.",
+          "starter_code": "import json\n\ndef to_json(d):\n    return json.dumps(d)",
+          "signature": "def to_json(d):",
           "tests": [
             {
-              "code": "import json\nassert json.loads(set_field('{\"a\": 1}', 'b', 2)) == {'a': 1, 'b': 2}",
+              "code": "assert to_json({'city': 'İzmir'}) == '{\\n  \"city\": \"İzmir\"\\n}'",
               "visible": true,
-              "label_tr": "Yeni alan ekleniyor"
+              "label": "Readable and indented",
+              "label_tr": "Okunaklı ve girintili"
             },
             {
-              "code": "import json\nassert json.loads(set_field('{\"a\": 1}', 'a', 9)) == {'a': 9}",
-              "visible": true,
-              "label_tr": "Var olan alan güncelleniyor"
-            },
-            {
-              "code": "import json\nassert isinstance(set_field('{}', 'x', 1), str)",
+              "code": "assert 'ş' in to_json({'a': 'şeker'}) and '\\\\u' not in to_json({'a': 'şeker'})",
               "visible": false,
-              "failure_message": "Return JSON TEXT (a string), not a dictionary.",
-              "failure_message_tr": "Sözlük değil, JSON METNİ (string) döndür."
+              "failure_message": "Turkish characters must not be escaped.",
+              "failure_message_tr": "Türkçe karakterler kaçış dizisine çevrilmemeli."
             },
             {
-              "code": "import json\nassert json.loads(set_field('{}', 'skills', ['Python']))['skills'] == ['Python']",
+              "code": "import json\nd = {'x': [1, 2], 'y': 'ğ'}\nassert to_json(d) == json.dumps(d, ensure_ascii=False, indent=2)",
               "visible": false,
-              "failure_message": "Lists as values must survive the round trip.",
-              "failure_message_tr": "Değer olarak listeler gidiş-dönüşte korunmalı."
-            },
-            {
-              "code": "import json\nassert json.loads(set_field('{\"n\": 1}', 'n', None)) == {'n': None}",
-              "visible": false,
-              "failure_message": "None becomes null in JSON and returns as None.",
-              "failure_message_tr": "None, JSON'da null olur ve None olarak geri döner."
-            },
-            {
-              "code": "import json\nassert json.loads(set_field('{\"p\": 1, \"q\": 2}', 'q', 99)) == {'p': 1, 'q': 99}",
-              "visible": false,
-              "failure_message": "Update the JSON text you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen JSON metnini güncelle; sonuçları elle yazma."
+              "failure_message": "Use an indent of exactly 2 spaces.",
+              "failure_message_tr": "Tam 2 boşluk girinti kullan."
             }
           ],
           "hints": [
-            "Parse, change the dictionary, then turn it back into text.",
-            "json.loads, then data[field] = value, then turn the dictionary back into text.",
-            "return json.___(data) (which function makes JSON text from a dictionary?)"
+            "`dumps` takes keyword arguments for both wishes.",
+            "One switches off the ASCII escaping, the other sets the indentation.",
+            "Add `ensure_ascii=False` and `indent=2`."
+          ],
+          "hints_tr": [
+            "`dumps` iki isteğin ikisi için de isimli argüman alır.",
+            "Biri ASCII kaçışını kapatır, diğeri girintiyi ayarlar.",
+            "`ensure_ascii=False` ve `indent=2` ekle."
           ],
           "solution": {
-            "approach": "loads -> change -> dumps.",
-            "code": "import json\n\ndef set_field(json_text, field, value):\n    data = json.loads(json_text)\n    data[field] = value\n    return json.dumps(data)",
-            "approach_tr": "loads -> değiştir -> dumps."
-          },
-          "twin": "d19-b3-e3",
+            "approach": "Pass `ensure_ascii=False, indent=2` to dumps.",
+            "approach_tr": "dumps'a `ensure_ascii=False, indent=2` ver.",
+            "code": "import json\n\ndef to_json(d):\n    return json.dumps(d, ensure_ascii=False, indent=2)"
+          }
+        },
+        {
+          "id": "d19-b3-e6",
+          "type": "write",
+          "prompt": "Write `load_json(path, default)` that returns the data from a JSON file, or `default` when the file does not exist or does not contain valid JSON. Example: `load_json('missing.json', {})` returns `{}`.",
+          "prompt_tr": "Bir JSON dosyasındaki veriyi döndüren, dosya yoksa ya da geçerli JSON içermiyorsa `default` döndüren `load_json(path, default)` fonksiyonunu yaz. Örnek: `load_json('missing.json', {})` sonucu `{}`.",
+          "starter_code": "import json\n",
+          "signature": "def load_json(path, default):",
+          "tests": [
+            {
+              "code": "assert load_json('_t_missing_d19.json', {}) == {}",
+              "visible": true,
+              "label": "A missing file gives the default",
+              "label_tr": "Olmayan dosya varsayılanı veriyor"
+            },
+            {
+              "code": "with open('_t_b3e6a_d19.json', 'w', encoding='utf-8') as _f:\n    _f.write('{\"a\": 1, \"b\": [true]}')\nassert load_json('_t_b3e6a_d19.json', None) == {'a': 1, 'b': [True]}",
+              "visible": true,
+              "label": "A valid file is parsed",
+              "label_tr": "Geçerli dosya çözümleniyor"
+            },
+            {
+              "code": "with open('_t_b3e6b_d19.json', 'w', encoding='utf-8') as _f:\n    _f.write(\"{'a': 1}\")\nassert load_json('_t_b3e6b_d19.json', 'bad') == 'bad'",
+              "visible": false,
+              "failure_message": "Invalid JSON (single quotes) must return the default instead of crashing.",
+              "failure_message_tr": "Geçersiz JSON (tek tırnak) çökmek yerine varsayılanı döndürmeli."
+            },
+            {
+              "code": "with open('_t_b3e6c_d19.json', 'w', encoding='utf-8') as _f:\n    _f.write('[1, 2, 3]')\nassert load_json('_t_b3e6c_d19.json', []) == [1, 2, 3]",
+              "visible": false,
+              "failure_message": "Any valid JSON value is returned, not only objects.",
+              "failure_message_tr": "Sadece nesneler değil, geçerli her JSON değeri döndürülür."
+            },
+            {
+              "code": "with open('_t_b3e6d_d19.json', 'w', encoding='utf-8') as _f:\n    _f.write('{\"şehir\": \"Muğla\"}')\nassert load_json('_t_b3e6d_d19.json', {}) == {'şehir': 'Muğla'}",
+              "visible": false,
+              "failure_message": "Open the file with encoding='utf-8'.",
+              "failure_message_tr": "Dosyayı encoding='utf-8' ile aç."
+            }
+          ],
+          "hints": [
+            "Read the file with `json.load(f)` inside a `try` block.",
+            "Two different errors can happen: the file is missing, or the text is not JSON.",
+            "Catch `(FileNotFoundError, json.JSONDecodeError)` and return `default` there."
+          ],
           "hints_tr": [
-            "Ayrıştır, sözlüğü değiştir, sonra tekrar metne çevir.",
-            "json.loads, sonra data[field] = value, sonra sözlüğü tekrar metne çevir.",
-            "return json.___(data) (sözlükten JSON metni üreten fonksiyon hangisi?)"
-          ]
+            "Dosyayı bir `try` bloğu içinde `json.load(f)` ile oku.",
+            "İki farklı hata olabilir: dosya yok ya da metin JSON değil.",
+            "`(FileNotFoundError, json.JSONDecodeError)` yakala ve orada `default` döndür."
+          ],
+          "solution": {
+            "approach": "Try to open and json.load the file; on FileNotFoundError or JSONDecodeError return the default.",
+            "approach_tr": "Dosyayı açıp json.load etmeyi dene; FileNotFoundError ya da JSONDecodeError olursa varsayılanı döndür.",
+            "code": "import json\n\ndef load_json(path, default):\n    try:\n        with open(path, encoding='utf-8') as f:\n            return json.load(f)\n    except (FileNotFoundError, json.JSONDecodeError):\n        return default"
+          },
+          "twin": "d19-b3-e7"
+        },
+        {
+          "id": "d19-b3-e7",
+          "type": "write",
+          "prompt": "A quiz game keeps scores in a JSON file like `{\"Ali\": 10}`. Write `update_score(path, name, points)` that loads the scores (an empty dict if the file does not exist), adds `points` to `name` (starting from 0 for a new name), saves the dict back to the same file as JSON, and returns the player's new score. Example: on a new file, `update_score(p, 'Ali', 10)` returns `10`, then `update_score(p, 'Ali', 5)` returns `15`.",
+          "prompt_tr": "Bir bilgi yarışması puanları `{\"Ali\": 10}` gibi bir JSON dosyasında tutuyor. Puanları yükleyen (dosya yoksa boş dict), `name`'e `points` ekleyen (yeni isim 0'dan başlar), dict'i aynı dosyaya JSON olarak geri kaydeden ve oyuncunun yeni puanını döndüren `update_score(path, name, points)` fonksiyonunu yaz. Örnek: yeni bir dosyada `update_score(p, 'Ali', 10)` sonucu `10`, ardından `update_score(p, 'Ali', 5)` sonucu `15`.",
+          "starter_code": "import json\n",
+          "signature": "def update_score(path, name, points):",
+          "tests": [
+            {
+              "code": "import os\nif os.path.exists('_t_b3e7a_d19.json'): os.remove('_t_b3e7a_d19.json')\nassert update_score('_t_b3e7a_d19.json', 'Ali', 10) == 10\nassert update_score('_t_b3e7a_d19.json', 'Ali', 5) == 15",
+              "visible": true,
+              "label": "Scores add up across calls",
+              "label_tr": "Puanlar çağrılar boyunca toplanıyor"
+            },
+            {
+              "code": "import os, json\nif os.path.exists('_t_b3e7b_d19.json'): os.remove('_t_b3e7b_d19.json')\nupdate_score('_t_b3e7b_d19.json', 'Ece', 3)\nupdate_score('_t_b3e7b_d19.json', 'Can', 4)\nassert json.load(open('_t_b3e7b_d19.json')) == {'Ece': 3, 'Can': 4}",
+              "visible": false,
+              "failure_message": "The file must contain valid JSON with every player.",
+              "failure_message_tr": "Dosya her oyuncuyu içeren geçerli JSON olmalı."
+            },
+            {
+              "code": "with open('_t_b3e7c_d19.json', 'w', encoding='utf-8') as _f:\n    _f.write('{\"Zeynep\": 7}')\nassert update_score('_t_b3e7c_d19.json', 'Zeynep', -2) == 5",
+              "visible": false,
+              "failure_message": "Start from the score already in the file; negative points are allowed.",
+              "failure_message_tr": "Dosyadaki mevcut puandan başla; negatif puan olabilir."
+            },
+            {
+              "code": "import os\nif os.path.exists('_t_b3e7d_d19.json'): os.remove('_t_b3e7d_d19.json')\nassert update_score('_t_b3e7d_d19.json', 'Şule', 0) == 0",
+              "visible": false,
+              "failure_message": "A new player with 0 points still gets saved and returns 0.",
+              "failure_message_tr": "0 puanlı yeni oyuncu da kaydedilir ve 0 döner."
+            }
+          ],
+          "hints": [
+            "Load: try to `json.load` the file; on `FileNotFoundError` use `{}`.",
+            "Update with `scores[name] = scores.get(name, 0) + points`.",
+            "Save with `json.dump(scores, f)` in a file opened with `'w'`, then return `scores[name]`."
+          ],
+          "hints_tr": [
+            "Yükle: dosyayı `json.load` etmeyi dene; `FileNotFoundError` olursa `{}` kullan.",
+            "`scores[name] = scores.get(name, 0) + points` ile güncelle.",
+            "`'w'` ile açılmış bir dosyaya `json.dump(scores, f)` ile kaydet, sonra `scores[name]` döndür."
+          ],
+          "solution": {
+            "approach": "Load or start empty, update with dict.get, dump back with 'w', return the new value.",
+            "approach_tr": "Yükle ya da boş başla, dict.get ile güncelle, 'w' ile geri yaz, yeni değeri döndür.",
+            "code": "import json\n\ndef update_score(path, name, points):\n    try:\n        with open(path, encoding='utf-8') as f:\n            scores = json.load(f)\n    except FileNotFoundError:\n        scores = {}\n    scores[name] = scores.get(name, 0) + points\n    with open(path, 'w', encoding='utf-8') as f:\n        json.dump(scores, f, ensure_ascii=False)\n    return scores[name]"
+          },
+          "twin": "d19-b3-e6"
+        },
+        {
+          "id": "d19-b3-e8",
+          "type": "explain",
+          "prompt": "In your own words: what is the difference between `json.loads` and `json.load` (and between `dumps` and `dump`)?",
+          "prompt_tr": "Kendi cümlelerinle: `json.loads` ile `json.load` (ve `dumps` ile `dump`) arasındaki fark nedir?",
+          "model_answer": "The versions ending in s work with a string: loads parses a JSON string and dumps returns a JSON string. The versions without s work with a file object: load reads JSON from an open file and dump writes JSON into an open file.",
+          "model_answer_tr": "Sonu s ile biten sürümler string ile çalışır: loads bir JSON string'ini çözer, dumps bir JSON string'i döndürür. s'siz sürümler dosya nesnesiyle çalışır: load açık bir dosyadan JSON okur, dump açık bir dosyaya JSON yazar.",
+          "keywords": [
+            "string",
+            "file"
+          ],
+          "keywords_tr": [
+            "string",
+            "dosya"
+          ],
+          "min_words": 12
         }
-      ],
-      "concept_tr": "JSON, veriyi metin olarak taşıyan yaygın bir biçimdir. json.dumps sözlüğü metne, json.loads metni sözlüğe çevirir."
+      ]
     },
     {
       "id": "d19-b4",
       "concept": "csv-and-xml",
+      "concept_tr": "`csv.reader` her satırı list, `csv.DictReader` başlıklarla dict olarak verir ve her değer string'tir; `csv.writer` tırnakları kendisi halleder; XML'i `xml.etree.ElementTree` bir ağaç olarak okur.",
       "tags": [
         "csv",
         "xml",
-        "parsing"
+        "files",
+        "tabular-data"
       ],
       "worked_example": {
-        "code": "import csv, io\ndata = 'name,city\\nAsab,Helsinki\\n'\nrows = list(csv.reader(io.StringIO(data)))\nprint(rows)",
+        "code": "import csv\n\nwith open('grades_d19.csv', 'w', newline='', encoding='utf-8') as f:\n    w = csv.writer(f)\n    w.writerow(['name', 'city', 'score'])\n    w.writerows([['Ali', 'Ankara', 80], ['Ece', 'İzmir', 95]])\nwith open('grades_d19.csv', newline='', encoding='utf-8') as f:\n    rows = list(csv.DictReader(f))\nprint(rows[1])\nprint(sum(int(r['score']) for r in rows) / len(rows))",
         "notes": [
-          "csv.reader gives one list per row; the header is just the first row.",
-          "io.StringIO lets csv read from a string as if it were a file."
+          "`csv.writer` turns each list into one correctly separated line; the file is opened with `newline=''` as the csv docs require.",
+          "`DictReader` uses the header line as keys, so each row reads like `row['score']` instead of a position.",
+          "The score comes back as the string '95'; it is converted with `int()` before averaging."
         ],
         "notes_tr": [
-          "csv.reader her satır için bir liste verir; başlık sadece ilk satırdır.",
-          "io.StringIO, csv'nin bir metni dosyaymış gibi okumasını sağlar."
+          "`csv.writer` her list'i doğru ayrılmış tek bir satıra çevirir; csv belgelerinin istediği gibi dosya `newline=''` ile açılır.",
+          "`DictReader` başlık satırını anahtar olarak kullanır; her satıra konumla değil `row['score']` diye ulaşılır.",
+          "Puan '95' string'i olarak geri gelir; ortalamadan önce `int()` ile çevrilir."
         ]
       },
       "exercises": [
@@ -625,224 +911,273 @@
           "id": "d19-b4-e1",
           "type": "predict",
           "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "import csv, io\ndata = '\"name\",\"country\",\"city\"\\n\"Asabeneh\",\"Finland\",\"Helsinki\"\\n\"Lidiya\",\"Norway\",\"Oslo\"\\n'\nrows = list(csv.reader(io.StringIO(data)))\nprint(rows[0])\nprint(len(rows))\nprint(rows[2][2])",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import csv\n\nwith open('b4e1_d19.csv', 'w') as f:\n    f.write('item,qty\\npen,2\\n')\nwith open('b4e1_d19.csv', newline='') as f:\n    row = next(csv.DictReader(f))\nprint(row['qty'] * 2)",
           "choices": [
-            "['name', 'country', 'city']\n2\nOslo",
-            "['name', 'country', 'city']\n3\nOslo",
-            "['Asabeneh', 'Finland', 'Helsinki']\n3\nOslo"
+            "22",
+            "4",
+            "['2', '2']",
+            "TypeError"
           ],
-          "expected_output": "['name', 'country', 'city']\n3\nOslo",
-          "explanation": "csv.reader splits each line into a list and removes the quotes. The header is rows[0]; with two data rows there are 3 rows. rows[2] is Lidiya's row and its index 2 is the city: Oslo.",
+          "expected_output": "22",
+          "explanation": "CSV values are strings, so `row['qty']` is `'2'`, and multiplying a string by 2 repeats it.",
+          "explanation_tr": "CSV değerleri string'tir; `row['qty']` `'2'`'dir ve bir string'i 2 ile çarpmak onu tekrarlar.",
           "misconceptions": {
-            "['name', 'country', 'city']\n2\nOslo": "The header row is also a row, so there are 3 rows in total.",
-            "['Asabeneh', 'Finland', 'Helsinki']\n3\nOslo": "rows[0] is the FIRST row of the file, which is the header."
+            "4": "That needs `int(row['qty']) * 2`; DictReader does not convert numbers.",
+            "['2', '2']": "Multiplying a string gives a longer string, not a list.",
+            "TypeError": "`str * int` is allowed in Python; it repeats the string."
           },
-          "explanation_tr": "csv.reader her satırı bir listeye böler ve tırnakları kaldırır. Başlık rows[0]'dır; iki veri satırıyla toplam 3 satır olur. rows[2] Lidiya'nın satırıdır ve 2. indeks şehirdir: Oslo.",
           "misconceptions_tr": {
-            "['name', 'country', 'city']\n2\nOslo": "Başlık satırı da bir satırdır, yani toplam 3 satır var.",
-            "['Asabeneh', 'Finland', 'Helsinki']\n3\nOslo": "rows[0] dosyanın İLK satırıdır, o da başlıktır."
+            "4": "Bunun için `int(row['qty']) * 2` gerekir; DictReader sayıları çevirmez.",
+            "['2', '2']": "Bir string'i çarpmak list değil daha uzun bir string verir.",
+            "TypeError": "Python'da `str * int` serbesttir; string'i tekrarlar."
           }
         },
         {
           "id": "d19-b4-e2",
-          "type": "parsons",
-          "prompt": "Order the lines to read an XML text and print the root tag, its attributes and every child.",
-          "prompt_tr": "Bir XML metnini okuyup kök etiketi, niteliklerini ve her çocuğu yazdıracak şekilde satırları sıralayın.",
-          "lines": [
-            "root = ET.fromstring(xml_text)",
-            "print(root.tag, root.attrib)",
-            "    print(child.tag, child.text)",
-            "import xml.etree.ElementTree as ET",
-            "for child in root:",
-            "xml_text = '<person gender=\"female\"><name>Asabeneh</name><country>Finland</country></person>'"
+          "type": "fill_blank",
+          "prompt": "Read the CSV into dicts so you can print the city of the first row by its column name.",
+          "prompt_tr": "CSV'yi dict'ler olarak oku; böylece ilk satırın şehrini sütun adıyla yazdırabilesin.",
+          "starter_code": "import csv\n\nwith open('b4e2_d19.csv', 'w', encoding='utf-8') as f:\n    f.write('name,city\\nEce,Bursa\\n')\nwith open('b4e2_d19.csv', newline='', encoding='utf-8') as f:\n    rows = list(csv.___(f))\nprint(rows[0]['city'])",
+          "blanks": [
+            {
+              "answer": [
+                "DictReader"
+              ]
+            }
           ],
-          "correct_order": [
-            3,
-            5,
-            0,
-            1,
-            4,
-            2
-          ],
-          "distractors": [
-            "root = ET.parse(xml_text)"
-          ],
-          "expected_output": "person {'gender': 'female'}\nname Asabeneh\ncountry Finland"
+          "tests": [
+            {
+              "code": "assert rows == [{'name': 'Ece', 'city': 'Bursa'}]",
+              "visible": true,
+              "label": "rows is a list of dicts",
+              "label_tr": "rows dict'lerden oluşan bir list"
+            },
+            {
+              "code": "assert __stdout__.strip() == 'Bursa'",
+              "visible": true,
+              "label": "Prints Bursa",
+              "label_tr": "Bursa yazdırılıyor"
+            }
+          ]
         },
         {
           "id": "d19-b4-e3",
-          "type": "write",
-          "prompt": "Write csv_to_dicts(text) that takes CSV text whose first line is the header and returns a list of dictionaries, one per data row, using the header names as keys. All values stay strings. Use the csv module.",
-          "prompt_tr": "İlk satırı başlık olan CSV metnini alıp, başlık adlarını anahtar olarak kullanan, her veri satırı için bir sözlükten oluşan liste döndüren csv_to_dicts(text) yazın. Tüm değerler string kalır. csv modülünü kullanın.",
-          "starter_code": "",
-          "signature": "def csv_to_dicts(text):",
-          "tests": [
-            {
-              "code": "assert csv_to_dicts('name,city\\nAsab,Helsinki\\n') == [{'name': 'Asab', 'city': 'Helsinki'}]",
-              "visible": true,
-              "label_tr": "Tek veri satırı bir sözlük oluyor"
-            },
-            {
-              "code": "assert csv_to_dicts('a,b\\n1,2\\n3,4\\n') == [{'a': '1', 'b': '2'}, {'a': '3', 'b': '4'}]",
-              "visible": true,
-              "label_tr": "İki veri satırı iki sözlük oluyor"
-            },
-            {
-              "code": "assert csv_to_dicts('a,b\\n') == []",
-              "visible": false,
-              "failure_message": "A file with only a header has no data rows.",
-              "failure_message_tr": "Sadece başlık olan dosyada veri satırı yoktur."
-            },
-            {
-              "code": "assert csv_to_dicts('\"name\",\"age\"\\n\"Lidiya\",\"31\"\\n') == [{'name': 'Lidiya', 'age': '31'}]",
-              "visible": false,
-              "failure_message": "Quoted fields must lose their quotes; the csv module does that for you.",
-              "failure_message_tr": "Tırnaklı alanlar tırnaklarını kaybetmeli; csv modülü bunu yapar."
-            },
-            {
-              "code": "assert csv_to_dicts('x,y\\n1,2\\n')[0]['x'] == '1'",
-              "visible": false,
-              "failure_message": "Values stay strings; do not convert them to numbers.",
-              "failure_message_tr": "Değerler string kalır; sayıya çevirme."
-            },
-            {
-              "code": "assert csv_to_dicts('k,v\\nx,1\\ny,2\\nz,3\\n') == [{'k': 'x', 'v': '1'}, {'k': 'y', 'v': '2'}, {'k': 'z', 'v': '3'}]",
-              "visible": false,
-              "failure_message": "Convert the CSV text you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen CSV metnini dönüştür; sonuçları elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print `['Kadıköy, İstanbul', 'Çankaya, Ankara']`, but it prints broken pieces with quotes. Fix it by reading the file with the `csv` module.",
+          "prompt_tr": "Program `['Kadıköy, İstanbul', 'Çankaya, Ankara']` yazdırmalı, ama tırnaklı, bozuk parçalar yazdırıyor. Dosyayı `csv` modülüyle okuyarak düzelt.",
+          "starter_code": "import csv\n\nwith open('b4e3_d19.csv', 'w', encoding='utf-8') as f:\n    f.write('name,address\\nEce,\"Kadıköy, İstanbul\"\\nCan,\"Çankaya, Ankara\"\\n')\nwith open('b4e3_d19.csv', newline='', encoding='utf-8') as f:\n    lines = f.read().splitlines()\naddresses = [line.split(',')[1] for line in lines[1:]]\nprint(addresses)",
+          "expected_output": "['Kadıköy, İstanbul', 'Çankaya, Ankara']",
           "hints": [
-            "io.StringIO(text) lets csv read a string like a file.",
-            "The first row gives the keys; zip it with each later row.",
-            "return [dict(___(header, row)) for row in rows[1:]] (which function pairs two lists?)"
+            "Look at the second line: how many commas does `split(',')` see?",
+            "The comma inside the quotes belongs to the value; only a CSV parser knows that.",
+            "Read with `csv.reader(f)`, skip the header with `next()`, and take column 1 of each row."
+          ],
+          "hints_tr": [
+            "İkinci satıra bak: `split(',')` kaç virgül görüyor?",
+            "Tırnak içindeki virgül değere aittir; bunu sadece bir CSV okuyucusu bilir.",
+            "`csv.reader(f)` ile oku, başlığı `next()` ile atla ve her satırın 1. sütununu al."
           ],
           "solution": {
-            "approach": "Read all rows, take the first as the header and zip it with every other row.",
-            "code": "import csv\nimport io\n\ndef csv_to_dicts(text):\n    rows = list(csv.reader(io.StringIO(text)))\n    header = rows[0]\n    return [dict(zip(header, row)) for row in rows[1:]]",
-            "approach_tr": "Tüm satırları oku, ilkini başlık yap ve diğer her satırla eşleştir."
-          },
-          "twin": "d19-b4-e4",
-          "hints_tr": [
-            "io.StringIO(text) csv'nin string'i dosya gibi okumasını sağlar.",
-            "İlk satır anahtarları verir; onu sonraki her satırla eşleştir.",
-            "return [dict(___(header, row)) for row in rows[1:]] (iki listeyi eşleştiren fonksiyon hangisi?)"
-          ]
+            "approach": "Use `csv.reader`, which understands quoted values.",
+            "approach_tr": "Tırnaklı değerleri anlayan `csv.reader`'ı kullan.",
+            "code": "import csv\n\nwith open('b4e3_d19.csv', 'w', encoding='utf-8') as f:\n    f.write('name,address\\nEce,\"Kadıköy, İstanbul\"\\nCan,\"Çankaya, Ankara\"\\n')\nwith open('b4e3_d19.csv', newline='', encoding='utf-8') as f:\n    reader = csv.reader(f)\n    next(reader)\n    addresses = [row[1] for row in reader]\nprint(addresses)"
+          }
         },
         {
           "id": "d19-b4-e4",
-          "type": "write",
-          "prompt": "Write column_values(text, column) that takes CSV text with a header line and returns the list of values in the named column, in order. Use the csv module.",
-          "prompt_tr": "Başlık satırı olan CSV metnini alıp adı verilen sütunun değerlerini sırayla liste olarak döndüren column_values(text, column) yazın. csv modülünü kullanın.",
-          "starter_code": "",
-          "signature": "def column_values(text, column):",
-          "tests": [
-            {
-              "code": "assert column_values('name,city\\nAsab,Helsinki\\nLidiya,Oslo\\n', 'city') == ['Helsinki', 'Oslo']",
-              "visible": true,
-              "label_tr": "'city' sütunu ['Helsinki', 'Oslo'] veriyor"
-            },
-            {
-              "code": "assert column_values('a,b\\n1,2\\n', 'a') == ['1']",
-              "visible": true,
-              "label_tr": "'a' sütunu ['1'] veriyor"
-            },
-            {
-              "code": "assert column_values('a,b\\n', 'a') == []",
-              "visible": false,
-              "failure_message": "Only a header: no values.",
-              "failure_message_tr": "Sadece başlık var: değer yok."
-            },
-            {
-              "code": "assert column_values('x,y,z\\n1,2,3\\n4,5,6\\n', 'z') == ['3', '6']",
-              "visible": false,
-              "failure_message": "Find the position of the column in the header, not a fixed index.",
-              "failure_message_tr": "Sabit bir indeks değil, sütunun başlıktaki konumunu bul."
-            },
-            {
-              "code": "assert column_values('\"a\",\"b\"\\n\"1\",\"2\"\\n', 'b') == ['2']",
-              "visible": false,
-              "failure_message": "Quotes must be removed: use csv.reader.",
-              "failure_message_tr": "Tırnaklar kalkmalı: csv.reader kullan."
-            },
-            {
-              "code": "assert column_values('id,tag\\n7,a\\n8,b\\n9,c\\n', 'tag') == ['a', 'b', 'c']",
-              "visible": false,
-              "failure_message": "Read the column of the CSV text you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen CSV metninin sütununu oku; sonuçları elle yazma."
-            }
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import xml.etree.ElementTree as ET\n\nroot = ET.fromstring('<lib><book year=\"2019\">Python</book><book year=\"2021\">SQL</book></lib>')\nprint(len(root), root[1].text, root[0].attrib['year'])",
+          "choices": [
+            "2 SQL 2019",
+            "2 Python 2019",
+            "1 SQL 2021",
+            "2 SQL 2021"
           ],
-          "hints": [
-            "Find the column's position in the header row first.",
-            "Look the column name up in the header list to get its position.",
-            "position = rows[0].___(column) (which list method gives the position of an item?)"
-          ],
-          "solution": {
-            "approach": "Locate the column in the header, then collect that position from every data row.",
-            "code": "import csv\nimport io\n\ndef column_values(text, column):\n    rows = list(csv.reader(io.StringIO(text)))\n    position = rows[0].index(column)\n    return [row[position] for row in rows[1:]]",
-            "approach_tr": "Sütunu başlıkta bul, sonra her veri satırından o konumu topla."
+          "expected_output": "2 SQL 2019",
+          "explanation": "The root has two children. `root[1]` is the second book (SQL), and the first book's `year` attribute is the string '2019'.",
+          "explanation_tr": "Kökün iki çocuğu var. `root[1]` ikinci kitaptır (SQL), ilk kitabın `year` niteliği de '2019' string'idir.",
+          "misconceptions": {
+            "2 Python 2019": "Children are indexed from 0, so `root[1]` is the second book.",
+            "1 SQL 2021": "`len(root)` counts the direct children: two `book` elements.",
+            "2 SQL 2021": "`root[0]` is the first book, whose year is 2019."
           },
-          "twin": "d19-b4-e3",
-          "hints_tr": [
-            "Önce sütunun başlık satırındaki yerini bul.",
-            "Yerini bulmak için sütun adını başlık listesinde ara.",
-            "position = rows[0].___(column) (bir elemanın yerini veren liste metodu hangisi?)"
-          ]
+          "misconceptions_tr": {
+            "2 Python 2019": "Çocuklar 0'dan indekslenir; `root[1]` ikinci kitaptır.",
+            "1 SQL 2021": "`len(root)` doğrudan çocukları sayar: iki `book` öğesi.",
+            "2 SQL 2021": "`root[0]` ilk kitaptır ve yılı 2019'dur."
+          }
         },
         {
           "id": "d19-b4-e5",
-          "type": "debug",
-          "prompt": "This should print Helsinki, but it prints something else. Fix it.",
-          "prompt_tr": "Bu kod Helsinki yazdırmalı ama başka bir şey yazdırıyor. Düzeltin.",
-          "starter_code": "import xml.etree.ElementTree as ET\nxml_text = '<person><name>Asabeneh</name><city>Helsinki</city></person>'\nroot = ET.fromstring(xml_text)\nprint(root.find('city'))",
-          "expected_output": "Helsinki",
+          "type": "modify",
+          "prompt": "`total_sales(path)` adds up only the prices. Change it so it returns the sum of `qty * price` over all rows, as a float. Example: for `product,qty,price` rows `tea,2,7.5` and `cake,1,32` it returns `47.0`.",
+          "prompt_tr": "`total_sales(path)` sadece fiyatları topluyor. Tüm satırlardaki `qty * price` toplamını float olarak döndürecek şekilde değiştir. Örnek: `product,qty,price` başlıklı `tea,2,7.5` ve `cake,1,32` satırları için `47.0` döndürür.",
+          "starter_code": "import csv\n\ndef total_sales(path):\n    with open(path, newline='', encoding='utf-8') as f:\n        return sum(float(row['price']) for row in csv.DictReader(f))",
+          "signature": "def total_sales(path):",
+          "tests": [
+            {
+              "code": "with open('_t_b4e5a_d19.csv', 'w', encoding='utf-8') as _f:\n    _f.write('product,qty,price\\ntea,2,7.5\\ncake,1,32\\n')\nassert total_sales('_t_b4e5a_d19.csv') == 47.0",
+              "visible": true,
+              "label": "2 x 7.5 + 1 x 32 = 47.0",
+              "label_tr": "2 x 7.5 + 1 x 32 = 47.0"
+            },
+            {
+              "code": "with open('_t_b4e5b_d19.csv', 'w', encoding='utf-8') as _f:\n    _f.write('product,qty,price\\n')\nassert total_sales('_t_b4e5b_d19.csv') == 0",
+              "visible": false,
+              "failure_message": "A file with only the header gives 0.",
+              "failure_message_tr": "Sadece başlık olan dosya 0 verir."
+            },
+            {
+              "code": "with open('_t_b4e5c_d19.csv', 'w', encoding='utf-8') as _f:\n    _f.write('product,qty,price\\nsu,10,0.5\\nçay,3,2\\n')\nassert total_sales('_t_b4e5c_d19.csv') == 11.0",
+              "visible": false,
+              "failure_message": "Convert qty too: it is also a string.",
+              "failure_message_tr": "qty'yi de çevir: o da bir string."
+            }
+          ],
           "hints": [
-            "Run it: what is printed? It is an Element object, not the text.",
-            "An Element has an attribute that holds the text between its tags.",
-            "Print root.find('city').___ (which attribute holds the text?)"
+            "`row['qty']` is a string like `'2'`.",
+            "Convert both values before multiplying: `int(row['qty'])` and `float(row['price'])`.",
+            "Sum the products inside the same generator expression."
+          ],
+          "hints_tr": [
+            "`row['qty']` `'2'` gibi bir string.",
+            "Çarpmadan önce iki değeri de çevir: `int(row['qty'])` ve `float(row['price'])`.",
+            "Çarpımları aynı üreteç ifadesinin içinde topla."
           ],
           "solution": {
-            "approach": "find returns the Element itself. Use .text to get the text it contains.",
-            "code": "import xml.etree.ElementTree as ET\nxml_text = '<person><name>Asabeneh</name><city>Helsinki</city></person>'\nroot = ET.fromstring(xml_text)\nprint(root.find('city').text)",
-            "approach_tr": "find, Element'in kendisini döndürür. İçindeki metin için .text kullan."
-          },
-          "hints_tr": [
-            "Çalıştır: ne yazdırılıyor? Metin değil, bir Element nesnesi.",
-            "Bir Element'in, etiketleri arasındaki metni tutan bir özelliği vardır.",
-            "root.find('city').___ yazdır (metni hangi özellik tutar?)"
-          ]
+            "approach": "Multiply the converted qty and price per row and sum them.",
+            "approach_tr": "Her satırda çevrilmiş qty ile price'ı çarp ve topla.",
+            "code": "import csv\n\ndef total_sales(path):\n    with open(path, newline='', encoding='utf-8') as f:\n        return sum(int(row['qty']) * float(row['price']) for row in csv.DictReader(f))"
+          }
         },
         {
           "id": "d19-b4-e6",
-          "type": "explain",
-          "prompt": "In your own words: why is 'with open(...) as f' better than calling open() and close() yourself?",
-          "prompt_tr": "Kendi cümlelerinizle: 'with open(...) as f' neden open() ve close() çağırmaktan daha iyidir?",
-          "model_answer": "A with block closes the file automatically when the block ends, even if an error happens inside it. With a manual close() it is easy to forget it or skip it after an error, which can leave the file open or the data unsaved.",
-          "keywords": [
-            "close",
-            "automatically",
-            "error"
+          "type": "write",
+          "prompt": "Write `write_csv(path, rows)` that writes a list of dicts (all with the same keys) to a CSV file: a header line with the keys of the first dict, then one line per dict. Use `csv.DictWriter`. Example: `write_csv(p, [{'name': 'Ali', 'age': 30}])` creates the lines `name,age` and `Ali,30`.",
+          "prompt_tr": "Aynı anahtarlara sahip dict'lerden oluşan bir list'i CSV dosyasına yazan `write_csv(path, rows)` fonksiyonunu yaz: önce ilk dict'in anahtarlarından bir başlık satırı, sonra her dict için bir satır. `csv.DictWriter` kullan. Örnek: `write_csv(p, [{'name': 'Ali', 'age': 30}])` `name,age` ve `Ali,30` satırlarını oluşturur.",
+          "starter_code": "import csv\n",
+          "signature": "def write_csv(path, rows):",
+          "tests": [
+            {
+              "code": "write_csv('_t_b4e6a_d19.csv', [{'name': 'Ali', 'age': 30}])\nassert open('_t_b4e6a_d19.csv', encoding='utf-8').read().splitlines() == ['name,age', 'Ali,30']",
+              "visible": true,
+              "label": "Header plus one row",
+              "label_tr": "Başlık artı bir satır"
+            },
+            {
+              "code": "import csv\nwrite_csv('_t_b4e6b_d19.csv', [{'city': 'Kadıköy, İstanbul', 'n': 1}, {'city': 'Van', 'n': 2}])\nassert list(csv.DictReader(open('_t_b4e6b_d19.csv', newline='', encoding='utf-8'))) == [{'city': 'Kadıköy, İstanbul', 'n': '1'}, {'city': 'Van', 'n': '2'}]",
+              "visible": false,
+              "failure_message": "Values with commas must survive a round trip; let csv handle the quoting.",
+              "failure_message_tr": "Virgüllü değerler gidiş-dönüşte bozulmamalı; tırnakları csv'ye bırak."
+            },
+            {
+              "code": "write_csv('_t_b4e6c_d19.csv', [{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])\nassert open('_t_b4e6c_d19.csv', encoding='utf-8').read().splitlines() == ['a,b', '1,2', '3,4']",
+              "visible": false,
+              "failure_message": "No blank lines between rows: open the file with newline=''.",
+              "failure_message_tr": "Satırlar arasında boş satır olmamalı: dosyayı newline='' ile aç."
+            }
           ],
-          "model_answer_tr": "with bloğu, blok bitince dosyayı otomatik olarak kapatır; içeride bir hata olsa bile. close()'u elle çağırırsan onu unutmak ya da bir hatadan sonra atlamak kolaydır; bu da dosyanın açık kalmasına ya da verinin kaydedilmemesine yol açabilir.",
-          "keywords_tr": [
-            "kapat",
-            "otomatik",
-            "hata"
+          "hints": [
+            "Open the file with `'w'`, `newline=''` and `encoding='utf-8'`.",
+            "`csv.DictWriter(f, fieldnames=list(rows[0]))` knows the column order.",
+            "Call `writeheader()` and then `writerows(rows)`."
           ],
-          "min_words": 6
+          "hints_tr": [
+            "Dosyayı `'w'`, `newline=''` ve `encoding='utf-8'` ile aç.",
+            "`csv.DictWriter(f, fieldnames=list(rows[0]))` sütun sırasını bilir.",
+            "`writeheader()` sonra `writerows(rows)` çağır."
+          ],
+          "solution": {
+            "approach": "Create a DictWriter with the first dict's keys, write the header and all rows.",
+            "approach_tr": "İlk dict'in anahtarlarıyla bir DictWriter kur, başlığı ve tüm satırları yaz.",
+            "code": "import csv\n\ndef write_csv(path, rows):\n    with open(path, 'w', newline='', encoding='utf-8') as f:\n        writer = csv.DictWriter(f, fieldnames=list(rows[0]))\n        writer.writeheader()\n        writer.writerows(rows)"
+          },
+          "twin": "d19-b4-e7"
+        },
+        {
+          "id": "d19-b4-e7",
+          "type": "write",
+          "prompt": "A teacher exports grades as CSV with the columns `name,city,score`. Write `average_by_city(path)` that returns a dict mapping each city to the average score of its students, rounded to 1 decimal, with cities in the order they first appear. Example: rows `Ali,Ankara,80`, `Ece,İzmir,95`, `Can,Ankara,91` give `{'Ankara': 85.5, 'İzmir': 95.0}`.",
+          "prompt_tr": "Bir öğretmen notları `name,city,score` sütunlu bir CSV olarak dışa aktarıyor. Her şehri o şehirdeki öğrencilerin 1 ondalığa yuvarlanmış not ortalamasına eşleyen, şehirleri ilk göründükleri sırada tutan bir dict döndüren `average_by_city(path)` fonksiyonunu yaz. Örnek: `Ali,Ankara,80`, `Ece,İzmir,95`, `Can,Ankara,91` satırları `{'Ankara': 85.5, 'İzmir': 95.0}` verir.",
+          "starter_code": "import csv\n",
+          "signature": "def average_by_city(path):",
+          "tests": [
+            {
+              "code": "with open('_t_b4e7a_d19.csv', 'w', encoding='utf-8') as _f:\n    _f.write('name,city,score\\nAli,Ankara,80\\nEce,İzmir,95\\nCan,Ankara,91\\n')\nassert average_by_city('_t_b4e7a_d19.csv') == {'Ankara': 85.5, 'İzmir': 95.0}",
+              "visible": true,
+              "label": "Averages per city",
+              "label_tr": "Şehir başına ortalamalar"
+            },
+            {
+              "code": "with open('_t_b4e7b_d19.csv', 'w', encoding='utf-8') as _f:\n    _f.write('name,city,score\\n')\nassert average_by_city('_t_b4e7b_d19.csv') == {}",
+              "visible": false,
+              "failure_message": "Only a header gives an empty dict.",
+              "failure_message_tr": "Sadece başlık boş dict verir."
+            },
+            {
+              "code": "with open('_t_b4e7c_d19.csv', 'w', encoding='utf-8') as _f:\n    _f.write('name,city,score\\na,Van,70\\nb,Van,71\\nc,Van,71\\n')\nassert average_by_city('_t_b4e7c_d19.csv') == {'Van': 70.7}",
+              "visible": false,
+              "failure_message": "Round the average to one decimal.",
+              "failure_message_tr": "Ortalamayı bir ondalığa yuvarla."
+            },
+            {
+              "code": "with open('_t_b4e7d_d19.csv', 'w', encoding='utf-8') as _f:\n    _f.write('name,city,score\\nx,Muş,50\\ny,Rize,60\\n')\nassert list(average_by_city('_t_b4e7d_d19.csv')) == ['Muş', 'Rize']",
+              "visible": false,
+              "failure_message": "Keep cities in the order they first appear.",
+              "failure_message_tr": "Şehirleri ilk göründükleri sırada tut."
+            }
+          ],
+          "hints": [
+            "Read rows with `csv.DictReader` and collect the scores per city in a dict of lists.",
+            "`scores.setdefault(city, []).append(int(row['score']))` builds the lists.",
+            "Finally build a new dict with `round(sum(v) / len(v), 1)` for each city."
+          ],
+          "hints_tr": [
+            "Satırları `csv.DictReader` ile oku ve notları şehir başına bir list dict'inde topla.",
+            "`scores.setdefault(city, []).append(int(row['score']))` list'leri kurar.",
+            "Sonunda her şehir için `round(sum(v) / len(v), 1)` ile yeni bir dict kur."
+          ],
+          "solution": {
+            "approach": "Group the int scores by city, then average each group and round.",
+            "approach_tr": "int notları şehre göre grupla, sonra her grubun ortalamasını al ve yuvarla.",
+            "code": "import csv\n\ndef average_by_city(path):\n    scores = {}\n    with open(path, newline='', encoding='utf-8') as f:\n        for row in csv.DictReader(f):\n            scores.setdefault(row['city'], []).append(int(row['score']))\n    return {city: round(sum(v) / len(v), 1) for city, v in scores.items()}"
+          },
+          "twin": "d19-b4-e6"
+        },
+        {
+          "id": "d19-b4-e8",
+          "type": "parsons",
+          "prompt": "Arrange the lines so the program reads the XML cart and prints each item's name and price: `tea 5` then `cake 12`.",
+          "prompt_tr": "Satırları, program XML sepetini okuyup her ürünün adını ve fiyatını (`tea 5`, sonra `cake 12`) yazdıracak şekilde sırala.",
+          "lines": [
+            "for item in root.findall('item'):",
+            "import xml.etree.ElementTree as ET",
+            "    print(item.text, item.attrib['price'])",
+            "root = ET.fromstring('<cart><item price=\"5\">tea</item><item price=\"12\">cake</item></cart>')"
+          ],
+          "correct_order": [
+            1,
+            3,
+            0,
+            2
+          ],
+          "distractors": [
+            "    print(item.tag, item.attrib['price'])"
+          ],
+          "expected_output": "tea 5\ncake 12"
         }
-      ],
-      "concept_tr": "CSV satır satır tablo verisi, XML ise etiketli (ağaç yapılı) veri taşır. csv ve xml.etree modülleri bunları okur."
+      ]
     }
   ],
   "review_pool": [
-    "d19-b1-e1",
-    "d19-b1-e3",
+    "d19-b1-e4",
+    "d19-b1-e7",
     "d19-b2-e1",
-    "d19-b2-e3",
-    "d19-b3-e1",
-    "d19-b4-e1"
-  ],
-  "title_tr": "Dosya işlemleri"
+    "d19-b3-e7",
+    "d19-b4-e1",
+    "d19-b4-e7"
+  ]
 }
