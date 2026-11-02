@@ -1,25 +1,30 @@
 {
   "day": 18,
-  "title": "Regular expressions",
+  "title": "Regular Expressions (re)",
+  "title_tr": "Düzenli İfadeler (re)",
   "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
   "blocks": [
     {
       "id": "d18-b1",
-      "concept": "match-vs-search",
+      "concept": "match-search-findall",
+      "concept_tr": "`re.match` sadece metnin başına, `re.search` her yere bakıp ilk eşleşmeyi Match nesnesi olarak verir (yoksa `None`); `re.findall` tüm eşleşmeleri bir list olarak döndürür.",
       "tags": [
         "regex",
         "re.match",
-        "re.search"
+        "re.search",
+        "re.findall"
       ],
       "worked_example": {
-        "code": "import re\ntxt = 'I love to teach python'\nprint(re.match('love', txt))\nprint(re.search('love', txt).span())",
+        "code": "import re\n\nlog = 'INFO start; ERROR disk full; ERROR net down'\nprint(re.match('ERROR', log))\nm = re.search('ERROR', log)\nif m:\n    print(m.group(), m.span())\nprint(re.findall('ERROR', log))\nprint(len(re.findall('error', log, flags=re.I)))",
         "notes": [
-          "re.match only looks at the START of the string, so it gives None here.",
-          "re.search looks anywhere and returns a match object; .span() gives (start, end)."
+          "`re.match` returns `None` because the text starts with 'INFO', not with 'ERROR'.",
+          "`re.search` scans the whole text and reports only the first hit; checking `if m:` protects the `.group()` call from a `None`.",
+          "`re.findall` returns plain strings in a list, so counting the matches is just `len()`, and `flags=re.I` ignores case."
         ],
         "notes_tr": [
-          "re.match sadece metnin BAŞINA bakar, bu yüzden burada None verir.",
-          "re.search her yerde arar ve bir match nesnesi döndürür; .span() (başlangıç, bitiş) verir."
+          "Metin 'ERROR' ile değil 'INFO' ile başladığı için `re.match` `None` döndürür.",
+          "`re.search` tüm metni tarar ve sadece ilk bulduğunu bildirir; `if m:` kontrolü `.group()` çağrısını `None`'dan korur.",
+          "`re.findall` bir list içinde düz string'ler döndürür; eşleşmeleri saymak sadece `len()`'dir, `flags=re.I` de büyük/küçük harfi yok sayar."
         ]
       },
       "exercises": [
@@ -27,204 +32,309 @@
           "id": "d18-b1-e1",
           "type": "predict",
           "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "import re\ntxt = 'I love to teach python and javaScript'\nprint(re.match('I love to teach', txt) is None)\nprint(re.match('teach', txt) is None)\nprint(re.search('teach', txt).span())",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nm = re.search(r'\\d+', 'abc 42 and 7')\nprint(m.group(), m.span())",
           "choices": [
-            "True\nFalse\n(10, 15)",
-            "False\nFalse\n(10, 15)",
-            "False\nTrue\n(10, 15)"
+            "42 (4, 6)",
+            "42 (4, 5)",
+            "['42', '7'] (4, 6)",
+            "4 (4, 5)"
           ],
-          "expected_output": "False\nTrue\n(10, 15)",
-          "explanation": "'I love to teach' is at the beginning, so match finds it (not None -> False). 'teach' is not at the beginning, so match gives None (-> True). search finds 'teach' at positions 10 to 15.",
+          "expected_output": "42 (4, 6)",
+          "explanation": "`search` returns the first run of digits, `42`, which starts at index 4; the end index 6 is exclusive like a slice.",
+          "explanation_tr": "`search` ilk rakam dizisini, `42`'yi döndürür; 4. indeksten başlar, bitiş indeksi 6 dilimdeki gibi hariçtir.",
           "misconceptions": {
-            "True\nFalse\n(10, 15)": "The first pattern really is at the start; the second is not. Check which one gives None.",
-            "False\nFalse\n(10, 15)": "re.match fails when the pattern is not at the very start of the text."
+            "42 (4, 5)": "The end of a span is exclusive: `txt[4:6]` is '42', so the end is 6.",
+            "['42', '7'] (4, 6)": "`search` returns only the first match as a Match object; a list of all matches comes from `findall`.",
+            "4 (4, 5)": "`\\d+` takes one or more digits, so the whole '42' is matched, not just '4'."
           },
-          "explanation_tr": "'I love to teach' metnin başındadır, bu yüzden match onu bulur (None değil -> False). 'teach' başta değildir, match None verir (-> True). search 'teach'i 10 ile 15 arasında bulur.",
           "misconceptions_tr": {
-            "True\nFalse\n(10, 15)": "İlk desen gerçekten başta; ikincisi değil. Hangisinin None verdiğine bak.",
-            "False\nFalse\n(10, 15)": "Desen metnin en başında değilse re.match başarısız olur."
+            "42 (4, 5)": "span'in sonu hariçtir: `txt[4:6]` '42'dir, bu yüzden bitiş 6.",
+            "['42', '7'] (4, 6)": "`search` sadece ilk eşleşmeyi Match nesnesi olarak döndürür; tüm eşleşmelerin list'i `findall`'dan gelir.",
+            "4 (4, 5)": "`\\d+` bir ya da daha fazla rakam alır; sadece '4' değil, '42'nin tamamı eşleşir."
           }
         },
         {
           "id": "d18-b1-e2",
           "type": "fill_blank",
-          "prompt": "Use the right re function to find the word anywhere (ignoring case), then get its start and end positions.",
-          "prompt_tr": "Doğru re fonksiyonunu kullanarak kelimeyi büyük/küçük harfe bakmadan metnin herhangi bir yerinde bulun, sonra başlangıç ve bitiş konumlarını alın.",
-          "starter_code": "import re\ntxt = 'Python is great. I recommend it as a FIRST language'\nmatch = re.___('first', txt, re.I)\nstart, end = match.___()\nprint(txt[start:end])",
+          "prompt": "Store every occurrence of `cat` in `text` in the list `matches`, then print how many there are.",
+          "prompt_tr": "`text` içindeki her `cat` geçişini `matches` list'ine al, sonra kaç tane olduğunu yazdır.",
+          "starter_code": "import re\n\ntext = 'cat, concat, catalog'\nmatches = re.___(r'cat', text)\nprint(len(matches))",
           "blanks": [
             {
               "answer": [
-                "search"
-              ]
-            },
-            {
-              "answer": [
-                "span"
+                "findall"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert match.group() == 'FIRST'",
+              "code": "assert matches == ['cat', 'cat', 'cat']",
               "visible": true,
-              "label_tr": "match.group() 'FIRST' olmalı"
+              "label": "matches holds three 'cat'",
+              "label_tr": "matches üç 'cat' tutuyor"
             },
             {
-              "code": "assert txt[start:end] == 'FIRST'",
+              "code": "assert __stdout__.strip() == '3'",
               "visible": true,
-              "label_tr": "txt[start:end] 'FIRST' olmalı"
+              "label": "Prints 3",
+              "label_tr": "3 yazdırılıyor"
             }
-          ],
-          "hints": [
-            "The word is not at the start of the text, so match would fail.",
-            "Which match method returns the (start, end) tuple?"
-          ],
-          "hints_tr": [
-            "Kelime metnin başında değil, bu yüzden match başarısız olur.",
-            "(başlangıç, bitiş) çiftini hangi match metodu verir?"
           ]
         },
         {
           "id": "d18-b1-e3",
-          "type": "write",
-          "prompt": "Write starts_with_word(text, word) that returns True if text starts with word, ignoring upper/lower case, and False otherwise. Use re.match.",
-          "prompt_tr": "text, word ile başlıyorsa (büyük/küçük harf farkı gözetmeden) True, değilse False döndüren starts_with_word(text, word) yazın. re.match kullanın.",
-          "starter_code": "",
-          "signature": "def starts_with_word(text, word):",
+          "type": "debug",
+          "prompt": "`first_number(text)` should return the first whole number in the text as an `int`, or `None` when there is no digit. `first_number('no digits')` crashes with `AttributeError: 'NoneType' object has no attribute 'group'`. Fix it.",
+          "prompt_tr": "`first_number(text)` metindeki ilk tam sayıyı `int` olarak, hiç rakam yoksa `None` döndürmeli. `first_number('no digits')` `AttributeError: 'NoneType' object has no attribute 'group'` hatasıyla çöküyor. Düzelt.",
+          "starter_code": "import re\n\ndef first_number(text):\n    return int(re.search(r'\\d+', text).group())\n\nprint(first_number('a 12 b 5'))\nprint(first_number('no digits'))",
           "tests": [
             {
-              "code": "assert starts_with_word('I love to teach', 'i love') is True",
+              "code": "assert first_number('a 12 b 5') == 12",
               "visible": true,
-              "label_tr": "starts_with_word('I love to teach', 'i love') True veriyor"
+              "label": "The first number is 12",
+              "label_tr": "İlk sayı 12"
             },
             {
-              "code": "assert starts_with_word('I love to teach', 'teach') is False",
+              "code": "assert first_number('no digits') is None",
               "visible": true,
-              "label_tr": "starts_with_word('I love to teach', 'teach') False veriyor"
+              "label": "No digits gives None",
+              "label_tr": "Rakam yoksa None"
             },
             {
-              "code": "assert starts_with_word('Python', 'PYTHON') is True",
+              "code": "assert first_number('7') == 7 and first_number('') is None",
               "visible": false,
-              "failure_message": "Ignore case: pass re.I.",
-              "failure_message_tr": "Büyük/küçük harfi yok say: re.I ver."
-            },
-            {
-              "code": "assert starts_with_word('', 'a') is False",
-              "visible": false,
-              "failure_message": "An empty text does not start with anything.",
-              "failure_message_tr": "Boş metin hiçbir şeyle başlamaz."
-            },
-            {
-              "code": "assert starts_with_word('abc', '') is True",
-              "visible": false,
-              "failure_message": "Every text starts with the empty word.",
-              "failure_message_tr": "Her metin boş kelimeyle başlar."
-            },
-            {
-              "code": "assert starts_with_word('Merhaba dunya', 'merhaba') is True and starts_with_word('Merhaba dunya', 'dunya') is False",
-              "visible": false,
-              "failure_message": "Check the start of the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metnin başını kontrol et; sonuçları elle yazma."
+              "failure_message": "Check a text that is only a number and an empty text.",
+              "failure_message_tr": "Sadece sayı olan bir metni ve boş metni kontrol et."
             }
           ],
           "hints": [
-            "Which re function only checks the start?",
-            "re.match returns None when it fails; compare the result with None.",
-            "return re.___(word, text, re.I) is not None (which function only checks the start of the text?)"
+            "What does `re.search` return when nothing matches?",
+            "Store the search result in a variable before calling `.group()` on it.",
+            "Return `None` when that variable is falsy; otherwise convert its group to `int`."
+          ],
+          "hints_tr": [
+            "Hiçbir şey eşleşmezse `re.search` ne döndürür?",
+            "`.group()` çağırmadan önce arama sonucunu bir değişkene ata.",
+            "O değişken yanlış (falsy) ise `None` döndür; değilse grubunu `int`'e çevir."
           ],
           "solution": {
-            "approach": "re.match checks only the beginning of the text; test its result against None.",
-            "code": "import re\n\ndef starts_with_word(text, word):\n    return re.match(word, text, re.I) is not None",
-            "approach_tr": "re.match yalnızca metnin başını kontrol eder; sonucunu None ile karşılaştır."
-          },
-          "twin": "d18-b1-e4",
-          "hints_tr": [
-            "Hangi re fonksiyonu yalnızca başa bakar?",
-            "re.match başarısız olunca None döndürür; sonucu None ile karşılaştır.",
-            "return re.___(word, text, re.I) is not None (metnin yalnızca başına bakan fonksiyon hangisi?)"
-          ]
+            "approach": "Check the Match object before using it.",
+            "approach_tr": "Match nesnesini kullanmadan önce kontrol et.",
+            "code": "import re\n\ndef first_number(text):\n    m = re.search(r'\\d+', text)\n    if m is None:\n        return None\n    return int(m.group())\n\nprint(first_number('a 12 b 5'))\nprint(first_number('no digits'))"
+          }
         },
         {
           "id": "d18-b1-e4",
-          "type": "write",
-          "prompt": "Write contains_word(text, word) that returns True if word appears anywhere in text, ignoring upper/lower case, and False otherwise. Use re.search.",
-          "prompt_tr": "word, text içinde herhangi bir yerde (büyük/küçük harf farkı gözetmeden) geçiyorsa True, geçmiyorsa False döndüren contains_word(text, word) yazın. re.search kullanın.",
-          "starter_code": "",
-          "signature": "def contains_word(text, word):",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nprint(re.match('py', 'happy') is None, re.search('py', 'happy') is None)",
+          "choices": [
+            "True False",
+            "False False",
+            "True True",
+            "False True"
+          ],
+          "expected_output": "True False",
+          "explanation": "'happy' does not start with 'py', so `match` gives `None` (True). `search` finds 'py' at the end, so it is not `None` (False).",
+          "explanation_tr": "'happy' 'py' ile başlamaz, `match` `None` verir (True). `search` sondaki 'py'yi bulur, sonuç `None` değildir (False).",
+          "misconceptions": {
+            "False False": "`match` only checks the beginning of the text, where 'ha' stands.",
+            "True True": "`search` looks through the whole text and finds 'py' at index 3.",
+            "False True": "This mixes up the two functions: `match` is the one restricted to the start."
+          },
+          "misconceptions_tr": {
+            "False False": "`match` sadece metnin başına bakar, orada 'ha' var.",
+            "True True": "`search` tüm metne bakar ve 'py'yi 3. indekste bulur.",
+            "False True": "Bu iki fonksiyonu karıştırıyor: başla sınırlı olan `match`'tir."
+          }
+        },
+        {
+          "id": "d18-b1-e5",
+          "type": "modify",
+          "prompt": "`count_word(text, word)` is case-sensitive. Change it so it also counts other spellings: `count_word('Python python PYTHON', 'python')` returns `3`.",
+          "prompt_tr": "`count_word(text, word)` büyük/küçük harfe duyarlı. Diğer yazımları da sayacak şekilde değiştir: `count_word('Python python PYTHON', 'python')` sonucu `3`.",
+          "starter_code": "import re\n\ndef count_word(text, word):\n    return len(re.findall(word, text))",
+          "signature": "def count_word(text, word):",
           "tests": [
             {
-              "code": "assert contains_word('I love to teach', 'TEACH') is True",
+              "code": "assert count_word('Python python PYTHON', 'python') == 3",
               "visible": true,
-              "label_tr": "contains_word('I love to teach', 'TEACH') True veriyor"
+              "label": "All three spellings count",
+              "label_tr": "Üç yazımın hepsi sayılıyor"
             },
             {
-              "code": "assert contains_word('I love to teach', 'java') is False",
-              "visible": true,
-              "label_tr": "contains_word('I love to teach', 'java') False veriyor"
-            },
-            {
-              "code": "assert contains_word('concatenate', 'cat') is True",
+              "code": "assert count_word('Ankara ankara', 'ANKARA') == 2",
               "visible": false,
-              "failure_message": "The word may be inside a longer word; search anywhere.",
-              "failure_message_tr": "Kelime daha uzun bir kelimenin içinde olabilir; her yerde ara."
+              "failure_message": "The word argument may be uppercase too.",
+              "failure_message_tr": "Kelime argümanı da büyük harfli olabilir."
             },
             {
-              "code": "assert contains_word('', 'a') is False",
+              "code": "assert count_word('no match here', 'xyz') == 0",
               "visible": false,
-              "failure_message": "An empty text contains nothing.",
-              "failure_message_tr": "Boş metin hiçbir şey içermez."
-            },
-            {
-              "code": "assert contains_word('Python', 'PYTHON') is True",
-              "visible": false,
-              "failure_message": "Ignore case: pass re.I.",
-              "failure_message_tr": "Büyük/küçük harfi yok say: re.I ver."
-            },
-            {
-              "code": "assert contains_word('Bugun hava cok GUZEL', 'guzel') is True and contains_word('Bugun hava', 'yagmur') is False",
-              "visible": false,
-              "failure_message": "Search the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metinde ara; sonuçları elle yazma."
+              "failure_message": "No occurrence gives 0.",
+              "failure_message_tr": "Hiç geçmiyorsa 0."
             }
           ],
           "hints": [
-            "Which re function looks everywhere in the text?",
-            "re.search returns None when nothing is found; compare the result with None.",
-            "return re.___(word, text, re.I) is not None (which function looks anywhere in the text?)"
+            "There is a flag that ignores upper and lower case.",
+            "Pass the flag by name to `re.findall`.",
+            "Add `flags=re.I` (or `re.IGNORECASE`) as a keyword argument."
+          ],
+          "hints_tr": [
+            "Büyük ve küçük harfi yok sayan bir bayrak var.",
+            "Bayrağı `re.findall`'a isimle ver.",
+            "`flags=re.I` (ya da `re.IGNORECASE`) isimli argümanını ekle."
           ],
           "solution": {
-            "approach": "re.search looks anywhere; test its result against None.",
-            "code": "import re\n\ndef contains_word(text, word):\n    return re.search(word, text, re.I) is not None",
-            "approach_tr": "re.search her yerde arar; sonucunu None ile karşılaştır."
-          },
-          "twin": "d18-b1-e3",
+            "approach": "Add `flags=re.I` to the findall call.",
+            "approach_tr": "findall çağrısına `flags=re.I` ekle.",
+            "code": "import re\n\ndef count_word(text, word):\n    return len(re.findall(word, text, flags=re.I))"
+          }
+        },
+        {
+          "id": "d18-b1-e6",
+          "type": "write",
+          "prompt": "Write `has_digit(text)` that returns `True` if the text contains at least one digit and `False` otherwise. Example: `has_digit('room 4B')` returns `True`.",
+          "prompt_tr": "Metinde en az bir rakam varsa `True`, yoksa `False` döndüren `has_digit(text)` fonksiyonunu yaz. Örnek: `has_digit('room 4B')` sonucu `True`.",
+          "starter_code": "import re\n",
+          "signature": "def has_digit(text):",
+          "tests": [
+            {
+              "code": "assert has_digit('room 4B') is True",
+              "visible": true,
+              "label": "'room 4B' has a digit",
+              "label_tr": "'room 4B' rakam içeriyor"
+            },
+            {
+              "code": "assert has_digit('no numbers') is False",
+              "visible": true,
+              "label": "No digit gives False",
+              "label_tr": "Rakam yoksa False"
+            },
+            {
+              "code": "assert has_digit('') is False and has_digit('9') is True",
+              "visible": false,
+              "failure_message": "Check an empty string and a single digit.",
+              "failure_message_tr": "Boş string'i ve tek bir rakamı kontrol et."
+            },
+            {
+              "code": "assert has_digit('abc') is False and type(has_digit('x1')) is bool",
+              "visible": false,
+              "failure_message": "Return a real bool, not a Match object or None.",
+              "failure_message_tr": "Match nesnesi ya da None değil, gerçek bir bool döndür."
+            }
+          ],
+          "hints": [
+            "`re.search` with `\\d` finds a digit anywhere.",
+            "The result is a Match object or `None`.",
+            "Compare the result with `None` (or wrap it in `bool()`) so you return `True` or `False`."
+          ],
           "hints_tr": [
-            "Hangi re fonksiyonu metnin her yerine bakar?",
-            "re.search hiçbir şey bulamazsa None döndürür; sonucu None ile karşılaştır.",
-            "return re.___(word, text, re.I) is not None (metnin her yerinde arayan fonksiyon hangisi?)"
-          ]
+            "`\\d` ile `re.search` her yerde bir rakam bulur.",
+            "Sonuç ya bir Match nesnesi ya da `None`'dır.",
+            "`True` ya da `False` döndürmek için sonucu `None` ile karşılaştır (ya da `bool()` ile sar)."
+          ],
+          "solution": {
+            "approach": "Search for `\\d` and turn the result into a bool.",
+            "approach_tr": "`\\d` ara ve sonucu bool'a çevir.",
+            "code": "import re\n\ndef has_digit(text):\n    return re.search(r'\\d', text) is not None"
+          },
+          "twin": "d18-b1-e7"
+        },
+        {
+          "id": "d18-b1-e7",
+          "type": "write",
+          "prompt": "A server log uses the uppercase words `ERROR`, `WARNING` and `INFO`. Write `count_levels(log)` that returns a dict with these three keys and how many times each word appears (uppercase only). Example: `count_levels('INFO a; ERROR b; ERROR c')` returns `{'ERROR': 2, 'WARNING': 0, 'INFO': 1}`.",
+          "prompt_tr": "Bir sunucu logu büyük harfli `ERROR`, `WARNING` ve `INFO` kelimelerini kullanıyor. Bu üç anahtarı ve her kelimenin kaç kez geçtiğini (sadece büyük harfli) içeren bir dict döndüren `count_levels(log)` fonksiyonunu yaz. Örnek: `count_levels('INFO a; ERROR b; ERROR c')` sonucu `{'ERROR': 2, 'WARNING': 0, 'INFO': 1}`.",
+          "starter_code": "import re\n",
+          "signature": "def count_levels(log):",
+          "tests": [
+            {
+              "code": "assert count_levels('INFO a; ERROR b; ERROR c') == {'ERROR': 2, 'WARNING': 0, 'INFO': 1}",
+              "visible": true,
+              "label": "The example counts",
+              "label_tr": "Örnek sayımlar"
+            },
+            {
+              "code": "assert count_levels('') == {'ERROR': 0, 'WARNING': 0, 'INFO': 0}",
+              "visible": false,
+              "failure_message": "An empty log still has all three keys with 0.",
+              "failure_message_tr": "Boş log'da da üç anahtar 0 değeriyle bulunur."
+            },
+            {
+              "code": "assert count_levels('error WARNING Warning WARNING info') == {'ERROR': 0, 'WARNING': 2, 'INFO': 0}",
+              "visible": false,
+              "failure_message": "Count only the uppercase spelling.",
+              "failure_message_tr": "Sadece büyük harfli yazımı say."
+            },
+            {
+              "code": "assert list(count_levels('x')) == ['ERROR', 'WARNING', 'INFO']",
+              "visible": false,
+              "failure_message": "Keep the key order ERROR, WARNING, INFO.",
+              "failure_message_tr": "Anahtar sırasını ERROR, WARNING, INFO olarak koru."
+            }
+          ],
+          "hints": [
+            "Loop over the three level names in the order ERROR, WARNING, INFO.",
+            "For each name, `re.findall(name, log)` gives a list you can measure.",
+            "Store `len(...)` under the name as key; a dict comprehension does it in one line."
+          ],
+          "hints_tr": [
+            "Üç seviye adını ERROR, WARNING, INFO sırasıyla gez.",
+            "Her ad için `re.findall(ad, log)` ölçebileceğin bir list verir.",
+            "`len(...)`'i adın anahtarı altına kaydet; bir dict comprehension bunu tek satırda yapar."
+          ],
+          "solution": {
+            "approach": "A dict comprehension over the three names with `len(re.findall(name, log))` as value.",
+            "approach_tr": "Üç ad üzerinde, değeri `len(re.findall(ad, log))` olan bir dict comprehension.",
+            "code": "import re\n\ndef count_levels(log):\n    return {name: len(re.findall(name, log)) for name in ['ERROR', 'WARNING', 'INFO']}"
+          },
+          "twin": "d18-b1-e6"
+        },
+        {
+          "id": "d18-b1-e8",
+          "type": "explain",
+          "prompt": "In your own words: what do `re.match`, `re.search` and `re.findall` each return, and when would you use each?",
+          "prompt_tr": "Kendi cümlelerinle: `re.match`, `re.search` ve `re.findall` her biri ne döndürür ve hangisini ne zaman kullanırsın?",
+          "model_answer": "re.match returns a Match object only if the pattern is at the start of the text, otherwise None. re.search returns the first match anywhere as a Match object, or None. re.findall returns a list of all matched strings, which is empty when nothing matches.",
+          "model_answer_tr": "re.match sadece kalıp metnin başındaysa bir Match nesnesi, değilse None döndürür. re.search her yerdeki ilk eşleşmeyi Match nesnesi olarak ya da None döndürür. re.findall tüm eşleşen string'lerin bir list'ini döndürür; hiç eşleşme yoksa list boştur.",
+          "keywords": [
+            "start",
+            "first",
+            "list"
+          ],
+          "keywords_tr": [
+            "başında",
+            "ilk",
+            "list"
+          ],
+          "min_words": 12
         }
-      ],
-      "concept_tr": "Düzenli ifade (regex), metinde desen aramanın yoludur. re.match yalnızca başa bakar, re.search her yerde arar."
+      ]
     },
     {
       "id": "d18-b2",
-      "concept": "findall-and-character-sets",
+      "concept": "character-sets-classes-escaping",
+      "concept_tr": "`[...]` tek karakterlik bir küme (`[^...]` tersi), `\\d \\w \\s` hazır sınıflar (`\\D \\W \\S` tersleri); `. $ ( )` gibi özel karakterleri düz aramak için `\\` ile kaçış yaparsın.",
       "tags": [
         "regex",
-        "findall",
-        "digits"
+        "character-class",
+        "escaping",
+        "raw-string"
       ],
       "worked_example": {
-        "code": "import re\ntxt = 'Apple and banana. an apple a day'\nprint(re.findall('[Aa]pple', txt))\nprint(re.findall('apple', txt, re.I))",
+        "code": "import re\n\ntext = 'Order #A17: 2 x tea $3.50, 1 x cake $12.00'\nprint(re.findall(r'[A-Z]\\d+', text))\nprint(re.findall(r'\\$\\d+\\.\\d\\d', text))\nprint(re.findall(r'[^\\w\\s]', 'a-b c!'))\nprint(re.sub(r'\\D', '', '0532-123 45 67'))",
         "notes": [
-          "[Aa] means A or a; re.I ignores case: both find all apples.",
-          "findall returns a list of ALL matches."
+          "`[A-Z]\\d+` reads as 'one capital letter, then one or more digits', so it finds the order code `A17`.",
+          "In `\\$\\d+\\.\\d\\d` the dollar sign and the dot are escaped, so they are searched literally instead of meaning 'end' and 'any character'.",
+          "`\\D` is every character that is not a digit; replacing those with nothing keeps only the digits of a phone number."
         ],
         "notes_tr": [
-          "[Aa] A ya da a demektir; re.I büyük/küçük harfi yok sayar: ikisi de tüm 'apple'ları bulur.",
-          "findall TÜM eşleşmelerin listesini döndürür."
+          "`[A-Z]\\d+` 'bir büyük harf, ardından bir ya da daha fazla rakam' diye okunur; bu yüzden sipariş kodu `A17`'yi bulur.",
+          "`\\$\\d+\\.\\d\\d` içinde dolar işareti ve nokta kaçışlıdır; 'son' ve 'herhangi bir karakter' anlamına gelmek yerine düz olarak aranırlar.",
+          "`\\D` rakam olmayan her karakterdir; onları hiçbir şeyle değiştirmek telefon numarasının sadece rakamlarını bırakır."
         ]
       },
       "exercises": [
@@ -232,187 +342,302 @@
           "id": "d18-b2-e1",
           "type": "predict",
           "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "import re\ntxt = 'This example was made on December 6,  2019 and revised on July 8, 2021'\nprint(re.findall(r'\\d', txt))\nprint(re.findall(r'\\d+', txt))\nprint(re.findall(r'\\d{4}', txt))",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nprint(re.findall(r'[aeiou]', 'regex'))",
           "choices": [
-            "['6', '2019', '8', '2021']\n['6', '2019', '8', '2021']\n['2019', '2021']",
-            "['6', '2', '0', '1', '9', '8', '2', '0', '2', '1']\n['6', '2019', '8', '2021']\n['6', '2019', '8', '2021']",
-            "['6', '2', '0', '1', '9', '8', '2', '0', '2', '1']\n['6', '2019', '8', '2021']\n['2019', '2021']"
+            "['e', 'e']",
+            "['e']",
+            "['r', 'g', 'x']",
+            "['ee']"
           ],
-          "expected_output": "['6', '2', '0', '1', '9', '8', '2', '0', '2', '1']\n['6', '2019', '8', '2021']\n['2019', '2021']",
-          "explanation": "\\d matches single digits (ten of them). \\d+ matches runs of one or more digits: 6, 2019, 8, 2021. \\d{4} accepts only runs of four digits: 2019 and 2021.",
+          "expected_output": "['e', 'e']",
+          "explanation": "A set matches one character from the list each time; 'regex' contains two 'e', each a separate match.",
+          "explanation_tr": "Küme her seferinde listeden tek bir karakterle eşleşir; 'regex' iki 'e' içerir, her biri ayrı bir eşleşmedir.",
           "misconceptions": {
-            "['6', '2019', '8', '2021']\n['6', '2019', '8', '2021']\n['2019', '2021']": "\\d alone matches ONE digit at a time, so the first list is longer.",
-            "['6', '2', '0', '1', '9', '8', '2', '0', '2', '1']\n['6', '2019', '8', '2021']\n['6', '2019', '8', '2021']": "\\d{4} needs exactly four digits in a row, so 6 and 8 do not match."
+            "['e']": "`findall` returns every match, not only the first one.",
+            "['r', 'g', 'x']": "These are the characters NOT in the set; that would need `[^aeiou]`.",
+            "['ee']": "Without `+` each match is one character, and the two 'e' are not next to each other anyway."
           },
-          "explanation_tr": "\\d tek tek rakamlarla eşleşir (toplam on tane). \\d+ bir ya da daha çok rakamdan oluşan dizileri bulur: 6, 2019, 8, 2021. \\d{4} yalnızca dört rakamlık dizileri alır: 2019 ve 2021.",
           "misconceptions_tr": {
-            "['6', '2019', '8', '2021']\n['6', '2019', '8', '2021']\n['2019', '2021']": "\\d tek başına bir seferde TEK rakamla eşleşir, bu yüzden ilk liste daha uzundur.",
-            "['6', '2', '0', '1', '9', '8', '2', '0', '2', '1']\n['6', '2019', '8', '2021']\n['6', '2019', '8', '2021']": "\\d{4} art arda tam dört rakam ister, bu yüzden 6 ve 8 eşleşmez."
+            "['e']": "`findall` sadece ilkini değil, her eşleşmeyi döndürür.",
+            "['r', 'g', 'x']": "Bunlar kümede OLMAYAN karakterler; bunun için `[^aeiou]` gerekirdi.",
+            "['ee']": "`+` olmadan her eşleşme tek karakterdir; zaten iki 'e' yan yana da değil."
           }
         },
         {
           "id": "d18-b2-e2",
           "type": "parsons",
-          "prompt": "Order the lines to find all the fruit words, upper or lower case first letter.",
-          "prompt_tr": "Büyük ya da küçük harfle başlayan tüm meyve adlarını bulacak şekilde satırları sıralayın.",
+          "prompt": "Arrange the lines so the program extracts the prices written as `$` + digits + `.` + two digits and prints `['$3.50', '$12.00']`.",
+          "prompt_tr": "Satırları, `$` + rakamlar + `.` + iki rakam biçimindeki fiyatları çekip `['$3.50', '$12.00']` yazdıracak şekilde sırala.",
           "lines": [
-            "print(matches)",
+            "prices = re.findall(r'\\$\\d+\\.\\d\\d', text)",
             "import re",
-            "matches = re.findall(r'[Aa]pple|[Bb]anana', txt)",
-            "txt = 'Apple and banana are fruits. An apple a day.'"
+            "print(prices)",
+            "text = 'tea $3.50, cake $12.00, total 15.50'"
           ],
           "correct_order": [
             1,
             3,
-            2,
-            0
+            0,
+            2
           ],
           "distractors": [
-            "matches = re.match(r'[Aa]pple|[Bb]anana', txt)"
+            "prices = re.findall(r'$\\d+.\\d\\d', text)"
           ],
-          "expected_output": "['Apple', 'banana', 'apple']"
+          "expected_output": "['$3.50', '$12.00']"
         },
         {
           "id": "d18-b2-e3",
-          "type": "write",
-          "prompt": "Write find_years(text) that returns a list of all the 4-digit numbers found in text, as strings, in order. Example: find_years('made in 2019, revised in 2021') returns ['2019', '2021'].",
-          "prompt_tr": "text içindeki tüm 4 haneli sayıları string olarak sırayla liste halinde döndüren find_years(text) yazın. Örnek: find_years('made in 2019, revised in 2021') sonucu ['2019', '2021'] olur.",
-          "starter_code": "",
-          "signature": "def find_years(text):",
+          "type": "debug",
+          "prompt": "`is_python_file(name)` should be `True` only for names that end in `.py`, but `is_python_file('happy')` returns `True`. Fix the pattern.",
+          "prompt_tr": "`is_python_file(name)` sadece `.py` ile biten isimler için `True` olmalı, ama `is_python_file('happy')` `True` döndürüyor. Kalıbı düzelt.",
+          "starter_code": "import re\n\ndef is_python_file(name):\n    return re.search(r'.py$', name) is not None\n\nprint(is_python_file('main.py'), is_python_file('happy'))",
           "tests": [
             {
-              "code": "assert find_years('made in 2019, revised in 2021') == ['2019', '2021']",
+              "code": "assert is_python_file('main.py') is True",
               "visible": true,
-              "label_tr": "find_years('made in 2019, revised in 2021') ['2019', '2021'] veriyor"
+              "label": "main.py is a Python file",
+              "label_tr": "main.py bir Python dosyası"
             },
             {
-              "code": "assert find_years('no years here') == []",
+              "code": "assert is_python_file('happy') is False",
               "visible": true,
-              "label_tr": "Yıl olmayan metin için boş liste dönüyor"
+              "label": "happy is not",
+              "label_tr": "happy değil"
             },
             {
-              "code": "assert find_years('on 6 July 2021 at 8') == ['2021']",
+              "code": "assert is_python_file('copy') is False and is_python_file('a.py.txt') is False",
               "visible": false,
-              "failure_message": "Only runs of exactly four digits count; 6 and 8 are too short.",
-              "failure_message_tr": "Yalnızca tam dört rakamlık diziler sayılır; 6 ve 8 çok kısa."
-            },
-            {
-              "code": "assert find_years('12345') == ['1234']",
-              "visible": false,
-              "failure_message": "\\d{4} takes the first four digits of a longer run.",
-              "failure_message_tr": "\\d{4} daha uzun bir dizinin ilk dört rakamını alır."
-            },
-            {
-              "code": "assert find_years('') == []",
-              "visible": false,
-              "failure_message": "An empty text has no years.",
-              "failure_message_tr": "Boş metinde yıl yoktur."
-            },
-            {
-              "code": "assert find_years('1999, 2005 and 2030!') == ['1999', '2005', '2030']",
-              "visible": false,
-              "failure_message": "Search the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metinde ara; sonuçları elle yazma."
+              "failure_message": "Only a real '.py' at the very end counts.",
+              "failure_message_tr": "Sadece en sondaki gerçek '.py' sayılır."
             }
           ],
           "hints": [
-            "Which pattern means exactly four digits?",
-            "\\d is one digit, and {n} says how many times to repeat it.",
-            "return re.findall(r'\\d{___}', text) (how many digits make a year?)"
+            "Which characters of 'happy' did the pattern match? Try `re.search(r'.py$', 'happy').group()`.",
+            "In a pattern, `.` means any character, so 'p' counts as well as '.'.",
+            "Escape the dot so it only matches a real dot."
+          ],
+          "hints_tr": [
+            "Kalıp 'happy'nin hangi karakterleriyle eşleşti? `re.search(r'.py$', 'happy').group()` dene.",
+            "Kalıpta `.` herhangi bir karakter demek; '.' kadar 'p' de sayılır.",
+            "Noktayı kaçışla yaz ki sadece gerçek bir noktayla eşleşsin."
           ],
           "solution": {
-            "approach": "findall with \\d{4} returns every group of four digits.",
-            "code": "import re\n\ndef find_years(text):\n    return re.findall(r'\\d{4}', text)",
-            "approach_tr": "\\d{4} ile findall, dört rakamlık her grubu döndürür."
-          },
-          "twin": "d18-b2-e4",
-          "hints_tr": [
-            "Hangi desen tam olarak dört rakam demektir?",
-            "\\d tek bir rakamdır, {n} ise kaç kez tekrar edeceğini söyler.",
-            "return re.findall(r'\\d{___}', text) (bir yıl kaç rakamdan oluşur?)"
-          ]
+            "approach": "Use `\\.` so the dot is literal.",
+            "approach_tr": "Noktanın düz olması için `\\.` kullan.",
+            "code": "import re\n\ndef is_python_file(name):\n    return re.search(r'\\.py$', name) is not None\n\nprint(is_python_file('main.py'), is_python_file('happy'))"
+          }
         },
         {
           "id": "d18-b2-e4",
-          "type": "write",
-          "prompt": "Write extract_numbers(text) that returns all the whole numbers found in text as a list of ints, in order. Example: extract_numbers('on 6, 2019 and 8') returns [6, 2019, 8].",
-          "prompt_tr": "text içindeki tüm tam sayıları int listesi olarak sırayla döndüren extract_numbers(text) yazın. Örnek: extract_numbers('on 6, 2019 and 8') sonucu [6, 2019, 8] olur.",
-          "starter_code": "",
-          "signature": "def extract_numbers(text):",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nprint(re.findall(r'\\W', 'a-b c!'))",
+          "choices": [
+            "['-', ' ', '!']",
+            "['a', 'b', 'c']",
+            "['-', '!']",
+            "['a-b', 'c!']"
+          ],
+          "expected_output": "['-', ' ', '!']",
+          "explanation": "`\\W` is any character that is not a letter, digit or underscore: the dash, the space and the exclamation mark.",
+          "explanation_tr": "`\\W` harf, rakam ya da alt çizgi olmayan her karakterdir: tire, boşluk ve ünlem.",
+          "misconceptions": {
+            "['a', 'b', 'c']": "Those are matched by lowercase `\\w`; uppercase `\\W` is the opposite.",
+            "['-', '!']": "A space is not a word character either, so it is matched too.",
+            "['a-b', 'c!']": "Without `+`, each match is a single character."
+          },
+          "misconceptions_tr": {
+            "['a', 'b', 'c']": "Bunları küçük `\\w` bulur; büyük `\\W` tersidir.",
+            "['-', '!']": "Boşluk da kelime karakteri değildir, o da eşleşir.",
+            "['a-b', 'c!']": "`+` olmadan her eşleşme tek karakterdir."
+          }
+        },
+        {
+          "id": "d18-b2-e5",
+          "type": "modify",
+          "prompt": "`digits_only(phone)` only removes spaces. Change it so it removes every character that is not a digit. Example: `digits_only('(0212) 555.44-33')` returns `'02125554433'`.",
+          "prompt_tr": "`digits_only(phone)` sadece boşlukları siliyor. Rakam olmayan her karakteri silecek şekilde değiştir. Örnek: `digits_only('(0212) 555.44-33')` sonucu `'02125554433'`.",
+          "starter_code": "import re\n\ndef digits_only(phone):\n    return re.sub(r' ', '', phone)",
+          "signature": "def digits_only(phone):",
           "tests": [
             {
-              "code": "assert extract_numbers('on 6, 2019 and 8') == [6, 2019, 8]",
+              "code": "assert digits_only('(0212) 555.44-33') == '02125554433'",
               "visible": true,
-              "label_tr": "extract_numbers('on 6, 2019 and 8') [6, 2019, 8] veriyor"
+              "label": "Brackets, dots and dashes go",
+              "label_tr": "Parantez, nokta ve tireler gidiyor"
             },
             {
-              "code": "assert extract_numbers('a1b22') == [1, 22]",
-              "visible": true,
-              "label_tr": "extract_numbers('a1b22') [1, 22] veriyor"
-            },
-            {
-              "code": "assert extract_numbers('') == []",
+              "code": "assert digits_only('0532 123 45 67') == '05321234567'",
               "visible": false,
-              "failure_message": "No text, no numbers.",
-              "failure_message_tr": "Metin yoksa sayı da yoktur."
+              "failure_message": "Spaces must still be removed.",
+              "failure_message_tr": "Boşluklar yine silinmeli."
             },
             {
-              "code": "assert extract_numbers('no digits') == []",
+              "code": "assert digits_only('tel: +90/532') == '90532'",
               "visible": false,
-              "failure_message": "No digits give an empty list.",
-              "failure_message_tr": "Rakam yoksa boş liste döner."
-            },
-            {
-              "code": "assert extract_numbers('007') == [7]",
-              "visible": false,
-              "failure_message": "Convert each match with int().",
-              "failure_message_tr": "Her eşleşmeyi int() ile çevir."
-            },
-            {
-              "code": "assert extract_numbers('a10 b200 c3') == [10, 200, 3]",
-              "visible": false,
-              "failure_message": "Search the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metinde ara; sonuçları elle yazma."
+              "failure_message": "Letters, colons, plus and slash are not digits either.",
+              "failure_message_tr": "Harfler, iki nokta, artı ve eğik çizgi de rakam değildir."
             }
           ],
           "hints": [
-            "Which pattern means one or more digits?",
-            "\\d+ finds the digit strings; each one still needs converting to a number.",
-            "return [___(n) for n in re.findall(r'\\d+', text)] (which function turns '12' into 12?)"
+            "Instead of listing every unwanted character, describe the ones you want to remove as 'not a digit'.",
+            "There is a ready-made class for 'not a digit'.",
+            "Replace the pattern `' '` with the uppercase class `\\D`."
+          ],
+          "hints_tr": [
+            "İstenmeyen her karakteri listelemek yerine silinecekleri 'rakam olmayan' diye tarif et.",
+            "'Rakam olmayan' için hazır bir sınıf var.",
+            "`' '` kalıbını büyük harfli `\\D` sınıfıyla değiştir."
           ],
           "solution": {
-            "approach": "findall with \\d+ gives the digit runs as strings; convert each to int.",
-            "code": "import re\n\ndef extract_numbers(text):\n    return [int(n) for n in re.findall(r'\\d+', text)]",
-            "approach_tr": "\\d+ ile findall rakam dizilerini string olarak verir; her birini int'e çevir."
-          },
-          "twin": "d18-b2-e3",
+            "approach": "Substitute every `\\D` with an empty string.",
+            "approach_tr": "Her `\\D`'yi boş string ile değiştir.",
+            "code": "import re\n\ndef digits_only(phone):\n    return re.sub(r'\\D', '', phone)"
+          }
+        },
+        {
+          "id": "d18-b2-e6",
+          "type": "write",
+          "prompt": "Write `count_vowels(text)` that returns how many Turkish vowels (`a e ı i o ö u ü`, upper or lower case) the text contains. Example: `count_vowels('Öğrenci')` returns `3`.",
+          "prompt_tr": "Metinde kaç Türkçe ünlü harf (`a e ı i o ö u ü`, büyük ya da küçük) olduğunu döndüren `count_vowels(text)` fonksiyonunu yaz. Örnek: `count_vowels('Öğrenci')` sonucu `3`.",
+          "starter_code": "import re\n",
+          "signature": "def count_vowels(text):",
+          "tests": [
+            {
+              "code": "assert count_vowels('Öğrenci') == 3",
+              "visible": true,
+              "label": "Öğrenci has 3 vowels",
+              "label_tr": "Öğrenci'de 3 ünlü var"
+            },
+            {
+              "code": "assert count_vowels('Ankara') == 3 and count_vowels('xyz') == 0",
+              "visible": false,
+              "failure_message": "Uppercase vowels count too, and a word without vowels gives 0.",
+              "failure_message_tr": "Büyük harfli ünlüler de sayılır; ünlüsüz kelime 0 verir."
+            },
+            {
+              "code": "assert count_vowels('güneşli ılık') == 5",
+              "visible": false,
+              "failure_message": "Do not forget ü and ı.",
+              "failure_message_tr": "ü ve ı'yı unutma."
+            },
+            {
+              "code": "assert count_vowels('') == 0",
+              "visible": false,
+              "failure_message": "An empty text has no vowels.",
+              "failure_message_tr": "Boş metinde ünlü yoktur."
+            }
+          ],
+          "hints": [
+            "Put all eight vowels into one character set.",
+            "`re.findall` with that set returns one string per vowel; `flags=re.I` covers capitals.",
+            "Return the length of the found list."
+          ],
           "hints_tr": [
-            "Hangi desen bir ya da daha çok rakam demektir?",
-            "\\d+ rakam dizilerini bulur; her birini yine de sayıya çevirmen gerekir.",
-            "return [___(n) for n in re.findall(r'\\d+', text)] (hangi fonksiyon '12'yi 12 yapar?)"
-          ]
+            "Sekiz ünlünün hepsini tek bir karakter kümesine koy.",
+            "O kümeyle `re.findall` her ünlü için bir string döndürür; `flags=re.I` büyük harfleri kapsar.",
+            "Bulunan list'in uzunluğunu döndür."
+          ],
+          "solution": {
+            "approach": "Count the matches of the vowel set with case-insensitive findall.",
+            "approach_tr": "Ünlü kümesinin eşleşmelerini büyük/küçük harf duyarsız findall ile say.",
+            "code": "import re\n\ndef count_vowels(text):\n    return len(re.findall(r'[aeıioöuü]', text, flags=re.I))"
+          },
+          "twin": "d18-b2-e7"
+        },
+        {
+          "id": "d18-b2-e7",
+          "type": "write",
+          "prompt": "Write `extract_hashtags(text)` that returns the hashtags in a post as a list of words without the `#` sign, in order. A hashtag is `#` followed by one or more word characters (Turkish letters included). Example: `extract_hashtags('Bugün #python ve #kod!')` returns `['python', 'kod']`.",
+          "prompt_tr": "Bir gönderideki hashtag'leri `#` işareti olmadan, sırasıyla bir kelime list'i olarak döndüren `extract_hashtags(text)` fonksiyonunu yaz. Hashtag `#` ve ardından bir ya da daha fazla kelime karakteridir (Türkçe harfler dahil). Örnek: `extract_hashtags('Bugün #python ve #kod!')` sonucu `['python', 'kod']`.",
+          "starter_code": "import re\n",
+          "signature": "def extract_hashtags(text):",
+          "tests": [
+            {
+              "code": "assert extract_hashtags('Bugün #python ve #kod!') == ['python', 'kod']",
+              "visible": true,
+              "label": "Two hashtags without #",
+              "label_tr": "# olmadan iki hashtag"
+            },
+            {
+              "code": "assert extract_hashtags('no tags here') == []",
+              "visible": false,
+              "failure_message": "A post without hashtags gives an empty list.",
+              "failure_message_tr": "Hashtag'siz gönderi boş list verir."
+            },
+            {
+              "code": "assert extract_hashtags('#güneş,#deniz_2024 # boş') == ['güneş', 'deniz_2024']",
+              "visible": false,
+              "failure_message": "Turkish letters, digits and underscores belong to a tag; a lone '#' is not a tag.",
+              "failure_message_tr": "Türkçe harfler, rakamlar ve alt çizgi etikete dahildir; tek başına '#' etiket değildir."
+            },
+            {
+              "code": "assert extract_hashtags('#a#b') == ['a', 'b']",
+              "visible": false,
+              "failure_message": "Tags written next to each other are separate.",
+              "failure_message_tr": "Yan yana yazılan etiketler ayrıdır."
+            }
+          ],
+          "hints": [
+            "`\\w+` matches one or more word characters, Turkish letters included.",
+            "Put `#` in front: `#\\w+` finds whole tags with the sign.",
+            "Remove the first character of each found tag, for example with a list comprehension and slicing."
+          ],
+          "hints_tr": [
+            "`\\w+` Türkçe harfler dahil bir ya da daha fazla kelime karakteriyle eşleşir.",
+            "Önüne `#` koy: `#\\w+` etiketleri işaretiyle birlikte bulur.",
+            "Bulunan her etiketin ilk karakterini at, örneğin bir list comprehension ve dilimleme ile."
+          ],
+          "solution": {
+            "approach": "Find `#\\w+` and strip the leading `#` from each match.",
+            "approach_tr": "`#\\w+`'yi bul ve her eşleşmenin başındaki `#`'yi at.",
+            "code": "import re\n\ndef extract_hashtags(text):\n    return [tag[1:] for tag in re.findall(r'#\\w+', text)]"
+          },
+          "twin": "d18-b2-e6"
+        },
+        {
+          "id": "d18-b2-e8",
+          "type": "explain",
+          "prompt": "In your own words: why does the pattern `3.14` also match the text `3x14`, and how do you fix it?",
+          "prompt_tr": "Kendi cümlelerinle: `3.14` kalıbı neden `3x14` metniyle de eşleşir ve bunu nasıl düzeltirsin?",
+          "model_answer": "In a regex the dot is special and means any character except a newline, so it also matches the x. To search for a real dot you escape it with a backslash, like 3\\.14, inside a raw string.",
+          "model_answer_tr": "Regex'te nokta özeldir ve yeni satır dışındaki herhangi bir karakter demektir, bu yüzden x ile de eşleşir. Gerçek bir nokta aramak için onu ham string içinde ters eğik çizgiyle kaçış yaparak yazarsın: 3\\.14.",
+          "keywords": [
+            "any character",
+            "escape"
+          ],
+          "keywords_tr": [
+            "herhangi bir karakter",
+            "kaçış"
+          ],
+          "min_words": 12
         }
-      ],
-      "concept_tr": "re.findall tüm eşleşmeleri bir liste olarak döndürür. [Aa] gibi karakter kümeleri ve \\d gibi kısayollarla desen kurarsın."
+      ]
     },
     {
       "id": "d18-b3",
       "concept": "quantifiers-and-anchors",
+      "concept_tr": "`+` bir ya da daha fazla, `*` sıfır ya da daha fazla, `?` isteğe bağlı, `{m,n}` belirli sayıda tekrar demektir ve tekrarlar açgözlüdür; `^`, `$` ya da `re.fullmatch` metnin tamamını doğrular.",
       "tags": [
         "regex",
         "quantifiers",
-        "anchors"
+        "anchors",
+        "fullmatch",
+        "validation"
       ],
       "worked_example": {
-        "code": "import re\nprint(re.findall(r'[Ee]-?mail', 'e-mail email Email'))\nprint(re.findall(r'^This', 'This is it'))\nprint(re.findall(r'[^A-Za-z ]+', 'on 6, 2019'))",
+        "code": "import re\n\nprint(re.findall(r'\\d{4}', 'id 2024, code 123456'))\nprint(re.findall(r'colou?r', 'color colour'))\nprint(re.findall(r'\".*\"', 'say \"hi\" and \"bye\"'))\nprint(re.findall(r'\".*?\"', 'say \"hi\" and \"bye\"'))\nprint(re.search(r'\\d{4}', 'x12345') is not None)\nprint(re.fullmatch(r'\\d{4}', 'x12345') is not None)",
         "notes": [
-          "? makes the previous part optional; ^ means the start of the text.",
-          "[^...] with the ^ INSIDE the brackets means 'not these characters'."
+          "`\\d{4}` also matches the first four digits inside a longer number, which is often not what you want.",
+          "The greedy `.*` runs to the last quote in the line, while the lazy `.*?` stops at the first possible closing quote.",
+          "For validation, `re.fullmatch` demands that the whole text fits the pattern, so the same `\\d{4}` that searching accepts is rejected."
         ],
         "notes_tr": [
-          "? önceki parçayı isteğe bağlı yapar; ^ metnin başı demektir.",
-          "[^...] içinde ^ 'bu karakterler HARİÇ' anlamına gelir."
+          "`\\d{4}` daha uzun bir sayının içindeki ilk dört rakamla da eşleşir; çoğu zaman istediğin bu değildir.",
+          "Açgözlü `.*` satırdaki son tırnağa kadar gider, tembel `.*?` ise mümkün olan ilk kapanış tırnağında durur.",
+          "Doğrulama için `re.fullmatch` metnin tamamının kalıba uymasını ister; arama ile kabul edilen aynı `\\d{4}` burada reddedilir."
         ]
       },
       "exercises": [
@@ -420,199 +645,336 @@
           "id": "d18-b3-e1",
           "type": "predict",
           "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "import re\ntxt = 'I am not sure how to write e-mail. Some write email or E-mail or Email.'\nprint(re.findall(r'[Ee]-?mail', txt))\nprint(re.findall(r'^Some', txt))\nprint(re.findall(r'^I', txt))\nprint(re.findall(r'\\.$', txt))",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nprint(re.findall(r'\\d{2,3}', '1 12 1234'))",
           "choices": [
-            "['e-mail', 'email', 'E-mail', 'Email']\n['Some']\n['I']\n['.']",
-            "['e-mail', 'email', 'E-mail', 'Email']\n[]\n[]\n['.']",
-            "['e-mail', 'email', 'E-mail', 'Email']\n[]\n['I']\n['.']"
+            "['12', '123']",
+            "['12', '1234']",
+            "['12', '123', '4']",
+            "['1', '12', '123']"
           ],
-          "expected_output": "['e-mail', 'email', 'E-mail', 'Email']\n[]\n['I']\n['.']",
-          "explanation": "[Ee]-?mail finds all four spellings. ^Some finds nothing because the text starts with 'I am'. ^I matches the first letter. \\.$ matches a literal dot at the very end.",
+          "expected_output": "['12', '123']",
+          "explanation": "'1' is too short. '12' fits. In '1234' the greedy repeat takes 3 digits ('123'), and the remaining '4' is too short for a new match.",
+          "explanation_tr": "'1' çok kısa. '12' uyar. '1234'te açgözlü tekrar 3 rakam alır ('123'); kalan '4' yeni bir eşleşme için çok kısa.",
           "misconceptions": {
-            "['e-mail', 'email', 'E-mail', 'Email']\n['Some']\n['I']\n['.']": "^ only matches at the very START of the whole text, which begins with 'I am', not 'Some'.",
-            "['e-mail', 'email', 'E-mail', 'Email']\n[]\n[]\n['.']": "The text really does start with the letter I, so ^I finds one match."
+            "['12', '1234']": "`{2,3}` allows at most three digits, so '1234' cannot be one match.",
+            "['12', '123', '4']": "Each match needs at least two digits, so the lone '4' does not count.",
+            "['1', '12', '123']": "A single '1' is below the minimum of two digits."
           },
-          "explanation_tr": "[Ee]-?mail dört yazımın hepsini bulur. ^Some hiçbir şey bulmaz çünkü metin 'I am' ile başlıyor. ^I ilk harfle eşleşir. \\.$ metnin en sonundaki gerçek bir noktayla eşleşir.",
           "misconceptions_tr": {
-            "['e-mail', 'email', 'E-mail', 'Email']\n['Some']\n['I']\n['.']": "^ yalnızca tüm metnin BAŞINDA eşleşir; metin 'Some' ile değil 'I am' ile başlıyor.",
-            "['e-mail', 'email', 'E-mail', 'Email']\n[]\n[]\n['.']": "Metin gerçekten I harfiyle başlıyor, bu yüzden ^I bir eşleşme bulur."
+            "['12', '1234']": "`{2,3}` en fazla üç rakama izin verir; '1234' tek bir eşleşme olamaz.",
+            "['12', '123', '4']": "Her eşleşme en az iki rakam ister; tek başına '4' sayılmaz.",
+            "['1', '12', '123']": "Tek bir '1' iki rakamlık alt sınırın altında."
           }
         },
         {
           "id": "d18-b3-e2",
           "type": "fill_blank",
-          "prompt": "Find every phone number of the form three digits, a dash, four digits.",
-          "prompt_tr": "Üç rakam, tire, dört rakam biçimindeki tüm telefon numaralarını bulun.",
-          "starter_code": "import ___\ntxt = 'Call 555-1234 or 555-9876 today'\nnumbers = re.findall(r'\\d___-\\d{4}', txt)\nprint(numbers)",
+          "prompt": "Complete `is_year(text)` so it is `True` only when the whole text is exactly four digits.",
+          "prompt_tr": "`is_year(text)`'i, sadece metnin tamamı tam dört rakam olduğunda `True` olacak şekilde tamamla.",
+          "starter_code": "import re\n\ndef is_year(text):\n    return re.fullmatch(r'\\d___', text) is not None",
           "blanks": [
             {
               "answer": [
-                "re"
-              ]
-            },
-            {
-              "answer": [
-                "{3}"
+                "{4}"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert numbers == ['555-1234', '555-9876']",
+              "code": "assert is_year('2024') is True",
               "visible": true,
-              "label_tr": "numbers ['555-1234', '555-9876'] olmalı"
+              "label": "'2024' is a year",
+              "label_tr": "'2024' bir yıl"
+            },
+            {
+              "code": "assert is_year('24') is False",
+              "visible": true,
+              "label": "'24' is too short",
+              "label_tr": "'24' çok kısa"
+            },
+            {
+              "code": "assert is_year('20245') is False and is_year('20a4') is False",
+              "visible": false,
+              "failure_message": "Five digits or a letter inside must be rejected.",
+              "failure_message_tr": "Beş rakam ya da içinde harf olan metin reddedilmeli."
             }
-          ],
-          "hints": [
-            "The module for regular expressions is called re.",
-            "Curly braces set how many times the previous part must occur: exactly 3."
-          ],
-          "hints_tr": [
-            "Düzenli ifadeler modülünün adı re'dir.",
-            "Süslü parantez, önceki parçanın kaç kez tekrar etmesi gerektiğini belirler: tam 3."
           ]
         },
         {
           "id": "d18-b3-e3",
-          "type": "write",
-          "prompt": "Write is_valid_code(text) that returns True if text is exactly two upper case letters followed by three or four digits (like 'AB123' or 'ZZ9999'), otherwise False.",
-          "prompt_tr": "text tam olarak iki büyük harf ve ardından üç ya da dört rakamsa ('AB123' ya da 'ZZ9999' gibi) True, değilse False döndüren is_valid_code(text) yazın.",
-          "starter_code": "",
-          "signature": "def is_valid_code(text):",
+          "type": "debug",
+          "prompt": "`is_pin(text)` should accept only texts that are exactly four digits, but `is_pin('12345')` and `is_pin('pin 1234')` return `True`. Fix it.",
+          "prompt_tr": "`is_pin(text)` sadece tam dört rakamdan oluşan metinleri kabul etmeli, ama `is_pin('12345')` ve `is_pin('pin 1234')` `True` döndürüyor. Düzelt.",
+          "starter_code": "import re\n\ndef is_pin(text):\n    return re.search(r'\\d{4}', text) is not None\n\nprint(is_pin('1234'), is_pin('12345'))",
           "tests": [
             {
-              "code": "assert is_valid_code('AB123') is True",
+              "code": "assert is_pin('1234') is True",
               "visible": true,
-              "label_tr": "is_valid_code('AB123') True veriyor"
+              "label": "'1234' is a PIN",
+              "label_tr": "'1234' bir PIN"
             },
             {
-              "code": "assert is_valid_code('ZZ9999') is True",
+              "code": "assert is_pin('12345') is False",
               "visible": true,
-              "label_tr": "is_valid_code('ZZ9999') True veriyor"
+              "label": "'12345' is not",
+              "label_tr": "'12345' değil"
             },
             {
-              "code": "assert is_valid_code('ab123') is False",
+              "code": "assert is_pin('pin 1234') is False and is_pin('123') is False",
               "visible": false,
-              "failure_message": "The letters must be upper case.",
-              "failure_message_tr": "Harfler büyük olmalı."
-            },
-            {
-              "code": "assert is_valid_code('AB12') is False",
-              "visible": false,
-              "failure_message": "Three or four digits are needed; two are not enough.",
-              "failure_message_tr": "Üç ya da dört rakam gerekir; iki yetmez."
-            },
-            {
-              "code": "assert is_valid_code('XAB123') is False",
-              "visible": false,
-              "failure_message": "Anchor the start with ^ so nothing may come before the code.",
-              "failure_message_tr": "Kodun öncesinde bir şey olmaması için başı ^ ile sabitle."
-            },
-            {
-              "code": "assert is_valid_code('QX4321') is True and is_valid_code('QX43210') is False and is_valid_code('Q4321') is False",
-              "visible": false,
-              "failure_message": "Check the text given with a pattern; do not hard-code results.",
-              "failure_message_tr": "Verilen metni bir desenle kontrol et; sonuçları elle yazma."
+              "failure_message": "Extra text or too few digits must be rejected.",
+              "failure_message_tr": "Fazladan metin ya da eksik rakam reddedilmeli."
             }
           ],
           "hints": [
-            "Anchor both ends so nothing extra is allowed.",
-            "^ and $ anchor the ends; {2} repeats exactly twice and {3,4} three to four times.",
-            "re.match(r'^[A-Z]{2}\\d{___}$', text) is not None (the digits: from three to four)"
+            "`search` is happy as soon as four digits appear anywhere. What must also be true about the rest of the text?",
+            "The pattern must cover the text from its first to its last character.",
+            "Use `re.fullmatch`, or add `^` and `$` around the pattern."
+          ],
+          "hints_tr": [
+            "`search` dört rakamı herhangi bir yerde görünce tatmin olur. Metnin geri kalanı için ne de doğru olmalı?",
+            "Kalıp metni ilk karakterinden son karakterine kadar kapsamalı.",
+            "`re.fullmatch` kullan ya da kalıbın etrafına `^` ve `$` ekle."
           ],
           "solution": {
-            "approach": "Use ^ and $ together with {2} and {3,4}.",
-            "code": "import re\n\ndef is_valid_code(text):\n    return re.match(r'^[A-Z]{2}\\d{3,4}$', text) is not None",
-            "approach_tr": "^ ve $ ile birlikte {2} ve {3,4} kullan."
-          },
-          "twin": "d18-b3-e4",
-          "hints_tr": [
-            "Hiçbir fazlalığa izin vermemek için iki ucu da sabitle.",
-            "^ ve $ uçları sabitler; {2} tam iki kez, {3,4} üç ila dört kez tekrar eder.",
-            "re.match(r'^[A-Z]{2}\\d{___}$', text) is not None (rakamlar: üç ile dört arası)"
-          ]
+            "approach": "Anchor the pattern so it must match the whole text.",
+            "approach_tr": "Kalıbı metnin tamamıyla eşleşmek zorunda kalacak şekilde sabitle.",
+            "code": "import re\n\ndef is_pin(text):\n    return re.fullmatch(r'\\d{4}', text) is not None\n\nprint(is_pin('1234'), is_pin('12345'))"
+          }
         },
         {
           "id": "d18-b3-e4",
-          "type": "write",
-          "prompt": "Write is_postal_code(text) that returns True if text is exactly five digits (like '00100'), otherwise False.",
-          "prompt_tr": "text tam olarak beş rakamsa ('00100' gibi) True, değilse False döndüren is_postal_code(text) yazın.",
-          "starter_code": "",
-          "signature": "def is_postal_code(text):",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nprint(re.findall(r'\".*?\"', 'say \"hi\" and \"bye\"'))",
+          "choices": [
+            "['\"hi\"', '\"bye\"']",
+            "['\"hi\" and \"bye\"']",
+            "['hi', 'bye']",
+            "[]"
+          ],
+          "expected_output": "['\"hi\"', '\"bye\"']",
+          "explanation": "`.*?` is lazy: it stops at the first closing quote it can, so each quoted word is a separate match, quotes included.",
+          "explanation_tr": "`.*?` tembeldir: ulaşabildiği ilk kapanış tırnağında durur; böylece tırnaklı her kelime, tırnaklarıyla birlikte ayrı bir eşleşme olur.",
+          "misconceptions": {
+            "['\"hi\" and \"bye\"']": "That is the greedy `.*` result; the `?` after `*` makes it lazy.",
+            "['hi', 'bye']": "The quotes are part of the pattern and there is no group, so they are part of each match.",
+            "[]": "The text contains two quoted words, and `.*?` can match the letters between them."
+          },
+          "misconceptions_tr": {
+            "['\"hi\" and \"bye\"']": "Bu açgözlü `.*` sonucudur; `*`'dan sonraki `?` onu tembel yapar.",
+            "['hi', 'bye']": "Tırnaklar kalıbın parçası ve grup yok; bu yüzden her eşleşmenin parçasıdırlar.",
+            "[]": "Metinde iki tırnaklı kelime var ve `.*?` aradaki harflerle eşleşebilir."
+          }
+        },
+        {
+          "id": "d18-b3-e5",
+          "type": "modify",
+          "prompt": "`is_valid_variable(name)` rejects names that start with an underscore, like `_private`. Change the pattern so a valid name starts with a letter or `_`, followed by any number of letters, digits or `_`.",
+          "prompt_tr": "`is_valid_variable(name)` `_private` gibi alt çizgiyle başlayan isimleri reddediyor. Kalıbı, geçerli bir isim harf ya da `_` ile başlayıp ardından istenen sayıda harf, rakam ya da `_` gelecek şekilde değiştir.",
+          "starter_code": "import re\n\ndef is_valid_variable(name):\n    return re.fullmatch(r'[A-Za-z]\\w*', name) is not None",
+          "signature": "def is_valid_variable(name):",
           "tests": [
             {
-              "code": "assert is_postal_code('00100') is True",
+              "code": "assert is_valid_variable('_private') is True",
               "visible": true,
-              "label_tr": "is_postal_code('00100') True veriyor"
+              "label": "_private is valid",
+              "label_tr": "_private geçerli"
             },
             {
-              "code": "assert is_postal_code('99999') is True",
+              "code": "assert is_valid_variable('first_name') is True",
               "visible": true,
-              "label_tr": "is_postal_code('99999') True veriyor"
+              "label": "first_name is valid",
+              "label_tr": "first_name geçerli"
             },
             {
-              "code": "assert is_postal_code('1234') is False",
+              "code": "assert is_valid_variable('1first') is False and is_valid_variable('first-name') is False",
               "visible": false,
-              "failure_message": "Four digits are too few.",
-              "failure_message_tr": "Dört rakam çok az."
+              "failure_message": "A digit at the start or a dash anywhere is still invalid.",
+              "failure_message_tr": "Başta rakam ya da herhangi bir yerde tire hâlâ geçersiz."
             },
             {
-              "code": "assert is_postal_code('123456') is False",
+              "code": "assert is_valid_variable('_') is True and is_valid_variable('') is False",
               "visible": false,
-              "failure_message": "Six digits are too many: anchor the end with $.",
-              "failure_message_tr": "Altı rakam çok fazla: sonu $ ile sabitle."
-            },
-            {
-              "code": "assert is_postal_code('12a45') is False",
-              "visible": false,
-              "failure_message": "Every character must be a digit.",
-              "failure_message_tr": "Her karakter rakam olmalı."
-            },
-            {
-              "code": "assert is_postal_code('06100') is True and is_postal_code('0610') is False",
-              "visible": false,
-              "failure_message": "Check the text given with a pattern; do not hard-code results.",
-              "failure_message_tr": "Verilen metni bir desenle kontrol et; sonuçları elle yazma."
+              "failure_message": "A single underscore is valid; an empty name is not.",
+              "failure_message_tr": "Tek bir alt çizgi geçerli; boş isim değil."
             }
           ],
           "hints": [
-            "Anchor both ends so nothing extra is allowed.",
-            "^ and $ anchor the ends; {5} means exactly five times.",
-            "re.match(r'^\\d{___}$', text) is not None (how many digits?)"
+            "Only the first character's set needs to change.",
+            "Add the underscore inside the first square brackets.",
+            "The first set becomes letters plus `_`; keep `\\w*` after it."
+          ],
+          "hints_tr": [
+            "Sadece ilk karakterin kümesi değişmeli.",
+            "Alt çizgiyi ilk köşeli parantezin içine ekle.",
+            "İlk küme harfler artı `_` olur; ondan sonra `\\w*`'yı koru."
           ],
           "solution": {
-            "approach": "Use ^\\d{5}$ so that exactly five digits fill the whole text.",
-            "code": "import re\n\ndef is_postal_code(text):\n    return re.match(r'^\\d{5}$', text) is not None",
-            "approach_tr": "^\\d{5}$ ile tüm metin tam beş rakamdan oluşmalı."
-          },
-          "twin": "d18-b3-e3",
+            "approach": "Allow `_` in the first character set.",
+            "approach_tr": "İlk karakter kümesine `_` ekle.",
+            "code": "import re\n\ndef is_valid_variable(name):\n    return re.fullmatch(r'[A-Za-z_]\\w*', name) is not None"
+          }
+        },
+        {
+          "id": "d18-b3-e6",
+          "type": "write",
+          "prompt": "Write `is_tr_mobile(text)` that returns `True` only when the whole text is a Turkish mobile number written as `05XX XXX XX XX` (digits, single spaces exactly in those places). Example: `is_tr_mobile('0532 123 45 67')` returns `True`.",
+          "prompt_tr": "Metnin tamamı `05XX XXX XX XX` biçiminde yazılmış bir Türkiye cep numarası olduğunda (rakamlar, boşluklar tam bu yerlerde ve tek) `True` döndüren `is_tr_mobile(text)` fonksiyonunu yaz. Örnek: `is_tr_mobile('0532 123 45 67')` sonucu `True`.",
+          "starter_code": "import re\n",
+          "signature": "def is_tr_mobile(text):",
+          "tests": [
+            {
+              "code": "assert is_tr_mobile('0532 123 45 67') is True",
+              "visible": true,
+              "label": "A correct number",
+              "label_tr": "Doğru bir numara"
+            },
+            {
+              "code": "assert is_tr_mobile('05321234567') is False",
+              "visible": true,
+              "label": "Without spaces it does not fit the format",
+              "label_tr": "Boşluksuz yazım biçime uymuyor"
+            },
+            {
+              "code": "assert is_tr_mobile('0212 123 45 67') is False",
+              "visible": false,
+              "failure_message": "It must start with 05.",
+              "failure_message_tr": "05 ile başlamalı."
+            },
+            {
+              "code": "assert is_tr_mobile('tel: 0532 123 45 67') is False and is_tr_mobile('0532 123 45 678') is False",
+              "visible": false,
+              "failure_message": "Extra text before or an extra digit at the end must be rejected.",
+              "failure_message_tr": "Öndeki fazla metin ya da sondaki fazla rakam reddedilmeli."
+            },
+            {
+              "code": "assert type(is_tr_mobile('0555 000 00 00')) is bool and is_tr_mobile('0555 000 00 00')",
+              "visible": false,
+              "failure_message": "Return a bool; any digits after 05 are allowed.",
+              "failure_message_tr": "bool döndür; 05'ten sonra herhangi rakamlar olabilir."
+            }
+          ],
+          "hints": [
+            "Write the format piece by piece: `05`, two digits, a space, three digits, a space, two, a space, two.",
+            "`\\d{2}` means exactly two digits; a plain space in the pattern matches one space.",
+            "Use `re.fullmatch` so nothing may come before or after, and compare the result with `None`."
+          ],
           "hints_tr": [
-            "Hiçbir fazlalığa izin vermemek için iki ucu da sabitle.",
-            "^ ve $ uçları sabitler; {5} tam beş kez demektir.",
-            "re.match(r'^\\d{___}$', text) is not None (kaç rakam?)"
-          ]
+            "Biçimi parça parça yaz: `05`, iki rakam, boşluk, üç rakam, boşluk, iki, boşluk, iki.",
+            "`\\d{2}` tam iki rakam demektir; kalıptaki düz bir boşluk tek bir boşlukla eşleşir.",
+            "Önünde ya da arkasında hiçbir şey olmaması için `re.fullmatch` kullan ve sonucu `None` ile karşılaştır."
+          ],
+          "solution": {
+            "approach": "fullmatch `05\\d{2} \\d{3} \\d{2} \\d{2}` and return whether it matched.",
+            "approach_tr": "`05\\d{2} \\d{3} \\d{2} \\d{2}` ile fullmatch yap ve eşleşip eşleşmediğini döndür.",
+            "code": "import re\n\ndef is_tr_mobile(text):\n    return re.fullmatch(r'05\\d{2} \\d{3} \\d{2} \\d{2}', text) is not None"
+          },
+          "twin": "d18-b3-e7"
+        },
+        {
+          "id": "d18-b3-e7",
+          "type": "write",
+          "prompt": "A sign-up form needs a username rule. Write `valid_username(name)`: it must be 3 to 16 characters long, start with a letter (A-Z or a-z), and contain only letters, digits and `_` after that. Return `True` or `False`. Example: `valid_username('ece_92')` returns `True`.",
+          "prompt_tr": "Bir kayıt formu kullanıcı adı kuralı istiyor. `valid_username(name)` fonksiyonunu yaz: ad 3 ile 16 karakter arasında olmalı, bir harfle (A-Z ya da a-z) başlamalı ve sonrasında sadece harf, rakam ve `_` içermeli. `True` ya da `False` döndür. Örnek: `valid_username('ece_92')` sonucu `True`.",
+          "starter_code": "import re\n",
+          "signature": "def valid_username(name):",
+          "tests": [
+            {
+              "code": "assert valid_username('ece_92') is True",
+              "visible": true,
+              "label": "ece_92 is valid",
+              "label_tr": "ece_92 geçerli"
+            },
+            {
+              "code": "assert valid_username('9lives') is False",
+              "visible": true,
+              "label": "Starting with a digit is invalid",
+              "label_tr": "Rakamla başlamak geçersiz"
+            },
+            {
+              "code": "assert valid_username('ab') is False and valid_username('abc') is True",
+              "visible": false,
+              "failure_message": "Check the lower length limit: 3 characters is the minimum.",
+              "failure_message_tr": "Alt uzunluk sınırını kontrol et: en az 3 karakter."
+            },
+            {
+              "code": "assert valid_username('a' * 16) is True and valid_username('a' * 17) is False",
+              "visible": false,
+              "failure_message": "Check the upper length limit: 16 is allowed, 17 is not.",
+              "failure_message_tr": "Üst uzunluk sınırını kontrol et: 16 olur, 17 olmaz."
+            },
+            {
+              "code": "assert valid_username('ali veli') is False and valid_username('ali-1') is False and valid_username('_ali') is False",
+              "visible": false,
+              "failure_message": "Spaces, dashes and a leading underscore are not allowed.",
+              "failure_message_tr": "Boşluk, tire ve baştaki alt çizgiye izin yok."
+            }
+          ],
+          "hints": [
+            "The first character has its own set: `[A-Za-z]`.",
+            "The rest is `\\w` repeated; if the total is 3-16, how many characters may follow the first one?",
+            "Use `{2,15}` after `\\w` and check the whole text with `re.fullmatch`."
+          ],
+          "hints_tr": [
+            "İlk karakterin kendi kümesi var: `[A-Za-z]`.",
+            "Gerisi tekrarlanan `\\w`; toplam 3-16 ise ilkinden sonra kaç karakter gelebilir?",
+            "`\\w`'den sonra `{2,15}` kullan ve tüm metni `re.fullmatch` ile kontrol et."
+          ],
+          "solution": {
+            "approach": "One letter, then 2 to 15 word characters, checked with fullmatch.",
+            "approach_tr": "Bir harf, sonra 2 ile 15 arası kelime karakteri; fullmatch ile kontrol edilir.",
+            "code": "import re\n\ndef valid_username(name):\n    return re.fullmatch(r'[A-Za-z]\\w{2,15}', name) is not None"
+          },
+          "twin": "d18-b3-e6"
+        },
+        {
+          "id": "d18-b3-e8",
+          "type": "parsons",
+          "prompt": "Arrange the lines into a function that checks for a five-digit postal code and prints `True False`.",
+          "prompt_tr": "Satırları, beş haneli posta kodunu kontrol eden ve `True False` yazdıran bir fonksiyon olacak şekilde sırala.",
+          "lines": [
+            "def is_postal(code):",
+            "print(is_postal('34000'), is_postal('3400'))",
+            "import re",
+            "    return re.fullmatch(r'\\d{5}', code) is not None"
+          ],
+          "correct_order": [
+            2,
+            0,
+            3,
+            1
+          ],
+          "distractors": [
+            "    return re.search(r'\\d{5}', code) is not None"
+          ],
+          "expected_output": "True False"
         }
-      ],
-      "concept_tr": "Nicelik belirteçleri (?, +, {n}) bir parçanın kaç kez tekrar edeceğini, ^ ve $ ise metnin başını ve sonunu belirtir."
+      ]
     },
     {
       "id": "d18-b4",
-      "concept": "sub-and-split",
+      "concept": "sub-split-groups",
+      "concept_tr": "`re.sub` kalıba uyan her yeri değiştirir (bayrak `flags=` ile), `re.split` birden çok ayraçla böler, `()` grupları ise eşleşmenin parçalarını `group(n)` ya da `findall` tuple'ları olarak verir.",
       "tags": [
         "regex",
         "re.sub",
-        "re.split"
+        "re.split",
+        "groups"
       ],
       "worked_example": {
-        "code": "import re\nprint(re.sub('%', '', 'I a%m te%acher'))\nprint(re.split(',', 'a,b,c'))",
+        "code": "import re\n\ntext = 'Exam 09.03.2024;  trip 29.10.2024 ,party 31.12.2024'\nprint(re.split(r'\\s*[;,]\\s*', text))\nprint(re.sub(r'\\s+', ' ', 'a   b \\n c'))\nfor d, m, y in re.findall(r'(\\d{2})\\.(\\d{2})\\.(\\d{4})', text):\n    print(f'{y}-{m}-{d}')\nprint(re.sub('exam', 'EXAM', text, flags=re.I)[:9])",
         "notes": [
-          "re.sub(pattern, replacement, text) replaces every match.",
-          "re.split(pattern, text) cuts the text at every match and returns a list."
+          "`re.split` cuts at a semicolon or comma together with any spaces around it, so the pieces come out clean.",
+          "With three groups in the pattern, `findall` returns a tuple per date, which unpacks straight into `d, m, y` in the loop.",
+          "The flag goes in by name as `flags=re.I`; passed by position it would silently become the replacement count."
         ],
         "notes_tr": [
-          "re.sub(desen, yerine, metin) her eşleşmeyi değiştirir.",
-          "re.split(desen, metin) metni her eşleşmede keser ve liste döndürür."
+          "`re.split` noktalı virgül ya da virgülde, çevresindeki boşluklarla birlikte keser; böylece parçalar temiz çıkar.",
+          "Kalıpta üç grup olunca `findall` her tarih için bir tuple döndürür ve bu döngüde doğrudan `d, m, y`'ye açılır.",
+          "Bayrak `flags=re.I` diye isimle verilir; konumla verilirse sessizce değiştirme sayısına dönüşürdü."
         ]
       },
       "exercises": [
@@ -620,220 +982,287 @@
           "id": "d18-b4-e1",
           "type": "predict",
           "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "import re\ntxt = 'I%am%a%teacher'\nprint(re.sub('%', ' ', txt))\nprint(re.split('%', txt))\nprint(re.sub(r'\\d+', '#', 'room 12 and 345'))",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nprint(repr(re.sub(r'\\s+', ' ', 'a   b \\n c')))",
           "choices": [
-            "I am a teacher\n['I', 'am', 'a', 'teacher']\nroom ## and ###",
-            "I%am%a%teacher\n['I', 'am', 'a', 'teacher']\nroom # and #",
-            "I am a teacher\n['I', 'am', 'a', 'teacher']\nroom # and #"
+            "'a b c'",
+            "'a b \\n c'",
+            "'a  b  c'",
+            "'abc'"
           ],
-          "expected_output": "I am a teacher\n['I', 'am', 'a', 'teacher']\nroom # and #",
-          "explanation": "sub replaces each % with a space; split cuts at each % into a list of four words; \\d+ replaces each run of digits (12 and 345) with a single #.",
+          "expected_output": "'a b c'",
+          "explanation": "`\\s+` matches each run of whitespace, including the newline with its spaces, and each run becomes a single space.",
+          "explanation_tr": "`\\s+` her boşluk dizisini, yeni satır ve çevresindeki boşluklar dahil, bulur; her dizi tek bir boşluk olur.",
           "misconceptions": {
-            "I am a teacher\n['I', 'am', 'a', 'teacher']\nroom ## and ###": "\\d+ matches a whole run of digits at once, so each number becomes one #.",
-            "I%am%a%teacher\n['I', 'am', 'a', 'teacher']\nroom # and #": "re.sub returns a NEW string with the replacements; the original is untouched, but the printed result is the new one."
+            "'a b \\n c'": "A newline is a whitespace character too, so `\\s` covers it.",
+            "'a  b  c'": "`+` takes the whole run at once, so each run turns into exactly one space.",
+            "'abc'": "The runs are replaced by one space, not by an empty string."
           },
-          "explanation_tr": "sub her % işaretini boşlukla değiştirir; split her % yerinden keserek dört kelimelik liste verir; \\d+ her rakam dizisini (12 ve 345) tek bir # ile değiştirir.",
           "misconceptions_tr": {
-            "I am a teacher\n['I', 'am', 'a', 'teacher']\nroom ## and ###": "\\d+ rakam dizisinin tamamıyla bir seferde eşleşir, bu yüzden her sayı tek bir # olur.",
-            "I%am%a%teacher\n['I', 'am', 'a', 'teacher']\nroom # and #": "re.sub değişikliklerle YENİ bir string döndürür; asıl metin değişmez ama yazdırılan yeni olandır."
+            "'a b \\n c'": "Yeni satır da bir boşluk karakteridir, `\\s` onu da kapsar.",
+            "'a  b  c'": "`+` tüm diziyi bir seferde alır; her dizi tam bir boşluğa dönüşür.",
+            "'abc'": "Diziler boş string ile değil tek bir boşlukla değiştirilir."
           }
         },
         {
           "id": "d18-b4-e2",
-          "type": "parsons",
-          "prompt": "Order the lines to remove the % signs from the text and print it.",
-          "prompt_tr": "Metindeki % işaretlerini silip yazdıracak şekilde satırları sıralayın.",
-          "lines": [
-            "print(clean)",
-            "import re",
-            "clean = re.sub('%', '', txt)",
-            "txt = 'T%he%re i%s n%o%th%ing'"
+          "type": "fill_blank",
+          "prompt": "Split the tag text at commas or semicolons followed by optional spaces, and store the pieces in `parts`.",
+          "prompt_tr": "Etiket metnini, ardından isteğe bağlı boşluk gelen virgül ya da noktalı virgüllerden böl ve parçaları `parts`'a koy.",
+          "starter_code": "import re\n\ntags = 'python, regex;files'\nparts = re.___(r'[,;]\\s*', tags)\nprint(parts)",
+          "blanks": [
+            {
+              "answer": [
+                "split"
+              ]
+            }
           ],
-          "correct_order": [
-            1,
-            3,
-            2,
-            0
-          ],
-          "distractors": [
-            "clean = re.sub('', '%', txt)"
-          ],
-          "expected_output": "There is nothing"
+          "tests": [
+            {
+              "code": "assert parts == ['python', 'regex', 'files']",
+              "visible": true,
+              "label": "Three clean pieces",
+              "label_tr": "Üç temiz parça"
+            },
+            {
+              "code": "assert __stdout__.strip() == \"['python', 'regex', 'files']\"",
+              "visible": true,
+              "label": "Prints the list",
+              "label_tr": "list yazdırılıyor"
+            }
+          ]
         },
         {
           "id": "d18-b4-e3",
-          "type": "write",
-          "prompt": "Write mask_digits(text) that replaces every run of digits in text with a single '#'. Example: mask_digits('room 12 and 345') returns 'room # and #'.",
-          "prompt_tr": "text içindeki her rakam dizisini tek bir '#' ile değiştiren mask_digits(text) yazın. Örnek: mask_digits('room 12 and 345') sonucu 'room # and #' olur.",
-          "starter_code": "",
-          "signature": "def mask_digits(text):",
+          "type": "debug",
+          "prompt": "`censor(text)` should replace the word `kötü` in every spelling with `***`, but `censor('Kötü kötü KÖTÜ kötü')` returns `'Kötü *** KÖTÜ ***'`. Find the bug (it is the same one as in the original lesson).",
+          "prompt_tr": "`censor(text)` `kötü` kelimesini her yazımıyla `***` ile değiştirmeli, ama `censor('Kötü kötü KÖTÜ kötü')` `'Kötü *** KÖTÜ ***'` döndürüyor. Hatayı bul (orijinal dersteki hatanın aynısı).",
+          "starter_code": "import re\n\ndef censor(text):\n    return re.sub('kötü', '***', text, re.I)\n\nprint(censor('Kötü kötü KÖTÜ kötü'))",
           "tests": [
             {
-              "code": "assert mask_digits('room 12 and 345') == 'room # and #'",
+              "code": "assert censor('Kötü kötü KÖTÜ kötü') == '*** *** *** ***'",
               "visible": true,
-              "label_tr": "mask_digits('room 12 and 345') 'room # and #' veriyor"
+              "label": "All four spellings are censored",
+              "label_tr": "Dört yazımın hepsi sansürleniyor"
             },
             {
-              "code": "assert mask_digits('no digits') == 'no digits'",
-              "visible": true,
-              "label_tr": "Rakam olmayan metin değişmiyor"
-            },
-            {
-              "code": "assert mask_digits('2019-12-05') == '#-#-#'",
+              "code": "assert censor('kötü kötü kötü') == '*** *** ***'",
               "visible": false,
-              "failure_message": "Each run of digits becomes ONE '#', so use \\d+ not \\d.",
-              "failure_message_tr": "Her rakam dizisi TEK bir '#' olur, bu yüzden \\d değil \\d+ kullan."
-            },
-            {
-              "code": "assert mask_digits('') == ''",
-              "visible": false,
-              "failure_message": "An empty text stays empty.",
-              "failure_message_tr": "Boş metin boş kalır."
-            },
-            {
-              "code": "assert mask_digits('a1b22c333') == 'a#b#c#'",
-              "visible": false,
-              "failure_message": "Every separate run counts, however long it is.",
-              "failure_message_tr": "Her ayrı dizi, ne kadar uzun olursa olsun, sayılır."
-            },
-            {
-              "code": "assert mask_digits('a9 b88 c777') == 'a# b# c#'",
-              "visible": false,
-              "failure_message": "Replace the digits of the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metindeki rakamları değiştir; sonuçları elle yazma."
+              "failure_message": "More than two lowercase words must all be replaced.",
+              "failure_message_tr": "İkiden fazla küçük harfli kelimenin hepsi değişmeli."
             }
           ],
           "hints": [
-            "sub(pattern, replacement, text)",
-            "The pattern for one or more digits is \\d+",
-            "return re.sub(r'\\d+', ___, text) (what replaces each run of digits?)"
+            "Only lowercase spellings changed, and at most two of them. Which parameter of `re.sub` is fourth?",
+            "The fourth positional parameter of `re.sub` is `count`, and `re.I` is the number 2.",
+            "Pass the flag by its parameter name instead of by position."
+          ],
+          "hints_tr": [
+            "Sadece küçük harfli yazımlar değişti, hem de en fazla ikisi. `re.sub`'ın dördüncü parametresi hangisi?",
+            "`re.sub`'ın dördüncü konumsal parametresi `count`'tur ve `re.I` 2 sayısıdır.",
+            "Bayrağı konumla değil, parametre adıyla ver."
           ],
           "solution": {
-            "approach": "re.sub with \\d+ replaces each run of digits with one '#'.",
-            "code": "import re\n\ndef mask_digits(text):\n    return re.sub(r'\\d+', '#', text)",
-            "approach_tr": "re.sub ile \\d+, her rakam dizisini tek bir '#' ile değiştirir."
-          },
-          "twin": "d18-b4-e4",
-          "hints_tr": [
-            "sub(desen, yerine_konan, metin)",
-            "Bir ya da daha çok rakam için desen \\d+'dır.",
-            "return re.sub(r'\\d+', ___, text) (her rakam dizisinin yerine ne konur?)"
-          ]
+            "approach": "Use `flags=re.I` so the flag is not taken as `count`.",
+            "approach_tr": "Bayrak `count` sanılmasın diye `flags=re.I` kullan.",
+            "code": "import re\n\ndef censor(text):\n    return re.sub('kötü', '***', text, flags=re.I)\n\nprint(censor('Kötü kötü KÖTÜ kötü'))"
+          }
         },
         {
           "id": "d18-b4-e4",
-          "type": "write",
-          "prompt": "Write split_fields(text) that splits text at every comma or semicolon and returns the list of pieces. Example: split_fields('a,b;c') returns ['a', 'b', 'c'].",
-          "prompt_tr": "text'i her virgül ya da noktalı virgülden bölüp parçaların listesini döndüren split_fields(text) yazın. Örnek: split_fields('a,b;c') sonucu ['a', 'b', 'c'] olur.",
-          "starter_code": "",
-          "signature": "def split_fields(text):",
-          "tests": [
-            {
-              "code": "assert split_fields('a,b;c') == ['a', 'b', 'c']",
-              "visible": true,
-              "label_tr": "split_fields('a,b;c') ['a', 'b', 'c'] veriyor"
-            },
-            {
-              "code": "assert split_fields('one') == ['one']",
-              "visible": true,
-              "label_tr": "split_fields('one') ['one'] veriyor"
-            },
-            {
-              "code": "assert split_fields('') == ['']",
-              "visible": false,
-              "failure_message": "Splitting an empty text gives a list with one empty string.",
-              "failure_message_tr": "Boş metni bölmek tek boş string'li bir liste verir."
-            },
-            {
-              "code": "assert split_fields('a;;b') == ['a', '', 'b']",
-              "visible": false,
-              "failure_message": "Two separators in a row leave an empty piece between them.",
-              "failure_message_tr": "Arka arkaya iki ayırıcı aralarında boş bir parça bırakır."
-            },
-            {
-              "code": "assert split_fields('x,y,z;w') == ['x', 'y', 'z', 'w']",
-              "visible": false,
-              "failure_message": "Both separators must split.",
-              "failure_message_tr": "İki ayırıcı da bölmeli."
-            },
-            {
-              "code": "assert split_fields('p;q,r;s') == ['p', 'q', 'r', 's']",
-              "visible": false,
-              "failure_message": "Split the text given; do not hard-code results.",
-              "failure_message_tr": "Verilen metni böl; sonuçları elle yazma."
-            }
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import re\n\nm = re.search(r'(\\d+)-(\\d+)', 'pages 10-25')\nprint(int(m.group(2)) - int(m.group(1)))",
+          "choices": [
+            "15",
+            "-15",
+            "10-25",
+            "1025"
           ],
-          "hints": [
-            "A character set can list both separators.",
-            "Put the separators inside square brackets and use re.split.",
-            "return re.split(r'[___]', text) (which two characters go in the set?)"
-          ],
-          "solution": {
-            "approach": "Put the two separators inside a character set and use re.split.",
-            "code": "import re\n\ndef split_fields(text):\n    return re.split(r'[,;]', text)",
-            "approach_tr": "İki ayırıcıyı bir karakter kümesine koy ve re.split kullan."
+          "expected_output": "15",
+          "explanation": "Group 1 captures '10' and group 2 captures '25'; converted to ints, 25 - 10 is 15.",
+          "explanation_tr": "1. grup '10'u, 2. grup '25'i yakalar; int'e çevrilince 25 - 10 = 15.",
+          "misconceptions": {
+            "-15": "Groups are numbered from left to right: group 1 is the first pair of parentheses, '10'.",
+            "10-25": "`group(2)` and `group(1)` are single groups, and the code subtracts their int values.",
+            "1025": "The values are converted with `int()` and subtracted, not joined as strings."
           },
-          "twin": "d18-b4-e3",
-          "hints_tr": [
-            "Bir karakter kümesi iki ayırıcıyı da listeleyebilir.",
-            "Ayırıcıları köşeli parantez içine koy ve re.split kullan.",
-            "return re.split(r'[___]', text) (kümeye hangi iki karakter girer?)"
-          ]
+          "misconceptions_tr": {
+            "-15": "Gruplar soldan sağa numaralanır: 1. grup ilk parantez çiftidir, '10'.",
+            "10-25": "`group(2)` ve `group(1)` tek tek gruplardır ve kod int değerlerini çıkarır.",
+            "1025": "Değerler `int()` ile çevrilip çıkarılıyor, string olarak birleştirilmiyor."
+          }
         },
         {
           "id": "d18-b4-e5",
-          "type": "debug",
-          "prompt": "This should replace every spelling of python (any case) with JS and print 'JS JS JS', but it does not. Fix it.",
-          "prompt_tr": "Bu kod python'ın (herhangi bir harf biçimiyle) her yazımını JS ile değiştirip 'JS JS JS' yazdırmalı ama yazdırmıyor. Düzeltin.",
-          "starter_code": "import re\ntxt = 'Python python PYTHON'\nprint(re.sub('python', 'JS', txt, re.I))",
-          "expected_output": "JS JS JS",
+          "type": "modify",
+          "prompt": "`dates(text)` returns whole date strings like `'09.03.2024'`. Change it so it returns a list of `(day, month, year)` tuples of ints. Example: `dates('a 09.03.2024 b 29.10.1923')` returns `[(9, 3, 2024), (29, 10, 1923)]`.",
+          "prompt_tr": "`dates(text)` `'09.03.2024'` gibi tam tarih string'leri döndürüyor. Onu int'lerden oluşan `(gün, ay, yıl)` tuple'larının list'ini döndürecek şekilde değiştir. Örnek: `dates('a 09.03.2024 b 29.10.1923')` sonucu `[(9, 3, 2024), (29, 10, 1923)]`.",
+          "starter_code": "import re\n\ndef dates(text):\n    return re.findall(r'\\d{2}\\.\\d{2}\\.\\d{4}', text)",
+          "signature": "def dates(text):",
+          "tests": [
+            {
+              "code": "assert dates('a 09.03.2024 b 29.10.1923') == [(9, 3, 2024), (29, 10, 1923)]",
+              "visible": true,
+              "label": "Two dates as int tuples",
+              "label_tr": "İki tarih int tuple'ı olarak"
+            },
+            {
+              "code": "assert dates('no dates') == []",
+              "visible": false,
+              "failure_message": "A text without dates gives an empty list.",
+              "failure_message_tr": "Tarihsiz metin boş list verir."
+            },
+            {
+              "code": "assert dates('31.12.1999') == [(31, 12, 1999)]",
+              "visible": false,
+              "failure_message": "Check the order day, month, year and that the values are ints.",
+              "failure_message_tr": "Gün, ay, yıl sırasını ve değerlerin int olduğunu kontrol et."
+            }
+          ],
           "hints": [
-            "Compare the output with what you expect. Which words stayed?",
-            "The 4th positional parameter of re.sub is count (the number of replacements), not flags.",
-            "Pass the flag by name: ___=re.I (what is the parameter called?)"
+            "Put parentheses around the day, the month and the year parts of the pattern.",
+            "With three groups, `findall` returns a tuple of three strings per date.",
+            "Convert each tuple with a comprehension: `(int(d), int(m), int(y))`."
+          ],
+          "hints_tr": [
+            "Kalıbın gün, ay ve yıl kısımlarının etrafına parantez koy.",
+            "Üç grup olunca `findall` her tarih için üç string'lik bir tuple döndürür.",
+            "Her tuple'ı bir comprehension ile çevir: `(int(d), int(m), int(y))`."
           ],
           "solution": {
-            "approach": "re.I was passed as the count argument. Pass it by name as flags=re.I.",
-            "code": "import re\ntxt = 'Python python PYTHON'\nprint(re.sub('python', 'JS', txt, flags=re.I))",
-            "approach_tr": "re.I, count argümanı olarak verilmiş. flags=re.I diye adıyla geç."
-          },
-          "hints_tr": [
-            "Çıktıyı beklediğinle karşılaştır. Hangi kelimeler kaldı?",
-            "re.sub'ın 4. sıralı parametresi flags değil count'tur (değiştirme sayısı).",
-            "Bayrağı adıyla ver: ___=re.I (parametrenin adı ne?)"
-          ]
+            "approach": "Capture three groups and convert each found tuple to ints.",
+            "approach_tr": "Üç grup yakala ve bulunan her tuple'ı int'lere çevir.",
+            "code": "import re\n\ndef dates(text):\n    found = re.findall(r'(\\d{2})\\.(\\d{2})\\.(\\d{4})', text)\n    return [(int(d), int(m), int(y)) for d, m, y in found]"
+          }
         },
         {
           "id": "d18-b4-e6",
+          "type": "write",
+          "prompt": "The original lesson's level 3 exercise: write `clean_text(text)` that removes every character that is not a letter, digit or whitespace, then turns each run of whitespace into a single space and strips the ends. Example: `clean_text('%I $am@% a %tea@cher%, &and& I lo%#ve!')` returns `'I am a teacher and I love'`.",
+          "prompt_tr": "Orijinal dersin seviye 3 alıştırması: harf, rakam ya da boşluk karakteri olmayan her karakteri silen, sonra her boşluk dizisini tek boşluğa çevirip baştaki ve sondaki boşlukları atan `clean_text(text)` fonksiyonunu yaz. Örnek: `clean_text('%I $am@% a %tea@cher%, &and& I lo%#ve!')` sonucu `'I am a teacher and I love'`.",
+          "starter_code": "import re\n",
+          "signature": "def clean_text(text):",
+          "tests": [
+            {
+              "code": "assert clean_text('%I $am@% a %tea@cher%, &and& I lo%#ve!') == 'I am a teacher and I love'",
+              "visible": true,
+              "label": "The example is cleaned",
+              "label_tr": "Örnek temizleniyor"
+            },
+            {
+              "code": "assert clean_text('  a;;  b  ') == 'a b'",
+              "visible": false,
+              "failure_message": "Collapse spaces left behind and strip both ends.",
+              "failure_message_tr": "Geride kalan boşlukları birleştir ve iki ucu da kırp."
+            },
+            {
+              "code": "assert clean_text('Güzel, şehir!') == 'Güzel şehir'",
+              "visible": false,
+              "failure_message": "Turkish letters are letters and must stay.",
+              "failure_message_tr": "Türkçe harfler harftir, kalmalı."
+            },
+            {
+              "code": "assert clean_text('') == '' and clean_text('2024 yılı') == '2024 yılı'",
+              "visible": false,
+              "failure_message": "Digits stay; an empty text stays empty.",
+              "failure_message_tr": "Rakamlar kalır; boş metin boş kalır."
+            }
+          ],
+          "hints": [
+            "Two substitutions: first remove the unwanted characters, then fix the spaces.",
+            "'Not a word character and not whitespace' is the set `[^\\w\\s]`.",
+            "Replace `\\s+` with one space and call `.strip()` on the result."
+          ],
+          "hints_tr": [
+            "İki değiştirme: önce istenmeyen karakterleri sil, sonra boşlukları düzelt.",
+            "'Kelime karakteri de boşluk da olmayan' kümesi `[^\\w\\s]`'dir.",
+            "`\\s+`'yı tek boşlukla değiştir ve sonuca `.strip()` uygula."
+          ],
+          "solution": {
+            "approach": "Remove `[^\\w\\s]`, squeeze `\\s+` to one space, strip.",
+            "approach_tr": "`[^\\w\\s]`'yi sil, `\\s+`'yı tek boşluğa indir, kırp.",
+            "code": "import re\n\ndef clean_text(text):\n    no_symbols = re.sub(r'[^\\w\\s]', '', text)\n    return re.sub(r'\\s+', ' ', no_symbols).strip()"
+          },
+          "twin": "d18-b4-e7"
+        },
+        {
+          "id": "d18-b4-e7",
+          "type": "write",
+          "prompt": "The original lesson's level 1 exercise: write `most_frequent_words(text, n)` that finds the words with `re.findall(r'\\w+', text)` (case-sensitive), counts them, and returns the top `n` as `(count, word)` tuples sorted from the highest count; ties are ordered by the word in reverse alphabetical order (exactly what `sorted(..., reverse=True)` does with such tuples). Example: `most_frequent_words('a b a c b a', 2)` returns `[(3, 'a'), (2, 'b')]`.",
+          "prompt_tr": "Orijinal dersin seviye 1 alıştırması: kelimeleri `re.findall(r'\\w+', text)` ile bulan (büyük/küçük harf duyarlı), sayan ve en çok geçen `n` tanesini en yüksek sayıdan başlayarak `(sayı, kelime)` tuple'ları olarak döndüren `most_frequent_words(text, n)` fonksiyonunu yaz; eşit sayılar kelimenin ters alfabetik sırasıyla sıralanır (bu tür tuple'larda `sorted(..., reverse=True)` tam olarak bunu yapar). Örnek: `most_frequent_words('a b a c b a', 2)` sonucu `[(3, 'a'), (2, 'b')]`.",
+          "starter_code": "import re\n",
+          "signature": "def most_frequent_words(text, n):",
+          "tests": [
+            {
+              "code": "assert most_frequent_words('a b a c b a', 2) == [(3, 'a'), (2, 'b')]",
+              "visible": true,
+              "label": "The example top 2",
+              "label_tr": "Örnekteki ilk 2"
+            },
+            {
+              "code": "assert most_frequent_words('I love teaching. If you do not love teaching what else can you love. I love Python if you do not love something which can give you all the capabilities to develop an application what else can you love.', 3) == [(6, 'love'), (5, 'you'), (3, 'can')]",
+              "visible": false,
+              "failure_message": "Check the paragraph from the original lesson: love 6, you 5, can 3.",
+              "failure_message_tr": "Orijinal dersteki paragrafı kontrol et: love 6, you 5, can 3."
+            },
+            {
+              "code": "assert most_frequent_words('x y', 5) == [(1, 'y'), (1, 'x')]",
+              "visible": false,
+              "failure_message": "Ties go in reverse alphabetical order, and n larger than the word count returns everything.",
+              "failure_message_tr": "Eşitlikler ters alfabetik sırada gelir; n kelime sayısından büyükse hepsi döner."
+            },
+            {
+              "code": "assert most_frequent_words('', 3) == []",
+              "visible": false,
+              "failure_message": "An empty text gives an empty list.",
+              "failure_message_tr": "Boş metin boş list verir."
+            }
+          ],
+          "hints": [
+            "`re.findall(r'\\w+', text)` drops punctuation and gives the words.",
+            "Count with a dict: `counts[w] = counts.get(w, 0) + 1`.",
+            "Build `(count, word)` tuples from `counts.items()`, sort them with `reverse=True` and slice the first `n`."
+          ],
+          "hints_tr": [
+            "`re.findall(r'\\w+', text)` noktalama işaretlerini atar ve kelimeleri verir.",
+            "Bir dict ile say: `counts[w] = counts.get(w, 0) + 1`.",
+            "`counts.items()`'tan `(sayı, kelime)` tuple'ları kur, `reverse=True` ile sırala ve ilk `n` tanesini dilimle."
+          ],
+          "solution": {
+            "approach": "Find words, count them in a dict, sort (count, word) pairs descending, take n.",
+            "approach_tr": "Kelimeleri bul, bir dict'te say, (sayı, kelime) çiftlerini büyükten küçüğe sırala, n tanesini al.",
+            "code": "import re\n\ndef most_frequent_words(text, n):\n    counts = {}\n    for w in re.findall(r'\\w+', text):\n        counts[w] = counts.get(w, 0) + 1\n    pairs = [(c, w) for w, c in counts.items()]\n    return sorted(pairs, reverse=True)[:n]"
+          },
+          "twin": "d18-b4-e6"
+        },
+        {
+          "id": "d18-b4-e8",
           "type": "explain",
-          "prompt": "In your own words: what is the difference between re.match, re.search and re.findall?",
-          "prompt_tr": "Kendi cümlelerinizle: re.match, re.search ve re.findall arasındaki fark nedir?",
-          "model_answer": "re.match only checks the start of the text. re.search looks anywhere but returns only the first match as a match object, or None. re.findall looks everywhere and returns a list of all matches.",
+          "prompt": "In your own words: why should you write `flags=re.I` instead of passing `re.I` as the fourth argument of `re.sub`?",
+          "prompt_tr": "Kendi cümlelerinle: neden `re.I`'yı `re.sub`'ın dördüncü argümanı olarak vermek yerine `flags=re.I` yazmalısın?",
+          "model_answer": "The fourth positional parameter of re.sub is count, not flags. re.I is the number 2, so passed by position it limits the replacements to two and case is not ignored. Passing it by name as flags makes the intent clear and correct.",
+          "model_answer_tr": "re.sub'ın dördüncü konumsal parametresi flags değil count'tur. re.I aslında 2 sayısıdır; konumla verilirse değiştirmeleri ikiyle sınırlar ve büyük/küçük harf yok sayılmaz. flags adıyla vermek niyeti açık ve doğru yapar.",
           "keywords": [
-            "start",
-            "first",
-            "all"
+            "count",
+            "flags"
           ],
-          "model_answer_tr": "re.match yalnızca metnin başına bakar. re.search her yere bakar ama sadece ilk eşleşmeyi bir match nesnesi olarak (ya da None) döndürür. re.findall her yere bakar ve tüm eşleşmeleri bir liste olarak döndürür.",
           "keywords_tr": [
-            "baş",
-            "ilk",
-            "tüm"
+            "count",
+            "flags"
           ],
-          "min_words": 6
+          "min_words": 12
         }
-      ],
-      "concept_tr": "re.sub eşleşmeleri başka bir şeyle değiştirir, re.split metni eşleşme yerlerinden keser."
+      ]
     }
   ],
   "review_pool": [
     "d18-b1-e1",
-    "d18-b2-e1",
-    "d18-b2-e3",
-    "d18-b3-e1",
-    "d18-b3-e3",
-    "d18-b4-e1"
-  ],
-  "title_tr": "Düzenli ifadeler (Regex)"
+    "d18-b2-e7",
+    "d18-b3-e4",
+    "d18-b3-e7",
+    "d18-b4-e4",
+    "d18-b4-e7"
+  ]
 }
