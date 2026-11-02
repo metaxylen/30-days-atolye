@@ -44,7 +44,7 @@ npm run preview    # serves it at http://127.0.0.1:4173
 
 `dist/` is plain static files, so it can also be put on any static host (GitHub Pages, Netlify).
 
-**Where your progress lives:** in the browser's local storage for that address. There is no account and no server database, so each person's progress stays on their own machine. Progress on `localhost:5173` and on `127.0.0.1:4173` is separate, and clearing browser data removes it. In Settings, **Download** saves it as a JSON file and **Load from file** brings it back on any browser or address.
+**Where your progress lives:** on your own machine; there is no account and no server database. When you run the site with `npm run dev` or `npm run preview`, progress is saved both in the browser and in `atolye/.ilerleme/progress.json` (git-ignored, so `git pull` never touches it). Clearing browser data, switching browser or opening the other address brings it back from that file; when the two copies differ, the newer one wins. On a static host only the browser copy exists. In Settings, **Download** saves it as a JSON file and **Load from file** brings it back on any browser or address.
 
 ## Contribute a change
 

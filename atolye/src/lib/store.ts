@@ -142,6 +142,8 @@ export interface State {
   snakeSeen: number
   /** day -> card player progress */
   cards: Record<string, CardProg>
+  /** ms timestamp of the last change; decides which copy (browser or .ilerleme file) is newer. Absent in progress saved before the file existed. */
+  updatedAt?: number
 }
 
 const KEY = 'atolye:v1'
@@ -210,28 +212,109 @@ function load(): State {
 let state: State = load()
 const listeners = new Set<() => void>()
 let saveTimer: number | undefined
+/** when the learner last changed something in this tab (0 = nothing yet) */
+let dirtyAt = 0
+
+/** The state as written to storage and to the file, stamped with the time of the last change. */
+const snapshot = (): State => ({ ...state, updatedAt: dirtyAt || state.updatedAt })
+
+function writeLocal() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(snapshot()))
+  } catch {
+    /* ignore */
+  }
+}
 
 function persist() {
+  dirtyAt = Date.now()
   window.clearTimeout(saveTimer)
   saveTimer = window.setTimeout(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(state))
-    } catch {
-      /* ignore */
-    }
+    writeLocal()
+    pushFile()
   }, 250)
 }
 
 /** Writes the pending save now: before a reload (new build) and whenever the page is being hidden or closed. */
 export function flushStore() {
   window.clearTimeout(saveTimer)
-  try {
-    localStorage.setItem(KEY, JSON.stringify(state))
-  } catch {
-    /* ignore */
-  }
+  writeLocal()
+  pushFile(true)
 }
 window.addEventListener('pagehide', flushStore)
+
+/**
+ * Progress file next to the app: `npm run dev` / `npm run preview` serve /__progress (scripts/progress-plugin.ts), which
+ * keeps the state in atolye/.ilerleme/progress.json so clearing browser data or opening another port/browser loses nothing.
+ * Static hosting has no such route: the first failed request switches the file off for the session, localStorage stays.
+ */
+const FILE_URL = './__progress'
+let fileOn = true
+let pushTimer: number | undefined
+
+/** How much a state has to show for itself; decides between two copies when neither has a timestamp. */
+const weight = (s: Partial<State>): number => (s.xp ?? 0) * 1000 + Object.keys(s.done ?? {}).length
+
+/** True when `remote` should replace `local`. Newer updatedAt wins; with a timestamp on one side only, the side with more progress. */
+export function remoteWins(local: Partial<State>, remote: Partial<State>): boolean {
+  if (local.updatedAt != null && remote.updatedAt != null) return remote.updatedAt > local.updatedAt
+  return weight(remote) > weight(local)
+}
+
+function pushFile(keepalive = false) {
+  if (!fileOn) return
+  window.clearTimeout(pushTimer)
+  if (keepalive) send(true)
+  else pushTimer = window.setTimeout(() => send(false), 1000)
+}
+
+function send(keepalive: boolean) {
+  if (!fileOn) return
+  const body = JSON.stringify(snapshot())
+  // a keepalive body is capped at 64 KB by browsers; a bigger one is simply left to the debounced push
+  fetch(FILE_URL, { method: 'PUT', headers: { 'content-type': 'application/json' }, body, keepalive: keepalive && body.length < 60_000 }).then(
+    (r) => {
+      if (!r.ok) fileOn = false
+    },
+    () => {
+      /* a failed unload push is harmless; a failed normal push means no endpoint */
+      if (!keepalive) fileOn = false
+    },
+  )
+}
+
+async function hydrateFromFile() {
+  const ctl = new AbortController()
+  const timer = window.setTimeout(() => ctl.abort(), 1500)
+  try {
+    const r = await fetch(FILE_URL, { signal: ctl.signal, cache: 'no-store' })
+    if (!r.ok) throw new Error('no endpoint')
+    const remote = (await r.json()) as Partial<State>
+    if (!remote || typeof remote !== 'object') throw new Error('no endpoint')
+    const local = snapshot()
+    if (remote.v === 1 && remote.done && remoteWins(local, remote)) {
+      const next = merge(remote)
+      state = next
+      dirtyAt = 0
+      writeLocal()
+      listeners.forEach((l) => l())
+    } else {
+      // the browser copy is newer (or the file is empty/missing): it becomes the file. A copy without a stamp gets one now.
+      // (a brand-new empty browser has nothing worth writing)
+      if (!dirtyAt && !state.updatedAt) {
+        if (weight(state) === 0) return
+        dirtyAt = Date.now()
+      }
+      writeLocal()
+      send(false)
+    }
+  } catch {
+    fileOn = false // static hosting, offline, timeout, or an HTML fallback page instead of JSON: localStorage only
+  } finally {
+    window.clearTimeout(timer)
+  }
+}
+void hydrateFromFile()
 
 function set(next: State) {
   state = next
