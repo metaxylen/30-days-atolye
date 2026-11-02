@@ -24,8 +24,8 @@
       "statement_tr": "pandas NumPy'nin yerine geçer; pandas kullanırken NumPy hiç kullanılmaz.",
       "statement": "pandas replaces NumPy; when you use pandas, NumPy is not used at all.",
       "answer": false,
-      "why_tr": "pandas NumPy'nin üzerine kuruludur: her sütunun değerleri içeride bir NumPy array'idir ve `df['Height'].to_numpy()` onu verir. Orijinal ders de ikisini birlikte içe aktarır.",
-      "why": "pandas is built on top of NumPy: the values of every column are a NumPy array inside, and `df['Height'].to_numpy()` gives it to you. The original lesson imports both together.",
+      "why_tr": "pandas NumPy'nin üzerine kuruludur: sayısal bir sütunun değerleri içeride bir NumPy array'idir ve `df['Height'].to_numpy()` onu verir. Orijinal ders de ikisini birlikte içe aktarır.",
+      "why": "pandas is built on top of NumPy: the values of a numeric column are a NumPy array inside, and `df['Height'].to_numpy()` gives it to you. The original lesson imports both together.",
       "section": "Importing Pandas"
     },
     {
@@ -266,7 +266,7 @@
     {
       "id": "d25-c21",
       "type": "explain",
-      "title_tr": "Sütunu yerinde değiştirmek",
+      "title_tr": "Sütunu değiştirmek",
       "title": "Changing a column",
       "body_tr": "Bir sütunu değiştirmek de bir atamadır: sağ tarafta eski sütundan yeni değerleri hesaplar, sol tarafta aynı adla geri yazarsın. `df['Height'] = df['Height'] * 0.01` santimetreyi metreye çevirir. Döngü yok; Series işlemi her satıra uygular.\n\nSıra önemlidir: bu satırı iki kez çalıştırırsan boylar iki kez küçülür (1.73 metre değil 0.0173 olur). Notebook'larda hücreleri yeniden çalıştırırken sık yapılan bir hatadır. Güvenli yol, sonucu yeni bir sütuna yazmaktır: `df['Height_m'] = df['Height'] / 100`.",
       "body": "Changing a column is also an assignment: the right side computes new values from the old column, and the left side writes them back under the same name. `df['Height'] = df['Height'] * 0.01` turns centimetres into metres. No loop; the Series operation is applied to every row.\n\nOrder matters: run that line twice and the heights shrink twice (0.0173 instead of 1.73 metres), a common mistake when re-running notebook cells. The safe way is to write the result into a new column: `df['Height_m'] = df['Height'] / 100`.",
@@ -477,7 +477,7 @@
       "type": "explain",
       "title_tr": "Metin sütunları: str erişimcisi",
       "title": "Text columns: the str accessor",
-      "body_tr": "Günün alıştırması Hacker News başlıkları arasında \"python\" geçenleri süzmeyi istiyor. Metin sütunlarında string metotlarını her satıra uygulamak için `.str` erişimcisi kullanılır: `df['title'].str.lower()`, `.str.len()`, `.str.contains('python', case=False)`.\n\n`str.contains` bir boolean Series döndürür, yani doğrudan maske olarak kullanılır. `case=False` büyük-küçük harfi yok sayar: \"Python\" ve \"PYTHON\" da eşleşir. Dikkat: \"JavaScript\" aranırken \"Java\" da eşleşir; tam kelime istiyorsan 18. gündeki gibi bir düzenli ifade (`r'\\bjava\\b'`) gerekir.",
+      "body_tr": "Günün alıştırması Hacker News başlıkları arasında \"python\" geçenleri süzmeyi istiyor. Metin sütunlarında string metotlarını her satıra uygulamak için `.str` erişimcisi kullanılır: `df['title'].str.lower()`, `.str.len()`, `.str.contains('python', case=False)`.\n\n`str.contains` bir boolean Series döndürür, yani doğrudan maske olarak kullanılır. `case=False` büyük-küçük harfi yok sayar: \"Python\" ve \"PYTHON\" da eşleşir. Dikkat: \"java\" ararken \"JavaScript\" de eşleşir; tam kelime istiyorsan 18. gündeki gibi bir düzenli ifade (`r'\\bjava\\b'`) gerekir.",
       "body": "Today's exercise asks you to filter the Hacker News titles that mention \"python\". To apply string methods to every row of a text column you use the `.str` accessor: `df['title'].str.lower()`, `.str.len()`, `.str.contains('python', case=False)`.\n\n`str.contains` returns a boolean Series, so it works directly as a mask. `case=False` ignores letter case: \"Python\" and \"PYTHON\" match too. Careful: searching for \"java\" also matches \"JavaScript\"; for a whole word you need a regular expression as on Day 18 (`r'\\bjava\\b'`).",
       "code": "import pandas as pd\n\ntitles = pd.DataFrame({'title': ['Show HN: My Python game', 'Why JavaScript?', 'python 3.14 released', 'Rust vs Go']})\nmask = titles['title'].str.contains('python', case=False)\nprint(titles[mask]['title'].tolist())\nprint(titles['title'].str.len().tolist())\nprint(titles['title'].str.contains(r'\\bjava\\b', case=False).sum())",
       "expected_output": "['Show HN: My Python game', 'python 3.14 released']\n[23, 15, 20, 10]\n0",
@@ -510,9 +510,9 @@
       "type": "explain",
       "title_tr": "Gerçekçi örnek: küçük bir analiz hattı",
       "title": "Realistic example: a small analysis pipeline",
-      "body_tr": "Bu günün araçlarını bir arada kullanan tipik bir analiz: CSV'yi oku, boyu inçten santimetreye çevir (1 inç = 2.54 cm), 165 cm altını ayıkla, cinsiyete göre grupla, sonucu yuvarla ve rapor olarak yazdır.\n\nHer satır bir önceki satırın sonucunu kullanıyor ve hiçbirinde döngü yok. pandas kodu genellikle böyle görünür: küçük, okunur adımlar. Bir adım yanlış sonuç verirse o satırın çıktısını yazdırıp bakarsın. Bu, 30. günde istenen \"veriyi keşfet ve anlamlandır\" görevinin iskeletidir.",
+      "body_tr": "Bu günün araçlarını bir arada kullanan tipik bir analiz: CSV'yi oku, boyu inçten santimetreye çevir (1 inç = 2.54 cm), 165 cm altını ayıkla, cinsiyete göre grupla, sonucu yuvarla ve rapor olarak yazdır.\n\nHer satır bir önceki satırın sonucunu kullanıyor ve hiçbirinde döngü yok. pandas kodu genellikle böyle görünür: küçük, okunur adımlar. Bir adım yanlış sonuç verirse o satırın çıktısını yazdırıp bakarsın. Bu, alıştırmalarda istenen \"veriyi keşfet ve anlamlandır\" görevinin iskeletidir.",
       "body": "A typical analysis that brings today's tools together: read the CSV, convert height from inches to centimetres (1 inch = 2.54 cm), drop people under 165 cm, group by gender, round, and print a report.\n\nEach line uses the result of the line before, and none has a loop. pandas code usually looks like this: small, readable steps. If a step gives a wrong result, you print that line's output and look. It is the skeleton of the \"explore the data and make sense of it\" task in the exercises.",
-      "code": "import io\nimport pandas as pd\n\ncsv = 'Gender,Height,Weight\\nMale,73.8,241.9\\nMale,68.8,162.3\\nFemale,63.5,135.8\\nFemale,66.2,155.1\\nMale,71.7,220.0'\ndf = pd.read_csv(io.StringIO(csv))\ndf['cm'] = df['Height'] * 2.54\nadults = df[df['cm'] >= 165]\nreport = adults.groupby('Gender')['cm'].agg(['count', 'mean']).round(1)\nprint(report)\nprint(len(df) - len(adults), 'row(s) dropped')",
+      "code": "import io\nimport pandas as pd\n\ncsv = 'Gender,Height,Weight\\nMale,73.8,241.9\\nMale,68.8,162.3\\nFemale,63.5,135.8\\nFemale,66.2,155.1\\nMale,71.7,220.0'\ndf = pd.read_csv(io.StringIO(csv))\ndf['cm'] = df['Height'] * 2.54\nkept = df[df['cm'] >= 165]\nreport = kept.groupby('Gender')['cm'].agg(['count', 'mean']).round(1)\nprint(report)\nprint(len(df) - len(kept), 'row(s) dropped')",
       "expected_output": "        count   mean\nGender\nFemale      1  168.1\nMale        3  181.4\n1 row(s) dropped",
       "section": "Data Exploration"
     },
