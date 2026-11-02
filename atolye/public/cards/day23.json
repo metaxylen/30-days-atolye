@@ -1,158 +1,396 @@
 {
- "day": 23,
- "title_tr": "Sanal Ortam (Virtual Environment)",
- "title": "Virtual Environment",
- "est_minutes": 12,
- "cards": [
-  {
-   "id": "d23-c01",
-   "type": "explain",
-   "title_tr": "Neden sanal ortam?",
-   "title": "Why a virtual environment?",
-   "body_tr": "Her projenin kendi paket sürümlerine ihtiyacı olabilir: biri Flask 1.1.1 ister, diğeri 2.0.0. **Sanal ortam** (virtual environment) projeye özel, yalıtılmış bir paket alanı verir, böylece sürümler birbirine karışmaz. Terminal komutları bu tarayıcı ortamında çalışmaz; mantığı sözlüklerle canlandırıyoruz.",
-   "body": "Each project may need its own package versions: one wants Flask 1.1.1, another 2.0.0. A **virtual environment** gives a project its own isolated package space, so versions never clash. Terminal commands can't run in this browser lab, so we mimic the logic with dicts.",
-   "code": "project_a = {'Flask': '1.1.1'}\nproject_b = {'Flask': '2.0.0'}\nprint(project_a['Flask'], project_b['Flask'])",
-   "expected_output": "1.1.1 2.0.0",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c02",
-   "type": "truefalse",
-   "statement_tr": "Sanal ortam kullanırsak her projenin kendi, birbirinden bağımsız paket seti olur.",
-   "statement": "With a virtual environment each project gets its own independent set of packages.",
-   "answer": true,
-   "why_tr": "Yalıtım tam olarak budur: projeler arasında bağımlılık çakışması olmaz.",
-   "why": "That is exactly isolation: no dependency conflicts between projects.",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c03",
-   "type": "explain",
-   "title_tr": "Ortamı kurmak ve oluşturmak",
-   "title": "Installing and creating the environment",
-   "body_tr": "Önce `pip install virtualenv`. Sonra proje klasöründe Mac/Linux'ta `virtualenv venv`, Windows'ta `python -m venv venv` yazarız. `venv` sadece bir klasör adı; başka isim de olur. `ls` ile bakınca klasörü görürsün.",
-   "body": "First `pip install virtualenv`. Then in the project folder run `virtualenv venv` on Mac/Linux or `python -m venv venv` on Windows. `venv` is just a folder name; any name works. `ls` shows the new folder.",
-   "code": "project = []\nproject.append('venv/')   # virtualenv venv\nprint(project)            # ls",
-   "expected_output": "['venv/']",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c04",
-   "type": "explain",
-   "title_tr": "Aktive etmek",
-   "title": "Activating it",
-   "body_tr": "Ortamı kullanmak için **activate** edersin: Mac/Linux'ta `source venv/bin/activate`. Başarılı olunca komut satırının başında `(venv)` belirir. Windows PowerShell'de `venv\\Scripts\\activate`, Git Bash'te `venv\\Scripts\\. activate` kullanılır.",
-   "body": "To use the environment you **activate** it: `source venv/bin/activate` on Mac/Linux. When it works, `(venv)` appears at the start of the prompt. On Windows PowerShell use `venv\\Scripts\\activate`, in Git Bash `venv\\Scripts\\. activate`.",
-   "code": "prompt = '$'\nvenv_active = True\nif venv_active:\n    prompt = '(venv) ' + prompt\nprint(prompt)",
-   "expected_output": "(venv) $",
-   "trace": true,
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c05",
-   "type": "predict",
-   "prompt_tr": "Yeni oluşturulmuş boş ortamda `pip freeze` ne gösterir? Sözlükle canlandıralım.",
-   "prompt": "What does `pip freeze` show in a brand-new empty environment? Let's mimic it with a dict.",
-   "code": "venv = {}\nprint(list(venv))",
-   "choices": [
-    "[]",
-    "['Flask']",
-    "None",
-    "{}"
-   ],
-   "answer": "[]",
-   "why_tr": "Henüz paket kurulmadığı için liste boştur; derste de `pip freeze` ilk başta hiçbir şey göstermez.",
-   "why": "No package is installed yet, so the list is empty; in the lesson `pip freeze` shows nothing at first.",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c06",
-   "type": "explain",
-   "title_tr": "pip install ve pip freeze",
-   "title": "pip install and pip freeze",
-   "body_tr": "`pip install Flask` paketi (ve ihtiyaç duyduğu paketleri) ortama ekler. `pip freeze` kurulu her paketi `isim==sürüm` biçiminde listeler. Adım adım izle.",
-   "body": "`pip install Flask` adds the package (and what it depends on) to the environment. `pip freeze` lists every installed package as `name==version`. Step through it.",
-   "code": "venv = {}\nvenv['Flask'] = '1.1.1'\nvenv['Click'] = '7.0'\nfor name in sorted(venv):\n    print(f'{name}=={venv[name]}')",
-   "expected_output": "Click==7.0\nFlask==1.1.1",
-   "trace": true,
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c07",
-   "type": "fill",
-   "prompt_tr": "`pip freeze` biçimini tamamla.",
-   "prompt": "Complete the `pip freeze` format.",
-   "code": "name, version = 'Flask', '1.1.1'\nprint(f'{name}___{version}')",
-   "answers": [
-    "=="
-   ],
-   "expected_output": "Flask==1.1.1",
-   "why_tr": "`pip freeze` çıktısı `paket==sürüm` biçimindedir.",
-   "why": "`pip freeze` output looks like `package==version`.",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c08",
-   "type": "explain",
-   "title_tr": "Bitince: deactivate",
-   "title": "When you're done: deactivate",
-   "body_tr": "İşin bitince `deactivate` yazarak ortamdan çıkarsın; satır başındaki `(venv)` kaybolur. Paketler ortamın içinde kalır, genel kurulumunu etkilemez.",
-   "body": "When you finish, type `deactivate` to leave the environment; the `(venv)` prefix disappears. The packages stay inside the environment and don't touch your global install.",
-   "code": "venv = {'Flask': '1.1.1'}\nvenv_active = False        # deactivate\nprompt = '(venv) $' if venv_active else '$'\nprint(prompt, list(venv))",
-   "expected_output": "$ ['Flask']",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c09",
-   "type": "truefalse",
-   "statement_tr": "venv klasörünü de GitHub'a göndermeliyiz ki herkesin paketleri aynı olsun.",
-   "statement": "We should push the venv folder to GitHub too, so everyone has the same packages.",
-   "answer": false,
-   "why_tr": "venv klasörü büyüktür ve makineye özeldir; `.gitignore` dosyasına eklenir. Paket listesi (requirements.txt, Gün 26) paylaşılır.",
-   "why": "The venv folder is large and machine-specific; it goes into `.gitignore`. The package list (requirements.txt, Day 26) is shared instead.",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c10",
-   "type": "order",
-   "prompt_tr": "Akışı doğru sıraya diz: ortam oluştur, aktive et, paketi kur.",
-   "prompt": "Order the flow: create the environment, activate it, install the package.",
-   "lines": [
-    "if active:",
-    "env = {}",
-    "print(env)",
-    "active = True",
-    "    env['Flask'] = '1.1.1'"
-   ],
-   "correct_order": [
-    1,
-    3,
-    0,
-    4,
-    2
-   ],
-   "expected_output": "{'Flask': '1.1.1'}",
-   "section": "Setting up Virtual Environments"
-  },
-  {
-   "id": "d23-c11",
-   "type": "recap",
-   "points_tr": [
-    "Sanal ortam, projeye özel yalıtılmış paket alanıdır.",
-    "Oluştur (`virtualenv venv`), aktive et (`source venv/bin/activate`), sonra paket kur.",
-    "`pip freeze` kurulu paketleri `isim==sürüm` olarak listeler.",
-    "İşin bitince `deactivate`; `venv` klasörünü `.gitignore`'a ekle."
-   ],
-   "points": [
-    "A virtual environment is an isolated package space for one project.",
-    "Create (`virtualenv venv`), activate (`source venv/bin/activate`), then install packages.",
-    "`pip freeze` lists installed packages as `name==version`.",
-    "Run `deactivate` when done; add the `venv` folder to `.gitignore`."
-   ],
-   "cta_tr": "Şimdi alıştırmalara geç",
-   "cta": "Go to the exercises now",
-   "link": "learn",
-   "section": "Setting up Virtual Environments"
-  }
- ]
+  "day": 23,
+  "title_tr": "Sanal Ortamlar",
+  "title": "Virtual Environments",
+  "est_minutes": 35,
+  "cards": [
+    {
+      "id": "d23-c01",
+      "type": "explain",
+      "title_tr": "Sorun: iki proje, tek paket klasörü",
+      "title": "The problem: two projects, one package folder",
+      "body_tr": "Eski bir proje `Flask==1.1.1` ile yazılmış, yeni projen ise `Flask 3` istiyor. `pip install` paketleri varsayılan olarak bilgisayarındaki tek bir klasöre (`site-packages`) kurar. O klasörde bir paketin aynı anda yalnızca **bir** sürümü bulunabilir.\n\nYeni sürümü kurduğun an eskisinin yerine geçer ve eski proje bozulabilir. Aşağıda bu klasörü bir dict ile taklit ediyoruz: anahtar paket adı, değer sürümü. İkinci kurulum birinciyi sessizce ezer. Bu çakışmaya **bağımlılık çakışması** (dependency conflict) denir.",
+      "body": "An old project was written with `Flask==1.1.1`, while your new project wants `Flask 3`. By default `pip install` puts packages into a single folder on your computer (`site-packages`). That folder can hold only **one** version of a package at a time.\n\nThe moment you install the new version it replaces the old one, and the old project may break. Below we mimic that folder with a dict: the key is the package name, the value its version. The second install silently overwrites the first. This clash is called a **dependency conflict**.",
+      "code": "site_packages = {}\n\ndef pip_install(name, version):\n    site_packages[name] = version\n\npip_install('flask', '1.1.1')   # eski proje için\npip_install('flask', '3.0.3')   # yeni proje için\nprint(site_packages)",
+      "expected_output": "{'flask': '3.0.3'}",
+      "trace": true,
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c02",
+      "type": "predict",
+      "prompt_tr": "Çıktı ne olur?",
+      "prompt": "What is printed?",
+      "code": "site_packages = {'requests': '2.31.0'}\nsite_packages['requests'] = '2.20.0'\nsite_packages['numpy'] = '2.1.0'\nprint(len(site_packages), site_packages['requests'])",
+      "choices": [
+        "3 2.31.0",
+        "2 2.20.0",
+        "3 2.20.0",
+        "2 2.31.0"
+      ],
+      "answer": "2 2.20.0",
+      "why_tr": "Dict'te bir anahtar yalnızca bir kez bulunur. `requests`'e yeni değer atamak eskisinin yerine geçer; yalnızca `numpy` yeni anahtardır. Gerçek `site-packages` klasörü de böyle davranır.",
+      "why": "A key appears only once in a dict. Assigning a new value to `requests` replaces the old one; only `numpy` is a new key. The real `site-packages` folder behaves the same way.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c03",
+      "type": "explain",
+      "title_tr": "Sanal ortam nedir?",
+      "title": "What is a virtual environment?",
+      "body_tr": "**Sanal ortam** (virtual environment, kısaca venv), projenin içinde duran ve kendi `site-packages` klasörünü taşıyan bir klasördür. İçinde Python yorumlayıcısına giden bir bağlantı (ya da kopya), `pip` ve `pyvenv.cfg` adında küçük bir ayar dosyası bulunur. Standart kütüphane kopyalanmaz; asıl Python kurulumundan kullanılır.\n\nHer projenin kendi venv'i olunca her biri istediği sürümleri kurar ve kimse kimseyi bozmaz. Modelimizde artık tek bir dict yerine, ortam adını kendi paket dict'ine bağlayan bir dict var.",
+      "body": "A **virtual environment** (venv for short) is a folder inside your project that carries its own `site-packages`. It holds a link to (or a copy of) the Python interpreter, `pip`, and a small settings file named `pyvenv.cfg`. The standard library is not copied; it is used from the main Python installation.\n\nWhen every project has its own venv, each installs the versions it wants and nobody breaks anybody. In our model, instead of one dict we now have a dict that maps each environment name to its own package dict.",
+      "code": "envs = {'eski-proje': {}, 'yeni-proje': {}}\n\ndef pip_install(env, name, version):\n    envs[env][name] = version\n\npip_install('eski-proje', 'flask', '1.1.1')\npip_install('yeni-proje', 'flask', '3.0.3')\nfor name, packages in envs.items():\n    print(name, packages)",
+      "expected_output": "eski-proje {'flask': '1.1.1'}\nyeni-proje {'flask': '3.0.3'}",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c04",
+      "type": "truefalse",
+      "statement_tr": "Bir sanal ortam oluşturmak, Python'un bütün standart kütüphanesini proje klasörüne kopyalar.",
+      "statement": "Creating a virtual environment copies Python's whole standard library into the project folder.",
+      "answer": false,
+      "why_tr": "venv yalnızca yorumlayıcıya bir bağlantı, ve başlangıçta neredeyse yalnızca `pip`'i içeren kendi `site-packages` klasörünü kurar. `json`, `math` gibi standart modüller asıl Python kurulumundan okunur; ayrı olan sadece üçüncü parti paketlerdir.",
+      "why": "A venv only sets up a link to the interpreter, and its own `site-packages`, which at first holds little more than `pip`. Standard modules such as `json` and `math` are read from the main Python installation; only third-party packages are kept separate.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c05",
+      "type": "explain",
+      "title_tr": "Oluşturmak: python -m venv",
+      "title": "Creating one: python -m venv",
+      "body_tr": "Python 3.3'ten beri venv standart kütüphanededir, ek kurulum gerekmez. Proje klasöründe terminale `python -m venv venv` yazarsın (macOS ve Linux'ta çoğu zaman `python3`). Orijinal ders önce `pip install virtualenv` ile ayrı bir paket kurup `virtualenv venv` diyor; o da çalışır ama artık şart değildir.\n\n`-m` seçeneği \"bu modülü bir program gibi çalıştır\" demektir: ilk `venv` modülün adı, ikincisi oluşturulacak klasörün adıdır. Klasöre istediğin adı verebilirsin; `venv` ve `.venv` en yaygın iki gelenektir. Komut bittiğinde `ls` (Windows'ta `dir`) ile klasörün oluştuğunu görürsün.",
+      "body": "Since Python 3.3, venv is part of the standard library, so nothing extra needs installing. In the project folder you type `python -m venv venv` in the terminal (often `python3` on macOS and Linux). The original lesson first installs a separate package with `pip install virtualenv` and then runs `virtualenv venv`; that still works but is no longer required.\n\nThe `-m` option means \"run this module as a program\": the first `venv` is the module name, the second the name of the folder to create. You can name the folder anything; `venv` and `.venv` are the two most common conventions. When the command finishes, `ls` (`dir` on Windows) shows the new folder.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c06",
+      "type": "explain",
+      "title_tr": "Etkinleştirmek ve kapatmak",
+      "title": "Activating and deactivating",
+      "body_tr": "Ortamı kullanmak için onu **etkinleştirirsin** (activate). Komut işletim sistemine göre değişir:\n\n- macOS / Linux: `source venv/bin/activate`\n- Windows PowerShell: `venv\\Scripts\\Activate.ps1`\n- Windows cmd: `venv\\Scripts\\activate.bat`\n- Windows Git Bash: `source venv/Scripts/activate`\n\n(Orijinal dersteki `venv\\Scripts\\. activate` yazımı hatalıdır.) Etkinleşince komut satırının başında `(venv)` görünür ve `pip install` artık bu ortama kurar. İşin bitince `deactivate` yazarsın, satır başındaki `(venv)` kaybolur.",
+      "body": "To use the environment you **activate** it. The command depends on the operating system:\n\n- macOS / Linux: `source venv/bin/activate`\n- Windows PowerShell: `venv\\Scripts\\Activate.ps1`\n- Windows cmd: `venv\\Scripts\\activate.bat`\n- Windows Git Bash: `source venv/Scripts/activate`\n\n(The spelling `venv\\Scripts\\. activate` in the original lesson is wrong.) Once active, `(venv)` appears at the start of the prompt and `pip install` now installs into this environment. When you are done you type `deactivate`, and `(venv)` disappears.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c07",
+      "type": "predict",
+      "prompt_tr": "Çıktı ne olur?",
+      "prompt": "What is printed?",
+      "code": "prompt = 'atolye@pc:~/flask_project$'\nactive = 'venv'\nif active:\n    prompt = f'({active}) ' + prompt\nprint(prompt)",
+      "choices": [
+        "(venv) atolye@pc:~/flask_project$",
+        "atolye@pc:~/flask_project$ (venv)",
+        "venv atolye@pc:~/flask_project$",
+        "atolye@pc:~/flask_project$"
+      ],
+      "answer": "(venv) atolye@pc:~/flask_project$",
+      "why_tr": "Etkinleştirme betiği de tam olarak bunu yapar: komut satırının başına ortamın adını parantez içinde ekler. Böylece hangi ortamda çalıştığını her an görürsün.",
+      "why": "The activate script does exactly this: it puts the environment's name in parentheses at the start of the prompt, so you always see which environment you are in.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c08",
+      "type": "explain",
+      "title_tr": "Perde arkası: etkinleştirme PATH'i değiştirir",
+      "title": "Underneath: activation changes PATH",
+      "body_tr": "Terminalde `python` yazınca kabuk, `PATH` ortam değişkenindeki klasörlere **sırayla** bakar ve `python` adlı programı bulduğu **ilk** klasördekini çalıştırır. `activate` betiğinin asıl işi, `venv/bin` (Windows'ta `venv\\Scripts`) klasörünü `PATH`'in **başına** eklemektir. Sihir yok, yalnızca bir arama sırası değişikliği var.\n\nAşağıdaki `which` fonksiyonu bu aramayı taklit ediyor. İzleyicide döngünün klasörleri tek tek denediğini ve ilk eşleşmede `return` ile durduğunu izle. `deactivate` ise `PATH`'i eski hâline geri koyar.",
+      "body": "When you type `python` in a terminal, the shell looks through the folders in the `PATH` environment variable **in order** and runs the program named `python` from the **first** folder that has one. The real job of the `activate` script is to put `venv/bin` (`venv\\Scripts` on Windows) at the **front** of `PATH`. There is no magic, only a change in search order.\n\nThe `which` function below mimics that search. In the tracer, watch the loop try the folders one by one and stop with `return` at the first match. `deactivate` puts `PATH` back the way it was.",
+      "code": "files = {'/usr/bin': ['python', 'ls'], '/proje/venv/bin': ['python', 'pip']}\n\ndef which(cmd, path):\n    for folder in path:\n        if cmd in files.get(folder, []):\n            return folder + '/' + cmd\n    return None\n\npath = ['/usr/bin']\nprint(which('python', path))\npath = ['/proje/venv/bin'] + path\nprint(which('python', path), which('ls', path))",
+      "expected_output": "/usr/bin/python\n/proje/venv/bin/python /usr/bin/ls",
+      "trace": true,
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c09",
+      "type": "predict",
+      "prompt_tr": "Çıktı ne olur?",
+      "prompt": "What is printed?",
+      "code": "files = {'/a': ['pip'], '/b': ['python', 'pip'], '/c': ['python']}\n\ndef which(cmd, path):\n    for folder in path:\n        if cmd in files[folder]:\n            return folder\n\nprint(which('python', ['/c', '/b']), which('pip', ['/c', '/b', '/a']))",
+      "choices": [
+        "/c /b",
+        "/b /a",
+        "/c /a",
+        "/b /b"
+      ],
+      "answer": "/c /b",
+      "why_tr": "Arama sırası list'teki sıradır. `python` için `/c` ilk sırada ve onda var. `pip` için `/c`'de yok, sonraki `/b`'de var; `/a`'ya hiç bakılmaz.",
+      "why": "The search order is the list's order. For `python`, `/c` comes first and has it. For `pip`, `/c` lacks it and the next folder `/b` has it; `/a` is never checked.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c10",
+      "type": "explain",
+      "title_tr": "import paketleri nerede arar? sys.path",
+      "title": "Where does import look? sys.path",
+      "body_tr": "`import flask` yazınca Python, `sys.path` list'indeki klasörleri sırayla dolaşır ve `flask` adlı modülü bulduğu **ilk** yerde durur. List genellikle betiğin klasörüyle başlar, standart kütüphaneyle devam eder ve `site-packages` ile biter. Çalışan Python venv'in Python'u olduğunda (etkinleştirme bunu sağlar) bu son klasör venv'in kendi `site-packages`'ıdır; bu yüzden ortamın paketleri görünür, dışarıdakiler görünmez.\n\nBu da isim etiketi fikrinin bir benzeri: `import` bir arama yapar ve bulduğu modül nesnesini bir isme bağlar. `sys.path` sıradan bir list'tir; içeriği bilgisayardan bilgisayara değişir.",
+      "body": "When you write `import flask`, Python walks through the folders in the `sys.path` list in order and stops at the **first** place that has a module named `flask`. The list usually starts with the script's folder, continues with the standard library and ends with `site-packages`. When the venv's Python is the one running (which is what activating arranges), that last folder is the venv's own `site-packages`; that is why the environment's packages are visible and outside ones are not.\n\nIt mirrors the name-tag idea: `import` does a search and binds the module object it found to a name. `sys.path` is an ordinary list, and its contents differ from computer to computer.",
+      "code": "import sys\nimport json\n\nprint(type(sys.path).__name__)\nprint(all(isinstance(folder, str) for folder in sys.path))\nprint(json.__name__, 'json' in sys.modules)",
+      "expected_output": "list\nTrue\njson True",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c11",
+      "type": "explain",
+      "title_tr": "Hangi ortamdayım?",
+      "title": "Which environment am I in?",
+      "body_tr": "Bir betiğin venv içinde çalışıp çalışmadığını Python'a sorabilirsin. `sys.prefix` o an çalışan ortamın klasörünü, `sys.base_prefix` ise asıl Python kurulumunun klasörünü verir. İkisi farklıysa bir venv içindesin:\n\n`in_venv = sys.prefix != sys.base_prefix`\n\nBu satırın sonucu senin bilgisayarına bağlıdır, bu yüzden burada çıktısını göstermiyoruz. Atölye ise tarayıcıda Pyodide ile çalışır: venv yoktur, gereken paketler sayfa açıldığında yüklenir. Aşağıdaki fonksiyon aynı karşılaştırmayı örnek klasör adlarıyla yapıyor.",
+      "body": "You can ask Python whether a script runs inside a venv. `sys.prefix` gives the folder of the environment currently running, `sys.base_prefix` the folder of the main Python installation. If they differ, you are inside a venv:\n\n`in_venv = sys.prefix != sys.base_prefix`\n\nThe result depends on your computer, so its output is not shown here. Atölye runs in the browser with Pyodide: there is no venv, and the packages needed are loaded when the page opens. The function below makes the same comparison with sample folder names.",
+      "code": "def in_venv(prefix, base_prefix):\n    return prefix != base_prefix\n\nprint(in_venv('/usr', '/usr'))\nprint(in_venv('/home/ada/proje/venv', '/usr'))",
+      "expected_output": "False\nTrue",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c12",
+      "type": "truefalse",
+      "statement_tr": "Bir sanal ortamdaki Python'u kullanabilmek için ortamı mutlaka etkinleştirmek gerekir.",
+      "statement": "You must activate a virtual environment to be able to use its Python.",
+      "answer": false,
+      "why_tr": "Etkinleştirme yalnızca `PATH`'i değiştirir. `venv/bin/python betik.py` (Windows'ta `venv\\Scripts\\python betik.py`) yazarak ortamın Python'unu doğrudan çalıştırabilirsin; o Python kendi `site-packages`'ını kullanır.",
+      "why": "Activation only changes `PATH`. You can run the environment's Python directly with `venv/bin/python script.py` (`venv\\Scripts\\python script.py` on Windows), and that Python uses its own `site-packages`.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c13",
+      "type": "explain",
+      "title_tr": "Sık hata: paket yanlış ortama kuruldu",
+      "title": "Common mistake: the package went into the wrong environment",
+      "body_tr": "En sık görülen venv hatası şudur: `pip install flask` yazarsın ama ortamı etkinleştirmeyi unutmuşsundur. Paket genel klasöre kurulur. Sonra programını venv içinde çalıştırınca `ModuleNotFoundError` alırsın.\n\nMesajı oku: \"No module named 'flask'\". Python `sys.path`'teki her klasöre baktı ve bulamadı. Paket bilgisayarında **bir yerde** var, ama bu ortamın aradığı yerde yok. Çözüm: ortamı etkinleştir ya da `python -m pip install flask` yaz. Böylece paket tam olarak o `python`'a ait `pip` ile kurulur.",
+      "body": "The most common venv mistake: you type `pip install flask` but forgot to activate the environment. The package lands in the global folder. Later, when your program runs in the venv, you get `ModuleNotFoundError`.\n\nRead the message: \"No module named 'flask'\". Python looked in every folder of `sys.path` and did not find it. The package exists **somewhere** on your computer, just not where this environment looks. The fix: activate the environment, or write `python -m pip install flask`, so the package is installed by the `pip` that belongs to exactly that `python`.",
+      "code": "try:\n    import flask_in_another_env\nexcept ModuleNotFoundError as e:\n    print('ModuleNotFoundError:', e)\n    print('missing module:', e.name)",
+      "expected_output": "ModuleNotFoundError: No module named 'flask_in_another_env'\nmissing module: flask_in_another_env",
+      "hide_output": true,
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c14",
+      "type": "fill",
+      "prompt_tr": "Boşluğu doldur: hangi ortamın etkin olduğuna göre `python` komutunun nereden geldiğini bul.",
+      "prompt": "Fill the blank: find where the `python` command comes from, depending on the active environment.",
+      "code": "path = ['/usr/bin']\nactive = '/proje/venv/bin'\npath = [active] ___ path\nprint(path[0])",
+      "answers": [
+        "+"
+      ],
+      "expected_output": "/proje/venv/bin",
+      "why_tr": "`activate` ortamın klasörünü list'in **başına** ekler: `[active] + path`. Arama baştan başladığı için ilk bakılan yer venv olur.",
+      "why": "`activate` puts the environment's folder at the **front** of the list: `[active] + path`. The search starts at the front, so the venv is checked first.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c15",
+      "type": "explain",
+      "title_tr": "pip freeze ve requirements.txt",
+      "title": "pip freeze and requirements.txt",
+      "body_tr": "Etkin ortamda `pip freeze` kurulu her paketi `ad==sürüm` biçiminde, satır satır yazar. Orijinal derste Flask kurduktan sonra list'te `Click`, `Jinja2`, `Werkzeug` gibi başka paketler de görünür: Flask bunlara **bağımlıdır** ve pip onları da kurmuştur.\n\nBu çıktıyı `pip freeze > requirements.txt` ile dosyaya yazarsın. Projeyi başka bir bilgisayara taşıyan kişi yeni bir venv açar ve `pip install -r requirements.txt` ile aynı sürümleri kurar. Dosya düz metin olduğu için Python'la kolayca okunur.",
+      "body": "In an active environment, `pip freeze` prints every installed package as `name==version`, one per line. In the original lesson, after installing Flask the list also shows packages such as `Click`, `Jinja2` and `Werkzeug`: Flask **depends** on them and pip installed them too.\n\nYou write this output to a file with `pip freeze > requirements.txt`. Someone moving the project to another computer creates a new venv and installs the same versions with `pip install -r requirements.txt`. The file is plain text, so Python reads it easily.",
+      "code": "freeze = '''Click==7.0\nFlask==1.1.1\nitsdangerous==1.1.0\nJinja2==2.10.3\nMarkupSafe==1.1.1\nWerkzeug==0.16.0'''\n\npackages = {}\nfor line in freeze.splitlines():\n    name, version = line.split('==')\n    packages[name] = version\nprint(len(packages), packages['Flask'])",
+      "expected_output": "6 1.1.1",
+      "trace": true,
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c16",
+      "type": "predict",
+      "prompt_tr": "Çıktı ne olur?",
+      "prompt": "What is printed?",
+      "code": "line = 'Jinja2==2.10.3'\nprint(line.split('='))",
+      "choices": [
+        "['Jinja2', '2.10.3']",
+        "['Jinja2', '', '2.10.3']",
+        "['Jinja2', '=2.10.3']",
+        "Error"
+      ],
+      "answer": "['Jinja2', '', '2.10.3']",
+      "why_tr": "`split('=')` her tek `=` işaretinde böler. İki `=` yan yana olduğu için aralarında boş bir parça kalır. Ayırıcı olarak `'=='` vermek gerekir.",
+      "why": "`split('=')` splits at every single `=`. The two `=` signs are side by side, so an empty piece is left between them. You need to pass `'=='` as the separator.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c17",
+      "type": "explain",
+      "title_tr": "requirements.txt'nin gerçek hâli",
+      "title": "What requirements.txt really looks like",
+      "body_tr": "Elle yazılan requirements dosyaları her zaman `==` içermez. `flask>=3.0` \"en az 3.0\", `numpy<3` \"3'ten küçük\", `requests~=2.31` \"2.31 ile uyumlu\" demektir. Dosyada `#` ile başlayan yorumlar ve boş satırlar da bulunabilir.\n\nSağlam bir okuyucu önce satırın başındaki ve sonundaki boşlukları atar, boş ve yorum satırlarını geçer, sonra adı işaretten ayırır. Aşağıda paket adları da küçük harfe çevriliyor, çünkü pip `Flask` ile `flask`'ı aynı paket sayar.",
+      "body": "Hand-written requirements files do not always use `==`. `flask>=3.0` means \"at least 3.0\", `numpy<3` \"below 3\", `requests~=2.31` \"compatible with 2.31\". The file can also contain comments starting with `#` and blank lines.\n\nA robust reader first strips spaces at both ends of each line, skips blank and comment lines, and then separates the name from the operator. Below the package names are also lowercased, because pip treats `Flask` and `flask` as the same package.",
+      "code": "text = '# web\\nFlask>=3.0\\n\\nrequests~=2.31\\n  numpy<3  '\nreqs = []\nfor line in text.splitlines():\n    line = line.strip()\n    if not line or line.startswith('#'):\n        continue\n    for op in ('~=', '>=', '==', '<'):\n        if op in line:\n            name, version = line.split(op)\n            reqs.append((name.lower(), op, version))\n            break\nprint(reqs)",
+      "expected_output": "[('flask', '>=', '3.0'), ('requests', '~=', '2.31'), ('numpy', '<', '3')]",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c18",
+      "type": "explain",
+      "title_tr": "Sık hata: sürümleri string olarak karşılaştırmak",
+      "title": "Common mistake: comparing versions as strings",
+      "body_tr": "\"Kurulu sürüm yeterince yeni mi?\" sorusunu `'1.10.0' > '1.9.0'` diye sormak cazip gelir. Ama string'ler **karakter karakter** karşılaştırılır: ilk farklı karakterler `'1'` ile `'9'`'dur ve `'1' < '9'` olduğu için Python 1.10'u daha eski sanır.\n\nÇözüm, sürümü sayı parçalarına ayırıp bir tuple'a çevirmektir. Tuple'lar da soldan sağa karşılaştırılır ama her parça bir sayıdır, bu yüzden 10 > 9 doğru sonucu verir. Gerçek projelerde `packaging.version.Version` aynı işi `rc`, `post` gibi ekleri de anlayarak yapar.",
+      "body": "It is tempting to ask \"is the installed version new enough?\" as `'1.10.0' > '1.9.0'`. But strings are compared **character by character**: the first differing characters are `'1'` and `'9'`, and since `'1' < '9'`, Python thinks 1.10 is older.\n\nThe fix is to split the version into numeric parts and turn it into a tuple. Tuples are also compared left to right, but every part is a number, so 10 > 9 gives the right answer. In real projects `packaging.version.Version` does the same job and also understands suffixes such as `rc` and `post`.",
+      "code": "print('1.10.0' > '1.9.0')\n\ndef as_tuple(version):\n    return tuple(int(part) for part in version.split('.'))\n\nprint(as_tuple('1.10.0'))\nprint(as_tuple('1.10.0') > as_tuple('1.9.0'))",
+      "expected_output": "False\n(1, 10, 0)\nTrue",
+      "hide_output": true,
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c19",
+      "type": "predict",
+      "prompt_tr": "Çıktı ne olur?",
+      "prompt": "What is printed?",
+      "code": "print((2, 0) < (2, 0, 1), (3, 1) > (2, 99, 99))",
+      "choices": [
+        "True True",
+        "False True",
+        "True False",
+        "Error"
+      ],
+      "answer": "True True",
+      "why_tr": "Tuple'lar ilk farklı öğede karar verir. `(2, 0)` ile `(2, 0, 1)` ilk iki öğede eşittir; kısa olan önce gelir. `(3, 1)` ile `(2, 99, 99)` ilk öğede ayrılır ve 3 > 2'dir.",
+      "why": "Tuples decide at the first differing item. `(2, 0)` and `(2, 0, 1)` are equal in the first two items, and the shorter one comes first. `(3, 1)` and `(2, 99, 99)` differ at the first item, and 3 > 2.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c20",
+      "type": "explain",
+      "title_tr": "Bir sürüm kurala uyuyor mu?",
+      "title": "Does a version satisfy a rule?",
+      "body_tr": "pip, `flask>=3.0` gibi bir kuralı okuyunca kurulu sürümün uyup uymadığına bakar. Sürümleri tuple'a çevirdikten sonra bu sıradan bir karşılaştırmadır: `==` için eşitlik, `>=` için büyük-eşit, `<` için küçük.\n\nAşağıdaki `satisfies` fonksiyonu işaretleri bir dict'te tutuyor. Her işaret bir lambda'ya (14. gün) bağlı, böylece uzun bir `if/elif` zinciri gerekmiyor. İzleyicide `as_tuple`'ın iki kez çağrıldığını ve dict'ten seçilen fonksiyonun sonucu döndürdüğünü izle.",
+      "body": "When pip reads a rule like `flask>=3.0`, it checks whether the installed version satisfies it. Once the versions are tuples this is an ordinary comparison: equality for `==`, greater-or-equal for `>=`, less-than for `<`.\n\nThe `satisfies` function below keeps the operators in a dict. Each operator is bound to a lambda (Day 14), so no long `if/elif` chain is needed. In the tracer, watch `as_tuple` get called twice and the function picked from the dict return the result.",
+      "code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\nCHECKS = {'==': lambda a, b: a == b, '>=': lambda a, b: a >= b, '<': lambda a, b: a < b}\n\ndef satisfies(installed, op, wanted):\n    return CHECKS[op](as_tuple(installed), as_tuple(wanted))\n\nprint(satisfies('3.0.3', '>=', '3.0'))\nprint(satisfies('1.1.1', '>=', '3.0'))\nprint(satisfies('2.1.0', '<', '3'))",
+      "expected_output": "True\nFalse\nTrue",
+      "trace": true,
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c21",
+      "type": "fill",
+      "prompt_tr": "Boşluğu doldur: kurulu numpy sürümü `numpy>=1.26` kuralını karşılıyor mu?",
+      "prompt": "Fill the blank: does the installed numpy satisfy the rule `numpy>=1.26`?",
+      "code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\ninstalled = '1.26.4'\nprint(as_tuple(installed) ___ as_tuple('1.26'))",
+      "answers": [
+        ">="
+      ],
+      "expected_output": "True",
+      "why_tr": "`>=` kuralı \"en az bu sürüm\" demektir. `(1, 26, 4) >= (1, 26)` `True` verir, çünkü ilk iki öğe eşit ve uzun olan tuple daha büyük sayılır.",
+      "why": "The `>=` rule means \"at least this version\". `(1, 26, 4) >= (1, 26)` is `True`, because the first two items are equal and the longer tuple counts as larger.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c22",
+      "type": "explain",
+      "title_tr": "~= uyumlu sürüm kuralı",
+      "title": "The ~= compatible-release rule",
+      "body_tr": "`requests~=2.31` sık görülen ama az bilinen bir kuraldır. Anlamı: \"2.31 ya da daha yeni olsun, ama 2.x serisinde kalsın\", yani `>=2.31` ve `<3`. Son parça dışındaki bütün parçalar sabit kalır, yalnızca son parça büyüyebilir. `~=2.31.0` ise 2.31.x serisinde kalmak demektir.\n\nFikir şudur: aynı ana sürümde gelen güncellemeler genellikle geriye uyumludur, yeni ana sürüm ise kodunu bozabilir. Böylece hata düzeltmelerini alırsın ama kırıcı değişikliklerden korunursun.",
+      "body": "`requests~=2.31` is a common but little-known rule. It means \"2.31 or newer, but stay in the 2.x series\", that is `>=2.31` and `<3`. Every part except the last stays fixed; only the last part may grow. `~=2.31.0` means staying in the 2.31.x series.\n\nThe idea: updates within the same major version are usually backward compatible, while a new major version may break your code. That way you get bug fixes but are protected from breaking changes.",
+      "code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\ndef compatible(installed, wanted):\n    i, w = as_tuple(installed), as_tuple(wanted)\n    return i >= w and i[:len(w) - 1] == w[:-1]\n\nfor v in ['2.31.0', '2.32.3', '3.0.0', '2.30.9']:\n    print(v, compatible(v, '2.31'))",
+      "expected_output": "2.31.0 True\n2.32.3 True\n3.0.0 False\n2.30.9 False",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c23",
+      "type": "truefalse",
+      "statement_tr": "`flask~=3.0` kuralı Flask 3.1.2'yi kabul eder ama Flask 4.0'ı kabul etmez.",
+      "statement": "The rule `flask~=3.0` accepts Flask 3.1.2 but not Flask 4.0.",
+      "answer": true,
+      "why_tr": "`~=3.0`, `>=3.0` ve `<4` demektir. 3.1.2 bu aralıktadır; 4.0 ise yeni bir ana sürüm olduğu için dışarıda kalır.",
+      "why": "`~=3.0` means `>=3.0` and `<4`. 3.1.2 is inside that range; 4.0 is a new major version and falls outside.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c24",
+      "type": "explain",
+      "title_tr": ".gitignore: venv depoya girmez",
+      "title": ".gitignore: the venv stays out of the repository",
+      "body_tr": "Orijinal dersin son cümlesi önemlidir: venv klasörünü `.gitignore` dosyasına ekle. Venv yüzlerce megabayt olabilir, içindeki yollar senin bilgisayarına özeldir ve `requirements.txt`'den her zaman yeniden kurulabilir. Depoya giren şey tarif (`requirements.txt`), tarifin ürünü (`venv/`) değildir.\n\n`.gitignore` satırları dosya kalıplarıdır: `venv/` klasörün tamamını, `*.pyc` derlenmiş dosyaları dışarıda bırakır. Python'daki `fnmatch` modülü benzer kalıpları eşleştirir; aşağıda onunla hangi dosyaların depoya gireceğini buluyoruz. Bu yalnızca bir yaklaşıktır: `fnmatch`'te `*` işareti `/`'yı da kapsar, bu yüzden `venv/*` klasörün derinlerindeki dosyaları da yakalar.",
+      "body": "The original lesson's last sentence matters: add the venv folder to your `.gitignore` file. A venv can be hundreds of megabytes, the paths inside it are specific to your computer, and it can always be rebuilt from `requirements.txt`. What goes into the repository is the recipe (`requirements.txt`), not the dish (`venv/`).\n\n`.gitignore` lines are file patterns: `venv/` leaves out the whole folder and `*.pyc` the compiled files. Python's `fnmatch` module matches similar patterns, so below we use it to work out which files go into the repository. It is only an approximation: in `fnmatch` a `*` also matches `/`, so `venv/*` catches files deep inside the folder too.",
+      "code": "from fnmatch import fnmatch\n\nignore = ['venv/*', '*.pyc', '__pycache__/*']\nfiles = ['app.py', 'requirements.txt', 'venv/bin/python', 'app.pyc', 'venv/lib/flask.py']\n\nkept = [f for f in files if not any(fnmatch(f, pattern) for pattern in ignore)]\nprint(kept)",
+      "expected_output": "['app.py', 'requirements.txt']",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c25",
+      "type": "predict",
+      "prompt_tr": "Çıktı ne olur?",
+      "prompt": "What is printed?",
+      "code": "from fnmatch import fnmatch\n\nprint(fnmatch('src/venv_helpers.py', 'venv/*'), fnmatch('venv/pyvenv.cfg', 'venv/*'))",
+      "choices": [
+        "False True",
+        "True True",
+        "True False",
+        "False False"
+      ],
+      "answer": "False True",
+      "why_tr": "`venv/*` kalıbı `venv/` ile **başlayan** yolları eşler. `src/venv_helpers.py` içinde \"venv\" geçse de `src/` ile başlar, eşleşmez.",
+      "why": "The pattern `venv/*` matches paths that **start with** `venv/`. `src/venv_helpers.py` contains \"venv\" but starts with `src/`, so it does not match.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c26",
+      "type": "explain",
+      "title_tr": "Gerçekçi örnek: çakışmayı önceden bulmak",
+      "title": "Realistic example: spotting a conflict early",
+      "body_tr": "İki kütüphane aynı bağımlılığın farklı sürümlerini isteyebilir: biri `urllib3==1.26`, öteki `urllib3==2.2` der. Tek bir ortamda ikisi birden kurulamaz; pip bunu fark edince \"ResolutionImpossible\" benzeri bir hatayla durur.\n\nAşağıdaki kod her paketin istediği bağımlılıkları bir dict'te topluyor. Her bağımlılık için istenen sürümleri bir set'te biriktiriyor (7. gün). `setdefault(anahtar, set())` anahtar yoksa ona boş bir set bağlar ve o set'i döndürür; `.add` de sürümü ekler. Set'te birden fazla sürüm varsa çakışma vardır. Çözüm çoğu zaman paketlerden birinin başka bir sürümünü seçmek ya da projeleri ayrı venv'lere bölmektir.",
+      "body": "Two libraries can ask for different versions of the same dependency: one says `urllib3==1.26`, the other `urllib3==2.2`. Both cannot be installed in one environment; when pip notices, it stops with an error along the lines of \"ResolutionImpossible\".\n\nThe code below collects each package's required dependencies in a dict. For every dependency it gathers the requested versions in a set (Day 7). `setdefault(key, set())` binds an empty set to the key if it is missing and returns that set, and `.add` adds the version. If the set holds more than one version, there is a conflict. The fix is usually choosing a different version of one package, or splitting the projects into separate venvs.",
+      "code": "needs = {'old-sdk': {'urllib3': '1.26', 'six': '1.16'},\n         'new-client': {'urllib3': '2.2'},\n         'helper': {'six': '1.16'}}\n\nwanted = {}\nfor package, deps in needs.items():\n    for dep, version in deps.items():\n        wanted.setdefault(dep, set()).add(version)\n\nconflicts = {dep: sorted(v) for dep, v in wanted.items() if len(v) > 1}\nprint(conflicts)",
+      "expected_output": "{'urllib3': ['1.26', '2.2']}",
+      "trace": true,
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c27",
+      "type": "predict",
+      "prompt_tr": "Çıktı ne olur?",
+      "prompt": "What is printed?",
+      "code": "wanted = {}\nfor dep, version in [('six', '1.16'), ('idna', '3.7'), ('six', '1.16'), ('idna', '3.4')]:\n    wanted.setdefault(dep, set()).add(version)\nprint({d: len(v) for d, v in wanted.items()})",
+      "choices": [
+        "{'six': 1, 'idna': 2}",
+        "{'six': 2, 'idna': 2}",
+        "{'six': 1, 'idna': 1}",
+        "{'idna': 2}"
+      ],
+      "answer": "{'six': 1, 'idna': 2}",
+      "why_tr": "Set aynı değeri bir kez tutar: `six` için iki kez `1.16` istendi ama set'te tek öğe var. `idna` için iki farklı sürüm istendi, yani çakışma yalnızca orada.",
+      "why": "A set keeps each value once: `1.16` was requested twice for `six`, but the set holds one item. `idna` got two different versions, so that is the only conflict.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c28",
+      "type": "explain",
+      "title_tr": "Ekosistem: venv, virtualenv, conda ve diğerleri",
+      "title": "The ecosystem: venv, virtualenv, conda and others",
+      "body_tr": "Bu günün fikri her araçta aynıdır: **her projeye kendi yalıtılmış paket klasörü**. Araçlar yalnızca ayrıntıda farklılaşır. `venv` standart kütüphanededir ve çoğu proje için yeterlidir. `virtualenv` aynı işi biraz daha hızlı ve esnek yapan eski bir pakettir.\n\n24. ve 25. günlerdeki veri bilimi derslerinde adı geçen `conda` (Anaconda) yalnızca Python paketlerini değil, Python'un kendisini ve C kütüphanelerini de ortam başına yönetir. Daha yeni araçlar (`uv`, `poetry`, `pipx`) ortamı kurmayı, kilitlemeyi ve paylaşmayı tek komutta birleştirir. Hangisini seçersen seç, `venv/`'yi depoya koyma ve sürümleri bir dosyada sabitle.",
+      "body": "Today's idea is the same in every tool: **each project gets its own isolated package folder**. The tools differ only in details. `venv` is in the standard library and is enough for most projects. `virtualenv` is an older package doing the same job a little faster and more flexibly.\n\n`conda` (Anaconda), mentioned in the data-science lessons of Days 24 and 25, manages not only Python packages but Python itself and C libraries per environment. Newer tools (`uv`, `poetry`, `pipx`) combine creating, locking and sharing the environment into single commands. Whichever you choose, keep `venv/` out of the repository and pin your versions in a file.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c29",
+      "type": "truefalse",
+      "statement_tr": "Projeyi başkasıyla paylaşırken `venv/` klasörünü değil `requirements.txt` dosyasını depoya koymak gerekir.",
+      "statement": "When sharing a project you should put `requirements.txt`, not the `venv/` folder, into the repository.",
+      "answer": true,
+      "why_tr": "`requirements.txt` küçük ve taşınabilir bir tariftir; karşı taraf `python -m venv venv` ve `pip install -r requirements.txt` ile aynı ortamı kendi bilgisayarında kurar. `venv/` ise büyüktür ve senin bilgisayarına özeldir.",
+      "why": "`requirements.txt` is a small, portable recipe; the other person rebuilds the same environment on their machine with `python -m venv venv` and `pip install -r requirements.txt`. `venv/` is large and specific to your computer.",
+      "section": "Setting up Virtual Environments"
+    },
+    {
+      "id": "d23-c30",
+      "type": "recap",
+      "title_tr": "Bugünün özeti",
+      "title": "Today's summary",
+      "points_tr": [
+        "Bir paketin tek bir `site-packages` klasöründe yalnızca bir sürümü olabilir; sanal ortam her projeye kendi paket klasörünü vererek çakışmaları önler.",
+        "Ortam `python -m venv venv` ile kurulur, işletim sistemine uygun `activate` komutuyla etkinleştirilir ve `deactivate` ile kapatılır.",
+        "Etkinleştirmek yalnızca `PATH`'in başına ortamın klasörünü ekler; `import` ise modülleri `sys.path`'teki klasörlerde sırayla arar ve ilk bulduğunu kullanır.",
+        "`pip freeze > requirements.txt` sürümleri dosyaya yazar, `pip install -r requirements.txt` aynı ortamı başka bir bilgisayarda yeniden kurar; `venv/` ise `.gitignore`'a girer.",
+        "Sürümleri string olarak karşılaştırma (`'1.10' < '1.9'` doğru çıkar); sayı parçalarından oluşan tuple'lara çevirip öyle karşılaştır."
+      ],
+      "points": [
+        "A package can have only one version in a single `site-packages` folder; a virtual environment prevents conflicts by giving each project its own package folder.",
+        "You create an environment with `python -m venv venv`, activate it with the `activate` command for your operating system, and leave it with `deactivate`.",
+        "Activating only puts the environment's folder at the front of `PATH`; `import` searches the folders of `sys.path` in order and uses the first match.",
+        "`pip freeze > requirements.txt` writes the versions to a file and `pip install -r requirements.txt` rebuilds the environment elsewhere, while `venv/` goes into `.gitignore`.",
+        "Never compare versions as strings (`'1.10' < '1.9'` comes out true); turn them into tuples of numbers and compare those."
+      ],
+      "cta_tr": "Alıştırmalara geç",
+      "cta": "Go to the exercises",
+      "link": "learn",
+      "section": "Setting up Virtual Environments"
+    }
+  ]
 }

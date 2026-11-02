@@ -1,245 +1,421 @@
 {
   "day": 13,
-  "title_tr": "Liste Üreteçleri ve Lambda",
+  "title_tr": "List Comprehension ve Lambda",
   "title": "List Comprehension and Lambda",
-  "est_minutes": 20,
+  "est_minutes": 45,
   "cards": [
     {
       "id": "d13-c01",
       "type": "explain",
       "section": "List Comprehension",
-      "title_tr": "List comprehension nedir?",
-      "title": "What is a list comprehension?",
-      "body_tr": "Bir listeyi tek satırda üretmenin kısa yoludur: `[ifade for i in dizi if koşul]`. `for` döngüsüyle aynı işi yapar, ama daha derli toplu.",
-      "body": "A short way to build a list in one line: `[expression for i in iterable if condition]`. It does what a `for` loop does, more compactly."
+      "title_tr": "Döngü ve append kalıbı",
+      "title": "The loop-and-append pattern",
+      "body_tr": "10. günden beri bu kalıbı defalarca yazdın: boş bir list başlat, bir şey üzerinde döngü kur, bir değer hesapla, ekle.\n\nÖrnek, fiyatları yüzde 20 KDV'li fiyatlara çeviriyor. Adım adım izle ve hareket eden üç parçaya bak: `result` her turda bir eleman büyüyor, `p` sırayla her fiyatı alıyor ve `p * 1.2` ifadesi içeri neyin gireceğine karar veriyor.\n\nBu kalıp o kadar yaygın ki Python'da tam olarak bunun için ayrılmış, daha kısa bir yazım var: **comprehension** (kısa liste kurma yazımı). Üç parçayı aklında tut: içeri ne konacak, hangi döngü ve sonuçları hangi list toplayacak.",
+      "body": "You have written this shape many times since Day 10: start an empty list, loop over something, compute a value, append it.\n\nThe example turns prices into prices with 20% VAT. Step through it and watch the three moving parts: `result` grows by one item per round, `p` takes each price in turn, and the expression `p * 1.2` decides what goes in.\n\nThe pattern is so common that Python has a dedicated, shorter syntax for exactly this, called a **comprehension** (kısa liste kurma yazımı). Keep the three parts in mind: what to put in, which loop, and which list collects the results.",
+      "code": "prices = [100, 250, 40]\nresult = []\nfor p in prices:\n    result.append(p * 1.2)\nprint(result)",
+      "expected_output": "[120.0, 300.0, 48.0]",
+      "trace": true
     },
     {
       "id": "d13-c02",
       "type": "explain",
       "section": "List Comprehension",
-      "title_tr": "Yazıyı karakter listesine çevir",
-      "title": "String to a list of characters",
-      "body_tr": "İki yol var: `list()` ya da comprehension. İkisi de aynı listeyi verir.",
-      "body": "Two ways: `list()` or a comprehension. Both give the same list.",
-      "code": "language = 'Python'\nlst = list(language)\nprint(lst)\nlst = [i for i in language]\nprint(lst)",
-      "expected_output": "['P', 'y', 't', 'h', 'o', 'n']\n['P', 'y', 't', 'h', 'o', 'n']",
-      "trace": true
+      "title_tr": "Aynı list tek satırda",
+      "title": "The same list in one line",
+      "body_tr": "List comprehension bu parçaları köşeli parantezlerin içine yazar:\n\n`[p * 1.2 for p in prices]`\n\nSoldan sağa şöyle oku: \"`prices` içindeki **her** `p` **için**, **değer** olarak `p * 1.2`\". Önce ifade gelir, sonra döngü başlığının iki noktasız hâliyle aynı olan `for` kısmı. Köşeli parantezler sonucun yeni bir list olduğunu söyler; ne `append` ne de boş bir başlangıç list'i gerekir.\n\nİlk örnek bir string'i karakter list'ine çeviriyor; `list(language)` da aynı sonucu verir. İkincisi önceki karttaki KDV list'i. Comprehension sihir değildir: Python aynı döngüyü çalıştırır, yalnızca daha kısa yazılmıştır; tekrarlanan `.append` aramalarını atladığı için de biraz daha hızlıdır.",
+      "body": "A list comprehension writes those parts inside square brackets:\n\n`[p * 1.2 for p in prices]`\n\nRead it left to right as \"**the value** `p * 1.2`, **for each** `p` **in** `prices`\". The expression comes first, then the `for` clause that is identical to the loop header without its colon. The brackets say the result is a new list; no `append` and no empty starting list are needed.\n\nThe first example turns a string into a list of characters; `list(language)` gives the same result. The second is the VAT list from the previous card. A comprehension is not magic: Python runs the same loop, just written more compactly, and it is slightly faster because it skips the repeated `.append` lookups.",
+      "code": "language = 'Python'\nletters = [ch for ch in language]\nprint(letters)\nprint(letters == list(language))\n\nprices = [100, 250, 40]\nprint([p * 1.2 for p in prices])",
+      "expected_output": "['P', 'y', 't', 'h', 'o', 'n']\nTrue\n[120.0, 300.0, 48.0]"
     },
     {
       "id": "d13-c03",
-      "type": "explain",
+      "type": "predict",
       "section": "List Comprehension",
-      "title_tr": "Sayı üretmek",
-      "title": "Generating numbers",
-      "body_tr": "Ifade kısmında hesap yapabilirsin. `i * i` her sayının karesini verir. Önce tahmin et.",
-      "body": "The expression part can compute. `i * i` gives each number's square. Guess first.",
-      "code": "squares = [i * i for i in range(6)]\nprint(squares)\npairs = [(i, i * i) for i in range(4)]\nprint(pairs)",
-      "expected_output": "[0, 1, 4, 9, 16, 25]\n[(0, 0), (1, 1), (2, 4), (3, 9)]",
-      "hide_output": true
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "names = ['ayşe', 'mehmet', 'can']\nlengths = [len(n) for n in names]\nprint(lengths)",
+      "choices": [
+        "[1, 1, 1]",
+        "['ayşe', 'mehmet', 'can']",
+        "[4, 6, 3]",
+        "13"
+      ],
+      "answer": "[4, 6, 3]",
+      "why_tr": "`len(n)` ifadesi her isim için hesaplanır ve sonuçlar yeni bir list'te toplanır: her isim için bir sayı.",
+      "why": "The expression `len(n)` is computed for each name, and the results are collected in a new list: one number per name."
     },
     {
       "id": "d13-c04",
-      "type": "predict",
+      "type": "explain",
       "section": "List Comprehension",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "print([i + 1 for i in range(4)])",
-      "choices": [
-        "[1, 2, 3, 4]",
-        "[0, 1, 2, 3]",
-        "[1, 2, 3, 4, 5]",
-        "[2, 3, 4, 5]"
-      ],
-      "answer": "[1, 2, 3, 4]",
-      "why_tr": "`range(4)` 0..3 verir, her birine 1 eklenir.",
-      "why": "`range(4)` gives 0..3 and each gets +1."
+      "title_tr": "Arka planda ne oluyor",
+      "title": "What happens underneath",
+      "body_tr": "Comprehension'ların nasıl davranacağını üç kural belirler.\n\nBirincisi, comprehension her zaman **yeni** bir list kurar. Orijinal list yalnızca okunur, asla değiştirilmez; aşağıda `scores` değerlerini korur.\n\nİkincisi, döngü değişkeni yalnızca köşeli parantezlerin içinde yaşar. `[n * 2 for n in scores]` sonrasında `n` ismi dışarıda yoktur; onu kullanmak `NameError: name 'n' is not defined` verir. Normal bir `for` döngüsü ise değişkenini son değeriyle geride bırakır; bu da sık görülen bir kafa karışıklığı kaynağıdır.\n\nÜçüncüsü, ifade her eleman için sırayla bir kez hesaplanır. Kodu adım adım izle: izleyici, yeni list `doubled`'a bağlanmadan önce comprehension'ın eleman eleman çalıştığını gösteriyor.",
+      "body": "Three facts make comprehensions predictable.\n\nFirst, a comprehension always builds a **new** list. The original list is only read, never changed; `scores` below keeps its values.\n\nSecond, the loop variable lives only inside the brackets. After `[n * 2 for n in scores]`, the name `n` does not exist outside; using it gives `NameError: name 'n' is not defined`. A normal `for` loop leaves its variable behind with the last value, which is a common source of confusion.\n\nThird, the expression is evaluated once per item, in order. Step through the code: the tracer shows the comprehension running item by item before the new list is attached to `doubled`.",
+      "code": "scores = [55, 70, 90]\ndoubled = [n * 2 for n in scores]\nprint(doubled)\nprint(scores)\nfor m in scores:\n    pass\nprint(m)",
+      "expected_output": "[110, 140, 180]\n[55, 70, 90]\n90",
+      "trace": true
     },
     {
       "id": "d13-c05",
-      "type": "fill",
+      "type": "truefalse",
       "section": "List Comprehension",
-      "prompt_tr": "Çıktı `[0, 1, 8, 27]` olsun. Boşluğa ne yazılır?",
-      "code": "print([i ** 3 for i in range(___)])",
-      "answers": [
-        "4"
-      ],
-      "expected_output": "[0, 1, 8, 27]",
-      "why_tr": "`range(4)` 0, 1, 2, 3 üretir; küpleri 0, 1, 8, 27.",
-      "why": "`range(4)` yields 0, 1, 2, 3; the cubes are 0, 1, 8, 27."
+      "statement_tr": "`[x + 1 for x in nums]`, `nums`'ın her elemanına yerinde 1 ekler; yani `nums`'ın kendisi değişir.",
+      "statement": "`[x + 1 for x in nums]` adds 1 to every item of `nums` in place, so `nums` itself changes.",
+      "answer": false,
+      "why_tr": "Comprehension yepyeni bir list kurup döndürür; `nums` yalnızca okunur. Sonucu tutmak için ona bir isim bağla; örneğin `nums = [x + 1 for x in nums]`.",
+      "why": "A comprehension builds and returns a brand-new list; `nums` is only read. To keep the result, attach a name to it, for example `nums = [x + 1 for x in nums]`."
     },
     {
       "id": "d13-c06",
       "type": "explain",
       "section": "List Comprehension",
-      "title_tr": "if ile süzmek",
-      "title": "Filtering with if",
-      "body_tr": "Sona `if` eklersen yalnız koşulu sağlayanlar listeye girer.",
-      "body": "Add `if` at the end and only items passing the test are kept.",
-      "code": "even_numbers = [i for i in range(21) if i % 2 == 0]\nprint(even_numbers)\nodd_numbers = [i for i in range(21) if i % 2 != 0]\nprint(odd_numbers)",
-      "expected_output": "[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]\n[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]",
-      "trace": true
+      "title_tr": "Sayılar, kareler ve tuple'lar",
+      "title": "Numbers, squares and tuples",
+      "body_tr": "`in`'den sonraki yinelenebilir nesne (iterable), üzerinde döngü kurabildiğin herhangi bir şey olabilir; `range` sık bir tercihtir: `[i for i in range(11)]` 0'dan 10'a kadar sayıları verir.\n\nİfade herhangi bir hesap (`i * i`) olabilir, hatta küçük bir yapı da kurabilir. `(i, i * i)` her sayı için bir tuple oluşturur; sonuç, daha sonra `for n, sq in pairs:` ile açılmaya hazır bir çiftler list'idir. Parantezlere dikkat et: onlar olmadan `[i, i * i for i in range(4)]` yazmak hata verir ve Python çözümü kendisi önerir: `SyntaxError: did you forget parentheses around the comprehension target?`\n\nOrijinal dersin tuple örneğindeki yorum yalnızca ilk altı çifti gösteriyordu; gerçek list `(10, 100)`'e kadar gider. Buradaki daha kısa `range(4)` sürümü bunu açıkça gösteriyor.",
+      "body": "The iterable after `in` can be anything you can loop over, and `range` is a frequent choice: `[i for i in range(11)]` gives 0 to 10.\n\nThe expression can be any calculation (`i * i`) or even build a small structure. `(i, i * i)` makes one tuple per number, so the result is a list of pairs, ready to be unpacked later with `for n, sq in pairs:`. Note the parentheses: writing `[i, i * i for i in range(4)]` without them fails, and Python even suggests the fix: `SyntaxError: did you forget parentheses around the comprehension target?`\n\nThe original lesson's comment for the tuple example showed only the first six pairs; the real list goes up to `(10, 100)`, as the shorter `range(4)` version here shows clearly.",
+      "code": "numbers = [i for i in range(11)]\nprint(numbers)\nsquares = [i * i for i in range(11)]\nprint(squares)\npairs = [(i, i * i) for i in range(4)]\nprint(pairs)",
+      "expected_output": "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n[0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]\n[(0, 0), (1, 1), (2, 4), (3, 9)]"
     },
     {
       "id": "d13-c07",
-      "type": "explain",
+      "type": "fill",
       "section": "List Comprehension",
-      "title_tr": "Pozitif ve çift olanlar",
-      "title": "Positive and even",
-      "body_tr": "`and` ile birden fazla koşul bağlanır. (Derste örnek çıktı yanlış yazılmış; gerçek sonucu çalıştır.)",
-      "body": "Combine conditions with `and`. (The lesson's sample output is wrong; run it for the real result.)",
-      "code": "numbers = [-8, -7, -3, -1, 0, 1, 3, 4, 5, 7, 6, 8, 10]\npositive_even = [i for i in numbers if i % 2 == 0 and i > 0]\nprint(positive_even)",
-      "expected_output": "[4, 6, 8, 10]",
-      "hide_output": true
+      "prompt_tr": "Kod gösterilen çıktıyı versin diye boşluğu doldur.",
+      "prompt": "Fill in the blank so the code prints the output shown.",
+      "code": "cubes = [___ for n in range(1, 5)]\nprint(cubes)",
+      "answers": [
+        "n ** 3",
+        "n**3",
+        "n * n * n",
+        "n*n*n"
+      ],
+      "expected_output": "[1, 8, 27, 64]",
+      "why_tr": "Listeye ne gireceğine ifade kısmı karar verir. 1, 2, 3, 4 için küpler 1, 8, 27, 64'tür; yani ifade `n ** 3`'tür.",
+      "why": "The expression part decides what goes into the list. For 1, 2, 3, 4 the cubes are 1, 8, 27, 64, so the expression is `n ** 3`."
     },
     {
       "id": "d13-c08",
-      "type": "predict",
+      "type": "explain",
       "section": "List Comprehension",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "nums = [1, -2, 3, -4]\nprint([n for n in nums if n < 0])",
-      "choices": [
-        "[-2, -4]",
-        "[1, 3]",
-        "[1, -2, 3, -4]",
-        "[]"
-      ],
-      "answer": "[-2, -4]",
-      "why_tr": "Yalnız negatifler süzülür.",
-      "why": "Only the negatives pass the filter."
+      "title_tr": "if ile filtreleme",
+      "title": "Filtering with if",
+      "body_tr": "Yalnızca bazı elemanları tutmak için sona bir `if` ekle: `[i for i in range(21) if i % 2 == 0]` çift sayıları tutar. Şöyle oku: \"aralıktaki her i için, i çift **ise**, i\". Koşulun yanlış olduğu elemanlar basitçe atlanır; onlar için hiçbir şey eklenmez.\n\nKoşulları `and` / `or` ile birleştirebilirsin. İşte orijinal dersten bir hata: aşağıdaki list için pozitif çift sayıların `[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]` olduğunu söylüyordu; ama bu sayıların çoğu list'te bile yok. Kodu çalıştır: gerçek cevap `[4, 6, 8, 10]`. Sıfır çifttir ama pozitif değildir, bu yüzden `i > 0` onu eler.",
+      "body": "Add an `if` at the end to keep only some items: `[i for i in range(21) if i % 2 == 0]` keeps the even numbers. Read it as \"i, for each i in the range, **if** i is even\". Items for which the condition is false are simply skipped; nothing is added for them.\n\nYou can combine conditions with `and` / `or`. Here is a bug from the original lesson: for the list below it claimed that the positive even numbers are `[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]`, but most of those numbers are not even in the list. Run the code: the real answer is `[4, 6, 8, 10]`. Zero is even but not positive, so `i > 0` removes it.",
+      "code": "evens = [i for i in range(21) if i % 2 == 0]\nprint(evens)\n\nnumbers = [-8, -7, -3, -1, 0, 1, 3, 4, 5, 7, 6, 8, 10]\npositive_even = [i for i in numbers if i % 2 == 0 and i > 0]\nprint(positive_even)",
+      "expected_output": "[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]\n[4, 6, 8, 10]"
     },
     {
       "id": "d13-c09",
-      "type": "explain",
+      "type": "predict",
       "section": "List Comprehension",
-      "title_tr": "İç içe listeyi düzleştirmek",
-      "title": "Flattening nested lists",
-      "body_tr": "İki `for` yan yana: önce dış (satır), sonra iç (sayı). Okuma sırası normal iç içe döngüyle aynı.",
-      "body": "Two `for` clauses in a row: outer (row) first, inner (number) second. The order matches nested loops.",
-      "code": "list_of_lists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\nflattened = [number for row in list_of_lists for number in row]\nprint(flattened)",
-      "expected_output": "[1, 2, 3, 4, 5, 6, 7, 8, 9]",
-      "trace": true
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "words = ['elma', 'Armut', 'kiraz', 'Erik', 'üzüm']\npicked = [w.lower() for w in words if w[0].isupper()]\nprint(picked)",
+      "choices": [
+        "['Armut', 'Erik']",
+        "['elma', 'armut', 'kiraz', 'erik', 'üzüm']",
+        "['armut', 'erik']",
+        "['elma', 'kiraz', 'üzüm']"
+      ],
+      "answer": "['armut', 'erik']",
+      "why_tr": "`if` yalnızca ilk harfi büyük olan kelimeleri, Armut ve Erik'i tutar; ardından ifade tutulan her kelimeyi küçük harfe çevirir.",
+      "why": "The `if` keeps only words whose first letter is uppercase, Armut and Erik; the expression then lowercases each kept word."
     },
     {
       "id": "d13-c10",
-      "type": "order",
+      "type": "explain",
       "section": "List Comprehension",
-      "prompt_tr": "Satırları doğru sıraya diz.",
-      "lines": [
-        "print(flat)",
-        "rows = [[1, 2], [3, 4]]",
-        "flat = [x for row in rows for x in row]"
-      ],
-      "correct_order": [
-        1,
-        2,
-        0
-      ],
-      "expected_output": "[1, 2, 3, 4]"
+      "title_tr": "Değer seçmek: for'dan önce if-else",
+      "title": "Choosing a value: if-else before for",
+      "body_tr": "Bazen elemanları atmak değil, her biri için iki değer arasında seçim yapmak istersin. Bu bir **koşullu ifadedir** (conditional expression), `a if koşul else b`, ve ifade kısmına, `for`'dan **önce** yazılır:\n\n`['geçti' if s >= 50 else 'kaldı' for s in scores]`\n\nİki biçimi karşılaştır:\n\n- `[x for x in data if koşul]`: filtre. Sonuç `data`'dan kısa olabilir.\n- `[a if koşul else b for x in data]`: seçim. Sonuçta her girdi için her zaman bir eleman vardır.\n\nSondaki `if`'in `else`'i olamaz. `[s for s in scores if s >= 50 else 0]` yazmak `SyntaxError: invalid syntax` verir, çünkü Python orada bir filtre okur ve filtrelerin else dalı yoktur.",
+      "body": "Sometimes you do not want to drop items but to choose between two values for each one. That is a **conditional expression**, `a if condition else b`, and it belongs in the expression part, **before** `for`:\n\n`['geçti' if s >= 50 else 'kaldı' for s in scores]`\n\nCompare the two shapes:\n\n- `[x for x in data if cond]`: filter. The result can be shorter than `data`.\n- `[a if cond else b for x in data]`: choose. The result always has one item per input.\n\nA trailing `if` cannot have an `else`. Writing `[s for s in scores if s >= 50 else 0]` raises `SyntaxError: invalid syntax`, because Python reads a filter there, and filters have no else branch.",
+      "code": "scores = [72, 45, 90, 38]\nprint([s for s in scores if s >= 50])\nprint(['geçti' if s >= 50 else 'kaldı' for s in scores])",
+      "expected_output": "[72, 90]\n['geçti', 'kaldı', 'geçti', 'kaldı']"
     },
     {
       "id": "d13-c11",
-      "type": "truefalse",
+      "type": "predict",
       "section": "List Comprehension",
-      "statement_tr": "Comprehension içinde birden fazla `for` kullanılabilir.",
-      "statement": "A comprehension can contain more than one `for`.",
-      "answer": true,
-      "why_tr": "İç içe listeleri düzleştirmek tam olarak bunu yapar.",
-      "why": "Flattening nested lists does exactly that."
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "temps = [12, -3, 0, 25]\nprint([t if t > 0 else 0 for t in temps])\nprint([t for t in temps if t > 0])",
+      "choices": [
+        "[12, 0, 0, 25]\n[12, 0, 25]",
+        "[12, 25]\n[12, 0, 0, 25]",
+        "[12, -3, 0, 25]\n[12, 25]",
+        "[12, 0, 0, 25]\n[12, 25]"
+      ],
+      "answer": "[12, 0, 0, 25]\n[12, 25]",
+      "why_tr": "İlk satır her eleman için bir değer seçer; dört eleman kalır ve pozitif olmayanlar 0 olur. İkinci satır filtreler; yalnızca 12 ve 25 kalır.",
+      "why": "The first line chooses a value for every item, so it keeps four items and replaces non-positive ones with 0. The second filters, so only 12 and 25 remain."
     },
     {
       "id": "d13-c12",
       "type": "explain",
-      "section": "Creating a Lambda Function",
-      "title_tr": "Lambda: isimsiz fonksiyon",
-      "title": "Lambda: an anonymous function",
-      "body_tr": "`lambda parametreler: ifade` tek ifadelik küçük fonksiyon yazar. `return` yazmazsın, ifadenin sonucu otomatik döner.",
-      "body": "`lambda parameters: expression` is a tiny one-expression function. No `return` needed; the expression's value is returned.",
-      "code": "def add_two_nums(a, b):\n    return a + b\n\nadd_lambda = lambda a, b: a + b\nprint(add_two_nums(2, 3), add_lambda(2, 3))",
-      "expected_output": "5 5",
-      "trace": true
+      "section": "List Comprehension",
+      "title_tr": "Comprehension'ı ne zaman kullanmamalı",
+      "title": "When not to use a comprehension",
+      "body_tr": "Comprehension **list kurmak** içindir. Yalnızca bir etki istiyorsan, örneğin her ismi yazdırmak, normal bir döngü kullan. `[print(n) for n in names]` çalışır, ama ayrıca işe yaramayan bir `None` list'i (her `print` için bir tane) kurar ve okuyanlar hiç kullanmadığın o list'i arar.\n\nAyrıca kısa tut. İki koşul, iç içe bir döngü ve uzun bir ifade bir araya geldiğinde, açık isimli normal bir döngüyü okumak da hata ayıklamak da daha kolaydır. İyi bir kural: rahatça tek satıra sığmıyorsa ya da iki kez okuman gerekiyorsa döngüyü yaz.\n\nKod gizli bedeli gösteriyor: comprehension isimleri yazdırıyor, sonra da kurduğu `None` list'ini.",
+      "body": "A comprehension is for **building a list**. If you only want an effect, such as printing every name, use a normal loop. `[print(n) for n in names]` works, but it also builds a useless list of `None` values (one per `print`), and readers will look for the list you never use.\n\nAlso keep them short. Once there are two conditions, a nested loop and a long expression, a regular loop with clear names is easier to read and to debug. A good rule: if it does not fit comfortably on one line, or you have to read it twice, write the loop.\n\nThe code shows the hidden cost: the comprehension prints the names and then the list of `None`s it built.",
+      "code": "names = ['Ada', 'Ece']\nwaste = [print(n) for n in names]\nprint(waste)\nfor n in names:\n    print(n.upper())",
+      "expected_output": "Ada\nEce\n[None, None]\nADA\nECE"
     },
     {
       "id": "d13-c13",
       "type": "explain",
-      "section": "Creating a Lambda Function",
-      "title_tr": "Lambda örnekleri",
-      "title": "Lambda examples",
-      "body_tr": "Lambda'yı değişkene atayabilir ya da hemen çağırabilirsin. Çoklu parametre de olur.",
-      "body": "Assign a lambda to a variable or call it immediately. Multiple parameters work too.",
-      "code": "square = lambda x: x ** 2\nprint(square(3))\nprint((lambda a, b: a + b)(2, 3))\nmultiple_variable = lambda a, b, c: a ** 2 - 3 * b + 4 * c\nprint(multiple_variable(5, 5, 3))",
-      "expected_output": "9\n5\n22"
+      "section": "List Comprehension",
+      "title_tr": "İki for kısmı: düzleştirmek",
+      "title": "Two for clauses: flattening",
+      "body_tr": "Bir comprehension birden fazla `for` kısmı içerebilir. Bunlar, yukarıdan aşağı yazılmış iç içe döngülerle **aynı sırada** çalışır:\n\n`[number for row in matrix for number in row]`\n\nşu demektir: `matrix` içindeki her `row` için, sonra o `row` içindeki her `number` için, `number`'ı al. Sonuç düz bir list'tir: `[[1, 2, 3], [4, 5, 6]]`, `[1, 2, 3, 4, 5, 6]` olur.\n\nYaygın hata kısımları tersten yazmaktır: `for number in row for row in matrix`. Bu `NameError: name 'row' is not defined` hatası verir, çünkü ilk kısım çalışırken `row` henüz yoktur. Kodu adım adım izle: dıştaki `row` ancak içteki döngü onun bütün sayılarından geçtikten sonra değişiyor.",
+      "body": "A comprehension may contain several `for` clauses. They run in the **same order** as nested loops written top to bottom:\n\n`[number for row in matrix for number in row]`\n\nmeans: for each `row` in `matrix`, then for each `number` in that `row`, take `number`. The result is a flat list: `[[1, 2, 3], [4, 5, 6]]` becomes `[1, 2, 3, 4, 5, 6]`.\n\nThe usual mistake is to write the clauses in reverse, `for number in row for row in matrix`, which fails with `NameError: name 'row' is not defined`, because `row` does not exist yet when the first clause runs. Step through the code: the outer `row` changes only after the inner loop has gone through all of its numbers.",
+      "code": "matrix = [[1, 2, 3], [4, 5, 6]]\nflat = [number for row in matrix for number in row]\nprint(flat)",
+      "expected_output": "[1, 2, 3, 4, 5, 6]",
+      "trace": true
     },
     {
       "id": "d13-c14",
-      "type": "predict",
-      "section": "Creating a Lambda Function",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "cube = lambda x: x ** 3\nprint(cube(2))",
-      "choices": [
-        "8",
-        "6",
-        "9",
-        "Hata verir"
+      "type": "order",
+      "section": "List Comprehension",
+      "prompt_tr": "`[number * 10 for row in matrix for number in row]` ifadesinin döngü sürümünü yaz: satırları sırala.",
+      "prompt": "Write the loop version of `[number * 10 for row in matrix for number in row]`: put the lines in order.",
+      "lines": [
+        "matrix = [[1, 2], [3, 4]]",
+        "    for number in row:",
+        "for row in matrix:",
+        "print(flat)",
+        "flat = []",
+        "        flat.append(number * 10)"
       ],
-      "answer": "8",
-      "why_tr": "2 ** 3 = 8.",
-      "why": "2 ** 3 = 8."
+      "correct_order": [
+        0,
+        4,
+        2,
+        1,
+        5,
+        3
+      ],
+      "expected_output": "[10, 20, 30, 40]"
     },
     {
       "id": "d13-c15",
-      "type": "fill",
-      "section": "Creating a Lambda Function",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "double = ___ x: x * 2\nprint(double(21))",
-      "answers": [
-        "lambda"
+      "type": "predict",
+      "section": "List Comprehension",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "pairs = [(size, color) for size in 'SM' for color in ['mavi', 'kırmızı']]\nprint(len(pairs))\nprint(pairs[1])",
+      "choices": [
+        "4\n('M', 'mavi')",
+        "2\n('S', 'kırmızı')",
+        "4\n('S', 'kırmızı')",
+        "4\n('mavi', 'S')"
       ],
-      "expected_output": "42",
-      "why_tr": "Anahtar kelime `lambda`.",
-      "why": "The keyword is `lambda`."
+      "answer": "4\n('S', 'kırmızı')",
+      "why_tr": "İlk `for` dıştaki döngüdür: color iki rengin üzerinden geçerken size 'S' olarak kalır; ikinci çift ('S', 'kırmızı') olur. 2 beden çarpı 2 renk 4 çift verir.",
+      "why": "The first `for` is the outer loop: size stays 'S' while color goes through both colors, so the second pair is ('S', 'kırmızı'). 2 sizes times 2 colors give 4 pairs."
     },
     {
       "id": "d13-c16",
       "type": "explain",
-      "section": "Lambda Function Inside Another Function",
-      "title_tr": "Fonksiyondan lambda döndürmek",
-      "title": "Returning a lambda from a function",
-      "body_tr": "`power(2)` bir lambda döndürür; ona `(3)` verince hesap yapılır. Bu yüzden `power(2)(3)` iki parantez çifti ister.",
-      "body": "`power(2)` returns a lambda; passing `(3)` runs it. That is why `power(2)(3)` has two pairs of parentheses.",
-      "code": "def power(x):\n    return lambda n: x ** n\n\ncube = power(2)(3)\nprint(cube)\nprint(power(2)(5))",
-      "expected_output": "8\n32",
-      "trace": true
+      "section": "List Comprehension",
+      "title_tr": "Dict ve set comprehension'ları",
+      "title": "Dict and set comprehensions",
+      "body_tr": "Aynı fikir, parantezleri değiştirerek başka kaplarda da çalışır.\n\n**Dict comprehension** süslü parantez ve bir `anahtar: değer` çifti kullanır: `{name: len(name) for name in names}`. Bir list'ten arama tablosu kurmanın ya da bir dict'i dönüştürmenin en hızlı yoludur: `{k: v * 2 for k, v in prices.items()}`.\n\n**Set comprehension** süslü parantezi tek bir ifadeyle kullanır: `{w.lower() for w in words}`. Her set gibi tekrarları atar; bu yüzden \"hangi farklı değerler geçiyor?\" sorusu için çok kullanışlıdır.\n\nDikkat: Tek başına `{}` boş bir set değil, boş bir **dict**'tir. Boş set `set()` diye yazılır.",
+      "body": "The same idea works for other containers by changing the brackets.\n\nA **dict comprehension** uses braces and a `key: value` pair: `{name: len(name) for name in names}`. It is the quickest way to build a lookup table from a list, or to transform a dict: `{k: v * 2 for k, v in prices.items()}`.\n\nA **set comprehension** uses braces with a single expression: `{w.lower() for w in words}`. Like every set, it drops duplicates, so it is handy for \"which distinct values appear?\".\n\nCareful: `{}` alone is an empty **dict**, not an empty set. An empty set is written `set()`.",
+      "code": "names = ['Ada', 'Mehmet', 'Su']\nprint({name: len(name) for name in names})\nprices = {'çay': 15, 'simit': 20}\nprint({k: v * 2 for k, v in prices.items()})\nwords = ['Elma', 'elma', 'ARMUT']\nprint({w.lower() for w in words} == {'elma', 'armut'})",
+      "expected_output": "{'Ada': 3, 'Mehmet': 6, 'Su': 2}\n{'çay': 30, 'simit': 40}\nTrue"
     },
     {
       "id": "d13-c17",
-      "type": "truefalse",
-      "section": "Lambda Function Inside Another Function",
-      "statement_tr": "Lambda birden fazla satırlık ifade içerebilir.",
-      "statement": "A lambda can contain several statements.",
-      "answer": false,
-      "why_tr": "Lambda yalnızca tek bir ifade taşır.",
-      "why": "A lambda holds only a single expression."
+      "type": "predict",
+      "section": "List Comprehension",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "stock = {'kalem': 0, 'defter': 12, 'silgi': 3}\nin_stock = {item: n for item, n in stock.items() if n > 0}\nprint(in_stock)",
+      "choices": [
+        "{'kalem': 0, 'defter': 12, 'silgi': 3}",
+        "{'defter': 12, 'silgi': 3}",
+        "['defter', 'silgi']",
+        "{'defter': True, 'silgi': True}"
+      ],
+      "answer": "{'defter': 12, 'silgi': 3}",
+      "why_tr": "Dict comprehension da filtreleyebilir: yalnızca `n > 0` olan çiftler aynı anahtar ve değerle tutulur; kalem kaybolur.",
+      "why": "A dict comprehension can filter too: only pairs with `n > 0` are kept, with the same key and value, so kalem disappears."
     },
     {
       "id": "d13-c18",
+      "type": "explain",
+      "section": "List Comprehension",
+      "title_tr": "sum, any ve all ile generator ifadeleri",
+      "title": "Generator expressions with sum, any and all",
+      "body_tr": "Çoğu zaman bir list'i yalnızca `sum`, `max`, `any` ya da `all`'a vermek için kurarsın. Köşeli parantezleri atabilirsin: `sum(p * qty for p in prices)`. Parantezsiz hâliyle bu bir **generator ifadesidir** (generator expression): değerleri `sum` istedikçe tek tek üretir ve list'in tamamını asla bellekte tutmaz.\n\n`any(...)`, en az bir değer doğruysa (truthy) True'dur; `all(...)` ise her değer doğruysa True'dur. İkisi de erken durur: `any` ilk True'da, `all` ilk False'ta.\n\nBunlar neredeyse İngilizce gibi okunur: `any(s < 50 for s in scores)` \"kalan var mı?\" diye sorar. JavaScript geliştiricileri bunları `array.some()` ve `array.every()` olarak bilir.",
+      "body": "Often you build a list only to hand it to `sum`, `max`, `any` or `all`. You can drop the brackets: `sum(p * qty for p in prices)`. Without brackets this is a **generator expression**: it produces the values one at a time as `sum` asks for them, and never stores the whole list in memory.\n\n`any(...)` is True if at least one value is truthy; `all(...)` is True if every value is. Both stop early: `any` at the first True, `all` at the first False.\n\nThese read almost like English: `any(s < 50 for s in scores)` asks \"did anyone fail?\". JavaScript developers know them as `array.some()` and `array.every()`.",
+      "code": "scores = [72, 45, 90, 38]\nprint(sum(s for s in scores if s >= 50))\nprint(any(s < 50 for s in scores))\nprint(all(s >= 30 for s in scores))\nprint(max(len(w) for w in ['çay', 'simit', 'su']))",
+      "expected_output": "162\nTrue\nTrue\n5"
+    },
+    {
+      "id": "d13-c19",
+      "type": "truefalse",
+      "section": "List Comprehension",
+      "statement_tr": "`all(x > 0 for x in [])` ifadesi `True` döndürür.",
+      "statement": "`all(x > 0 for x in [])` returns `True`.",
+      "answer": true,
+      "why_tr": "`all` yalnızca yanlış (falsy) bir değer bulduğunda False döndürür; boş bir dizide hiç yoktur, bu yüzden cevap True'dur. Aynı nedenle `any([])` False'tur.",
+      "why": "`all` returns False only when it finds a falsy value; an empty sequence has none, so the answer is True. `any([])` is False for the same reason."
+    },
+    {
+      "id": "d13-c20",
+      "type": "explain",
+      "section": "List Comprehension",
+      "title_tr": "Gerçekçi bir temizlik",
+      "title": "A realistic clean-up",
+      "body_tr": "Comprehension'lar veri dağınık geldiğinde parlar; örneğin kullanıcıların başında sonunda boşluk ve rastgele büyük harflerle yazdığı isimler.\n\nKod list'i tek geçişte temizliyor: `.strip()` her ismin etrafındaki boşlukları siler, `.title()` büyük harfleri düzeltir, `if n.strip()` filtresi de boşluklar silindikten sonra boş kalan kayıtları atar (boş string falsy'dir). Sonuç yeni bir list'tir; ham veri, sonra lazım olursa diye dokunulmadan kalır.\n\n11. günden kendi fonksiyonlarını da ifadenin içinden çağırabilirsin, `initials(n)` örneğindeki gibi. Comprehension'ların en iyi olduğu yer burasıdır: kısa, tek bir açık dönüşüm, tek bir açık filtre.",
+      "body": "Comprehensions shine when data arrives messy, for example names typed by users with stray spaces and random capital letters.\n\nThe code cleans the list in one pass: `.strip()` removes the spaces around each name, `.title()` fixes the capitals, and the `if n.strip()` filter drops entries that are empty after stripping (an empty string is falsy). The result is a new list; the raw data stays untouched in case you need it later.\n\nYou can also call your own functions from Day 11 inside the expression, as with `initials(n)`. This is where comprehensions are at their best: short, one clear transformation, one clear filter.",
+      "code": "raw = ['  ayşe yılmaz', 'CAN DOĞAN ', '   ', 'zeynep kaya']\nclean = [n.strip().title() for n in raw if n.strip()]\nprint(clean)\n\ndef initials(name):\n    return ''.join(part[0] for part in name.split())\n\nprint([initials(n) for n in clean])",
+      "expected_output": "['Ayşe Yılmaz', 'Can Doğan', 'Zeynep Kaya']\n['AY', 'CD', 'ZK']"
+    },
+    {
+      "id": "d13-c21",
+      "type": "fill",
+      "section": "List Comprehension",
+      "prompt_tr": "Kod gösterilen çıktıyı versin diye boşluğu doldur.",
+      "prompt": "Fill in the blank so the code prints the output shown.",
+      "code": "cart = [('çay', 15, 2), ('simit', 20, 3), ('su', 5, 1)]\ntotal = sum(___ for name, price, qty in cart)\nprint(total)",
+      "answers": [
+        "price * qty",
+        "qty * price",
+        "price*qty",
+        "qty*price"
+      ],
+      "expected_output": "95",
+      "why_tr": "Her tuple `name, price, qty` olarak açılır ve ifade satır toplamını verir; `sum` 30 + 60 + 5'i toplar.",
+      "why": "Each tuple is unpacked into `name, price, qty`, and the expression gives the line total; `sum` adds 30 + 60 + 5."
+    },
+    {
+      "id": "d13-c22",
+      "type": "explain",
+      "section": "Lambda Function",
+      "title_tr": "İsimsiz bir fonksiyon",
+      "title": "A function without a name",
+      "body_tr": "**Lambda**, ifade olarak yazılan küçük bir fonksiyondur: `lambda a, b: a + b`. Anahtar kelimeden sonra parametreler, ardından iki nokta üst üste, sonra değeri otomatik olarak döndürülen **tek** bir ifade gelir; `return` anahtar kelimesi yoktur.\n\nYani şu ikisi eşdeğerdir:\n\n```\ndef add(a, b):\n    return a + b\nadd = lambda a, b: a + b\n```\n\nJavaScript'te aynı fikir bir ok fonksiyonudur (arrow function), `(a, b) => a + b`. Fark şu: Python lambda'sı tek bir ifadeyle sınırlıdır; döngü yok, atama yok, birden çok satır yok. Bu sınır bilinçlidir; lambda'lar yerinde kullanılan minik fonksiyonlar içindir.",
+      "body": "A **lambda** is a small function written as an expression: `lambda a, b: a + b`. After the keyword come the parameters, then a colon, then **one** expression whose value is returned automatically; there is no `return` keyword.\n\nSo these two are equivalent:\n\n```\ndef add(a, b):\n    return a + b\nadd = lambda a, b: a + b\n```\n\nIn JavaScript the same idea is an arrow function, `(a, b) => a + b`. The difference is that a Python lambda is limited to a single expression: no loops, no assignments, no multiple lines. That limit is deliberate; lambdas are meant for tiny functions used on the spot."
+    },
+    {
+      "id": "d13-c23",
+      "type": "predict",
+      "section": "Creating a Lambda Function",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "multiple_variable = lambda a, b, c: a ** 2 - 3 * b + 4 * c\nsquare = lambda x: x ** 2\nprint(multiple_variable(5, 5, 3), square(3))",
+      "choices": [
+        "25 9",
+        "22 6",
+        "22 9",
+        "37 9"
+      ],
+      "answer": "22 9",
+      "why_tr": "Lambda her fonksiyon gibi çağrılır: 5 ** 2 - 3 * 5 + 4 * 3 = 25 - 15 + 12 = 22, square(3) ise 9'dur.",
+      "why": "A lambda is called like any function: 5 ** 2 - 3 * 5 + 4 * 3 = 25 - 15 + 12 = 22, and square(3) is 9."
+    },
+    {
+      "id": "d13-c24",
+      "type": "explain",
+      "section": "Creating a Lambda Function",
+      "title_tr": "Lambda'nın asıl yeri: key fonksiyonları",
+      "title": "Where lambdas really belong: key functions",
+      "body_tr": "Lambda'lar en çok başka bir fonksiyona verilen kısa bir argüman olarak işe yarar. Klasik örnek `sorted`, `min` ve `max`'in `key` parametresidir: her eleman için karşılaştırmada kullanılacak değeri döndüren bir fonksiyon.\n\n`sorted(students, key=lambda s: s[1])`, `(isim, not)` tuple'larını nota göre sıralar. En yüksek önce gelsin diye `reverse=True` ekle. `max(students, key=lambda s: s[1])` yalnızca notu değil, en iyi öğrencinin bütün tuple'ını döndürür.\n\nBir lambda'yı yerinde de çağırabilirsin, `(lambda a, b: a + b)(2, 3)`, ama bu nadiren işe yarar. `sorted` yeni bir list döndürür; `list.sort(key=...)` ise yerinde sıralar ve `None` döndürür, tıpkı 12. gündeki `shuffle` gibi.",
+      "body": "Lambdas are most useful as a short argument to another function. The classic case is the `key` of `sorted`, `min` and `max`: a function that, for each item, returns the value to compare by.\n\n`sorted(students, key=lambda s: s[1])` sorts `(name, score)` tuples by score. Add `reverse=True` for highest first. `max(students, key=lambda s: s[1])` returns the whole tuple of the top student, not just the score.\n\nYou can also call a lambda on the spot, `(lambda a, b: a + b)(2, 3)`, but that is rarely useful. Note that `sorted` returns a new list, while `list.sort(key=...)` sorts in place and returns `None`, exactly like `shuffle` on Day 12.",
+      "code": "students = [('Ece', 82), ('Can', 95), ('Ada', 67)]\nprint(sorted(students, key=lambda s: s[1]))\nprint(sorted(students, key=lambda s: s[1], reverse=True)[0])\nprint(max(students, key=lambda s: s[1]))\nprint((lambda a, b: a + b)(2, 3))",
+      "expected_output": "[('Ada', 67), ('Ece', 82), ('Can', 95)]\n('Can', 95)\n('Can', 95)\n5"
+    },
+    {
+      "id": "d13-c25",
+      "type": "predict",
+      "section": "Creating a Lambda Function",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "cities = ['İzmir', 'Van', 'Ankara', 'Bursa']\nprint(sorted(cities, key=lambda c: len(c)))",
+      "choices": [
+        "['Van', 'İzmir', 'Bursa', 'Ankara']",
+        "['Ankara', 'Bursa', 'Van', 'İzmir']",
+        "['Van', 'Bursa', 'Ankara', 'İzmir']",
+        "['Ankara', 'İzmir', 'Bursa', 'Van']"
+      ],
+      "answer": "['Van', 'İzmir', 'Bursa', 'Ankara']",
+      "why_tr": "Anahtar uzunluktur: önce Van (3), sonra iki 5 harfli şehir özgün sıralarıyla (sıralama kararlıdır), en son Ankara (6).",
+      "why": "The key is the length, so Van (3) comes first, then the two 5-letter cities in their original order (sorting is stable), then Ankara (6)."
+    },
+    {
+      "id": "d13-c26",
+      "type": "explain",
+      "section": "Creating a Lambda Function",
+      "title_tr": "Lambda ile yaygın hatalar",
+      "title": "Common mistakes with lambda",
+      "body_tr": "Lambda'nın içine `return` yazmak en sık yapılan hatadır: `lambda x: return x * 2`, `SyntaxError: invalid syntax` verir. Gövdenin kendisi zaten döndürülen değerdir; `lambda x: x * 2` yaz.\n\nİkincisi, lambda `if` blokları, döngüler ya da atamalar gibi deyimler (statement) içeremez. Yine de koşullu ifadeyle bir seçim yapılabilir: `lambda n: 'çift' if n % 2 == 0 else 'tek'`.\n\nÜçüncüsü üslup: bir lambda'ya isim vermek, `square = lambda x: x * x`, çalışır; ama Python'ın üslup rehberi (PEP 8), isim verdiğin her şey için `def` önerir. Bir `def`'in hata mesajlarında gerçek bir adı olur, belge metni (docstring) alabilir ve sonradan büyüyebilir. Bir lambda'yı yazdırınca `<function <lambda> at 0x...>` görürsün: fonksiyonun kendine ait bir adı yoktur.",
+      "body": "Writing `return` inside a lambda is the most common slip: `lambda x: return x * 2` raises `SyntaxError: invalid syntax`. The body already is the returned value; write `lambda x: x * 2`.\n\nSecond, a lambda cannot hold statements such as `if` blocks, loops or assignments. A choice is still possible with a conditional expression: `lambda n: 'çift' if n % 2 == 0 else 'tek'`.\n\nThird, style: giving a lambda a name, `square = lambda x: x * x`, works, but Python's style guide (PEP 8) recommends `def` for anything you name. A `def` has a real name in error messages, can have a docstring and can grow later. Printing a lambda shows `<function <lambda> at 0x...>`: the function has no name of its own.",
+      "code": "parity = lambda n: 'çift' if n % 2 == 0 else 'tek'\nprint(parity(7), parity(10))\nprint(parity.__name__)",
+      "expected_output": "tek çift\n<lambda>"
+    },
+    {
+      "id": "d13-c27",
+      "type": "explain",
+      "section": "Lambda Function Inside Another Function",
+      "title_tr": "Lambda döndüren fonksiyon",
+      "title": "A function that returns a lambda",
+      "body_tr": "Bir fonksiyon bir lambda kurup onu döndürebilir. `power(2)`, `power` bittikten sonra bile `x = 2` değerini hatırlayan yeni bir `lambda n: 2 ** n` fonksiyonu döndürür. Oluşturulduğu yerdeki değerleri yanında taşıyan böyle bir fonksiyona **closure** denir; 14. gün bunu derinlemesine anlatıyor.\n\n`power(2)(3)` ifadesini iki adımda oku: önce `power(2)` çalışır ve bir fonksiyon geri verir, sonra `(3)` o fonksiyonu çağırır ve `2 ** 3 = 8` sonucunu verir.\n\nGenellikle döndürülen fonksiyonu bir isimle saklarsın, `two_to = power(2)`, ve onu defalarca çağırırsın. Kodu adım adım izle: `two_to`'nun her çağrısı lambda'nın içine atlıyor ve orada `x` hâlâ 2.",
+      "body": "A function can build a lambda and return it. `power(2)` returns a new function `lambda n: 2 ** n` that remembers `x = 2` even after `power` has finished. A function that carries remembered values from the place where it was created is called a **closure**; Day 14 explains it in depth.\n\nRead `power(2)(3)` in two steps: `power(2)` runs first and gives back a function, then `(3)` calls that function, giving `2 ** 3 = 8`.\n\nUsually you keep the returned function under a name, `two_to = power(2)`, and call it many times. Step through the code: each call of `two_to` jumps into the lambda, where `x` is still 2.",
+      "code": "def power(x):\n    return lambda n: x ** n\n\nprint(power(2)(3))\ntwo_to = power(2)\nprint(two_to(5), two_to(10))",
+      "expected_output": "8\n32 1024",
+      "trace": true
+    },
+    {
+      "id": "d13-c28",
+      "type": "predict",
+      "section": "Lambda Function Inside Another Function",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "def make_discount(rate):\n    return lambda price: price - price * rate / 100\n\nten_off = make_discount(10)\nhalf = make_discount(50)\nprint(ten_off(200), half(200))",
+      "choices": [
+        "180.0 180.0",
+        "180.0 100.0",
+        "20.0 100.0",
+        "100.0 180.0"
+      ],
+      "answer": "180.0 100.0",
+      "why_tr": "`make_discount`'un her çağrısı kendi `rate` değerini hatırlayan ayrı bir lambda döndürür: `ten_off` için 10, `half` için 50.",
+      "why": "Each call of `make_discount` returns a separate lambda that remembers its own `rate`: 10 for `ten_off`, 50 for `half`."
+    },
+    {
+      "id": "d13-c29",
+      "type": "truefalse",
+      "section": "Lambda Function Inside Another Function",
+      "statement_tr": "Bir lambda gövdesi, tek satırda oldukları sürece birden fazla deyim içerebilir; örneğin bir atama ve ardından bir `return`.",
+      "statement": "A lambda body can contain several statements, for example an assignment followed by a `return`, as long as they are on one line.",
+      "answer": false,
+      "why_tr": "Lambda tam olarak tek bir ifade içerir ve o ifadenin değeri döndürülür; atama ve `return` birer deyimdir ve izin verilmez. Daha büyük her şey için `def` kullan.",
+      "why": "A lambda holds exactly one expression, whose value is returned; assignments and `return` are statements and are not allowed. Use `def` for anything bigger."
+    },
+    {
+      "id": "d13-c30",
       "type": "recap",
       "section": "Recap",
       "title_tr": "Özet",
       "title": "Summary",
       "points_tr": [
-        "`[ifade for i in dizi if koşul]` döngü ve süzmeyi tek satıra sığdırır.",
-        "İç içe listeyi düzleştirmek için iki `for` kullanılır.",
-        "`lambda x: ifade` tek ifadelik isimsiz fonksiyondur.",
-        "Fonksiyon lambda döndürebilir: `power(2)(3)`."
+        "`[ifade for x in items]` her eleman için bir `ifade` içeren yeni bir list kurar; orijinal list değişmez ve `x` köşeli parantezlerin dışında yoktur.",
+        "Sondaki `if` elemanları eler; `for`'dan önceki `a if koşul else b` ise her eleman için bir değer seçer ve uzunluğu korur.",
+        "Birden fazla `for` kısmı soldan sağa iç içe döngüler gibi çalışır; `{k: v for ...}` dict, `{x for ...}` set kurar; `sum`, `any`, `all`, `max` içinde köşeli parantezler atılabilir.",
+        "`lambda parametreler: ifade`, otomatik return'ü olan ve `return` anahtar kelimesi içermeyen tek ifadelik bir fonksiyondur; isim verdiğin ya da deyim gerektiren her şey için `def` kullan.",
+        "Lambda'lar `sorted`, `min` ve `max`'in `key=` argümanı olarak parlar; bir fonksiyon, dıştaki fonksiyonun değerlerini hatırlayan bir lambda döndürebilir."
       ],
       "points": [
-        "`[expr for i in iterable if cond]` fits looping and filtering in one line.",
-        "Two `for` clauses flatten nested lists.",
-        "`lambda x: expr` is a one-expression anonymous function.",
-        "A function can return a lambda: `power(2)(3)`."
+        "`[expr for x in items]` builds a new list with one `expr` per item; the original list is not changed and `x` does not exist outside the brackets.",
+        "A trailing `if` filters items out, while `a if cond else b` before `for` chooses a value for every item and keeps the length.",
+        "Several `for` clauses run like nested loops from left to right, `{k: v for ...}` builds a dict, `{x for ...}` a set, and brackets can be dropped inside `sum`, `any`, `all`, `max`.",
+        "`lambda params: expression` is a one-expression function with an automatic return and no `return` keyword; use `def` for anything you name or that needs statements.",
+        "Lambdas shine as `key=` arguments of `sorted`, `min` and `max`, and a function can return a lambda that remembers the outer function's values."
       ],
-      "link": "learn",
-      "link_label_tr": "Şimdi alıştırmalara geç",
-      "link_label": "Go to the exercises"
+      "link": "learn"
     }
   ]
 }

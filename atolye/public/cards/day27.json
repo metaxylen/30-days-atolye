@@ -1,321 +1,506 @@
 {
- "day": 27,
- "title_tr": "Python ile MongoDB",
- "title": "Python with MongoDB",
- "est_minutes": 35,
- "cards": [
-  {
-   "id": "d27-c01",
-   "type": "explain",
-   "title_tr": "MongoDB: belge tabanlı veritabanı",
-   "title": "MongoDB: a document database",
-   "body_tr": "**MongoDB** bir NoSQL veritabanıdır: veriyi tablo satırı yerine JSON benzeri **belgeler** (document) olarak saklar. Python'daki sözlüğe çok benzer, bu yüzden esnektir. Gerçek MongoDB bulut hesabı ve ağ ister; bu ortamda yok. Aynı işlemleri sözlük listeleriyle canlandıracağız.",
-   "body": "**MongoDB** is a NoSQL database: instead of table rows it stores JSON-like **documents**. They look just like Python dicts, which makes it flexible. Real MongoDB needs a cloud account and a network, which we don't have here. We'll mimic the same operations with lists of dicts.",
-   "code": "doc = {'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nprint(doc['name'], doc['age'])",
-   "expected_output": "Asabeneh 250",
-   "section": "SQL versus NoSQL"
-  },
-  {
-   "id": "d27-c02",
-   "type": "truefalse",
-   "statement_tr": "MongoDB veriyi JSON'a benzeyen belgeler olarak saklar.",
-   "statement": "MongoDB stores data as JSON-like documents.",
-   "answer": true,
-   "why_tr": "Her kayıt (document) anahtar-değer çiftlerinden oluşur; Python sözlüğüne benzer.",
-   "why": "Each record (document) is made of key-value pairs, much like a Python dict.",
-   "section": "SQL versus NoSQL"
-  },
-  {
-   "id": "d27-c03",
-   "type": "explain",
-   "title_tr": "Bağlantı adresi (URI)",
-   "title": "The connection string (URI)",
-   "body_tr": "MongoDB sitesi sana `mongodb+srv://kullanici:<password>@küme.mongodb.net/...` biçiminde bir adres verir; `<password>` yerine kendi şifreni yazarsın. Python için `pip install pymongo dnspython` gerekir. Şifreyi koda gömme, ortam değişkeninde tut!",
-   "body": "The MongoDB site gives you an address like `mongodb+srv://user:<password>@cluster.mongodb.net/...`; you replace `<password>` with your own. In Python you need `pip install pymongo dnspython`. Never hard-code the password; keep it in an environment variable!",
-   "code": "user, host = 'asabeneh', '30daysofpython-twxkr.mongodb.net'\nuri = f'mongodb+srv://{user}:<password>@{host}/test'\nprint(uri)",
-   "expected_output": "mongodb+srv://asabeneh:<password>@30daysofpython-twxkr.mongodb.net/test",
-   "section": "Getting Connection String(MongoDB URI)"
-  },
-  {
-   "id": "d27-c04",
-   "type": "explain",
-   "title_tr": "Bağlanmak: MongoClient",
-   "title": "Connecting: MongoClient",
-   "body_tr": "`pymongo.MongoClient(MONGODB_URI)` kümeye bağlanır; `client.list_database_names()` veritabanlarını listeler (ilk başta `['admin', 'local']`). Dersteki kodda `import pymongo` unutulmuş; ekledik. İstemciyi bir sözlükle canlandıralım:",
-   "body": "`pymongo.MongoClient(MONGODB_URI)` connects to the cluster; `client.list_database_names()` lists its databases (at first `['admin', 'local']`). The lesson's code forgot `import pymongo`; add it. Let's mimic the client with a dict:",
-   "code": "client = {'admin': {}, 'local': {}}\nprint(list(client))",
-   "expected_output": "['admin', 'local']",
-   "section": "Connecting Flask application to MongoDB Cluster"
-  },
-  {
-   "id": "d27-c05",
-   "type": "predict",
-   "prompt_tr": "Yeni bir veritabanı eklenince isimler (sıralı) ne olur?",
-   "prompt": "After adding a new database, what are the (sorted) names?",
-   "code": "client = {'admin': {}, 'local': {}}\nclient['thirty_days_of_python'] = {}\nprint(sorted(client))",
-   "choices": [
-    "['admin', 'local', 'thirty_days_of_python']",
-    "['thirty_days_of_python']",
-    "['admin', 'local']",
-    "Error"
-   ],
-   "answer": "['admin', 'local', 'thirty_days_of_python']",
-   "why_tr": "`client.thirty_days_of_python` ya da `client['...']` ile erişince yeni isim listeye girer (gerçek MongoDB'de ilk belge eklenince oluşur).",
-   "why": "Accessing `client.thirty_days_of_python` or `client['...']` adds the new name (in real MongoDB it is created when the first document is inserted).",
-   "section": "Creating a database and collection"
-  },
-  {
-   "id": "d27-c06",
-   "type": "explain",
-   "title_tr": "insert_one ve otomatik _id",
-   "title": "insert_one and the automatic _id",
-   "body_tr": "`db.students.insert_one({...})` bir belge ekler. Veritabanı ve koleksiyon (collection, tablo benzeri) yoksa kendiliğinden oluşur. MongoDB her belgeye benzersiz bir `_id` (ObjectId) verir; biz basit bir sayı kullanıyoruz. Adım adım izle.",
-   "body": "`db.students.insert_one({...})` adds a document. If the database and collection (table-like) don't exist, they are created automatically. MongoDB gives each document a unique `_id` (an ObjectId); we use a simple number. Step through it.",
-   "code": "students = []\ndef insert_one(doc):\n    doc['_id'] = len(students) + 1\n    students.append(doc)\n\ninsert_one({'name': 'Asabeneh', 'age': 250})\nprint(students)",
-   "expected_output": "[{'name': 'Asabeneh', 'age': 250, '_id': 1}]",
-   "trace": true,
-   "section": "Creating a database and collection"
-  },
-  {
-   "id": "d27-c07",
-   "type": "explain",
-   "title_tr": "Birden çok belge eklemek",
-   "title": "Inserting many documents",
-   "body_tr": "Birden çok belgeyi ya döngüyle tek tek `insert_one` ile ya da `insert_many` ile eklersin. Döngü mantığını adım adım izle.",
-   "body": "You insert many documents either one by one with `insert_one` in a loop, or with `insert_many`. Follow the loop version step by step.",
-   "code": "students = []\nnew = [{'name': 'David', 'age': 34}, {'name': 'John', 'age': 28}, {'name': 'Sami', 'age': 25}]\nfor student in new:\n    students.append(student)\nprint(len(students))",
-   "expected_output": "3",
-   "trace": true,
-   "section": "Inserting many documents to collection"
-  },
-  {
-   "id": "d27-c08",
-   "type": "truefalse",
-   "statement_tr": "`insert_many` ile belgeleri döngü yazmadan, tek çağrıda ekleyebiliriz.",
-   "statement": "With `insert_many` we can add documents in one call, without writing a loop.",
-   "answer": true,
-   "why_tr": "Evet; `insert_many(liste)` listedeki tüm belgeleri tek seferde ekler.",
-   "why": "Yes; `insert_many(list)` adds all documents in the list at once.",
-   "section": "Inserting many documents to collection"
-  },
-  {
-   "id": "d27-c09",
-   "type": "explain",
-   "title_tr": "find_one ve find",
-   "title": "find_one and find",
-   "body_tr": "`find_one()` ilk belgeyi, `find()` hepsini döndürür (SQL'deki SELECT gibi). `find()` aslında bir cursor verir; üzerinde `for` ile gezersin. Aşağıda ilk belge ve hepsi:",
-   "body": "`find_one()` returns the first document, `find()` returns all of them (like SQL's SELECT). `find()` actually returns a cursor you loop over with `for`. Below: the first document and then all.",
-   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint(students[0])\nfor s in students:\n    print(s['name'])",
-   "expected_output": "{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250}\nAsabeneh\nDavid\nJohn\nSami",
-   "section": "MongoDB Find"
-  },
-  {
-   "id": "d27-c10",
-   "type": "explain",
-   "title_tr": "_id ile belge bulmak",
-   "title": "Finding a document by _id",
-   "body_tr": "Belirli bir belge için `find_one({'_id': ObjectId('...')})` yazılır. `ObjectId` `bson` paketinden gelir. Burada `_id` sayı olduğu için koşula uyan ilk belgeyi `next(...)` ile alıyoruz.",
-   "body": "For a specific document you write `find_one({'_id': ObjectId('...')})`. `ObjectId` comes from the `bson` package. Here `_id` is a number, so we take the first matching document with `next(...)`.",
-   "code": "students = [{'_id': 1, 'name': 'Asabeneh'}, {'_id': 2, 'name': 'David'}]\nprint(next(s for s in students if s['_id'] == 2))",
-   "expected_output": "{'_id': 2, 'name': 'David'}",
-   "section": "MongoDB Find"
-  },
-  {
-   "id": "d27-c11",
-   "type": "explain",
-   "title_tr": "Alan seçmek (projection)",
-   "title": "Choosing fields (projection)",
-   "body_tr": "`find({}, {'_id': 0, 'name': 1, 'country': 1})` ikinci parametreyle hangi alanların döneceğini seçer: 1 dahil et, 0 hariç tut. `_id` dışında 0 ve 1'i karıştıramazsın.",
-   "body": "`find({}, {'_id': 0, 'name': 1, 'country': 1})` uses the second parameter to choose which fields come back: 1 include, 0 exclude. You can't mix 0 and 1, except for `_id`.",
-   "code": "students = [{'_id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'age': 250},\n            {'_id': 2, 'name': 'David', 'country': 'UK', 'age': 34}]\nfor s in students:\n    print({k: s[k] for k in ('name', 'country')})",
-   "expected_output": "{'name': 'Asabeneh', 'country': 'Finland'}\n{'name': 'David', 'country': 'UK'}",
-   "section": "MongoDB Find"
-  },
-  {
-   "id": "d27-c12",
-   "type": "predict",
-   "prompt_tr": "Projection `{'name': 1}` olsaydı (id hariç) çıktı ne olurdu?",
-   "prompt": "What would the output be with projection `{'name': 1}` (no id)?",
-   "code": "s = {'_id': 1, 'name': 'David', 'age': 34}\nprint({k: s[k] for k in ('name',)})",
-   "choices": [
-    "David",
-    "{'_id': 1, 'name': 'David'}",
-    "{'name': 1}",
-    "{'name': 'David'}"
-   ],
-   "answer": "{'name': 'David'}",
-   "why_tr": "Yalnızca istenen alan (`name`) ve gerçek değeri döner.",
-   "why": "Only the requested field (`name`) comes back, with its real value.",
-   "section": "MongoDB Find"
-  },
-  {
-   "id": "d27-c13",
-   "type": "explain",
-   "title_tr": "Sorguyla süzmek",
-   "title": "Filtering with a query",
-   "body_tr": "`find({'country': 'Finland'})` yalnızca koşula uyan belgeleri getirir; koşul bir sözlüktür. Aynısını bir list comprehension'la (Gün 13) yazalım.",
-   "body": "`find({'country': 'Finland'})` returns only the documents that match; the condition is a dict. Let's write the same with a list comprehension (Day 13).",
-   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nquery = {'country': 'Finland'}\nfound = [s for s in students if all(s[k] == v for k, v in query.items())]\nfor s in found:\n    print(s['name'])",
-   "expected_output": "Asabeneh\nSami",
-   "section": "Find with Query"
-  },
-  {
-   "id": "d27-c14",
-   "type": "explain",
-   "title_tr": "Birden çok koşul ve $gt / $lt",
-   "title": "Several conditions and $gt / $lt",
-   "body_tr": "Sorguda birden çok anahtar varsa hepsi aynı anda sağlanmalı (ve). `{'age': {'$gt': 30}}` 30'dan büyük, `$lt` küçük demektir. (Derste ikinci örnek de `$gt` yazılmış ama sonucu küçük yaşları gösteriyor; biz `$lt` yazdık.)",
-   "body": "With several keys in a query, all must match (and). `{'age': {'$gt': 30}}` means greater than 30, `$lt` means less than. (The lesson's second example also says `$gt` yet shows the younger people; we wrote `$lt`.)",
-   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students if s['country'] == 'Finland' and s['city'] == 'Helsinki'])\nprint([s['name'] for s in students if s['age'] > 30])\nprint([s['name'] for s in students if s['age'] < 30])",
-   "expected_output": "['Asabeneh', 'Sami']\n['Asabeneh', 'David']\n['John', 'Sami']",
-   "section": "Find query with modifier"
-  },
-  {
-   "id": "d27-c15",
-   "type": "predict",
-   "prompt_tr": "`{'age': {'$lt': 30}}` sorgusunun karşılığı. Çıktı ne olur?",
-   "prompt": "The equivalent of the query `{'age': {'$lt': 30}}`. What is printed?",
-   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students if s['age'] < 30])",
-   "choices": [
-    "['Sami']",
-    "['John', 'Sami']",
-    "['Asabeneh', 'David']",
-    "['David', 'John', 'Sami']"
-   ],
-   "answer": "['John', 'Sami']",
-   "why_tr": "30'dan küçük yaşlar John (28) ve Sami (25).",
-   "why": "The ages below 30 are John (28) and Sami (25).",
-   "section": "Find query with modifier"
-  },
-  {
-   "id": "d27-c16",
-   "type": "fill",
-   "prompt_tr": "Operatörü yaz: 30'dan büyük olanlar.",
-   "prompt": "Write the operator: those older than 30.",
-   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students if s['age'] ___ 30])",
-   "answers": [
-    ">"
-   ],
-   "expected_output": "['Asabeneh', 'David']",
-   "why_tr": "`$gt` 'büyüktür' demektir; Python'da `>`.",
-   "why": "`$gt` means 'greater than'; in Python it is `>`.",
-   "section": "Find query with modifier"
-  },
-  {
-   "id": "d27-c17",
-   "type": "explain",
-   "title_tr": "limit: sonuçları kısıtlamak",
-   "title": "limit: capping the results",
-   "body_tr": "`find().limit(3)` yalnızca ilk 3 belgeyi getirir. Python'da bu, dilimlemeye (`[:3]`) karşılık gelir.",
-   "body": "`find().limit(3)` returns only the first 3 documents. In Python that matches slicing (`[:3]`).",
-   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students[:3]])",
-   "expected_output": "['Asabeneh', 'David', 'John']",
-   "section": "Limiting documents"
-  },
-  {
-   "id": "d27-c18",
-   "type": "explain",
-   "title_tr": "sort: sıralama",
-   "title": "sort: ordering",
-   "body_tr": "`sort('name')` artan, `sort('name', -1)` azalan sıralar. Python'da `sorted(..., key=...)` ve `reverse=True` ile aynı sonuç alınır (Gün 14).",
-   "body": "`sort('name')` sorts ascending, `sort('name', -1)` descending. In Python the same results come from `sorted(..., key=...)` and `reverse=True` (Day 14).",
-   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in sorted(students, key=lambda s: s['name'])])\nprint([s['name'] for s in sorted(students, key=lambda s: s['age'], reverse=True)])",
-   "expected_output": "['Asabeneh', 'David', 'John', 'Sami']\n['Asabeneh', 'David', 'John', 'Sami']",
-   "section": "Find with sort"
-  },
-  {
-   "id": "d27-c19",
-   "type": "truefalse",
-   "statement_tr": "`sort('age', -1)` yaşa göre büyükten küçüğe sıralar.",
-   "statement": "`sort('age', -1)` orders by age from largest to smallest.",
-   "answer": true,
-   "why_tr": "-1 azalan, 1 (varsayılan) artan sıralama demektir.",
-   "why": "-1 means descending, 1 (the default) means ascending.",
-   "section": "Find with sort"
-  },
-  {
-   "id": "d27-c20",
-   "type": "explain",
-   "title_tr": "update_one ve $set",
-   "title": "update_one and $set",
-   "body_tr": "`update_one(sorgu, {'$set': {'age': 38}})` sorguya uyan **ilk** belgeyi günceller. Hepsini güncellemek için `update_many` kullanılır. Eşleşen ilk belgede durmayı döngüde `break` ile canlandıralım.",
-   "body": "`update_one(query, {'$set': {'age': 38}})` updates the **first** document that matches. To update all, use `update_many`. We mimic stopping at the first match with `break`.",
-   "code": "students = [{'name': 'Asabeneh', 'age': 250}, {'name': 'David', 'age': 34}]\nfor s in students:\n    if s['age'] == 250:\n        s['age'] = 38\n        break\nprint(students)",
-   "expected_output": "[{'name': 'Asabeneh', 'age': 38}, {'name': 'David', 'age': 34}]",
-   "trace": true,
-   "section": "Update with query"
-  },
-  {
-   "id": "d27-c21",
-   "type": "explain",
-   "title_tr": "delete_one",
-   "title": "delete_one",
-   "body_tr": "`delete_one(sorgu)` eşleşen ilk belgeyi siler. Python'da listeden benzer bir şey `remove` ile yapılır.",
-   "body": "`delete_one(query)` deletes the first matching document. The list equivalent in Python is `remove`.",
-   "code": "students = [{'name': 'Asabeneh'}, {'name': 'John'}, {'name': 'Sami'}]\nstudents.remove({'name': 'John'})\nprint([s['name'] for s in students])",
-   "expected_output": "['Asabeneh', 'Sami']",
-   "section": "Delete Document"
-  },
-  {
-   "id": "d27-c22",
-   "type": "truefalse",
-   "statement_tr": "`delete_many({})` boş bir sorguyla çağrılırsa koleksiyondaki tüm belgeleri siler.",
-   "statement": "Calling `delete_many({})` with an empty query deletes all documents in the collection.",
-   "answer": true,
-   "why_tr": "Boş sorgu her şeyle eşleşir, o yüzden dikkatli kullan.",
-   "why": "An empty query matches everything, so use it carefully.",
-   "section": "Delete Document"
-  },
-  {
-   "id": "d27-c23",
-   "type": "explain",
-   "title_tr": "drop: koleksiyonu silmek",
-   "title": "drop: removing a collection",
-   "body_tr": "`db.students.drop()` koleksiyonu tamamen kaldırır; içindeki belgeler de gider. Sözlükteki karşılığı `del`.",
-   "body": "`db.students.drop()` removes the whole collection, documents included. The dict equivalent is `del`.",
-   "code": "db = {'students': [{'name': 'Sami'}], 'courses': []}\ndel db['students']\nprint(list(db))",
-   "expected_output": "['courses']",
-   "section": "Drop a collection"
-  },
-  {
-   "id": "d27-c24",
-   "type": "order",
-   "prompt_tr": "Satırları doğru sıraya diz.",
-   "prompt": "Put the lines in the right order.",
-   "lines": [
-    "students.append({'name': 'Bob', 'age': 30})",
-    "students = []",
-    "students.append({'name': 'Ada', 'age': 20})",
-    "print(len(students))"
-   ],
-   "correct_order": [
-    1,
-    2,
-    0,
-    3
-   ],
-   "expected_output": "2",
-   "section": "Inserting many documents to collection"
-  },
-  {
-   "id": "d27-c25",
-   "type": "recap",
-   "points_tr": [
-    "MongoDB belgeleri (sözlük benzeri) koleksiyonlarda saklar.",
-    "`insert_one/insert_many` ekler, `find_one/find` okur, sorgu sözlüğü süzer (`$gt`, `$lt`).",
-    "`limit` ve `sort` sonucu kısıtlar ve sıralar.",
-    "`update_one` + `$set` günceller, `delete_one` siler, `drop` koleksiyonu kaldırır."
-   ],
-   "points": [
-    "MongoDB stores documents (dict-like) in collections.",
-    "`insert_one/insert_many` add, `find_one/find` read, a query dict filters (`$gt`, `$lt`).",
-    "`limit` and `sort` cap and order the result.",
-    "`update_one` + `$set` updates, `delete_one` deletes, `drop` removes the collection."
-   ],
-   "cta_tr": "Şimdi alıştırmalara geç",
-   "cta": "Go to the exercises now",
-   "link": "learn",
-   "section": "Drop a collection"
-  }
- ]
+  "day": 27,
+  "title_tr": "Python ile MongoDB",
+  "title": "Python with MongoDB",
+  "est_minutes": 55,
+  "cards": [
+    {
+      "id": "d27-c01",
+      "type": "explain",
+      "title_tr": "Veri nerede yaşar?",
+      "title": "Where does the data live?",
+      "body_tr": "Dünkü Text Analyzer, gönderilen metni bir Python list'inde (liste) tutuyordu. Sunucu yeniden başladığında o list ve içindeki her şey kaybolur: değişkenler yalnızca programın belleğinde yaşar.\n\nKalıcı veri için bir **veritabanı** gerekir. MongoDB, veriyi JSON'a benzeyen **belgeler** (document) halinde saklar. Python tarafında bir belge, bildiğin bir dict'tir (sözlük): anahtarlar alan adları, değerler alanların içeriği.\n\nBugün MongoDB'yi çalıştıramayız (ağ ve sunucu yok), bu yüzden her işlemi list ve dict'lerle canlandıracağız ve gerçek `pymongo` çağrısının nasıl göründüğünü yanında söyleyeceğiz.",
+      "body": "Yesterday's Text Analyzer kept the posted text in a Python list. When the server restarts, that list and everything in it is gone: variables live only in the program's memory.\n\nLasting data needs a **database**. MongoDB stores data as JSON-like **documents**. On the Python side a document is simply a dict: keys are field names, values are the field contents.\n\nWe cannot run MongoDB here (no network, no server), so we will model every operation with lists and dicts and say what the real `pymongo` call looks like next to it.",
+      "code": "import json\n\nstudent = {'name': 'Asabeneh', 'country': 'Finland',\n           'city': 'Helsinki', 'skills': ['Python', 'MongoDB']}\nprint(type(student).__name__)\nprint(json.dumps(student))",
+      "expected_output": "dict\n{\"name\": \"Asabeneh\", \"country\": \"Finland\", \"city\": \"Helsinki\", \"skills\": [\"Python\", \"MongoDB\"]}",
+      "section": "MongoDB"
+    },
+    {
+      "id": "d27-c02",
+      "type": "explain",
+      "title_tr": "SQL ve NoSQL: aynı fikir, farklı kelimeler",
+      "title": "SQL and NoSQL: same idea, different words",
+      "body_tr": "SQL veritabanları veriyi **tablolarda** tutar: her satır bir kayıt, her sütun bir alan, ve tablodaki her satır aynı sütunlara sahip olmak zorundadır.\n\nMongoDB gibi NoSQL veritabanlarında karşılıklar şöyle: tablo yerine **collection** (koleksiyon), satır yerine **document**, sütun yerine **field** (alan). Büyük fark esneklik: aynı collection'daki belgelerin alanları farklı olabilir ve bir alan list ya da iç içe dict tutabilir.\n\nAşağıdaki collection'da ikinci belgenin `city` alanı yok, üçüncüsünün fazladan `skills` alanı var; MongoDB bunu sorun etmez.",
+      "body": "SQL databases keep data in **tables**: each row is a record, each column a field, and every row in a table must have the same columns.\n\nIn NoSQL databases such as MongoDB the matching words are: **collection** instead of table, **document** instead of row, **field** instead of column. The big difference is flexibility: documents in the same collection may have different fields, and a field may hold a list or a nested dict.\n\nIn the collection below the second document has no `city` and the third has an extra `skills` field; MongoDB does not mind.",
+      "code": "students = [\n    {'name': 'David', 'city': 'London'},\n    {'name': 'John'},\n    {'name': 'Sami', 'city': 'Helsinki', 'skills': ['Python']},\n]\nfor doc in students:\n    print(sorted(doc))",
+      "expected_output": "['city', 'name']\n['name']\n['city', 'name', 'skills']",
+      "section": "SQL versus NoSQL"
+    },
+    {
+      "id": "d27-c03",
+      "type": "truefalse",
+      "statement_tr": "MongoDB'de bir collection'daki her belgenin aynı alanlara sahip olması gerekir.",
+      "statement": "In MongoDB every document in a collection must have the same fields.",
+      "answer": false,
+      "why_tr": "Yanlış. Bu SQL tablolarının kuralıdır. MongoDB'de belgeler esnektir; aynı collection'da farklı alanlara sahip belgeler olabilir.",
+      "why": "False. That is the rule for SQL tables. MongoDB documents are flexible; one collection can hold documents with different fields.",
+      "section": "SQL versus NoSQL"
+    },
+    {
+      "id": "d27-c04",
+      "type": "explain",
+      "title_tr": "Bağlantı adresi (URI) neyden oluşur?",
+      "title": "What a connection string (URI) is made of",
+      "body_tr": "MongoDB Atlas'ta bir cluster kurduktan sonra bir **bağlantı adresi** (connection string) kopyalarsın. Uzun ve korkutucu görünür ama parçaları tanıdıktır: şema (`mongodb+srv`), kullanıcı adı, parola, sunucunun adresi, veritabanı adı ve `?` sonrasındaki seçenekler.\n\nPython'un `urllib.parse` modülü bir URL'yi bu parçalara ayırabilir; bir web adresi için de aynısı geçerlidir. `mongodb+srv` şeması ayrıca `dnspython` paketini ister; `pip install pymongo` onu kendiliğinden kurar (PyMongo 4.3'ten beri).",
+      "body": "After you create a cluster on MongoDB Atlas, you copy a **connection string**. It looks long and scary, but its parts are familiar: the scheme (`mongodb+srv`), the user name, the password, the server's address, the database name and the options after `?`.\n\nPython's `urllib.parse` module can split a URL into those parts; the same works for any web address. The `mongodb+srv` scheme also needs the `dnspython` package; `pip install pymongo` installs it automatically (since PyMongo 4.3).",
+      "code": "from urllib.parse import urlsplit\n\nuri = ('mongodb+srv://asabeneh:secret@30daysofpython-twxkr.mongodb.net'\n       '/thirty_days_of_python?retryWrites=true&w=majority')\nparts = urlsplit(uri)\nprint(parts.scheme)\nprint(parts.username, parts.password)\nprint(parts.hostname)\nprint(parts.path, parts.query)",
+      "expected_output": "mongodb+srv\nasabeneh secret\n30daysofpython-twxkr.mongodb.net\n/thirty_days_of_python retryWrites=true&w=majority",
+      "section": "Getting Connection String(MongoDB URI)"
+    },
+    {
+      "id": "d27-c05",
+      "type": "explain",
+      "title_tr": "Parola koda yazılmaz",
+      "title": "Passwords do not go into the code",
+      "body_tr": "Ders, parolayı doğrudan `app.py`'nin içine yapıştırıyor. Bu dosya git'e girer; GitHub'a gönderildiği anda parolan herkese açılmış olur. Botlar açık depoları tam olarak bunun için tarar.\n\nDoğrusu, Gün 26'daki PORT gibi, adresi bir **ortam değişkeninden** okumaktır: `os.environ.get('MONGODB_URI')`. Değişken yoksa sessizce yanlış bir adresle devam etmek yerine açık bir mesajla durmak daha iyidir.\n\nAşağıda `os.environ` yine bir dict ile canlandırılıyor.",
+      "body": "The lesson pastes the password straight into `app.py`. That file goes into git; the moment it is pushed to GitHub, your password is public. Bots scan public repositories for exactly this.\n\nThe right way, like PORT on Day 26, is to read the address from an **environment variable**: `os.environ.get('MONGODB_URI')`. If the variable is missing, stopping with a clear message is better than quietly carrying on with a wrong address.\n\nBelow, `os.environ` is again modelled with a dict.",
+      "code": "def get_uri(env):\n    uri = env.get('MONGODB_URI')\n    if uri is None:\n        return 'error: set the MONGODB_URI environment variable'\n    return uri\n\nprint(get_uri({}))\nprint(get_uri({'MONGODB_URI': 'mongodb://localhost:27017'}))",
+      "expected_output": "error: set the MONGODB_URI environment variable\nmongodb://localhost:27017",
+      "section": "Getting Connection String(MongoDB URI)"
+    },
+    {
+      "id": "d27-c06",
+      "type": "predict",
+      "prompt_tr": "Bu adreste kullanıcı adı ve sunucu ne?",
+      "prompt": "What are the user name and the host in this address?",
+      "code": "from urllib.parse import urlsplit\n\nparts = urlsplit('mongodb://ayse:1234@localhost:27017/school')\nprint(parts.username, parts.hostname, parts.port, parts.path)",
+      "choices": [
+        "ayse localhost 27017 /school",
+        "ayse:1234 localhost 27017 school",
+        "ayse localhost:27017 None /school",
+        "1234 localhost 27017 /school"
+      ],
+      "answer": "ayse localhost 27017 /school",
+      "why_tr": "`@` işaretinden önceki kısım `kullanıcı:parola`'dır; `username` yalnızca 'ayse'yi verir. `hostname` ve `port` ayrı alanlardır ve port bir int olarak gelir. `path` baştaki `/` ile birlikte gelir.",
+      "why": "The part before `@` is `user:password`; `username` gives just 'ayse'. `hostname` and `port` are separate fields and the port comes back as an int. `path` keeps its leading `/`.",
+      "section": "Getting Connection String(MongoDB URI)"
+    },
+    {
+      "id": "d27-c07",
+      "type": "explain",
+      "title_tr": "Bağlanmak: MongoClient",
+      "title": "Connecting: MongoClient",
+      "body_tr": "Gerçek kodda bağlantı tek satırdır: `client = pymongo.MongoClient(MONGODB_URI)`. Sonra `client.list_database_names()` cluster'daki veritabanlarını listeler; yeni bir cluster'da `['admin', 'local']` görürsün.\n\nDersteki kodda `import pymongo` satırı eksik. Öyle çalıştırırsan Python `NameError: name 'pymongo' is not defined` der: bir ismi kullanmadan önce onu içe aktarman gerekir (Gün 12).\n\nZihinsel model: client, veritabanı adlarından veritabanlarına giden bir dict gibidir; her veritabanı da collection adlarından collection'lara giden bir dict'tir.",
+      "body": "In real code the connection is one line: `client = pymongo.MongoClient(MONGODB_URI)`. Then `client.list_database_names()` lists the databases in the cluster; a new cluster shows `['admin', 'local']`.\n\nThe lesson's code is missing the `import pymongo` line. Run it like that and Python says `NameError: name 'pymongo' is not defined`: a name must be imported before you use it (Day 12).\n\nMental model: the client is like a dict from database names to databases, and each database is a dict from collection names to collections.",
+      "code": "client = {'admin': {}, 'local': {}}\nprint(list(client))\n\ntry:\n    pymongo.MongoClient('mongodb://localhost')\nexcept NameError as err:\n    print('NameError:', err)",
+      "expected_output": "['admin', 'local']\nNameError: name 'pymongo' is not defined",
+      "section": "Connecting Flask application to MongoDB Cluster"
+    },
+    {
+      "id": "d27-c08",
+      "type": "explain",
+      "title_tr": "Veritabanı ve collection oluşturmak",
+      "title": "Creating a database and a collection",
+      "body_tr": "MongoDB'de veritabanı ya da collection oluşturmak için ayrı bir komut yoktur. `db = client.thirty_days_of_python` (ya da `client['thirty_days_of_python']`) ve `db.students` yalnızca bu isimlere bir **referans** verir. Gerçek oluşturma, ilk belge eklendiği anda olur; o zamana kadar `list_database_names()` yeni adı göstermez.\n\nİki yazım aynı işi görür. Köşeli parantez, adı bir değişkende tutuyorsan ya da ad bir Python ismi olamıyorsa (`'my-db'`) gerekir.\n\nModelimizde `setdefault`, \"anahtar varsa onu ver, yoksa bu boş değeri koy ve onu ver\" demektir.",
+      "body": "MongoDB has no separate command to create a database or a collection. `db = client.thirty_days_of_python` (or `client['thirty_days_of_python']`) and `db.students` only give you a **reference** to those names. The real creation happens when the first document is inserted; until then `list_database_names()` does not show the new name.\n\nBoth spellings do the same job. Square brackets are needed when the name is in a variable or cannot be a Python name (`'my-db'`).\n\nIn our model `setdefault` means \"if the key exists give me its value, otherwise store this empty value and give me that\".",
+      "code": "client = {'admin': {}, 'local': {}}\ndb = client.setdefault('thirty_days_of_python', {})\nstudents = db.setdefault('students', [])\nstudents.append({'name': 'Asabeneh', 'country': 'Finland', 'age': 250})\nprint(list(client))\nprint(client['thirty_days_of_python'])",
+      "expected_output": "['admin', 'local', 'thirty_days_of_python']\n{'students': [{'name': 'Asabeneh', 'country': 'Finland', 'age': 250}]}",
+      "section": "Creating a database and collection"
+    },
+    {
+      "id": "d27-c09",
+      "type": "fill",
+      "prompt_tr": "`setdefault` var olan anahtarı ezmez. Boşluğu doldur: çıktı 1 olmalı.",
+      "prompt": "`setdefault` does not overwrite an existing key. Fill the blank so the output is 1.",
+      "code": "db = {'students': [{'name': 'Sami'}]}\nstudents = db.___('students', [])\nprint(len(students))",
+      "answers": [
+        "setdefault",
+        "get"
+      ],
+      "expected_output": "1",
+      "why_tr": "Anahtar zaten var, bu yüzden hem `setdefault` hem `get` var olan list'i döndürür ve içinde bir belge vardır. Fark yalnızca anahtar yokken ortaya çıkar: `setdefault` boş list'i ayrıca dict'e kaydeder.",
+      "why": "The key already exists, so both `setdefault` and `get` return the existing list, which holds one document. The difference only shows when the key is missing: `setdefault` also stores the empty list in the dict.",
+      "section": "Creating a database and collection"
+    },
+    {
+      "id": "d27-c10",
+      "type": "explain",
+      "title_tr": "insert_one ve _id",
+      "title": "insert_one and _id",
+      "body_tr": "`db.students.insert_one({...})` bir belge ekler. MongoDB her belgeye otomatik olarak benzersiz bir `_id` verir; bu, belgenin birincil anahtarıdır (primary key). Gerçek `_id` bir `ObjectId`'dir: `ObjectId('5df68a21f106fe2d315bbc8b')` gibi, içinde oluşturulma zamanı da bulunan 12 baytlık bir değer.\n\nModelimizde `_id` basitçe 1, 2, 3... olacak. İzleyicide `insert_one`'ın belgeye `_id` ekleyip list'e koyduğunu ve id'yi döndürdüğünü izle. Gerçek metot ise bir sonuç nesnesi döndürür; id'ye `result.inserted_id` ile ulaşırsın.",
+      "body": "`db.students.insert_one({...})` adds one document. MongoDB automatically gives every document a unique `_id`; it is the document's primary key. The real `_id` is an `ObjectId`, like `ObjectId('5df68a21f106fe2d315bbc8b')`: a 12-byte value that also contains the creation time.\n\nIn our model the `_id` will simply be 1, 2, 3... In the tracer, watch `insert_one` add an `_id` to the document, put it in the list and return the id. The real method returns a result object instead; you reach the id with `result.inserted_id`.",
+      "code": "students = []\n\ndef insert_one(doc):\n    doc['_id'] = len(students) + 1\n    students.append(doc)\n    return doc['_id']\n\nprint(insert_one({'name': 'Asabeneh', 'age': 250}))\nprint(insert_one({'name': 'David', 'age': 34}))\nprint(students[1])",
+      "expected_output": "1\n2\n{'name': 'David', 'age': 34, '_id': 2}",
+      "trace": true,
+      "section": "Creating a database and collection"
+    },
+    {
+      "id": "d27-c11",
+      "type": "explain",
+      "title_tr": "Sık hata: insert_one senin dict'ini değiştirir",
+      "title": "Common mistake: insert_one changes your dict",
+      "body_tr": "`pymongo`'nun `insert_one`'ı, verdiğin dict'e `_id` alanını **yerinde** ekler. Gün 5'teki isim etiketi modelini hatırla: `doc` ve collection'daki belge aynı nesnedir.\n\nBu yüzden aynı dict'i ikinci kez eklersen içinde zaten bir `_id` vardır ve MongoDB `DuplicateKeyError: E11000 duplicate key error` verir. Modelimiz de `pymongo` gibi var olan `_id`'yi korur (`setdefault`) ama hata vermez; böylece asıl sorunu görürsün: ikinci ekleme yine `_id` 1 gönderir ve iki \"farklı\" kayıt tek bir nesnedir.\n\nÇözüm: her ekleme için yeni bir dict kur ya da `doc.copy()` ekle. Çıktıyı izleyicide adım adım izle.",
+      "body": "`pymongo`'s `insert_one` adds the `_id` field to the dict you pass, **in place**. Remember the name-tag model from Day 5: `doc` and the document in the collection are the same object.\n\nSo if you insert the same dict a second time, it already carries an `_id` and MongoDB raises `DuplicateKeyError: E11000 duplicate key error`. Our model, like `pymongo`, keeps an existing `_id` (`setdefault`) but raises no error, so you can see the real problem: the second insert sends `_id` 1 again, and the two \"different\" records are one object.\n\nThe fix: build a new dict for every insert, or insert `doc.copy()`. Step through the output in the tracer.",
+      "code": "students = []\n\ndef insert_one(doc):\n    doc.setdefault('_id', len(students) + 1)\n    students.append(doc)\n\ndoc = {'name': 'Ayşe'}\ninsert_one(doc)\nprint(doc)\ninsert_one(doc)\nprint(students[0] is students[1], students)",
+      "expected_output": "{'name': 'Ayşe', '_id': 1}\nTrue [{'name': 'Ayşe', '_id': 1}, {'name': 'Ayşe', '_id': 1}]",
+      "trace": true,
+      "section": "Creating a database and collection"
+    },
+    {
+      "id": "d27-c12",
+      "type": "predict",
+      "prompt_tr": "Döngü aynı dict'i kullanıyor. Çıktı ne?",
+      "prompt": "The loop reuses one dict. What is printed?",
+      "code": "students = []\ndoc = {'name': 'Ayşe'}\nfor city in ['İzmir', 'Bursa']:\n    doc['city'] = city\n    students.append(doc)\nprint(students)",
+      "choices": [
+        "[{'name': 'Ayşe', 'city': 'İzmir'}, {'name': 'Ayşe', 'city': 'Bursa'}]",
+        "[{'name': 'Ayşe', 'city': 'Bursa'}, {'name': 'Ayşe', 'city': 'Bursa'}]",
+        "[{'name': 'Ayşe', 'city': 'Bursa'}]",
+        "[{'name': 'Ayşe', 'city': 'İzmir'}]"
+      ],
+      "answer": "[{'name': 'Ayşe', 'city': 'Bursa'}, {'name': 'Ayşe', 'city': 'Bursa'}]",
+      "why_tr": "`append` bir kopya değil, aynı nesneye ikinci bir etiket ekler. List iki kez aynı dict'i tutar; ikinci tur onu 'Bursa' yapınca iki öğe de 'Bursa' gösterir.",
+      "why": "`append` does not copy; it adds another tag to the same object. The list holds the same dict twice, so when the second turn changes it to 'Bursa', both items show 'Bursa'.",
+      "section": "Creating a database and collection"
+    },
+    {
+      "id": "d27-c13",
+      "type": "explain",
+      "title_tr": "Çok belge eklemek: insert_many",
+      "title": "Inserting many documents: insert_many",
+      "body_tr": "Birçok belgeyi eklemenin iki yolu var: bir `for` döngüsünde `insert_one` çağırmak ya da tek seferde `insert_many(belgeler)`. İkincisi daha iyidir: veritabanına tek bir istek gider, oysa döngü her belge için ayrı bir ağ turu yapar.\n\nDersteki döngü örneğinde de bir hata var: `db` tanımlanmadan kullanılıyor (`NameError`). Önce `db = client['thirty_days_of_python']` gerekir.\n\nGerçek `insert_many` eklenen id'leri `result.inserted_ids` içinde bir list olarak verir. Modelimiz bunu bir comprehension ile yapıyor; her belgeden önce yeni bir dict kurulduğuna dikkat et.",
+      "body": "There are two ways to add many documents: call `insert_one` in a `for` loop, or call `insert_many(list)` once. The second is better: one request goes to the database, while the loop makes a separate network round trip per document.\n\nThe lesson's loop example also has a bug: it uses `db` without defining it (`NameError`). It needs `db = client['thirty_days_of_python']` first.\n\nThe real `insert_many` gives the new ids as a list in `result.inserted_ids`. Our model does it with a comprehension; notice that every document is a fresh dict.",
+      "code": "students = []\n\ndef insert_one(doc):\n    doc['_id'] = len(students) + 1\n    students.append(doc)\n    return doc['_id']\n\ndef insert_many(docs):\n    return [insert_one(doc) for doc in docs]\n\nprint(insert_many([{'name': 'David'}, {'name': 'John'}, {'name': 'Sami'}]))\nprint(len(students))",
+      "expected_output": "[1, 2, 3]\n3",
+      "section": "Inserting many documents to collection"
+    },
+    {
+      "id": "d27-c14",
+      "type": "explain",
+      "title_tr": "find_one: tek bir belge ya da None",
+      "title": "find_one: one document or None",
+      "body_tr": "`db.students.find_one()` argümansız çağrılınca collection'daki ilk belgeyi döndürür. Bir sorgu verirsen eşleşen ilk belgeyi döndürür: `find_one({'_id': ObjectId('5df68a23f106fe2d315bbc8c')})`. Bunun için `from bson.objectid import ObjectId` gerekir; id'yi düz string olarak verirsen hiçbir şey eşleşmez.\n\nHiçbir belge eşleşmezse hata olmaz: sonuç `None`'dır. Bu yüzden sonucu kullanmadan önce `if student is None:` kontrolü yap.\n\nModel: belgeleri sırayla gez, ilk uyanı döndür, döngü biterse `None` döndür.",
+      "body": "Called with no arguments, `db.students.find_one()` returns the first document in the collection. Given a query, it returns the first matching document: `find_one({'_id': ObjectId('5df68a23f106fe2d315bbc8c')})`. That needs `from bson.objectid import ObjectId`; pass the id as a plain string and nothing matches.\n\nIf nothing matches there is no error: the result is `None`. So check `if student is None:` before you use the result.\n\nThe model: walk the documents in order, return the first one that fits, and return `None` when the loop ends.",
+      "code": "rows = [('Asabeneh', 'Finland', 250), ('David', 'UK', 34), ('John', 'Sweden', 28), ('Sami', 'Finland', 25)]\nstudents = [{'name': n, 'country': c, 'age': a} for n, c, a in rows]\n\ndef find_one(name):\n    for doc in students:\n        if doc['name'] == name:\n            return doc\n    return None\n\nprint(find_one('David'))\nprint(find_one('Zeynep'))",
+      "expected_output": "{'name': 'David', 'country': 'UK', 'age': 34}\nNone",
+      "section": "MongoDB Find"
+    },
+    {
+      "id": "d27-c15",
+      "type": "explain",
+      "title_tr": "find ve cursor: bir kez tüketilen akış",
+      "title": "find and the cursor: a stream used up once",
+      "body_tr": "`db.students.find()` bir list değil, bir **cursor** döndürür. Cursor belgeleri sen istedikçe, parça parça veritabanından getirir; milyonlarca belge birden belleğe yüklenmez. `for student in cursor:` ile gezersin.\n\nPython'daki karşılığı bir **generator**: `yield` içeren bir fonksiyon. Generator da değerlerini istendikçe üretir (tek bir değeri `next(cursor)` ile de isteyebilirsin) ve **bir kez** gezilebilir; sonuna gelince boştur.\n\nİzleyicide ilk döngünün iki belgeyi verdiğini, ikinci döngünün ise hiç dönmediğini gör. Tekrar gezmek istiyorsan `list(cursor)` ile bir kez listeye al ya da sorguyu yeniden çalıştır.",
+      "body": "`db.students.find()` does not return a list but a **cursor**. A cursor fetches documents from the database bit by bit as you ask for them, so millions of documents are not loaded into memory at once. You walk it with `for student in cursor:`.\n\nThe Python equivalent is a **generator**: a function containing `yield`. A generator also produces its values on demand (you can ask for a single one with `next(cursor)`) and can be walked **once**; after the end it is empty.\n\nIn the tracer, see the first loop give two documents and the second loop not run at all. To walk it again, store it once with `list(cursor)` or run the query again.",
+      "code": "def find(docs):\n    for doc in docs:\n        yield doc\n\ncursor = find([{'name': 'David'}, {'name': 'Sami'}])\nfor doc in cursor:\n    print('first loop:', doc['name'])\nfor doc in cursor:\n    print('second loop:', doc['name'])\nprint('done')",
+      "expected_output": "first loop: David\nfirst loop: Sami\ndone",
+      "trace": true,
+      "section": "MongoDB Find"
+    },
+    {
+      "id": "d27-c16",
+      "type": "predict",
+      "prompt_tr": "Cursor iki kez list'e çevriliyor. Çıktı ne?",
+      "prompt": "The cursor is turned into a list twice. What is printed?",
+      "code": "def find(docs):\n    for doc in docs:\n        yield doc\n\ncursor = find([{'n': 1}, {'n': 2}])\nprint(len(list(cursor)), len(list(cursor)))",
+      "choices": [
+        "2 2",
+        "2 0",
+        "0 0",
+        "TypeError"
+      ],
+      "answer": "2 0",
+      "why_tr": "İlk `list(cursor)` generator'ı sonuna kadar tüketir ve iki belge alır. İkinci çağrıda verilecek bir şey kalmamıştır: boş list, uzunluk 0.",
+      "why": "The first `list(cursor)` consumes the generator to the end and gets two documents. On the second call nothing is left: an empty list, length 0.",
+      "section": "MongoDB Find"
+    },
+    {
+      "id": "d27-c17",
+      "type": "explain",
+      "title_tr": "Projeksiyon: yalnızca istediğin alanlar",
+      "title": "Projection: only the fields you want",
+      "body_tr": "`find`'ın ikinci argümanı hangi alanların geleceğini seçer: `find({}, {'_id': 0, 'name': 1, 'country': 1})`. 1 \"dahil et\", 0 \"dahil etme\" demektir. İlk argüman `{}` boş sorgudur: \"hepsi\".\n\nKural: aynı projeksiyonda 1 ve 0'ı karıştıramazsın; tek istisna `_id`'dir, çünkü `_id` sen istemesen de varsayılan olarak gelir. Bu yüzden onu `0` ile ayrıca kapatırsın.\n\nAz alan istemek ağdan daha az veri geçmesi demektir. Modelimizde bir dict comprehension, yalnızca istenen ve belgede var olan anahtarları tutar.",
+      "body": "The second argument of `find` chooses which fields come back: `find({}, {'_id': 0, 'name': 1, 'country': 1})`. 1 means \"include\", 0 means \"leave out\". The first argument `{}` is the empty query: \"all of them\".\n\nThe rule: you cannot mix 1 and 0 in one projection; the only exception is `_id`, because `_id` comes by default even if you do not ask for it. That is why you switch it off separately with `0`.\n\nAsking for fewer fields means less data over the network. In our model a dict comprehension keeps only the requested keys that exist in the document.",
+      "code": "students = [\n    {'_id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'age': 250},\n    {'_id': 2, 'name': 'David', 'country': 'UK', 'age': 34},\n]\n\ndef project(doc, fields):\n    return {key: doc[key] for key in fields if key in doc}\n\nfor doc in students:\n    print(project(doc, ['name', 'country']))",
+      "expected_output": "{'name': 'Asabeneh', 'country': 'Finland'}\n{'name': 'David', 'country': 'UK'}",
+      "section": "MongoDB Find"
+    },
+    {
+      "id": "d27-c18",
+      "type": "fill",
+      "prompt_tr": "Projeksiyon yalnızca belgede olan anahtarları tutmalı. Boşluğu doldur.",
+      "prompt": "The projection must keep only keys that the document has. Fill the blank.",
+      "code": "doc = {'name': 'John', 'country': 'Sweden'}\nfields = ['name', 'city']\nprint({key: doc[key] for key in fields if key ___ doc})",
+      "answers": [
+        "in"
+      ],
+      "expected_output": "{'name': 'John'}",
+      "why_tr": "`key in doc` dict'in anahtarlarına bakar. 'city' belgede olmadığı için atlanır; koşul olmasaydı `doc['city']` KeyError verirdi.",
+      "why": "`key in doc` checks the dict's keys. 'city' is not in the document, so it is skipped; without the condition `doc['city']` would raise KeyError.",
+      "section": "MongoDB Find"
+    },
+    {
+      "id": "d27-c19",
+      "type": "explain",
+      "title_tr": "Sorgu bir dict'tir: eşleşme nasıl kontrol edilir?",
+      "title": "A query is a dict: how matching works",
+      "body_tr": "`find({'country': 'Finland'})` ülkesi Finland olan belgeleri getirir. Sorgu da bir dict'tir ve kural basittir: belge, sorgudaki **her** anahtar-değer çiftine eşitse eşleşir.\n\nBunu tek satırda yazabiliriz: `all(doc.get(k) == v for k, v in query.items())`. `doc.get(k)` kullanmamızın nedeni, alanı olmayan belgelerde KeyError yerine `None` almaktır; `None` aranan değere eşit olmadığı için o belge eşleşmez.\n\nİzleyicide `matches`'in her belge için çağrılışını ve `all`'ın sonucunu izle.",
+      "body": "`find({'country': 'Finland'})` returns the documents whose country is Finland. The query is a dict too, and the rule is simple: a document matches when it equals **every** key-value pair in the query.\n\nWe can write that in one line: `all(doc.get(k) == v for k, v in query.items())`. We use `doc.get(k)` so that a document without the field gives `None` instead of a KeyError; `None` is not equal to the value we look for, so that document does not match.\n\nIn the tracer, watch `matches` being called for each document and the result of `all`.",
+      "code": "rows = [('Asabeneh', 'Finland', 250), ('David', 'UK', 34), ('John', 'Sweden', 28), ('Sami', 'Finland', 25)]\nstudents = [{'name': n, 'country': c, 'age': a} for n, c, a in rows]\n\ndef matches(doc, query):\n    return all(doc.get(k) == v for k, v in query.items())\n\nquery = {'country': 'Finland'}\nprint([doc['name'] for doc in students if matches(doc, query)])",
+      "expected_output": "['Asabeneh', 'Sami']",
+      "trace": true,
+      "section": "Find with Query"
+    },
+    {
+      "id": "d27-c20",
+      "type": "explain",
+      "title_tr": "Birden çok alan: hepsi tutmalı (VE)",
+      "title": "Several fields: all must hold (AND)",
+      "body_tr": "Derste ikinci sorgu iki alan kullanır: `{'country': 'Finland', 'city': 'Helsinki'}`. Bu bir **VE** (AND) sorgusudur: belge her iki koşulu da sağlamalıdır. `matches` fonksiyonumuzda bunu `all` sağlıyor; tek bir uyuşmazlık yeter, belge elenir.\n\n\"Ya bu ya şu\" (VEYA, OR) için MongoDB'de ayrı bir operatör vardır: `{'$or': [{'city': 'Helsinki'}, {'city': 'London'}]}`.\n\nAşağıdaki örnekte Türk öğrencilerle bir sınıf var. Sorgu, hem İzmir'de olup hem 20 yaşında olanları arıyor.",
+      "body": "The lesson's second query uses two fields: `{'country': 'Finland', 'city': 'Helsinki'}`. This is an **AND** query: a document must satisfy both conditions. In our `matches` function `all` provides that; a single mismatch is enough to drop the document.\n\nFor \"either this or that\" (OR), MongoDB has a separate operator: `{'$or': [{'city': 'Helsinki'}, {'city': 'London'}]}`.\n\nThe example below uses a class of Turkish students. The query looks for those who are both in İzmir and 20 years old.",
+      "code": "students = [\n    {'name': 'Ayşe', 'city': 'İzmir', 'age': 20},\n    {'name': 'Mehmet', 'city': 'İzmir', 'age': 22},\n    {'name': 'Elif', 'city': 'Bursa', 'age': 20},\n]\n\ndef matches(doc, query):\n    return all(doc.get(k) == v for k, v in query.items())\n\nprint([s['name'] for s in students if matches(s, {'city': 'İzmir', 'age': 20})])\nprint([s['name'] for s in students if matches(s, {'age': 20})])",
+      "expected_output": "['Ayşe']\n['Ayşe', 'Elif']",
+      "section": "Find query with modifier"
+    },
+    {
+      "id": "d27-c21",
+      "type": "predict",
+      "prompt_tr": "Hangi isimler eşleşir?",
+      "prompt": "Which names match?",
+      "code": "students = [\n    {'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n    {'name': 'Sami', 'country': 'Finland'},\n    {'name': 'David', 'country': 'UK', 'city': 'London'},\n]\nquery = {'country': 'Finland', 'city': 'Helsinki'}\nprint([d['name'] for d in students\n       if all(d.get(k) == v for k, v in query.items())])",
+      "choices": [
+        "['Asabeneh']",
+        "['Asabeneh', 'Sami']",
+        "[]",
+        "KeyError: 'city'"
+      ],
+      "answer": "['Asabeneh']",
+      "why_tr": "Sami'nin `city` alanı yok; `d.get('city')` `None` verir ve 'Helsinki'ye eşit değildir. Yalnızca Asabeneh iki koşulu da sağlar. `.get` kullanıldığı için KeyError olmaz.",
+      "why": "Sami has no `city` field; `d.get('city')` gives `None`, which is not 'Helsinki'. Only Asabeneh satisfies both conditions. Because `.get` is used, there is no KeyError.",
+      "section": "Find query with modifier"
+    },
+    {
+      "id": "d27-c22",
+      "type": "explain",
+      "title_tr": "Operatörler: $gt, $lt ve arkadaşları",
+      "title": "Operators: $gt, $lt and friends",
+      "body_tr": "\"30 yaşından büyük\" eşitlik değildir. MongoDB bunu değerin yerine bir dict koyarak ifade eder: `{'age': {'$gt': 30}}`. `$gt` \"greater than\" (büyüktür), `$lt` \"less than\" (küçüktür) demektir; `$gte` ve `$lte` eşitliği de kapsar.\n\nModelimizde her operatör adını bir lambda'ya eşleyen bir dict var. Değer bir dict ise içindeki her operatörü uygularız; değilse düz eşitliğe bakarız.\n\nDersteki çıktıda bir hata var: `$gt: 30` sorgusunun ikinci çıktısında John (28) ve Sami (25) görünüyor; o çıktı aslında `$lt: 30`'a ait. Doğru sonuç aşağıda.",
+      "body": "\"Older than 30\" is not an equality. MongoDB expresses it by putting a dict in place of the value: `{'age': {'$gt': 30}}`. `$gt` means \"greater than\", `$lt` means \"less than\"; `$gte` and `$lte` include equality.\n\nIn our model a dict maps each operator name to a lambda. If the value is a dict we apply every operator inside it; otherwise we check plain equality.\n\nThe lesson's output has a bug: the second output for `$gt: 30` shows John (28) and Sami (25); that output actually belongs to `$lt: 30`. The correct result is below.",
+      "code": "rows = [('Asabeneh', 'Finland', 250), ('David', 'UK', 34), ('John', 'Sweden', 28), ('Sami', 'Finland', 25)]\nstudents = [{'name': n, 'country': c, 'age': a} for n, c, a in rows]\nOPS = {'$gt': lambda a, b: a > b, '$lt': lambda a, b: a < b}\n\ndef check(value, cond):\n    if isinstance(cond, dict):\n        return all(OPS[op](value, arg) for op, arg in cond.items())\n    return value == cond\n\nprint([s['name'] for s in students if check(s['age'], {'$gt': 30})])\nprint([s['name'] for s in students if check(s['age'], {'$lt': 30})])",
+      "expected_output": "['Asabeneh', 'David']\n['John', 'Sami']",
+      "section": "Find query with modifier"
+    },
+    {
+      "id": "d27-c23",
+      "type": "explain",
+      "title_tr": "Sık hata: operatörü düz değer gibi yazmak",
+      "title": "Common mistake: writing an operator like a plain value",
+      "body_tr": "Yeni başlayanlar \"30'dan büyük\" için şunları dener: `{'age': '> 30'}` ya da `$` işaretini unutup `{'age': {'gt': 30}}`. İkisi de **hata vermez**, bu yüzden tehlikelidir: sorgu sessizce hiçbir şey döndürmez.\n\nNeden? MongoDB `'> 30'` metnini, yaşı tam olarak `'> 30'` string'i olan belgeyi aramak olarak anlar. `{'gt': 30}` da `$` ile başlamadığı için operatör değil, \"yaş alanı `{'gt': 30}` dict'ine eşit olsun\" demektir.\n\nBir sorgu boş döndüğünde ilk işin sorgunun yazımını kontrol etmek olsun.",
+      "body": "Beginners try these for \"greater than 30\": `{'age': '> 30'}`, or forgetting the `$`, `{'age': {'gt': 30}}`. Neither **raises an error**, which is what makes them dangerous: the query silently returns nothing.\n\nWhy? MongoDB reads `'> 30'` as looking for documents whose age is exactly the string `'> 30'`. And `{'gt': 30}` does not start with `$`, so it is not an operator; it means \"the age field equals the dict `{'gt': 30}`\".\n\nWhen a query comes back empty, check how the query is written first.",
+      "code": "students = [{'name': 'David', 'age': 34}, {'name': 'Sami', 'age': 25}]\n\ndef matches(doc, query):\n    return all(doc.get(k) == v for k, v in query.items())\n\nprint([s['name'] for s in students if matches(s, {'age': '> 30'})])\nprint([s['name'] for s in students if matches(s, {'age': {'gt': 30}})])\nprint([s['name'] for s in students if s['age'] > 30])",
+      "expected_output": "[]\n[]\n['David']",
+      "hide_output": true,
+      "section": "Find query with modifier"
+    },
+    {
+      "id": "d27-c24",
+      "type": "order",
+      "prompt_tr": "Satırları sırala: 30'dan büyük olanların adlarını yazdır.",
+      "prompt": "Order the lines: print the names of those older than 30.",
+      "lines": [
+        "older = [s['name'] for s in students if all(OPS[op](s['age'], arg) for op, arg in query.items())]",
+        "OPS = {'$gt': lambda a, b: a > b}",
+        "print(older)",
+        "students = [{'name': 'David', 'age': 34}, {'name': 'Sami', 'age': 25}]",
+        "query = {'$gt': 30}"
+      ],
+      "correct_order": [
+        3,
+        1,
+        4,
+        0,
+        2
+      ],
+      "expected_output": "['David']",
+      "section": "Find query with modifier"
+    },
+    {
+      "id": "d27-c25",
+      "type": "explain",
+      "title_tr": "Daha fazla operatör: $in ve $ne",
+      "title": "More operators: $in and $ne",
+      "body_tr": "İki operatör daha çok sık kullanılır. `$in` \"değer bu list'in içinde mi?\" diye sorar: `{'city': {'$in': ['Helsinki', 'London']}}`. Python'daki `in` operatörünün aynısı. `$ne` \"eşit değil\" (not equal) demektir: `{'country': {'$ne': 'Finland'}}`.\n\nOperatör dict'imize iki satır eklemek yeter; geri kalan kod hiç değişmez. Bu, tabloyla çalışmanın (Gün 26'daki route tablosu gibi) güzel yanıdır: yeni bir davranış eklemek, yeni bir kayıt eklemektir.\n\nBir alanda birden çok operatör birleşebilir: `{'age': {'$gte': 25, '$lt': 35}}` 25 ile 34 arası demektir.",
+      "body": "Two more operators are very common. `$in` asks \"is the value in this list?\": `{'city': {'$in': ['Helsinki', 'London']}}`, exactly like Python's `in` operator. `$ne` means \"not equal\": `{'country': {'$ne': 'Finland'}}`.\n\nAdding two lines to our operator dict is enough; the rest of the code does not change at all. That is the nice side of working with a table (like Day 26's route table): adding a behaviour means adding an entry.\n\nSeveral operators can be combined on one field: `{'age': {'$gte': 25, '$lt': 35}}` means 25 to 34.",
+      "code": "rows = [('Asabeneh', 'Finland', 250), ('David', 'UK', 34), ('John', 'Sweden', 28), ('Sami', 'Finland', 25)]\nstudents = [{'name': n, 'country': c, 'age': a} for n, c, a in rows]\nOPS = {'$gte': lambda a, b: a >= b, '$lt': lambda a, b: a < b,\n       '$in': lambda a, b: a in b, '$ne': lambda a, b: a != b}\n\ndef check(value, cond):\n    return all(OPS[op](value, arg) for op, arg in cond.items())\n\nprint([s['name'] for s in students if check(s['country'], {'$in': ['UK', 'Sweden']})])\nprint([s['name'] for s in students if check(s['age'], {'$gte': 25, '$lt': 35})])",
+      "expected_output": "['David', 'John']\n['David', 'John', 'Sami']",
+      "section": "Find query with modifier"
+    },
+    {
+      "id": "d27-c26",
+      "type": "predict",
+      "prompt_tr": "İki operatör aynı alanda. Çıktı ne?",
+      "prompt": "Two operators on one field. What is printed?",
+      "code": "OPS = {'$ne': lambda a, b: a != b, '$in': lambda a, b: a in b}\ncities = ['İzmir', 'Bursa', 'Ankara', 'İzmir']\ncond = {'$in': ['İzmir', 'Ankara'], '$ne': 'Ankara'}\nprint([c for c in cities if all(OPS[op](c, arg) for op, arg in cond.items())])",
+      "choices": [
+        "['İzmir', 'İzmir']",
+        "['İzmir', 'Ankara', 'İzmir']",
+        "['İzmir']",
+        "['Bursa']"
+      ],
+      "answer": "['İzmir', 'İzmir']",
+      "why_tr": "Her şehir iki koşulu da geçmeli: list'te olmalı (İzmir ya da Ankara) VE Ankara olmamalı. İki İzmir de geçer; list'teki her öğe ayrı ayrı denenir.",
+      "why": "Each city must pass both conditions: be in the list (İzmir or Ankara) AND not be Ankara. Both İzmirs pass; every item in the list is tested separately.",
+      "section": "Find query with modifier"
+    },
+    {
+      "id": "d27-c27",
+      "type": "explain",
+      "title_tr": "limit ve skip: sayfalama",
+      "title": "limit and skip: pagination",
+      "body_tr": "`db.students.find().limit(3)` en fazla 3 belge getirir. Python'daki karşılığı bir dilimdir: `docs[:3]`. Dersteki örnek sonucu bir değişkene atamıyor ve yazdırmıyor; yani hiçbir şey göstermez.\n\nBir web sayfasında sonuçları sayfa sayfa göstermek için `skip` de kullanılır: `find().skip(20).limit(10)` 3. sayfadır (sayfa başına 10). Genel formül: `skip((sayfa - 1) * boyut).limit(boyut)`. Python'da bu `docs[start:start + size]` dilimidir.\n\nDilim, list'te olandan fazlasını isteyince hata vermez; olanı verir.",
+      "body": "`db.students.find().limit(3)` returns at most 3 documents. The Python equivalent is a slice: `docs[:3]`. The lesson's example does not store or print the result, so it shows nothing.\n\nTo show results page by page on a web page you also use `skip`: `find().skip(20).limit(10)` is page 3 (10 per page). The general formula: `skip((page - 1) * size).limit(size)`. In Python that is the slice `docs[start:start + size]`.\n\nA slice that asks for more than the list has does not raise an error; it gives what there is.",
+      "code": "docs = [f'doc{i}' for i in range(1, 8)]\n\ndef page(docs, number, size):\n    start = (number - 1) * size\n    return docs[start:start + size]\n\nprint(page(docs, 1, 3))\nprint(page(docs, 3, 3))\nprint(page(docs, 4, 3))",
+      "expected_output": "['doc1', 'doc2', 'doc3']\n['doc7']\n[]",
+      "section": "Limiting documents"
+    },
+    {
+      "id": "d27-c28",
+      "type": "explain",
+      "title_tr": "sort: artan ve azalan",
+      "title": "sort: ascending and descending",
+      "body_tr": "`find().sort('name')` belgeleri ada göre **artan** sırada (A'dan Z'ye) verir. `sort('age', -1)` ise yaşa göre **azalan** sırada verir: 1 artan, -1 azalan demektir.\n\nPython'daki karşılığı `sorted(docs, key=lambda d: d['age'], reverse=True)`. `key`, her belgeden karşılaştırılacak değeri seçen bir fonksiyondur (Gün 13-14).\n\nMongoDB bir zinciri hep aynı sırayla uygular: önce filtre, sonra sıralama, sonra limit. `find().sort('age', -1).limit(2)` \"en yaşlı iki öğrenci\" demektir. Python'da da bu sırayı sen korumalısın: önce `sorted`, sonra dilim.",
+      "body": "`find().sort('name')` returns the documents in **ascending** order by name (A to Z). `sort('age', -1)` returns them in **descending** order by age: 1 means ascending, -1 descending.\n\nThe Python equivalent is `sorted(docs, key=lambda d: d['age'], reverse=True)`. `key` is a function that picks, from each document, the value to compare (Days 13-14).\n\nMongoDB always applies a chain in the same order: filter first, then sort, then limit. `find().sort('age', -1).limit(2)` means \"the two oldest students\". In Python you must keep that order yourself: first `sorted`, then the slice.",
+      "code": "rows = [('Asabeneh', 'Finland', 250), ('David', 'UK', 34), ('John', 'Sweden', 28), ('Sami', 'Finland', 25)]\nstudents = [{'name': n, 'country': c, 'age': a} for n, c, a in rows]\n\nby_name = sorted(students, key=lambda d: d['name'])\nprint([d['name'] for d in by_name])\n\noldest = sorted(students, key=lambda d: d['age'], reverse=True)[:2]\nprint([(d['name'], d['age']) for d in oldest])",
+      "expected_output": "['Asabeneh', 'David', 'John', 'Sami']\n[('Asabeneh', 250), ('David', 34)]",
+      "trace": true,
+      "section": "Find with sort"
+    },
+    {
+      "id": "d27-c29",
+      "type": "predict",
+      "prompt_tr": "Önce dilim, sonra sıralama. Çıktı ne?",
+      "prompt": "Slice first, then sort. What is printed?",
+      "code": "ages = [25, 34, 28, 250]\nprint(sorted(ages[:2], reverse=True), sorted(ages, reverse=True)[:2])",
+      "choices": [
+        "[34, 25] [250, 34]",
+        "[250, 34] [250, 34]",
+        "[34, 25] [34, 25]",
+        "[25, 34] [250, 34]"
+      ],
+      "answer": "[34, 25] [250, 34]",
+      "why_tr": "`ages[:2]` önce ilk iki öğeyi ([25, 34]) alır, sonra onları sıralar: [34, 25]. Diğeri tüm list'i sıralar, sonra en büyük ikisini alır: [250, 34]. Sıra fark eder.",
+      "why": "`ages[:2]` first takes the first two items ([25, 34]) and then sorts them: [34, 25]. The other sorts the whole list and then takes the two largest: [250, 34]. The order matters.",
+      "section": "Find with sort"
+    },
+    {
+      "id": "d27-c30",
+      "type": "explain",
+      "title_tr": "update_one ve $set",
+      "title": "update_one and $set",
+      "body_tr": "`update_one(sorgu, değişiklik)` sorguya uyan **ilk** belgeyi günceller. Dersteki örnekte Asabeneh'in gerçek olamayacak yaşı düzeltiliyor: `update_one({'age': 250}, {'$set': {'age': 38}})`.\n\n`$set` \"yalnızca bu alanları değiştir, gerisine dokunma\" demektir. Python'da bunun karşılığı `dict.update`'tir: verilen anahtarları yazar, diğerlerini olduğu gibi bırakır.\n\nBirden çok belgeyi güncellemek için `update_many` vardır (derste `upate_many` diye yanlış yazılmış). İzleyicide yalnızca ilk eşleşen belgenin değiştiğini gör.",
+      "body": "`update_one(query, change)` updates the **first** document that matches the query. The lesson's example fixes Asabeneh's implausible age: `update_one({'age': 250}, {'$set': {'age': 38}})`.\n\n`$set` means \"change only these fields and leave the rest alone\". The Python equivalent is `dict.update`: it writes the given keys and keeps every other key as it is.\n\nTo update several documents there is `update_many` (misspelled `upate_many` in the lesson). In the tracer, see that only the first matching document changes.",
+      "code": "rows = [('Asabeneh', 'Finland', 250), ('David', 'UK', 34), ('John', 'Sweden', 28), ('Sami', 'Finland', 25)]\nstudents = [{'name': n, 'country': c, 'age': a} for n, c, a in rows]\n\ndef update_one(query, change):\n    for doc in students:\n        if all(doc.get(k) == v for k, v in query.items()):\n            doc.update(change['$set'])\n            return 1\n    return 0\n\nprint(update_one({'age': 250}, {'$set': {'age': 38}}))\nprint(students[0])",
+      "expected_output": "1\n{'name': 'Asabeneh', 'country': 'Finland', 'age': 38}",
+      "trace": true,
+      "section": "Update with query"
+    },
+    {
+      "id": "d27-c31",
+      "type": "explain",
+      "title_tr": "Sık hata: $set'siz güncelleme",
+      "title": "Common mistake: an update without $set",
+      "body_tr": "`update_one({'name': 'David'}, {'age': 35})` yazarsan `pymongo` şu hatayı verir: `ValueError: update only works with $ operators`. Bu hata seni korur: `$` operatörü olmayan bir dict, belgenin **tamamını** değiştirmek anlamına gelir ve bunun için ayrı bir metot vardır: `replace_one`.\n\nAradaki farkı modelde gör: `update` (yani `$set`) yalnızca `age`'i değiştirir, değiştirme (replace) ise `name` ve `country`'yi de siler.\n\nGün 29'daki orijinal API kodu tam bu hatayı yapıyor; orada düzeltilmiş halini yazacağız.",
+      "body": "Write `update_one({'name': 'David'}, {'age': 35})` and `pymongo` raises `ValueError: update only works with $ operators`. That error protects you: a dict without `$` operators means replacing the **whole** document, and that has its own method: `replace_one`.\n\nSee the difference in the model: `update` (that is, `$set`) changes only `age`, while a replacement also wipes out `name` and `country`.\n\nThe original API code on Day 29 makes exactly this mistake; we will write the corrected version there.",
+      "code": "doc = {'_id': 2, 'name': 'David', 'country': 'UK', 'age': 34}\n\nupdated = dict(doc)\nupdated.update({'age': 35})\nprint(updated)\n\nreplaced = {'_id': doc['_id'], 'age': 35}\nprint(replaced)",
+      "expected_output": "{'_id': 2, 'name': 'David', 'country': 'UK', 'age': 35}\n{'_id': 2, 'age': 35}",
+      "section": "Update with query"
+    },
+    {
+      "id": "d27-c32",
+      "type": "fill",
+      "prompt_tr": "`$set` içindeki alanları belgeye yaz. Boşluğu doldur.",
+      "prompt": "Write the fields inside `$set` into the document. Fill the blank.",
+      "code": "doc = {'name': 'Sami', 'city': 'Helsinki', 'age': 25}\nchange = {'$set': {'age': 26, 'city': 'Espoo'}}\ndoc.___(change['$set'])\nprint(doc)",
+      "answers": [
+        "update"
+      ],
+      "expected_output": "{'name': 'Sami', 'city': 'Espoo', 'age': 26}",
+      "why_tr": "`dict.update` verilen anahtarları yazar ve diğerlerine (`name`) dokunmaz; `$set`'in yaptığı tam olarak budur.",
+      "why": "`dict.update` writes the given keys and leaves the others (`name`) alone; that is exactly what `$set` does.",
+      "section": "Update with query"
+    },
+    {
+      "id": "d27-c33",
+      "type": "explain",
+      "title_tr": "update_many ve $inc",
+      "title": "update_many and $inc",
+      "body_tr": "`update_many` sorguya uyan **her** belgeyi günceller ve kaç belgenin değiştiğini `result.modified_count` ile söyler.\n\nSık kullanılan bir operatör daha: `$inc` bir sayıyı artırır. Bir mağazada stok düşmek için `update_one({'name': 'Çay'}, {'$inc': {'stock': -1}})` yazılır. Neden önce okuyup sonra yazmıyoruz? İki kullanıcı aynı anda okursa ikisi de aynı eski değeri görür ve bir satış kaybolur; `$inc` işlemi veritabanında tek adımda yapar.\n\nModelde her eşleşen belgede `get` ile değeri okuyup artırıyoruz.",
+      "body": "`update_many` updates **every** document that matches the query and reports how many changed with `result.modified_count`.\n\nOne more common operator: `$inc` increases a number. To lower the stock in a shop you write `update_one({'name': 'Çay'}, {'$inc': {'stock': -1}})`. Why not read first and write afterwards? If two users read at the same moment, both see the same old value and one sale is lost; `$inc` does the change inside the database in one step.\n\nIn the model we read each matching document's value with `get` and increase it.",
+      "code": "products = [{'name': 'Çay', 'stock': 5}, {'name': 'Simit', 'stock': 0},\n            {'name': 'Ayran', 'stock': 3}]\n\ndef update_many(query_fn, inc):\n    count = 0\n    for doc in products:\n        if query_fn(doc):\n            for field, amount in inc.items():\n                doc[field] = doc.get(field, 0) + amount\n            count += 1\n    return count\n\nprint(update_many(lambda d: d['stock'] > 0, {'stock': -1}), products)",
+      "expected_output": "2 [{'name': 'Çay', 'stock': 4}, {'name': 'Simit', 'stock': 0}, {'name': 'Ayran', 'stock': 2}]",
+      "section": "Update with query"
+    },
+    {
+      "id": "d27-c34",
+      "type": "explain",
+      "title_tr": "delete_one, delete_many ve boş sorgu",
+      "title": "delete_one, delete_many and the empty query",
+      "body_tr": "`delete_one({'name': 'John'})` eşleşen **ilk** belgeyi siler. `delete_many(sorgu)` eşleşen her belgeyi siler.\n\nDikkat: `delete_many({})` collection'daki **her şeyi** siler. Neden? Boş sorgunun hiç koşulu yoktur ve `all()` boş bir diziye `True` döndürür: kontrol edilecek koşul yoksa hiçbiri başarısız olamaz. Yani her belge eşleşir.\n\nModelde silmeyi, eşleşmeyenlerden yeni bir list kurarak yapıyoruz. İzleyicide `all([])`'ın sonucunu ve list'in nasıl boşaldığını gör.",
+      "body": "`delete_one({'name': 'John'})` deletes the **first** matching document. `delete_many(query)` deletes every matching document.\n\nCareful: `delete_many({})` deletes **everything** in the collection. Why? The empty query has no conditions, and `all()` returns `True` for an empty sequence: if there is no condition to check, none can fail. So every document matches.\n\nIn the model we delete by building a new list from the documents that do not match. In the tracer, see the result of `all([])` and how the list empties.",
+      "code": "students = [{'name': 'David'}, {'name': 'John'}, {'name': 'Sami'}]\n\ndef matches(doc, query):\n    return all(doc.get(k) == v for k, v in query.items())\n\nprint(all([]))\nstudents = [d for d in students if not matches(d, {'name': 'John'})]\nprint(students)\nstudents = [d for d in students if not matches(d, {})]\nprint(students)",
+      "expected_output": "True\n[{'name': 'David'}, {'name': 'Sami'}]\n[]",
+      "trace": true,
+      "section": "Delete Document"
+    },
+    {
+      "id": "d27-c35",
+      "type": "predict",
+      "prompt_tr": "Boş sorgu hangi belgelerle eşleşir?",
+      "prompt": "Which documents does the empty query match?",
+      "code": "def matches(doc, query):\n    return all(doc.get(k) == v for k, v in query.items())\n\ndocs = [{'a': 1}, {'b': 2}, {}]\nprint(sum(1 for d in docs if matches(d, {})))",
+      "choices": [
+        "0",
+        "1",
+        "3",
+        "TypeError"
+      ],
+      "answer": "3",
+      "why_tr": "Boş sorguda kontrol edilecek çift yoktur; `all` boş diziye `True` döndürür. Üç belgenin üçü de eşleşir, boş belge `{}` bile.",
+      "why": "The empty query has no pairs to check; `all` returns `True` for an empty sequence. All three documents match, even the empty document `{}`.",
+      "section": "Delete Document"
+    },
+    {
+      "id": "d27-c36",
+      "type": "explain",
+      "title_tr": "Collection'ı tamamen silmek: drop",
+      "title": "Removing a collection entirely: drop",
+      "body_tr": "`db.students.drop()` collection'ı **tamamen** kaldırır: belgeleri, indeksleri, collection'ın kendisini. `delete_many({})` ise belgeleri siler ama collection'ı ve indekslerini bırakır.\n\nModelde `drop` bir `del` işlemidir: anahtar dict'ten kalkar. Sonra `'students' in db` `False` olur.\n\nGünün tamamını gerçek koda çevirirken iskelet hep aynıdır: `import pymongo`, `client = pymongo.MongoClient(os.environ['MONGODB_URI'])`, `db = client['thirty_days_of_python']`, sonra `db.students.insert_one(...)`, `find(...)`, `update_one(...)`, `delete_one(...)`. Bugün kurduğun modeller bu çağrıların her birinin içini gösteriyor.",
+      "body": "`db.students.drop()` removes the collection **entirely**: its documents, its indexes and the collection itself. `delete_many({})` deletes the documents but keeps the collection and its indexes.\n\nIn the model `drop` is a `del`: the key leaves the dict. Afterwards `'students' in db` is `False`.\n\nWhen you turn today into real code, the skeleton is always the same: `import pymongo`, `client = pymongo.MongoClient(os.environ['MONGODB_URI'])`, `db = client['thirty_days_of_python']`, then `db.students.insert_one(...)`, `find(...)`, `update_one(...)`, `delete_one(...)`. The models you built today show the inside of each of those calls.",
+      "code": "db = {'students': [{'name': 'David'}], 'teachers': []}\n\ndb['students'].clear()\nprint('students' in db, db['students'])\n\ndel db['students']\nprint('students' in db, list(db))",
+      "expected_output": "True []\nFalse ['teachers']",
+      "section": "Drop a collection"
+    },
+    {
+      "id": "d27-c37",
+      "type": "truefalse",
+      "statement_tr": "`delete_many({})` hiçbir şey silmez, çünkü sorgu boştur.",
+      "statement": "`delete_many({})` deletes nothing because the query is empty.",
+      "answer": false,
+      "why_tr": "Yanlış. Boş sorgu koşulsuzdur, yani her belgeyle eşleşir; `delete_many({})` collection'daki bütün belgeleri siler.",
+      "why": "False. The empty query has no conditions, so it matches every document; `delete_many({})` deletes all documents in the collection.",
+      "section": "Delete Document"
+    },
+    {
+      "id": "d27-c38",
+      "type": "recap",
+      "points_tr": [
+        "MongoDB veriyi collection'lardaki belgelerde tutar; Python'da bir belge bir dict'tir ve aynı collection'daki belgelerin alanları farklı olabilir.",
+        "Bağlantı adresi bir parola içerir, bu yüzden koda değil ortam değişkenine (`MONGODB_URI`) konur.",
+        "`insert_one` belgeye `_id` ekler ve verdiğin dict'i değiştirir; her kayıt için yeni bir dict kur.",
+        "Sorgu bir dict'tir: her çift eşleşmeli (VE); `{'$gt': 30}` gibi operatörler değerin yerine dict koyar, `find` ise bir kez tüketilen bir cursor döndürür.",
+        "`update_one` ile `$set` yalnızca verilen alanları değiştirir; `delete_many({})` her şeyi siler, çünkü boş sorgu her belgeyle eşleşir."
+      ],
+      "points": [
+        "MongoDB keeps data as documents in collections; in Python a document is a dict, and documents in one collection may have different fields.",
+        "A connection string contains a password, so it belongs in an environment variable (`MONGODB_URI`), not in the code.",
+        "`insert_one` adds an `_id` and changes the dict you pass; build a new dict for every record.",
+        "A query is a dict where every pair must match (AND); operators like `{'$gt': 30}` put a dict in place of the value, and `find` returns a cursor that is used up once.",
+        "`update_one` with `$set` changes only the given fields; `delete_many({})` deletes everything, because the empty query matches every document."
+      ],
+      "cta_tr": "Şimdi alıştırmalara geç",
+      "cta": "Go to the exercises now",
+      "link": "learn",
+      "section": "Drop a collection"
+    }
+  ]
 }

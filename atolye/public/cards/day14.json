@@ -1,289 +1,412 @@
 {
   "day": 14,
-  "title_tr": "Yüksek Dereceli Fonksiyonlar",
+  "title_tr": "Yüksek Mertebeden Fonksiyonlar",
   "title": "Higher Order Functions",
-  "est_minutes": 28,
+  "est_minutes": 50,
   "cards": [
     {
       "id": "d14-c01",
       "type": "explain",
       "section": "Higher Order Functions",
-      "title_tr": "Fonksiyonlar birinci sınıf vatandaştır",
-      "title": "Functions are first-class citizens",
-      "body_tr": "Python'da fonksiyon bir değerdir: değişkene atanır, argüman olarak verilir, başka fonksiyondan döndürülür. Bunlardan birini yapan fonksiyona **higher order function** (yüksek dereceli fonksiyon) denir.",
-      "body": "In Python a function is a value: it can be assigned, passed as an argument, or returned. A function that does one of these is a **higher order function**."
+      "title_tr": "Fonksiyonlar birinci sınıf değerlerdir",
+      "title": "Functions are first-class values",
+      "body_tr": "11. günde bir fonksiyonu başka bir fonksiyona verdin. Bu çalışır, çünkü Python'da fonksiyonlar **birinci sınıf** (first-class) değerlerdir: sayılar ve list'ler gibi isimlere bağlanabilir, list'lerde ve dict'lerde saklanabilir, argüman olarak verilebilir ve başka fonksiyonlardan döndürülebilirler.\n\n**Yüksek mertebeden fonksiyon** (higher-order function), parametre olarak fonksiyon alan, fonksiyon döndüren ya da ikisini birden yapan fonksiyondur. Bazılarını zaten kullandın: 13. günde `sorted(..., key=...)` ve `max(..., key=...)`.\n\nÖrnek, fonksiyonları bir dict'te saklıyor; minik bir hesap makinesi. `ops['+']` fonksiyon nesnesini bulur, `(8, 2)` onu çağırır. Bu \"fonksiyon tablosu\" uzun bir `if/elif` zincirinin yerini alır ve gerçek kodda yaygındır; örneğin menü seçimlerini ya da komutları işleyicilere eşlemek için.",
+      "body": "On Day 11 you passed a function to another function. That works because in Python functions are **first-class** values: like numbers and lists, they can be attached to names, stored in lists and dicts, passed as arguments and returned from other functions.\n\nA **higher-order function** is a function that takes a function as a parameter, returns a function, or both. You already used some: `sorted(..., key=...)` and `max(..., key=...)` on Day 13.\n\nThe example stores functions in a dict, a tiny calculator. `ops['+']` looks up the function object and `(8, 2)` calls it. This \"table of functions\" replaces a long `if/elif` chain and is common in real code, for example to map menu choices or commands to handlers.",
+      "code": "def add(a, b):\n    return a + b\n\ndef sub(a, b):\n    return a - b\n\nops = {'+': add, '-': sub}\nprint(ops['+'](8, 2), ops['-'](8, 2))\nprint(type(ops['+']))",
+      "expected_output": "10 6\n<class 'function'>"
     },
     {
       "id": "d14-c02",
       "type": "explain",
       "section": "Function as a Parameter",
-      "title_tr": "Fonksiyonu parametre olarak almak",
-      "title": "Taking a function as a parameter",
-      "body_tr": "`higher_order_function` bir fonksiyon (`f`) ve bir liste alır, `f`i listeye uygular. Parantezsiz `sum_numbers` fonksiyonun kendisidir.",
-      "body": "`higher_order_function` takes a function (`f`) and a list and applies `f` to it. `sum_numbers` without parentheses is the function itself.",
-      "code": "def sum_numbers(nums):\n    return sum(nums)\n\ndef higher_order_function(f, lst):\n    return f(lst)\n\nprint(higher_order_function(sum_numbers, [1, 2, 3, 4, 5]))",
-      "expected_output": "15",
+      "title_tr": "Parametre olarak fonksiyon",
+      "title": "Function as a parameter",
+      "body_tr": "Bir fonksiyon başka bir fonksiyonu parametre olarak aldığında, **ne** olacağına çağıran karar verir; **ne zaman ve neye** uygulanacağına ise yüksek mertebeden fonksiyon karar verir.\n\nAşağıdaki `summarize(f, data)` toplayacak mı, en büyüğü mü bulacak, yoksa sayacak mı bilmez. Yalnızca `f(data)`'yı çağırır. Orijinal dersin örneği, yalnızca hazır `sum` fonksiyonunu saran bir `sum_numbers` fonksiyonu veriyordu; `sum`'ın kendisini de verebilirsin, çünkü hazır fonksiyonlar da birer fonksiyon nesnesidir.\n\nÜç çağrıyı adım adım izle. Her seferinde `f` parametresi farklı bir fonksiyon nesnesine (`sum`, `max`, `len`) takılan yeni bir isim etiketi olur ve aynı `return f(data)` satırı üç farklı iş yapar.",
+      "body": "When a function takes another function as a parameter, the caller decides **what** happens and the higher-order function decides **when and to what**.\n\n`summarize(f, data)` below does not know whether it will sum, find a maximum or count. It simply calls `f(data)`. The original lesson's example passed a `sum_numbers` function that only wrapped the built-in `sum`; you can pass `sum` itself, since built-ins are function objects too.\n\nStep through the three calls. Each time, the parameter `f` becomes a new name tag on a different function object (`sum`, `max`, `len`), and the same line `return f(data)` does three different jobs.",
+      "code": "def summarize(f, data):\n    return f(data)\n\nscores = [70, 85, 90, 55]\nprint(summarize(sum, scores))\nprint(summarize(max, scores))\nprint(summarize(len, scores))",
+      "expected_output": "300\n90\n4",
       "trace": true
     },
     {
       "id": "d14-c03",
       "type": "predict",
       "section": "Function as a Parameter",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "def apply(f, x):\n    return f(x)\n\nprint(apply(len, 'python'))",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "def apply_twice(f, x):\n    return f(f(x))\n\ndef add_three(n):\n    return n + 3\n\nprint(apply_twice(add_three, 10))\nprint(apply_twice(str.upper, 'çay'))",
       "choices": [
-        "6",
-        "'python'",
-        "1",
-        "Hata verir"
+        "13\nçay",
+        "13\nÇAY",
+        "16\nÇAY",
+        "16\nÇAYÇAY"
       ],
-      "answer": "6",
-      "why_tr": "`apply` `len('python')` çağırır: 6 harf.",
-      "why": "`apply` calls `len('python')`: 6 letters."
+      "answer": "16\nÇAY",
+      "why_tr": "`f(f(x))` fonksiyonu kendi sonucuna uygular: 10 + 3 + 3 = 16. İki kez büyütmek yine 'ÇAY' verir; `str.upper` tek bir string alan sıradan bir fonksiyondur.",
+      "why": "`f(f(x))` applies the function to its own result: 10 + 3 + 3 = 16. Uppercasing twice is still 'ÇAY'; `str.upper` is an ordinary function taking one string."
     },
     {
       "id": "d14-c04",
       "type": "explain",
       "section": "Function as a Return Value",
-      "title_tr": "Fonksiyon döndürmek",
-      "title": "Returning a function",
-      "body_tr": "Dış fonksiyon, gelen parametreye göre farklı fonksiyonlar döndürebilir. Dönen şeyi değişkene atayıp sonra çağırırsın.",
-      "body": "The outer function can return different functions depending on its parameter. Store the result in a variable and call it later.",
-      "code": "def square(x):\n    return x ** 2\ndef cube(x):\n    return x ** 3\n\ndef pick(kind):\n    return square if kind == 'square' else cube\n\nresult = pick('cube')\nprint(result(3))",
-      "expected_output": "27"
+      "title_tr": "Dönüş değeri olarak fonksiyon",
+      "title": "Function as a return value",
+      "body_tr": "Bir fonksiyon bir fonksiyon **döndürebilir** de. Orijinal örnek, bir string'e göre üç fonksiyondan birini seçiyor: `get_operation('square')` bir sayı değil, `square` fonksiyonunun kendisini döndürür. Sonra sonucu çağırırsın: `get_operation('square')(3)`.\n\nÖnemli ayrıntı `return square` içindeki parantez eksikliğidir. Parantezle yazılsaydı `return square()`, `square`'i hemen ve argümansız çağırmaya çalışır ve `TypeError: square() missing 1 required positional argument: 'x'` ile çökerdi.\n\nBuradaki sürüm orijinaldeki `if/elif` zinciri yerine bir dict kullanıyor; `.get(kind)` bilinmeyen bir tür için hata vermek yerine `None` döndürüyor. Orijinaldeki `absolute` fonksiyonu da hazır `abs` fonksiyonunun ta kendisidir.",
+      "body": "A function can also **return** a function. The original example picks one of three functions by a string: `get_operation('square')` returns the function `square` itself, not a number. You then call the result: `get_operation('square')(3)`.\n\nThe important detail is the missing parentheses in `return square`. With them, `return square()` would try to call `square` immediately with no argument and crash with `TypeError: square() missing 1 required positional argument: 'x'`.\n\nThe version here uses a dict instead of the original `if/elif` chain, and `.get(kind)` returns `None` for an unknown kind instead of raising an error. The original's `absolute` function is simply the built-in `abs`.",
+      "code": "def square(x):\n    return x ** 2\n\ndef cube(x):\n    return x ** 3\n\ndef get_operation(kind):\n    return {'square': square, 'cube': cube, 'absolute': abs}.get(kind)\n\nprint(get_operation('square')(3), get_operation('cube')(3))\nprint(get_operation('absolute')(-3), get_operation('log'))",
+      "expected_output": "9 27\n3 None"
     },
     {
       "id": "d14-c05",
       "type": "predict",
       "section": "Function as a Return Value",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "def pick(kind):\n    if kind == 'up':\n        return str.upper\n    return str.lower\n\nprint(pick('up')('Hi'))",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "def shout(text):\n    return text.upper()\n\ndef pick(loud):\n    if loud:\n        return shout\n    return str.lower\n\nf = pick(False)\nprint(f('Merhaba'), pick(True)('Merhaba'))",
       "choices": [
-        "HI",
-        "hi",
-        "Hi",
-        "Hata verir"
+        "MERHABA merhaba",
+        "Merhaba Merhaba",
+        "shout MERHABA",
+        "merhaba MERHABA"
       ],
-      "answer": "HI",
-      "why_tr": "`pick('up')` `str.upper` döndürür, `('Hi')` onu çağırır.",
-      "why": "`pick('up')` returns `str.upper`; `('Hi')` calls it."
+      "answer": "merhaba MERHABA",
+      "why_tr": "`pick(False)` `str.lower` fonksiyonunu döndürür; `f('Merhaba')` 'merhaba' olur. `pick(True)` `shout`'u döndürür ve o da hemen 'Merhaba' ile çağrılır.",
+      "why": "`pick(False)` returns the function `str.lower`, so `f('Merhaba')` is 'merhaba'. `pick(True)` returns `shout`, which is called right away with 'Merhaba'."
     },
     {
       "id": "d14-c06",
       "type": "explain",
       "section": "Python Closures",
-      "title_tr": "Closure: dışarıyı hatırlayan fonksiyon",
-      "title": "Closure: a function that remembers its outside",
-      "body_tr": "İç içe fonksiyon, dış fonksiyonun değişkenlerine erişebilir. Dış fonksiyon bitse bile `ten` hatırlanır. Buna **closure** denir.",
-      "body": "A nested function can use the outer function's variables. Even after the outer function ends, `ten` is remembered. This is a **closure**.",
+      "title_tr": "Closure: hatırlayan fonksiyonlar",
+      "title": "Closures: functions that remember",
+      "body_tr": "Başka bir fonksiyonun **içinde** tanımlanan bir fonksiyon, dıştaki fonksiyonun yerel isimlerini kullanabilir. Dıştaki fonksiyon içtekini döndürdüğünde bu isimler yaşamaya devam eder; içteki fonksiyona bağlı kalırlar. Bu birleşime, yani içteki fonksiyon artı onun hatırladığı dış değerlere, **closure** denir.\n\n`add_ten` içindeki `add`, `ten`'i kullanıyor. `add_ten()` bittikten sonra çalışma alanı normalde çöpe giderdi; ama döndürülen `add` ona hâlâ ihtiyaç duyduğu için `ten` hayatta kalır.\n\nKodu adım adım izle: `add_ten()` döndükten sonra `closure_result` `add` fonksiyonudur; sonraki her çağrı `add`'in içine atlar ve orada `ten` hâlâ 10'dur. JavaScript geliştiricileri bu davranışı fonksiyon içinde oluşturulan fonksiyonlardan tam olarak bilir.",
+      "body": "A function defined **inside** another function can use the outer function's local names. When the outer function returns the inner one, those names stay alive, attached to the inner function. That combination, an inner function plus the outer values it remembers, is a **closure**.\n\nIn `add_ten`, the inner `add` uses `ten`. After `add_ten()` has finished, its workspace would normally be thrown away, but `ten` survives because the returned `add` still needs it.\n\nStep through the code: after `add_ten()` returns, `closure_result` is the function `add`; every later call jumps into `add`, and `ten` is still 10 there. JavaScript developers know this exact behaviour from functions created inside functions.",
       "code": "def add_ten():\n    ten = 10\n    def add(num):\n        return num + ten\n    return add\n\nclosure_result = add_ten()\nprint(closure_result(5))\nprint(closure_result(10))",
       "expected_output": "15\n20",
       "trace": true
     },
     {
       "id": "d14-c07",
-      "type": "fill",
+      "type": "explain",
       "section": "Python Closures",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "def make_multiplier(n):\n    def multiply(x):\n        return x * ___\n    return multiply\n\ntriple = make_multiplier(3)\nprint(triple(5))",
-      "answers": [
-        "n"
-      ],
-      "expected_output": "15",
-      "why_tr": "İç fonksiyon dışarıdaki `n`yi kullanır.",
-      "why": "The inner function uses the outer `n`."
+      "title_tr": "Her çağrı yeni bir closure kurar",
+      "title": "Each call makes a new closure",
+      "body_tr": "Dıştaki fonksiyon küçük bir fabrikaya dönüşür. `make_multiplier(n)`'nin her çağrısı kendi `n`'i olan yeni bir çalışma alanında çalışır ve o çağrıdan dönen içteki fonksiyon **o** `n`'i hatırlar.\n\nBu yüzden aşağıdaki `double` ve `triple` iki farklı fonksiyon nesnesidir ve her biri kendi hatırladığı değeri taşır: birinde 2, ötekinde 3. Birini değiştirmek ötekini asla etkilemez.\n\nBu, yalnızca bir ayarla farklılaşan birçok benzer fonksiyon istediğinde işe yarar: her kampanya için bir indirim fonksiyonu, her para birimi için bir biçimlendirici, her en kısa uzunluk için bir doğrulayıcı. 13. gündeki, lambda döndüren `power(x)` ile aynı fikirdir; burada `def` ile yazılmış hâli.",
+      "body": "The outer function becomes a small factory. Every call to `make_multiplier(n)` runs in a fresh workspace with its own `n`, and the inner function returned from that call remembers **that** `n`.\n\nSo `double` and `triple` below are two different function objects, each carrying its own remembered value: 2 for one, 3 for the other. Changing one never affects the other.\n\nThis is useful whenever you want many similar functions that differ only by a setting: a discount function per campaign, a formatter per currency, a validator per minimum length. It is the same idea as Day 13's `power(x)` returning a lambda, written here with `def`.",
+      "code": "def make_multiplier(n):\n    def multiply(x):\n        return x * n\n    return multiply\n\ndouble = make_multiplier(2)\ntriple = make_multiplier(3)\nprint(double(5), triple(5))\nprint(double is triple)",
+      "expected_output": "10 15\nFalse"
     },
     {
       "id": "d14-c08",
-      "type": "explain",
-      "section": "Creating Decorators",
-      "title_tr": "Decorator: fonksiyona yetenek eklemek",
-      "title": "Decorator: adding behavior to a function",
-      "body_tr": "Decorator, bir fonksiyonu alıp onu sarmalayan yeni bir fonksiyon döndürür. Önce elle yap: `g = uppercase_decorator(greeting)`.",
-      "body": "A decorator takes a function and returns a new function wrapping it. Do it by hand first: `g = uppercase_decorator(greeting)`.",
-      "code": "def greeting():\n    return 'Welcome to Python'\n\ndef uppercase_decorator(function):\n    def wrapper():\n        return function().upper()\n    return wrapper\n\ng = uppercase_decorator(greeting)\nprint(g())",
-      "expected_output": "WELCOME TO PYTHON",
-      "trace": true
+      "type": "predict",
+      "section": "Python Closures",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "def make_badge(prefix):\n    def badge(name):\n        return prefix + '-' + name.upper()\n    return badge\n\nstaff = make_badge('PER')\nguest = make_badge('MİS')\nprint(guest('ada'), staff('can'))",
+      "choices": [
+        "PER-ADA MİS-CAN",
+        "MİS-ada PER-can",
+        "prefix-ADA prefix-CAN",
+        "MİS-ADA PER-CAN"
+      ],
+      "answer": "MİS-ADA PER-CAN",
+      "why_tr": "Her closure kendi çağrısının `prefix` değerini hatırlar: `guest`'te 'MİS', `staff`'ta 'PER' vardır. İsim içeride büyütülür.",
+      "why": "Each closure remembers the `prefix` of its own call: `guest` has 'MİS', `staff` has 'PER'. The name is uppercased inside."
     },
     {
       "id": "d14-c09",
       "type": "explain",
-      "section": "Creating Decorators",
-      "title_tr": "@ kısayolu",
-      "title": "The @ shortcut",
-      "body_tr": "`@uppercase_decorator` satırı, `greeting = uppercase_decorator(greeting)` ile aynı işi yapar; fonksiyonun üstüne yazılır.",
-      "body": "`@uppercase_decorator` does the same as `greeting = uppercase_decorator(greeting)`; you write it above the function.",
-      "code": "def uppercase_decorator(function):\n    def wrapper():\n        return function().upper()\n    return wrapper\n\n@uppercase_decorator\ndef greeting():\n    return 'Welcome to Python'\n\nprint(greeting())",
-      "expected_output": "WELCOME TO PYTHON"
+      "section": "Python Closures",
+      "title_tr": "Hatırlanan değeri değiştirmek: nonlocal",
+      "title": "Changing a remembered value: nonlocal",
+      "body_tr": "Dıştaki bir değişkeni okumak kendiliğinden çalışır, ama ona **atama yapmak** çalışmaz. Aşağıdaki gibi bir sayaçta, `increment` içindeki `count += 1` satırı Python'ın `count`'u `increment`'in yeni bir yerel ismi saymasına yol açar. Değeri olmadan onu okumak da şu hatayı verir:\n\n`UnboundLocalError: cannot access local variable 'count' where it is not associated with a value`\n\n`nonlocal count` anahtar kelimesi Python'a \"bu `count`, kapsayan fonksiyondaki `count`'tur, onu değiştir\" der. Adım adım izle: `click`'in her çağrısı aynı hatırlanan `count`'u günceller.\n\n`nonlocal`'ı idareli kullan. Daha büyük durum (state) için 21. günde göreceğin sınıflar genellikle daha açıktır.",
+      "body": "Reading an outer variable works automatically, but **assigning** to it does not. In a counter like the one below, `count += 1` inside `increment` makes Python treat `count` as a new local name of `increment`. Reading it before it has a value then fails:\n\n`UnboundLocalError: cannot access local variable 'count' where it is not associated with a value`\n\nThe keyword `nonlocal count` tells Python \"this `count` is the one from the enclosing function, change that one\". Step through: each call of `click` updates the same remembered `count`.\n\nUse `nonlocal` sparingly. For larger state, the classes you will meet on Day 21 are usually clearer.",
+      "code": "def make_counter():\n    count = 0\n    def increment():\n        nonlocal count\n        count += 1\n        return count\n    return increment\n\nclick = make_counter()\nprint(click(), click(), click())",
+      "expected_output": "1 2 3",
+      "trace": true
     },
     {
       "id": "d14-c10",
       "type": "truefalse",
-      "section": "Creating Decorators",
-      "statement_tr": "`@decorator` satırı, fonksiyonu decorator'a verip sonucu aynı isme atamaya eşdeğerdir.",
-      "statement": "The `@decorator` line is equivalent to passing the function to the decorator and reassigning the same name.",
+      "section": "Python Closures",
+      "statement_tr": "`nonlocal` olmadan da içteki bir fonksiyon kapsayan fonksiyonun bir değişkenini okuyabilir.",
+      "statement": "Without `nonlocal`, an inner function can still read a variable of the enclosing function.",
       "answer": true,
-      "why_tr": "`@d` `f = d(f)` demektir.",
-      "why": "`@d` means `f = d(f)`."
+      "why_tr": "Okumak, `add_ten`'deki gibi kendiliğinden çalışır. `nonlocal` yalnızca içteki fonksiyon o değişkene atama yaptığında gerekir.",
+      "why": "Reading works automatically, as in `add_ten`. `nonlocal` is needed only when the inner function assigns to that variable."
     },
     {
       "id": "d14-c11",
       "type": "explain",
-      "section": "Applying Multiple Decorators to a Single Function",
-      "title_tr": "Birden çok decorator",
-      "title": "Multiple decorators",
-      "body_tr": "Decorator'lar alttan üste uygulanır: önce `uppercase`, sonra `split`. Sıra önemli, çünkü `.upper()` listede çalışmaz. (Kısa olsun diye wrapper yerine lambda döndürüyoruz.)",
-      "body": "Decorators apply bottom to top: `uppercase` first, then `split`. Order matters because `.upper()` does not work on lists. (For brevity we return a lambda instead of a wrapper.)",
-      "code": "def uppercase_decorator(function):\n    return lambda: function().upper()\ndef split_string_decorator(function):\n    return lambda: function().split()\n\n@split_string_decorator\n@uppercase_decorator\ndef greeting():\n    return 'Welcome to Python'\n\nprint(greeting())",
-      "expected_output": "['WELCOME', 'TO', 'PYTHON']"
+      "section": "Creating Decorators",
+      "title_tr": "Decorator: bir fonksiyonu sarmak",
+      "title": "Decorators: wrapping a function",
+      "body_tr": "On fonksiyonun her çalıştığında bir satır log yazması gerektiğini düşün. Onunu da tek tek düzenlemek yine kopyala-yapıştır sorunudur. **Decorator** bunu çözer: bir fonksiyonu alan ve orijinali ek davranışla saran yeni bir fonksiyon döndüren fonksiyon.\n\n`uppercase_decorator(function)` içeride bir `wrapper` tanımlar; `wrapper` orijinal `function()`'ı çağırır, sonucu büyütür ve döndürür. Bu bir closure'dır: `wrapper` hangi `function`'ı sardığını hatırlar.\n\nElle uygulamak şöyle görünür: `g = uppercase_decorator(greeting)`. Artık `g()`, içeride `greeting`'i çalıştıran `wrapper`'ı çalıştırır. Orijinal `greeting`'e dokunulmamıştır ve tek başına hâlâ çalışır.",
+      "body": "Suppose ten functions should log a line every time they run. Editing all ten is the copy-paste problem again. A **decorator** solves it: a function that takes a function and returns a new function that wraps the original with extra behaviour.\n\n`uppercase_decorator(function)` defines an inner `wrapper` that calls the original `function()`, uppercases the result and returns it. It is a closure: `wrapper` remembers which `function` it wraps.\n\nApplying it by hand looks like this: `g = uppercase_decorator(greeting)`. Now `g()` runs `wrapper`, which runs `greeting` inside. The original `greeting` is untouched and still works on its own.",
+      "code": "def greeting():\n    return 'Welcome to Python'\n\ndef uppercase_decorator(function):\n    def wrapper():\n        return function().upper()\n    return wrapper\n\ng = uppercase_decorator(greeting)\nprint(g())\nprint(greeting())",
+      "expected_output": "WELCOME TO PYTHON\nWelcome to Python"
     },
     {
       "id": "d14-c12",
-      "type": "predict",
-      "section": "Applying Multiple Decorators to a Single Function",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "def add_a(f):\n    return lambda: f() + 'a'\n\ndef add_b(f):\n    return lambda: f() + 'b'\n\n@add_a\n@add_b\ndef base():\n    return 'x'\n\nprint(base())",
-      "choices": [
-        "xba",
-        "xab",
-        "abx",
-        "x"
-      ],
-      "answer": "xba",
-      "why_tr": "Alttaki önce çalışır: 'x' + 'b', sonra + 'a'.",
-      "why": "The bottom one applies first: 'x' + 'b', then + 'a'."
+      "type": "explain",
+      "section": "Creating Decorators",
+      "title_tr": "@ yazımı",
+      "title": "The @ syntax",
+      "body_tr": "`def greeting():` satırının üstüne `@uppercase_decorator` yazmak, tanımdan hemen sonra şunu yazmakla tamamen aynıdır:\n\n`greeting = uppercase_decorator(greeting)`\n\nPython `greeting`'i tanımlar, onu decorator'a verir ve `greeting` ismini decorator'ın döndürdüğü şeye, yani `wrapper`'a bağlar. O andan sonra her `greeting()` çağrısı, içeride orijinali çağıran `wrapper`'ı çalıştırır.\n\nKodu adım adım izle. Decorator'ın gövdesinin tanım anında **bir kez** çalıştığına (`'decorating greeting'` yazdırıyor), `wrapper`'ın ise her çağrıda çalıştığına dikkat et. Bu decorator ayrıca orijinali çağırmadan önce bir log satırı ekliyor.",
+      "body": "Writing `@uppercase_decorator` on the line above `def greeting():` is exactly the same as writing, right after the definition:\n\n`greeting = uppercase_decorator(greeting)`\n\nPython defines `greeting`, passes it to the decorator, and attaches the name `greeting` to whatever the decorator returned, the `wrapper`. From then on, every call `greeting()` runs `wrapper`, which calls the original inside.\n\nStep through the code. Notice that the decorator body runs **once**, at definition time (it prints 'decorating greeting'), while `wrapper` runs at every call. This decorator also adds a log line before calling the original.",
+      "code": "def uppercase_decorator(function):\n    print('decorating', function.__name__)\n    def wrapper():\n        print('log: calling', function.__name__)\n        return function().upper()\n    return wrapper\n\n@uppercase_decorator\ndef greeting():\n    return 'Welcome to Python'\n\nprint(greeting())",
+      "expected_output": "decorating greeting\nlog: calling greeting\nWELCOME TO PYTHON",
+      "trace": true
     },
     {
       "id": "d14-c13",
-      "type": "explain",
-      "section": "Accepting Parameters in Decorator Functions",
-      "title_tr": "Parametre alan fonksiyonu süslemek",
-      "title": "Decorating functions with parameters",
-      "body_tr": "`wrapper` sarmaladığı fonksiyonun aldığı parametreleri kabul etmeli. Sonra fonksiyonu çağırıp ek bir iş yapar.",
-      "body": "The `wrapper` must accept the parameters of the wrapped function. It calls the function and then does something extra.",
-      "code": "def decorator_with_parameters(function):\n    def wrapper(first, last, country):\n        function(first, last, country)\n        print('I live in {}'.format(country))\n    return wrapper\n\n@decorator_with_parameters\ndef print_full_name(first, last, country):\n    print('I am {} {}.'.format(first, last))\n\nprint_full_name('Asabeneh', 'Yetayeh', 'Finland')",
-      "expected_output": "I am Asabeneh Yetayeh.\nI live in Finland",
-      "trace": true
+      "type": "predict",
+      "section": "Creating Decorators",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "def announce(f):\n    def wrapper():\n        print('>> start')\n        print(f())\n        print('>> end')\n    return wrapper\n\n@announce\ndef work():\n    return 42\n\nwork()",
+      "choices": [
+        "42\n>> start\n>> end",
+        ">> start\n42\n>> end",
+        ">> start\n>> end\n42",
+        "42"
+      ],
+      "answer": ">> start\n42\n>> end",
+      "why_tr": "`work` artık `wrapper`'ı gösterir; çağrı wrapper'ı çalıştırır: start yazdırır, orijinali çağırıp sonucunu, yani 42'yi yazdırır, sonra end yazdırır.",
+      "why": "`work` now names `wrapper`, so the call runs the wrapper: it prints start, calls the original and prints its result 42, then prints end."
     },
     {
       "id": "d14-c14",
       "type": "explain",
-      "section": "Built-in Higher Order Functions",
-      "title_tr": "map, filter, reduce",
-      "title": "map, filter, reduce",
-      "body_tr": "Hazır yüksek dereceli üç fonksiyon: `map` (her elemana uygula), `filter` (koşula uyanları al), `reduce` (tek değere indir). Lambda'nın en iyi kullanım yeri burasıdır.",
-      "body": "Three built-in higher order functions: `map` (apply to each), `filter` (keep matches), `reduce` (collapse to one value). Lambdas shine here."
+      "section": "Applying Multiple Decorators to a Single Function",
+      "title_tr": "Decorator'ları üst üste koymak: alttan yukarı",
+      "title": "Stacking decorators: bottom up",
+      "body_tr": "Birden fazla decorator'ı üst üste koyabilirsin. **Alttan yukarı** uygulanırlar; `def`'e en yakın olan önce:\n\n```\n@split_string_decorator\n@uppercase_decorator\ndef greeting(): ...\n```\n\nşu demektir: `greeting = split_string_decorator(uppercase_decorator(greeting))`. Çağrıldığında önce dıştaki wrapper çalışır ve içtekini çağırır; böylece sonuç önce büyütülür, sonra bölünür: `['WELCOME', 'TO', 'PYTHON']`.\n\nSıra önemlidir. İki satırın yerini değiştirirsen string önce bölünür; `uppercase` sonra bir list alır ve şu hatayı verir:\n\n`AttributeError: 'list' object has no attribute 'upper'`\n\nOku: `.upper` bir list'ten istenmiş. Bu, yanlış türü hangi wrapper'ın aldığını söyler. (Karta sığsın diye buradaki iki decorator wrapper olarak bir lambda döndürüyor; bir `def wrapper` ile tamamen aynı çalışır.)",
+      "body": "You can stack several decorators. They are applied **from the bottom up**, the one closest to `def` first:\n\n```\n@split_string_decorator\n@uppercase_decorator\ndef greeting(): ...\n```\n\nmeans `greeting = split_string_decorator(uppercase_decorator(greeting))`. When called, the outer wrapper runs first and calls the inner one, so the result is uppercased first and then split: `['WELCOME', 'TO', 'PYTHON']`.\n\nOrder matters. Swap the two lines and the string is split first; `uppercase` then receives a list and fails with:\n\n`AttributeError: 'list' object has no attribute 'upper'`\n\nRead it: `.upper` was asked of a list. That tells you which wrapper got the wrong type. (To fit the card, the two decorators here return a lambda as their wrapper; it works exactly like a `def wrapper`.)",
+      "code": "def uppercase_decorator(function):\n    return lambda: function().upper()\n\ndef split_string_decorator(function):\n    return lambda: function().split()\n\n@split_string_decorator\n@uppercase_decorator\ndef greeting():\n    return 'Welcome to Python'\n\nprint(greeting())",
+      "expected_output": "['WELCOME', 'TO', 'PYTHON']"
     },
     {
       "id": "d14-c15",
-      "type": "explain",
-      "section": "Python - Map Function",
-      "title_tr": "map()",
-      "title": "map()",
-      "body_tr": "`map(fonksiyon, dizi)` her elemana fonksiyonu uygular. Sonuç tembel bir nesnedir; görmek için `list()` içine al.",
-      "body": "`map(function, iterable)` applies the function to each item. The result is lazy; wrap it in `list()` to see it.",
-      "code": "numbers = [1, 2, 3, 4, 5]\nprint(list(map(lambda x: x ** 2, numbers)))\nprint(list(map(int, ['1', '2', '3'])))\nnames = ['Asabeneh', 'Lidiya']\nprint(list(map(lambda n: n.upper(), names)))",
-      "expected_output": "[1, 4, 9, 16, 25]\n[1, 2, 3]\n['ASABENEH', 'LIDIYA']"
+      "type": "predict",
+      "section": "Applying Multiple Decorators to a Single Function",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "def bold(f):\n    return lambda: '<b>' + f() + '</b>'\n\ndef italic(f):\n    return lambda: '<i>' + f() + '</i>'\n\n@bold\n@italic\ndef title():\n    return 'Atölye'\n\nprint(title())",
+      "choices": [
+        "<i><b>Atölye</b></i>",
+        "<b>Atölye</b><i>Atölye</i>",
+        "<b><i>Atölye</i></b>",
+        "<b><i>Atölye</b></i>"
+      ],
+      "answer": "<b><i>Atölye</i></b>",
+      "why_tr": "Önce `def`'e en yakın olan `italic` uygulanır, sonra `bold` sonucu sarar; bu yüzden kalın etiketleri dışarıda kalır: `bold(italic(title))`.",
+      "why": "`italic` is applied first (closest to def), then `bold` wraps the result, so the bold tags end up outside: `bold(italic(title))`."
     },
     {
       "id": "d14-c16",
-      "type": "fill",
-      "section": "Python - Map Function",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "words = ['a', 'bb', 'ccc']\nprint(list(___(len, words)))",
-      "answers": [
-        "map"
-      ],
-      "expected_output": "[1, 2, 3]",
-      "why_tr": "`map(len, words)` her kelimenin uzunluğunu verir.",
-      "why": "`map(len, words)` gives each word's length."
+      "type": "explain",
+      "section": "Accepting Parameters in Decorator Functions",
+      "title_tr": "Her argümanı kabul eden wrapper'lar",
+      "title": "Wrappers that accept any arguments",
+      "body_tr": "Şimdiye kadarki decorator'larda `def wrapper():` parametresizdi; yani yalnızca parametresiz fonksiyonlarda çalışırlar. `uppercase_decorator`'ı `greet(name)` üzerinde kullanırsan `greet('Ada')` çağrısı şu hatayı verir:\n\n`TypeError: uppercase_decorator.<locals>.wrapper() takes 0 positional arguments but 1 was given`\n\n`<locals>` \"`uppercase_decorator`'ın içinde tanımlanan `wrapper`\" demektir: çağrı `greet`'e değil, wrapper'a ulaştı.\n\nOrijinal ders bunu tam üç parametre için çözmüştü. Genel çözüm 11. günün araçlarını kullanır: `def wrapper(*args, **kwargs):` çağıranın verdiği her şeyi toplar, `function(*args, **kwargs)` da onu orijinale dağıtır. Artık tek bir decorator, parametreleri ne olursa olsun her fonksiyonla çalışır.\n\nÖrnek her çağrıyı argümanlarıyla birlikte log'luyor; decorator'ların gerçek dünyadaki bir kullanımı.",
+      "body": "The decorators so far had `def wrapper():` with no parameters, so they only work on functions without parameters. Decorate `greet(name)` with `uppercase_decorator` and the call `greet('Ada')` fails:\n\n`TypeError: uppercase_decorator.<locals>.wrapper() takes 0 positional arguments but 1 was given`\n\n`<locals>` means \"the `wrapper` defined inside `uppercase_decorator`\": the call reached the wrapper, not `greet`.\n\nThe original lesson fixed this for exactly three parameters. The general fix uses Day 11's tools: `def wrapper(*args, **kwargs):` collects whatever the caller passes, and `function(*args, **kwargs)` spreads it into the original. Now one decorator works for every function, whatever its parameters.\n\nThe example logs each call with its arguments, a real-world use of decorators.",
+      "code": "def log_call(function):\n    def wrapper(*args, **kwargs):\n        print('call', function.__name__, args, kwargs)\n        return function(*args, **kwargs)\n    return wrapper\n\n@log_call\ndef full_name(first, last, country='Türkiye'):\n    return f'{first} {last} ({country})'\n\nprint(full_name('Ada', 'Kaya', country='Finland'))",
+      "expected_output": "call full_name ('Ada', 'Kaya') {'country': 'Finland'}\nAda Kaya (Finland)"
     },
     {
       "id": "d14-c17",
-      "type": "explain",
-      "section": "Python - Filter Function",
-      "title_tr": "filter()",
-      "title": "filter()",
-      "body_tr": "`filter(fonksiyon, dizi)` fonksiyonun `True` döndürdüğü elemanları tutar.",
-      "body": "`filter(function, iterable)` keeps the items for which the function returns `True`.",
-      "code": "numbers = [1, 2, 3, 4, 5]\nprint(list(filter(lambda n: n % 2 == 0, numbers)))\nnames = ['Asabeneh', 'Lidiya', 'Ermias', 'Abraham']\nprint(list(filter(lambda n: len(n) > 7, names)))",
-      "expected_output": "[2, 4]\n['Asabeneh']"
+      "type": "fill",
+      "section": "Accepting Parameters in Decorator Functions",
+      "prompt_tr": "Kod gösterilen çıktıyı versin diye boşluğu doldur.",
+      "prompt": "Fill in the blank so the code prints the output shown.",
+      "code": "def shout(function):\n    def wrapper(___):\n        return function(*args, **kwargs).upper() + '!'\n    return wrapper\n\n@shout\ndef greet(name, greeting='merhaba'):\n    return greeting + ' ' + name\n\nprint(greet('ece'), greet('can', greeting='selam'))",
+      "answers": [
+        "*args, **kwargs"
+      ],
+      "expected_output": "MERHABA ECE! SELAM CAN!",
+      "why_tr": "wrapper her türlü pozisyonel ve isimli argümanı kabul etmeli, çünkü gövde `*args` ve `**kwargs`'ı orijinal fonksiyona dağıtıyor.",
+      "why": "The wrapper must accept any positional and keyword arguments, because the body spreads `*args` and `**kwargs` into the original function."
     },
     {
       "id": "d14-c18",
-      "type": "predict",
-      "section": "Python - Filter Function",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "print(list(filter(lambda n: n > 2, [1, 2, 3, 4])))",
-      "choices": [
-        "[3, 4]",
-        "[1, 2]",
-        "[False, False, True, True]",
-        "[2, 3, 4]"
-      ],
-      "answer": "[3, 4]",
-      "why_tr": "`filter` elemanları döndürür, True/False değil.",
-      "why": "`filter` returns the items, not True/False."
+      "type": "explain",
+      "section": "Accepting Parameters in Decorator Functions",
+      "title_tr": "İsmi korumak: functools.wraps",
+      "title": "Keeping the name: functools.wraps",
+      "body_tr": "Süslemeden (decoration) sonra `greet` ismi `wrapper`'ı gösterir; bu yüzden `greet.__name__` `'wrapper'` der. Hata mesajları, hata ayıklayıcılar ve belgeler de yanlış ismi gösterir; birçok fonksiyon aynı decorator'ı paylaşınca bu kafa karıştırmaya başlar.\n\nStandart kütüphanede decorator'lar için bir decorator vardır: `functools.wraps`. `def wrapper` satırının üstüne `@wraps(function)` koy; orijinalin adını ve belge metnini (docstring) wrapper'a kopyalar.\n\nGerçek kod için yazdığın her decorator bunu yapmalı; bedeli bir import ve bir satır. Örnek `greet` yazdırıyor; `@wraps(f)` satırını silersen bunun yerine `wrapper` yazdırırdı.",
+      "body": "After decoration, the name `greet` points to `wrapper`, so `greet.__name__` says `'wrapper'`. Error messages, debuggers and documentation then show the wrong name, which gets confusing once many functions share the same decorator.\n\nThe standard library has a decorator for decorators: `functools.wraps`. Put `@wraps(function)` on the line above `def wrapper`, and it copies the original's name and docstring onto the wrapper.\n\nEvery decorator you write for real code should do this; it costs one import and one line. The example prints `greet`; delete the `@wraps(f)` line and it would print `wrapper` instead.",
+      "code": "from functools import wraps\n\ndef careful(f):\n    @wraps(f)\n    def wrapper(*args, **kwargs):\n        return f(*args, **kwargs)\n    return wrapper\n\n@careful\ndef greet(name):\n    return 'Merhaba ' + name\n\nprint(greet.__name__, greet('Ada'))",
+      "expected_output": "greet Merhaba Ada"
     },
     {
       "id": "d14-c19",
       "type": "truefalse",
-      "section": "Python - Filter Function",
-      "statement_tr": "`map` listeyi kısaltabilir, `filter` her zaman aynı sayıda eleman döndürür.",
-      "statement": "`map` can shorten a list while `filter` always returns the same number of items.",
-      "answer": false,
-      "why_tr": "Tam tersi: `map` eleman sayısını korur, `filter` azaltabilir.",
-      "why": "The opposite: `map` keeps the count, `filter` can reduce it."
+      "section": "Accepting Parameters in Decorator Functions",
+      "statement_tr": "Bir decorator fonksiyonunun gövdesi (wrapper'ının dışı), her çağrıda değil, süslenen `def` çalıştırıldığında bir kez çalışır.",
+      "statement": "The body of a decorator function (outside its wrapper) runs once, when the decorated `def` is executed, not on every call.",
+      "answer": true,
+      "why_tr": "`@deco`, tanım anında çalışan `f = deco(f)` demektir. Her çağrıda yalnızca döndürülen wrapper çalışır; 'decorating greeting' satırı bunu gösterdi.",
+      "why": "`@deco` means `f = deco(f)`, which runs at definition time. Only the returned wrapper runs at every call, as the 'decorating greeting' line showed."
     },
     {
       "id": "d14-c20",
       "type": "explain",
-      "section": "Python - Reduce Function",
-      "title_tr": "reduce()",
-      "title": "reduce()",
-      "body_tr": "`reduce` `functools` içindedir, önce import edilmeli (derste import eksikti). Listeyi tek bir değere indirir: önce ilk iki eleman, sonra sonuç ve sonraki eleman...",
-      "body": "`reduce` lives in `functools` and must be imported first (the lesson forgot this). It collapses a list to one value: first two items, then the result with the next...",
-      "code": "from functools import reduce\n\ndef add_two_nums(x, y):\n    return int(x) + int(y)\n\nprint(reduce(add_two_nums, ['1', '2', '3', '4', '5']))",
-      "expected_output": "15",
-      "trace": true
+      "section": "Python - Map Function",
+      "title_tr": "map: her elemana bir fonksiyon uygulamak",
+      "title": "map: apply a function to every item",
+      "body_tr": "`map(function, iterable)` fonksiyonu her eleman için çağırır ve sonuçları geri verir. 13. gündeki dönüştürme kalıbının hazır sürümüdür: `map(square, numbers)`, `[square(n) for n in numbers]` gibidir.\n\nİki klasik kullanım: tür dönüştürmek, `map(int, ['1', '2', '3'])`, ve her string üzerinde bir metot çağırmak, `map(str.upper, names)` ya da lambda'lı hâli `map(lambda n: n.upper(), names)`.\n\n`map` bir list değil, bir **map nesnesi** döndürür; sonuçları görmek ya da saklamak için onu genellikle `list(...)` içine alırsın. JavaScript'teki `array.map(fn)` doğrudan bir dizi döndürür; Python'ın `map`'i ise tembeldir (lazy), sonraki kart bunu anlatıyor.",
+      "body": "`map(function, iterable)` calls the function on every item and gives back the results. It is the built-in version of the transform pattern from Day 13: `map(square, numbers)` is like `[square(n) for n in numbers]`.\n\nTwo classic uses: converting types, `map(int, ['1', '2', '3'])`, and calling a method on every string, `map(str.upper, names)` or the lambda form `map(lambda n: n.upper(), names)`.\n\n`map` does not return a list but a **map object**, which you usually wrap in `list(...)` to see or keep the results. JavaScript's `array.map(fn)` returns an array directly; Python's `map` is lazy, as the next card explains.",
+      "code": "numbers_str = ['1', '2', '3', '4', '5']\nnumbers = list(map(int, numbers_str))\nprint(numbers, sum(numbers))\n\nnames = ['Asabeneh', 'Lidiya', 'Ermias']\nprint(list(map(str.upper, names)))\nprint(list(map(lambda x: x ** 2, numbers)))",
+      "expected_output": "[1, 2, 3, 4, 5] 15\n['ASABENEH', 'LIDIYA', 'ERMIAS']\n[1, 4, 9, 16, 25]"
     },
     {
       "id": "d14-c21",
       "type": "predict",
-      "section": "Python - Reduce Function",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "from functools import reduce\n\nprint(reduce(lambda a, b: a * b, [1, 2, 3, 4]))",
+      "section": "Python - Map Function",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "prices = [10, 25, 40]\nlabels = list(map(lambda p: f'{p} TL', prices))\nprint(labels)",
       "choices": [
-        "24",
-        "10",
-        "4",
-        "[1, 2, 6, 24]"
+        "['10', '25', '40'] TL",
+        "[10, 25, 40]",
+        "10 TL 25 TL 40 TL",
+        "['10 TL', '25 TL', '40 TL']"
       ],
-      "answer": "24",
-      "why_tr": "1*2=2, 2*3=6, 6*4=24.",
-      "why": "1*2=2, 2*3=6, 6*4=24."
+      "answer": "['10 TL', '25 TL', '40 TL']",
+      "why_tr": "`map` lambda'yı her fiyat için çağırır ve `list` üç yeni string'i toplar; çıktı bir string list'idir.",
+      "why": "`map` calls the lambda on each price and `list` collects the three new strings, so the output is a list of strings."
     },
     {
       "id": "d14-c22",
+      "type": "explain",
+      "section": "Python - Map Function",
+      "title_tr": "map nesneleri tembel ve tek kullanımlıktır",
+      "title": "map objects are lazy and one-shot",
+      "body_tr": "Bir map nesnesi oluşturulduğunda hiçbir şey hesaplamaz. Her değeri ancak biri istediğinde üretir; örneğin `list()`, bir `for` döngüsü ya da `sum()`. Bu, uzun girdilerde bellek kazandırır.\n\nBedeli şu: bir map nesnesi **yalnızca bir kez** tüketilebilir. `list(squares)` her değeri aldıktan sonra nesne boşalır ve ikinci bir `list(squares)` `[]` verir. Hata yok, yalnızca hiçbir şey; klasik bir sürpriz. Sonuçlara iki kez ihtiyacın varsa önce bir list'te sakla.\n\nAyrıca map nesnesinin indeksleri yoktur: `squares[0]`, `TypeError: 'map' object is not subscriptable` hatasını verir. İndeks ya da `len` gerektiğinde `list()` ile dönüştür. `filter` nesneleri de aynı şekilde davranır.",
+      "body": "A map object does not compute anything when it is created. It produces each value only when someone asks for it, for example `list()`, a `for` loop or `sum()`. That saves memory for long inputs.\n\nThe price: a map object can be consumed **only once**. After `list(squares)` has taken every value, the object is empty, and a second `list(squares)` gives `[]`. No error, just nothing, a classic surprise. If you need the results twice, store them in a list first.\n\nAlso, a map object has no indexes: `squares[0]` raises `TypeError: 'map' object is not subscriptable`. Convert with `list()` when you need indexing or `len`. `filter` objects behave the same way.",
+      "code": "squares = map(lambda x: x * x, [1, 2, 3])\nprint(type(squares).__name__)\nprint(list(squares))\nprint(list(squares))\n\nsaved = list(map(lambda x: x * x, [1, 2, 3]))\nprint(saved, saved, saved[0])",
+      "expected_output": "map\n[1, 4, 9]\n[]\n[1, 4, 9] [1, 4, 9] 1"
+    },
+    {
+      "id": "d14-c23",
+      "type": "explain",
+      "section": "Python - Filter Function",
+      "title_tr": "filter: testi geçenleri tutmak",
+      "title": "filter: keep what passes a test",
+      "body_tr": "`filter(function, iterable)` fonksiyonu her eleman için çağırır ve yalnızca doğru (truthy) bir değer döndürdüğü elemanları tutar. Fonksiyon bir testtir; buna genellikle yüklem (predicate) denir: `is_even`, `is_name_long` ya da bir lambda.\n\nOrijinal ders testleri `if num % 2 == 0: return True` / `return False` biçiminde yazmıştı. Karşılaştırmanın kendisi zaten `True` ya da `False` olduğu için `return num % 2 == 0` yeterlidir.\n\nİşe yarar bir ek: `filter(None, items)` her elemanın kendi doğruluk değerini kullanır; böylece `''`, `0`, `None` ve boş list'leri tek adımda atar; boş kayıtları atmanın hızlı bir yolu. `map` gibi `filter` da tembel ve tek kullanımlık bir nesne döndürür; onu `list()` içine al.",
+      "body": "`filter(function, iterable)` calls the function on every item and keeps only the items for which it returns a truthy value. The function is a test, usually called a predicate: `is_even`, `is_name_long`, or a lambda.\n\nThe original lesson wrote tests like `if num % 2 == 0: return True` / `return False`. Since the comparison already is `True` or `False`, `return num % 2 == 0` is enough.\n\nA handy extra: `filter(None, items)` uses each item's own truthiness, so it removes `''`, `0`, `None` and empty lists in one step, a quick way to drop blank entries. Like `map`, `filter` returns a lazy, one-shot object, so wrap it in `list()`.",
+      "code": "def is_even(num):\n    return num % 2 == 0\n\nnumbers = [1, 2, 3, 4, 5]\nprint(list(filter(is_even, numbers)))\n\nnames = ['Asabeneh', 'Lidiya', 'Ermias', 'Abraham']\nprint(list(filter(lambda name: len(name) > 7, names)))\nprint(list(filter(None, ['ali', '', 'ece', None, 0])))",
+      "expected_output": "[2, 4]\n['Asabeneh']\n['ali', 'ece']"
+    },
+    {
+      "id": "d14-c24",
+      "type": "predict",
+      "section": "Python - Filter Function",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "countries = ['Estonia', 'Finland', 'Sweden', 'Iceland', 'Norway']\nprint(list(filter(lambda c: 'land' in c, countries)))\nprint(list(filter(lambda c: len(c) == 6, countries)))",
+      "choices": [
+        "['Finland', 'Iceland']\n['Sweden']",
+        "['Finland', 'Iceland']\n['Sweden', 'Norway']",
+        "['Finland']\n['Sweden', 'Norway']",
+        "[True, False, ...]\n['Sweden', 'Norway']"
+      ],
+      "answer": "['Finland', 'Iceland']\n['Sweden', 'Norway']",
+      "why_tr": "`filter` True/False değil, elemanların kendisini tutar. Finland ve Iceland 'land' içerir; Sweden ve Norway tam altı harflidir.",
+      "why": "`filter` keeps the items themselves, not True/False. Finland and Iceland contain 'land'; Sweden and Norway have exactly six letters."
+    },
+    {
+      "id": "d14-c25",
+      "type": "explain",
+      "section": "Python - Reduce Function",
+      "title_tr": "reduce: çok değeri tek değere katlamak",
+      "title": "reduce: fold many values into one",
+      "body_tr": "`reduce(function, iterable)` elemanları **ikişer ikişer** birleştirerek tek bir sonuca indirir. `functools` modülünde yaşar, bu yüzden önce import etmen gerekir; orijinal ders `from functools import reduce` satırını unutmuştu ve bu satır olmadan çağrı `NameError: name 'reduce' is not defined` ile patlar.\n\nNasıl çalışır: fonksiyon iki değer alır. Önce 1. ve 2. elemanları alır; sonra o sonucu ve 3. elemanı; sonra o sonucu ve 4. elemanı, ve böyle sürer, ta ki tek bir değer kalana kadar. `add_two_nums` ile `['1', '2', '3', '4', '5']` önce 3, sonra 6, sonra 10, sonra 15 olur.\n\nAdım adım izle: `x` birikmiş sonucu taşırken `y` sıradaki elemanı alıyor.",
+      "body": "`reduce(function, iterable)` combines the items **two at a time** into one result. It lives in the `functools` module, so you must import it first; the original lesson forgot `from functools import reduce`, and without it the call fails with `NameError: name 'reduce' is not defined`.\n\nHow it works: the function receives two values. First it gets items 1 and 2; then it gets that result and item 3; then that result and item 4, and so on, until one value remains. With `add_two_nums`, `['1', '2', '3', '4', '5']` becomes 3, then 6, then 10, then 15.\n\nStep through it and watch `x` carry the running result while `y` takes the next item.",
+      "code": "from functools import reduce\n\ndef add_two_nums(x, y):\n    return int(x) + int(y)\n\nnumbers_str = ['1', '2', '3', '4', '5']\ntotal = reduce(add_two_nums, numbers_str)\nprint(total)",
+      "expected_output": "15",
+      "trace": true
+    },
+    {
+      "id": "d14-c26",
+      "type": "explain",
+      "section": "Python - Reduce Function",
+      "title_tr": "reduce: başlangıç değeri ve daha iyi araçlar",
+      "title": "reduce: start values and better tools",
+      "body_tr": "Boş bir list üzerinde `reduce`'un başlayacak bir şeyi yoktur ve şu hatayı verir:\n\n`TypeError: reduce() of empty iterable with no initial value`\n\nÜçüncü bir argüman ver, **başlangıç değerini**: `reduce(f, items, 0)`. O zaman ilk çağrı `0`'ı ve ilk elemanı alır; boş bir list de basitçe `0` döndürür. Bu, önceki karttaki `add_two_nums`'ın neden `x`'i de çevirdiğini açıklar: başlangıç değeri yoksa ilk `x`, `'1'` string'idir; başlangıç `0` olunca `x` her zaman bir sayıdır ve yalnızca yeni eleman `int()` ister.\n\nDürüst bir tavsiye: Toplam, en büyük değer ve birleştirme için Python'ın daha açık hazır araçları var: `sum`, `max`, `min`, `', '.join(...)`. Hazır bir araç olmayan birleştirmelerde `reduce`'a başvur; örneğin bütün sayıları birbiriyle çarpmak ya da dict'leri birleştirmek.",
+      "body": "`reduce` on an empty list has nothing to start from and fails with:\n\n`TypeError: reduce() of empty iterable with no initial value`\n\nPass a third argument, the **initial value**: `reduce(f, items, 0)`. Then the first call receives `0` and the first item, and an empty list simply returns `0`. It also explains why `add_two_nums` on the previous card converted `x` as well: without a start value, the first `x` is the string `'1'`; with `0` as the start, `x` is always a number and only the new item needs `int()`.\n\nHonest advice: for sums, maximums and joins Python has clearer built-ins: `sum`, `max`, `min`, `', '.join(...)`. Reach for `reduce` when there is no built-in for the combination, such as multiplying all numbers together or merging dicts.",
+      "code": "from functools import reduce\n\nprices = [12, 30, 8]\nprint(reduce(lambda acc, p: acc + p, prices, 0), sum(prices))\nprint(reduce(lambda acc, p: acc + p, [], 0))\nprint(reduce(lambda a, b: a * b, [2, 3, 4]))",
+      "expected_output": "50 50\n0\n24"
+    },
+    {
+      "id": "d14-c27",
+      "type": "order",
+      "section": "Python - Reduce Function",
+      "prompt_tr": "Program ülkeleri reduce ile birleştirsin diye satırları sırala.",
+      "prompt": "Put the lines in order so the program joins the countries with reduce.",
+      "lines": [
+        "countries = ['Estonia', 'Finland', 'Sweden']",
+        "print(sentence + ' are north European countries')",
+        "sentence = reduce(lambda a, b: a + ', ' + b, countries)",
+        "from functools import reduce"
+      ],
+      "correct_order": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "expected_output": "Estonia, Finland, Sweden are north European countries"
+    },
+    {
+      "id": "d14-c28",
+      "type": "explain",
+      "section": "Built-in Higher Order Functions",
+      "title_tr": "Araç seçmek: zincirler ve comprehension'lar",
+      "title": "Choosing a tool: pipelines and comprehensions",
+      "body_tr": "Gerçek görevler bu adımları zincirler: bazı elemanları tut, onları dönüştür, sonucu birleştir. Örnek siparişleri işliyor: ödenmiş olanları tut, her birini toplamına çevir, sonra hepsini topla.\n\nBunu `filter`, `map` ve `sum` ile ya da tek bir generator ifadesiyle yazabilirsin. İkisi de doğrudur. Çoğu Python geliştiricisi, adım bir lambda gerektiriyorsa comprehension'ı daha okunaklı bulur; `map(int, parts)` örneğindeki gibi hazır, isimli bir fonksiyon varsa `map`/`filter`'ı tercih eder.\n\n`sorted(..., key=...)` de aynı ailedendir: bir fonksiyon alır ve onu her elemana uygular. Son satır, orijinal list'e dokunmadan siparişleri toplamlarına göre büyükten küçüğe sıralıyor.",
+      "body": "Real tasks chain these steps: keep some items, transform them, combine the result. The example handles orders: keep the paid ones, turn each into its total, then add up.\n\nYou can write it with `filter`, `map` and `sum`, or with one generator expression. Both are correct. Most Python developers find the comprehension easier to read when the step needs a lambda, and prefer `map`/`filter` when a named function already exists, as in `map(int, parts)`.\n\n`sorted(..., key=...)` belongs to the same family: it takes a function and uses it on every item. The last line ranks the orders by total, largest first, without touching the original list.",
+      "code": "orders = [('A1', 120, True), ('A2', 80, False), ('A3', 45, True)]\n\npaid = filter(lambda o: o[2], orders)\nprint(sum(map(lambda o: o[1], paid)))\nprint(sum(total for code, total, ok in orders if ok))\nprint(sorted(orders, key=lambda o: o[1], reverse=True)[0][0])",
+      "expected_output": "165\n165\nA1"
+    },
+    {
+      "id": "d14-c29",
+      "type": "predict",
+      "section": "Built-in Higher Order Functions",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "words = ['elma', 'Ev', 'armut', 'kalem']\nresult = list(map(len, filter(lambda w: w[0].lower() == 'e', words)))\nprint(result)",
+      "choices": [
+        "[4, 2, 5, 5]",
+        "['elma', 'Ev']",
+        "[4, 2]",
+        "[4]"
+      ],
+      "answer": "[4, 2]",
+      "why_tr": "İçten dışa oku: `filter` e ya da E ile başlayan kelimeleri, 'elma' ve 'Ev'i tutar; `map(len, ...)` onları uzunluklarına, 4 ve 2'ye çevirir.",
+      "why": "Read from the inside out: `filter` keeps the words starting with e or E, 'elma' and 'Ev'; `map(len, ...)` turns them into their lengths 4 and 2."
+    },
+    {
+      "id": "d14-c30",
       "type": "recap",
       "section": "Recap",
       "title_tr": "Özet",
       "title": "Summary",
       "points_tr": [
-        "Fonksiyonlar değerdir: parametre, döndürülen değer, değişken olabilir.",
-        "Closure, dış fonksiyonun değişkenlerini hatırlar; decorator bir fonksiyonu sarmalar (`@`).",
-        "Birden çok decorator alttan üste uygulanır.",
-        "`map` dönüştürür, `filter` süzer, `reduce` (functools) tek değere indirir."
+        "Fonksiyonlar değerdir: onları saklayabilir, (parantezsiz) argüman olarak verebilir ve döndürebilirsin; bunu yapan fonksiyon yüksek mertebeden fonksiyondur.",
+        "Closure, dıştaki fonksiyon döndükten sonra onun değişkenlerini hatırlayan içteki fonksiyondur; onları okumak kendiliğindendir, atama yapmak `nonlocal` gerektirir.",
+        "`def f` üstündeki `@deco`, `f = deco(f)` demektir; üst üste decorator'lar alttan yukarı uygulanır; iyi bir wrapper `*args, **kwargs` alır ve `@wraps(f)` kullanır.",
+        "`map` her elemanı dönüştürür, `filter` testi doğru olan elemanları tutar; ikisi de tembel ve tek kullanımlık nesneler döndürür, değerler gerekince onları `list()` içine al.",
+        "`reduce` (`functools`'tan) elemanları ikişer ikişer tek bir değere katlar; boş girdi için ona başlangıç değeri ver ve uygun olduğunda `sum`, `max` ya da `join`'i tercih et."
       ],
       "points": [
-        "Functions are values: parameters, return values, variables.",
-        "A closure remembers outer variables; a decorator wraps a function (`@`).",
-        "Multiple decorators apply bottom to top.",
-        "`map` transforms, `filter` selects, `reduce` (functools) collapses to one value."
+        "Functions are values: you can store them, pass them as arguments (without parentheses) and return them; a function that does so is a higher-order function.",
+        "A closure is an inner function that remembers the enclosing function's variables after it returned; reading them is automatic, assigning needs `nonlocal`.",
+        "`@deco` above `def f` means `f = deco(f)`; stacked decorators apply bottom up, and a good wrapper takes `*args, **kwargs` and uses `@wraps(f)`.",
+        "`map` transforms every item and `filter` keeps the items whose test is truthy; both return lazy one-shot objects, so wrap them in `list()` when you need the values.",
+        "`reduce` (from `functools`) folds items two at a time into one value; give it an initial value for empty input, and prefer `sum`, `max` or `join` when they fit."
       ],
-      "link": "learn",
-      "link_label_tr": "Şimdi alıştırmalara geç",
-      "link_label": "Go to the exercises"
+      "link": "learn"
     }
   ]
 }

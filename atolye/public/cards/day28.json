@@ -1,242 +1,442 @@
 {
- "day": 28,
- "title_tr": "API ve HTTP",
- "title": "APIs and HTTP",
- "est_minutes": 20,
- "cards": [
-  {
-   "id": "d28-c01",
-   "type": "explain",
-   "title_tr": "API nedir?",
-   "title": "What is an API?",
-   "body_tr": "**API** (Application Programming Interface), bir programın başka bir programla konuşma kuralıdır. Biz **web API**'lerini göreceğiz: bir adrese HTTP isteği gönderirsin, karşılığında genelde **JSON** (ya da XML) biçiminde veri alırsın. Örnek: ülkeler veya kedi ırkları API'si. Gerçek ağ isteği burada yok; fonksiyonla canlandıralım:",
-   "body": "An **API** (Application Programming Interface) is the set of rules one program uses to talk to another. We'll look at **web APIs**: you send an HTTP request to an address and usually get data back as **JSON** (or XML). Examples: a countries or a cat-breeds API. There's no real network here, so let's mimic it with a function:",
-   "code": "import json\ndef api():\n    return json.dumps({'name': 'Persian', 'origin': 'Iran'})\nprint(api())",
-   "expected_output": "{\"name\": \"Persian\", \"origin\": \"Iran\"}",
-   "section": "API"
-  },
-  {
-   "id": "d28-c02",
-   "type": "truefalse",
-   "statement_tr": "Web API'ler yanıtı genellikle JSON ya da XML biçiminde döndürür.",
-   "statement": "Web APIs usually return their response as JSON or XML.",
-   "answer": true,
-   "why_tr": "Veri, makinelerin kolay okuyabileceği yapılandırılmış bir biçimde gelir.",
-   "why": "Data arrives in a structured format that machines can read easily.",
-   "section": "API"
-  },
-  {
-   "id": "d28-c03",
-   "type": "explain",
-   "title_tr": "CRUD ve HTTP metotları",
-   "title": "CRUD and HTTP methods",
-   "body_tr": "Veri üzerindeki dört temel işlem **CRUD**: Create, Read, Update, Delete. REST tarzı bir API bunları HTTP metotlarına bağlar: POST, GET, PUT, DELETE. Önümüzdeki gün Flask ve MongoDB ile böyle bir API kuracağız.",
-   "body": "The four basic data operations are **CRUD**: Create, Read, Update, Delete. A REST-style API maps them to HTTP methods: POST, GET, PUT, DELETE. Next day we'll build such an API with Flask and MongoDB.",
-   "code": "crud = {'Create': 'POST', 'Read': 'GET', 'Update': 'PUT', 'Delete': 'DELETE'}\nfor action, method in crud.items():\n    print(action, '->', method)",
-   "expected_output": "Create -> POST\nRead -> GET\nUpdate -> PUT\nDelete -> DELETE",
-   "section": "Building API"
-  },
-  {
-   "id": "d28-c04",
-   "type": "predict",
-   "prompt_tr": "Çıktı ne olur?",
-   "prompt": "What is printed?",
-   "code": "crud = {'Create': 'POST', 'Read': 'GET', 'Update': 'PUT', 'Delete': 'DELETE'}\nprint(crud['Read'])",
-   "choices": [
-    "POST",
-    "Read",
-    "PUT",
-    "GET"
-   ],
-   "answer": "GET",
-   "why_tr": "Okuma (Read) işlemi GET metoduna bağlıdır.",
-   "why": "The Read operation maps to the GET method.",
-   "section": "Building API"
-  },
-  {
-   "id": "d28-c05",
-   "type": "explain",
-   "title_tr": "HTTP: istemci ve sunucu",
-   "title": "HTTP: client and server",
-   "body_tr": "**HTTP**, istemci (client, örneğin tarayıcı) ile sunucu (server) arasındaki iletişim kuralıdır. İstemci **istek** (request) gönderir, sunucu **yanıt** (response) döndürür. Yanıt HTML, resim, JSON gibi herhangi bir kaynak olabilir.",
-   "body": "**HTTP** is the communication protocol between a client (e.g. a browser) and a server. The client sends a **request**, the server returns a **response**. The response can be any resource: HTML, an image, JSON.",
-   "code": "def server(request):\n    return 'response to ' + request\n\nprint(server('GET /'))",
-   "expected_output": "response to GET /",
-   "section": "HTTP(Hypertext Transfer Protocol)"
-  },
-  {
-   "id": "d28-c06",
-   "type": "explain",
-   "title_tr": "Mesajın yapısı",
-   "title": "The structure of a message",
-   "body_tr": "İstek ve yanıt mesajları aynı iskelete sahiptir: 1) bir **başlangıç satırı**, 2) sıfır veya daha çok **header** satırı, 3) **boş bir satır**, 4) isteğe bağlı **gövde** (body). Bir isteği metin olarak yazdıralım:",
-   "body": "Request and response messages share one skeleton: 1) an **initial line**, 2) zero or more **header** lines, 3) a **blank line**, 4) an optional **body**. Let's print a request as text:",
-   "code": "request = ['POST /post HTTP/1.1', 'Host: example.com', '', 'content=hello']\nprint('\\n'.join(request))",
-   "expected_output": "POST /post HTTP/1.1\nHost: example.com\n\ncontent=hello",
-   "section": "Structure of HTTP"
-  },
-  {
-   "id": "d28-c07",
-   "type": "order",
-   "prompt_tr": "Mesaj parçalarını doğru sıraya diz: başlangıç satırı, header, boş satır, gövde.",
-   "prompt": "Order the message parts: initial line, header, blank line, body.",
-   "lines": [
-    "print()",
-    "print('GET / HTTP/1.1')",
-    "print('hello')",
-    "print('Host: example.com')"
-   ],
-   "correct_order": [
-    1,
-    3,
-    0,
-    2
-   ],
-   "expected_output": "GET / HTTP/1.1\nHost: example.com\n\nhello",
-   "section": "Structure of HTTP"
-  },
-  {
-   "id": "d28-c08",
-   "type": "explain",
-   "title_tr": "İstek satırı",
-   "title": "The request line",
-   "body_tr": "İstek satırı boşlukla ayrılmış üç parçadır: **metot** (GET, POST, HEAD), istenen kaynağın **yolu** ve **HTTP sürümü**. Örnek: `GET / HTTP/1.1`. GET veri okur, POST veri oluşturur. Satırı `split` ile ayıralım:",
-   "body": "The request line has three space-separated parts: the **method** (GET, POST, HEAD), the **path** of the resource and the **HTTP version**. Example: `GET / HTTP/1.1`. GET reads data, POST creates it. Let's split the line:",
-   "code": "line = 'GET / HTTP/1.1'\nmethod, path, version = line.split(' ')\nprint(method, path, version)",
-   "expected_output": "GET / HTTP/1.1",
-   "trace": true,
-   "section": "Initial Request Line(Status Line)"
-  },
-  {
-   "id": "d28-c09",
-   "type": "fill",
-   "prompt_tr": "Satırı boşluktan ayır.",
-   "prompt": "Split the line on spaces.",
-   "code": "line = 'GET /about HTTP/1.1'\nmethod, path, version = line.split(___)\nprint(path)",
-   "answers": [
-    "' '",
-    "\" \""
-   ],
-   "expected_output": "/about",
-   "why_tr": "Üç parça boşlukla ayrıldığı için `split(' ')` kullanılır.",
-   "why": "The three parts are separated by spaces, so we use `split(' ')`.",
-   "section": "Initial Request Line(Status Line)"
-  },
-  {
-   "id": "d28-c10",
-   "type": "explain",
-   "title_tr": "Yanıt (durum) satırı",
-   "title": "The response (status) line",
-   "body_tr": "Yanıtın ilk satırı: **HTTP sürümü**, **durum kodu** ve **açıklama**. `200 OK`: başarılı, kaynak gövdede. `404 Not Found`: bulunamadı. `500 Server Error`: sunucu hatası. Sınırlı sayıda parça için `split(' ', 2)` kullanırız:",
-   "body": "The response's first line holds the **HTTP version**, a **status code** and a **reason**. `200 OK`: success, the resource is in the body. `404 Not Found`: not found. `500 Server Error`: server failure. We use `split(' ', 2)` to limit the pieces:",
-   "code": "status_line = 'HTTP/1.0 404 Not Found'\nversion, code, reason = status_line.split(' ', 2)\nprint(code, reason)",
-   "expected_output": "404 Not Found",
-   "section": "Initial Response Line(Status Line)"
-  },
-  {
-   "id": "d28-c11",
-   "type": "predict",
-   "prompt_tr": "Çıktı ne olur?",
-   "prompt": "What is printed?",
-   "code": "line = 'HTTP/1.0 200 OK'\nprint(line.split(' ', 2)[1])",
-   "choices": [
-    "OK",
-    "200 OK",
-    "HTTP/1.0",
-    "200"
-   ],
-   "answer": "200",
-   "why_tr": "İndeks 1 ikinci parçadır: durum kodu `200`.",
-   "why": "Index 1 is the second part: the status code `200`.",
-   "section": "Initial Response Line(Status Line)"
-  },
-  {
-   "id": "d28-c12",
-   "type": "explain",
-   "title_tr": "Header satırları",
-   "title": "Header fields",
-   "body_tr": "Header'lar `Anahtar: değer` çiftleridir ve isteği, yanıtı veya gövdeyi tanımlar: `Host`, `User-Agent`, `Accept-Language`... Bir sözlüğe çevirelim; adım adım izle.",
-   "body": "Headers are `Key: value` pairs describing the request, the response or the body: `Host`, `User-Agent`, `Accept-Language`... Let's turn them into a dict; step through it.",
-   "code": "raw = 'Host: example.com\\nAccept-Language: en-GB\\nUser-Agent: Mozilla/5.0'\nheaders = {}\nfor line in raw.split('\\n'):\n    key, value = line.split(': ', 1)\n    headers[key] = value\nprint(headers['Host'])\nprint(len(headers))",
-   "expected_output": "example.com\n3",
-   "trace": true,
-   "section": "Header Fields"
-  },
-  {
-   "id": "d28-c13",
-   "type": "explain",
-   "title_tr": "Mesaj gövdesi",
-   "title": "The message body",
-   "body_tr": "Gövde, yanıtta istenen kaynağı (ya da hata açıklamasını), istekte kullanıcının gönderdiği veriyi taşır. Gövdeyi tarif eden header'lar: `Content-Type` (MIME türü: `text/html`, `application/json`...) ve `Content-Length` (bayt sayısı).",
-   "body": "The body carries the requested resource (or an error explanation) in a response, and the user's data in a request. Headers describing the body: `Content-Type` (MIME type: `text/html`, `application/json`...) and `Content-Length` (number of bytes).",
-   "code": "body = '{\"name\": \"Ada\"}'\nheaders = {'Content-Type': 'application/json', 'Content-Length': len(body)}\nprint(headers)",
-   "expected_output": "{'Content-Type': 'application/json', 'Content-Length': 15}",
-   "section": "The message body"
-  },
-  {
-   "id": "d28-c14",
-   "type": "truefalse",
-   "statement_tr": "`Content-Length` header'ı gövdenin bayt cinsinden uzunluğunu belirtir.",
-   "statement": "The `Content-Length` header states the length of the body in bytes.",
-   "answer": true,
-   "why_tr": "Doğru; alıcı gövdenin ne kadar okunacağını buradan bilir.",
-   "why": "Correct; the receiver knows how much body to read from it.",
-   "section": "The message body"
-  },
-  {
-   "id": "d28-c15",
-   "type": "explain",
-   "title_tr": "GET, POST, PUT, DELETE",
-   "title": "GET, POST, PUT, DELETE",
-   "body_tr": "**GET** veriyi okur (başka etkisi olmamalı). **POST** yeni veri oluşturur (form, dosya yükleme). **PUT** mevcut kaynağı yeni içerikle değiştirir (güncelleme). **DELETE** veriyi siler. Tarayıcı adres çubuğu yalnızca GET gönderir; diğerleri için Postman gibi araçlar gerekir.",
-   "body": "**GET** reads data (it should have no other effect). **POST** creates new data (forms, uploads). **PUT** replaces an existing resource with new content (update). **DELETE** removes data. The browser address bar only sends GET; for the others you need tools like Postman.",
-   "code": "methods = {'GET': 'read', 'POST': 'create', 'PUT': 'update', 'DELETE': 'remove'}\nfor m, what in methods.items():\n    print(m, what)",
-   "expected_output": "GET read\nPOST create\nPUT update\nDELETE remove",
-   "section": "Request Methods"
-  },
-  {
-   "id": "d28-c16",
-   "type": "truefalse",
-   "statement_tr": "GET isteği sunucudaki veriyi değiştirmek için tasarlanmıştır.",
-   "statement": "A GET request is designed to change data on the server.",
-   "answer": false,
-   "why_tr": "GET yalnızca okur; değiştirmek için POST, PUT, DELETE kullanılır.",
-   "why": "GET only reads; POST, PUT, DELETE are for changing data.",
-   "section": "Request Methods"
-  },
-  {
-   "id": "d28-c17",
-   "type": "fill",
-   "prompt_tr": "Yeni kayıt oluşturan metodu seç.",
-   "prompt": "Pick the method that creates a new record.",
-   "code": "methods = {'GET': 'read', 'POST': 'create', 'PUT': 'update', 'DELETE': 'remove'}\nprint(methods['___'])",
-   "answers": [
-    "POST"
-   ],
-   "expected_output": "create",
-   "why_tr": "POST yeni veri oluşturur.",
-   "why": "POST creates new data.",
-   "section": "Request Methods"
-  },
-  {
-   "id": "d28-c18",
-   "type": "recap",
-   "points_tr": [
-    "Web API, HTTP isteğine JSON gibi yapılandırılmış veriyle yanıt verir.",
-    "HTTP mesajı: başlangıç satırı, header'lar, boş satır, isteğe bağlı gövde.",
-    "Durum kodları: 200 OK, 404 Not Found, 500 Server Error.",
-    "GET okur, POST oluşturur, PUT günceller, DELETE siler (CRUD)."
-   ],
-   "points": [
-    "A web API answers an HTTP request with structured data such as JSON.",
-    "An HTTP message: initial line, headers, blank line, optional body.",
-    "Status codes: 200 OK, 404 Not Found, 500 Server Error.",
-    "GET reads, POST creates, PUT updates, DELETE removes (CRUD)."
-   ],
-   "cta_tr": "Şimdi alıştırmalara geç",
-   "cta": "Go to the exercises now",
-   "link": "learn",
-   "section": "Request Methods"
-  }
- ]
+  "day": 28,
+  "title_tr": "API'ler ve HTTP",
+  "title": "APIs and HTTP",
+  "est_minutes": 50,
+  "cards": [
+    {
+      "id": "d28-c01",
+      "type": "explain",
+      "title_tr": "API: bir sözleşme",
+      "title": "An API is a contract",
+      "body_tr": "Uygulamana ülke bilgisi göstermek istiyorsun ama veri başkasının sunucusunda. O sunucunun veritabanına giremezsin; onun yerine sahibi sana bir **API** (Application Programming Interface) sunar: neyi isteyebileceğini ve karşılığında ne alacağını anlatan bir sözleşme.\n\nBunu zaten biliyorsun: `len(x)` çağırırken `len`'in içini bilmezsin; yalnızca sözleşmeyi bilirsin (bir şey ver, bir sayı al). Aşağıdaki fonksiyon da küçük bir API: çağıran yalnızca belgelenmiş anahtarları kullanıyor, verinin nasıl saklandığı onu ilgilendirmiyor.",
+      "body": "You want to show country data in your app, but the data lives on someone else's server. You cannot reach into their database; instead the owner offers an **API** (Application Programming Interface): a contract that says what you may ask for and what you get back.\n\nYou already know the idea: when you call `len(x)` you do not know how `len` works inside; you only know the contract (give a thing, get a number). The function below is a tiny API too: the caller uses only the documented keys and does not care how the data is stored.",
+      "code": "_DATA = {'TR': ('Türkiye', 'Ankara', 85), 'FI': ('Finland', 'Helsinki', 5.6)}\n\ndef get_country(code):\n    name, capital, population = _DATA[code]\n    return {'name': name, 'capital': capital, 'population_millions': population}\n\ncountry = get_country('TR')\nprint(country['capital'], country['population_millions'])",
+      "expected_output": "Ankara 85",
+      "section": "API"
+    },
+    {
+      "id": "d28-c02",
+      "type": "explain",
+      "title_tr": "Web API: aynı sözleşme, ağ üzerinden",
+      "title": "A web API: the same contract over the network",
+      "body_tr": "Web API'de sözleşme bir fonksiyon adı yerine bir **URL** ve bir HTTP metodu kullanır: `GET https://api.example.com/countries/TR`. Yanıt çoğu zaman **JSON** metnidir, çünkü JSON'u her dil okuyabilir: Python, JavaScript, Java...\n\nAğdan gelen şey her zaman metindir (aslında bayt). Onu Python nesnelerine çevirmek için `json.loads` kullanılır (Gün 19). JavaScript'teki `JSON.parse`'ın karşılığı budur; `json.dumps` ise `JSON.stringify`'dır.\n\nAşağıda sunucunun yanıtını bir string olarak alıyoruz ve çözüyoruz.",
+      "body": "In a web API the contract uses a **URL** and an HTTP method instead of a function name: `GET https://api.example.com/countries/TR`. The answer is usually **JSON** text, because every language can read JSON: Python, JavaScript, Java...\n\nWhat arrives over the network is always text (really bytes). To turn it into Python objects you use `json.loads` (Day 19). It is the counterpart of JavaScript's `JSON.parse`; `json.dumps` is `JSON.stringify`.\n\nBelow we take the server's response as a string and decode it.",
+      "code": "import json\n\nresponse_text = '{\"name\": \"Finland\", \"capital\": \"Helsinki\", \"languages\": [\"Finnish\", \"Swedish\"]}'\ncountry = json.loads(response_text)\nprint(type(response_text).__name__, '->', type(country).__name__)\nprint(country['languages'][1])",
+      "expected_output": "str -> dict\nSwedish",
+      "section": "API"
+    },
+    {
+      "id": "d28-c03",
+      "type": "predict",
+      "prompt_tr": "JSON değerleri Python'a nasıl çevrilir?",
+      "prompt": "How do JSON values turn into Python?",
+      "code": "import json\n\ndata = json.loads('{\"eu\": false, \"capital\": null, \"population\": 85}')\nprint(data['eu'], data['capital'], data['population'] + 1)",
+      "choices": [
+        "False None 86",
+        "false null 86",
+        "False None 851",
+        "TypeError"
+      ],
+      "answer": "False None 86",
+      "why_tr": "JSON'daki `false` Python'da `False`, `null` ise `None` olur; sayılar da gerçek sayıdır, bu yüzden 85 + 1 = 86. (JavaScript'teki `false` ve `null` ile aynı değerler, farklı yazım.)",
+      "why": "JSON's `false` becomes `False` in Python and `null` becomes `None`; numbers are real numbers, so 85 + 1 = 86. (The same values as JavaScript's `false` and `null`, spelled differently.)",
+      "section": "API"
+    },
+    {
+      "id": "d28-c04",
+      "type": "explain",
+      "title_tr": "REST: kaynaklar isim, metotlar fiil",
+      "title": "REST: resources are nouns, methods are verbs",
+      "body_tr": "Çoğu web API'si **REST** tarzını izler. Fikir şu: URL bir **kaynağı** (resource) adlandırır, HTTP metodu da onunla ne yapılacağını söyler.\n\n`/api/v1/students` öğrenci listesidir; `/api/v1/students/5` tek bir öğrencidir. Aynı adrese `GET` okur, `POST` yeni öğrenci oluşturur, `PUT` günceller, `DELETE` siler. Bu dört işlem **CRUD**'dur: Create, Read, Update, Delete.\n\nURL'deki `v1` sürüm numarasıdır: API değişince eski istemciler bozulmasın diye yeni sürüm `v2` altında yayımlanır. Yarın bu tabloyu Python ile çalışır hale getireceğiz.",
+      "body": "Most web APIs follow the **REST** style. The idea: the URL names a **resource**, and the HTTP method says what to do with it.\n\n`/api/v1/students` is the list of students; `/api/v1/students/5` is one student. On the same address `GET` reads, `POST` creates a new student, `PUT` updates and `DELETE` removes. These four operations are **CRUD**: Create, Read, Update, Delete.\n\nThe `v1` in the URL is a version number: when the API changes, the new version is published under `v2` so old clients do not break. Tomorrow we will make this table work in Python.",
+      "code": "endpoints = [\n    ('GET', '/api/v1/students', 'read all students'),\n    ('POST', '/api/v1/students', 'create a student'),\n    ('GET', '/api/v1/students/5', 'read student 5'),\n    ('PUT', '/api/v1/students/5', 'update student 5'),\n    ('DELETE', '/api/v1/students/5', 'delete student 5'),\n]\nfor method, path, meaning in endpoints:\n    print(f'{method:<6} {path:<20} {meaning}')",
+      "expected_output": "GET    /api/v1/students     read all students\nPOST   /api/v1/students     create a student\nGET    /api/v1/students/5   read student 5\nPUT    /api/v1/students/5   update student 5\nDELETE /api/v1/students/5   delete student 5",
+      "section": "Building API"
+    },
+    {
+      "id": "d28-c05",
+      "type": "truefalse",
+      "statement_tr": "REST tarzında silme için tercih edilen adres `/api/v1/students/delete/5` gibi bir adrestir.",
+      "statement": "In REST style the preferred address for deleting is something like `/api/v1/students/delete/5`.",
+      "answer": false,
+      "why_tr": "Yanlış. REST'te URL yalnızca kaynağı adlandırır (`/api/v1/students/5`); 'sil' fiilini `DELETE` metodu taşır.",
+      "why": "False. In REST the URL only names the resource (`/api/v1/students/5`); the verb 'delete' is carried by the `DELETE` method.",
+      "section": "Building API"
+    },
+    {
+      "id": "d28-c06",
+      "type": "explain",
+      "title_tr": "HTTP: istek-yanıt turu",
+      "title": "HTTP: the request-response round",
+      "body_tr": "**HTTP**, istemci ile sunucu arasındaki konuşmanın kurallarıdır. İstemci (tarayıcı, bir mobil uygulama ya da Python programın) bir **istek** gönderir; sunucu bir **yanıt** döndürür ve tur biter.\n\nÖnemli bir özellik: HTTP **durumsuzdur** (stateless). Sunucu, bir önceki isteğini hatırlamak zorunda değildir; her istek, gerekeni (kim olduğun dahil, örneğin bir çerez ya da token ile) kendi içinde taşır.\n\nAşağıda istemci ve sunucu iki fonksiyon; aralarında yalnızca dict'ler gidip geliyor. Gerçekte bu dict'lerin yerine ağdan geçen metin mesajları var; sonraki kartta onları açacağız.",
+      "body": "**HTTP** is the set of rules for the conversation between a client and a server. The client (a browser, a mobile app or your Python program) sends a **request**; the server returns a **response**, and the round is over.\n\nAn important property: HTTP is **stateless**. The server does not have to remember your previous request; every request carries what is needed (including who you are, for example with a cookie or a token) on its own.\n\nBelow, the client and the server are two functions, and only dicts travel between them. In reality those dicts are text messages crossing the network; the next card opens them up.",
+      "code": "def server(request):\n    if request['method'] == 'GET' and request['path'] == '/hello':\n        return {'status': 200, 'body': 'Hello!'}\n    return {'status': 404, 'body': 'Not Found'}\n\ndef client(path):\n    response = server({'method': 'GET', 'path': path})\n    print(path, '->', response['status'], response['body'])\n\nclient('/hello')\nclient('/missing')",
+      "expected_output": "/hello -> 200 Hello!\n/missing -> 404 Not Found",
+      "section": "HTTP(Hypertext Transfer Protocol)"
+    },
+    {
+      "id": "d28-c07",
+      "type": "explain",
+      "title_tr": "Bir HTTP mesajının anatomisi",
+      "title": "The anatomy of an HTTP message",
+      "body_tr": "İstek ve yanıt mesajlarının biçimi aynıdır:\n\n1. bir **başlangıç satırı** (start line),\n2. sıfır ya da daha fazla **başlık** (header) satırı,\n3. bir **boş satır**,\n4. isteğe bağlı bir **gövde** (body).\n\nSatırlar `\\r\\n` (CRLF) ile ayrılır. Boş satır, başlıkların bittiğini söyler; bu yüzden mesajı `'\\r\\n\\r\\n'` noktasından ikiye bölebilirsin: solda başlangıç satırı ve başlıklar, sağda gövde. İzleyicide mesajın parçalara ayrılışını izle. Gerçek kütüphaneler (Flask, requests) bunu senin yerine yapar, ama metnin kendisi bu kadar basittir.",
+      "body": "Request and response messages share one format:\n\n1. a **start line**,\n2. zero or more **header** lines,\n3. a **blank line**,\n4. an optional **body**.\n\nLines are separated by `\\r\\n` (CRLF). The blank line says the headers are over, so you can cut the message in two at `'\\r\\n\\r\\n'`: on the left the start line and the headers, on the right the body. Watch the message come apart in the tracer. Real libraries (Flask, requests) do this for you, but the text itself is this simple.",
+      "code": "raw = ('GET /api/v1/students?country=Finland HTTP/1.1\\r\\n'\n       'Host: example.com\\r\\n'\n       'Accept: application/json\\r\\n'\n       '\\r\\n')\nhead, body = raw.split('\\r\\n\\r\\n', 1)\nlines = head.split('\\r\\n')\nprint('start line:', lines[0])\nprint('headers:', lines[1:])\nprint('body:', repr(body))",
+      "expected_output": "start line: GET /api/v1/students?country=Finland HTTP/1.1\nheaders: ['Host: example.com', 'Accept: application/json']\nbody: ''",
+      "trace": true,
+      "section": "Structure of HTTP"
+    },
+    {
+      "id": "d28-c08",
+      "type": "predict",
+      "prompt_tr": "Bu yanıtta kaç başlık satırı ve ne kadar gövde var?",
+      "prompt": "How many header lines and how much body does this response have?",
+      "code": "raw = 'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\nContent-Length: 5\\r\\n\\r\\nMerhaba'\nhead, body = raw.split('\\r\\n\\r\\n', 1)\nprint(len(head.split('\\r\\n')) - 1, body)",
+      "choices": [
+        "2 Merhaba",
+        "3 Merhaba",
+        "2 Merha",
+        "1 Merhaba"
+      ],
+      "answer": "2 Merhaba",
+      "why_tr": "Baş kısmı üç satırdır: bir durum satırı ve iki başlık; 1 çıkarınca 2 kalır. Gövde, boş satırdan sonraki her şeydir. (Content-Length 5 diyor ama gövde 7 bayt; bizim `split` başlığa bakmaz, ama ona güvenen gerçek bir istemci yalnızca 5 bayt okur ve sonu kaybeder.)",
+      "why": "The head has three lines: one status line and two headers; subtracting 1 leaves 2. The body is everything after the blank line. (Content-Length says 5 but the body is 7 bytes; our `split` ignores the header, but a real client trusting it would read only 5 bytes and lose the end.)",
+      "section": "Structure of HTTP"
+    },
+    {
+      "id": "d28-c09",
+      "type": "explain",
+      "title_tr": "İstek satırı: metot, yol, sürüm",
+      "title": "The request line: method, path, version",
+      "body_tr": "Bir isteğin başlangıç satırının üç parçası vardır ve boşlukla ayrılır: **metot** (`GET`, `POST`...), istenen kaynağın **yolu** ve HTTP **sürümü**. Örnek: `GET /api/v1/students?country=Finland HTTP/1.1`.\n\nYol, `?` işaretinden sonra bir **sorgu dizgesi** (query string) taşıyabilir: `anahtar=değer` çiftleri, aralarında `&`. Sorgu, Gün 27'deki `find` sorgusunun web'deki karşılığı gibidir: \"Finlandiya'daki öğrencileri ver\".\n\n`target.partition('?')` metni ilk `?` işaretinden keser ve üç parça döndürür: öncesi, `?` işaretinin kendisi, sonrası; `_`, kullanmayacağın bir parça için alışılmış isimdir. İzleyicide üç parçaya açma (unpacking) işlemini ve sorgunun yoldan ayrılışını gör.",
+      "body": "A request's start line has three parts separated by spaces: the **method** (`GET`, `POST`...), the **path** of the requested resource and the HTTP **version**. Example: `GET /api/v1/students?country=Finland HTTP/1.1`.\n\nAfter a `?` the path may carry a **query string**: `key=value` pairs separated by `&`. The query is like the web version of Day 27's `find` query: \"give me the students in Finland\".\n\n`target.partition('?')` cuts at the first `?` and returns three parts: before, the `?` itself, after; `_` is the usual name for a part you do not need. In the tracer, see the unpacking into three parts and the query being split off the path.",
+      "code": "line = 'GET /api/v1/students?country=Finland HTTP/1.1'\nmethod, target, version = line.split(' ')\npath, _, query = target.partition('?')\nprint(method)\nprint(path)\nprint(query)\nprint(version)",
+      "expected_output": "GET\n/api/v1/students\ncountry=Finland\nHTTP/1.1",
+      "trace": true,
+      "section": "Initial Request Line(Status Line)"
+    },
+    {
+      "id": "d28-c10",
+      "type": "explain",
+      "title_tr": "Sorgu dizgesini çözmek: urllib.parse",
+      "title": "Decoding the query string: urllib.parse",
+      "body_tr": "Sorguyu elle `split('&')` ile bölmek kolay görünür ama tuzaklıdır: aynı anahtar iki kez gelebilir (`tag=a&tag=b`) ve değerler kodlanmış olabilir (`%C4%B0zmir`). Standart kütüphanedeki `urllib.parse` bunların hepsini bilir.\n\n`urlsplit(url)` bir URL'yi parçalarına ayırır; `parse_qs(query)` sorguyu bir dict'e çevirir. Dikkat: `parse_qs`'te her değer bir **list**'tir, çünkü bir anahtar birden çok kez gelebilir. Tek değer bekliyorsan `[0]` ile ilkini al.\n\nFlask'ta aynı bilgi `request.args.get('country')` ile okunur.",
+      "body": "Splitting the query yourself with `split('&')` looks easy but has traps: the same key may appear twice (`tag=a&tag=b`), and values may be encoded (`%C4%B0zmir`). The standard library's `urllib.parse` knows all of this.\n\n`urlsplit(url)` splits a URL into its parts; `parse_qs(query)` turns the query into a dict. Careful: in `parse_qs` every value is a **list**, because a key may appear more than once. If you expect one value, take the first with `[0]`.\n\nIn Flask the same information is read with `request.args.get('country')`.",
+      "code": "from urllib.parse import urlsplit, parse_qs\n\nurl = 'https://api.example.com/students?country=Finland&skill=Python&skill=SQL&city=%C4%B0zmir'\nparts = urlsplit(url)\nparams = parse_qs(parts.query)\nprint(parts.path)\nprint(params)\nprint(params['country'][0])",
+      "expected_output": "/students\n{'country': ['Finland'], 'skill': ['Python', 'SQL'], 'city': ['İzmir']}\nFinland",
+      "section": "Initial Request Line(Status Line)"
+    },
+    {
+      "id": "d28-c11",
+      "type": "predict",
+      "prompt_tr": "parse_qs ne döndürür?",
+      "prompt": "What does parse_qs return?",
+      "code": "from urllib.parse import parse_qs\n\nparams = parse_qs('page=2&tag=python&tag=web')\nprint(params['page'], len(params['tag']))",
+      "choices": [
+        "['2'] 2",
+        "2 2",
+        "'2' 1",
+        "['2'] 1"
+      ],
+      "answer": "['2'] 2",
+      "why_tr": "`parse_qs` her değeri bir list içinde verir, sayıları bile string olarak: `['2']`. `tag` iki kez geçtiği için list'inde iki öğe vardır.",
+      "why": "`parse_qs` gives every value inside a list, numbers too, as strings: `['2']`. `tag` appears twice, so its list has two items.",
+      "section": "Initial Request Line(Status Line)"
+    },
+    {
+      "id": "d28-c12",
+      "type": "explain",
+      "title_tr": "Sık hata: URL'yi string birleştirerek kurmak",
+      "title": "Common mistake: building a URL by gluing strings",
+      "body_tr": "`url = base + '?q=' + term` masum görünür. Ama `term` değeri `'Tom & Jerry'` olursa `&` işareti yeni bir parametre başlatır ve sunucu yalnızca `'Tom '` görür; ` Jerry` sessizce kaybolur. Boşluklar ve `İ` gibi harfler de URL'de olduğu gibi duramaz.\n\nÇözüm, değerleri **kodlamaktır** (URL encoding): `urlencode` her değeri güvenli bir biçime çevirir: `&` `%26`, boşluk `+`, `İ` `%C4%B0` olur. JavaScript'te `new URLSearchParams({q: term}).toString()` aynı sonucu verir.\n\n`requests` kütüphanesi `requests.get(base, params={'q': term})` yazınca bunu senin yerine yapar.",
+      "body": "`url = base + '?q=' + term` looks innocent. But if `term` is `'Tom & Jerry'`, the `&` starts a new parameter and the server only sees `'Tom '`; ` Jerry` silently disappears. Spaces and letters like `İ` cannot stay in a URL as they are either.\n\nThe fix is to **encode** the values (URL encoding): `urlencode` turns each value into a safe form: `&` becomes `%26`, a space `+`, `İ` `%C4%B0`. In JavaScript, `new URLSearchParams({q: term}).toString()` gives the same result.\n\nThe `requests` library does this for you when you write `requests.get(base, params={'q': term})`.",
+      "code": "from urllib.parse import urlencode, parse_qs\n\nterm = 'Tom & Jerry'\nnaive = 'q=' + term + '&page=2'\nprint(parse_qs(naive))\n\nsafe = urlencode({'q': term, 'page': 2, 'city': 'İzmir'})\nprint(safe)\nprint(parse_qs(safe)['q'])",
+      "expected_output": "{'q': ['Tom '], 'page': ['2']}\nq=Tom+%26+Jerry&page=2&city=%C4%B0zmir\n['Tom & Jerry']",
+      "hide_output": true,
+      "section": "Initial Request Line(Status Line)"
+    },
+    {
+      "id": "d28-c13",
+      "type": "fill",
+      "prompt_tr": "İstek satırını üç parçaya aç. Boşluğu doldur.",
+      "prompt": "Unpack the request line into three parts. Fill the blank.",
+      "code": "line = 'DELETE /api/v1/students/5 HTTP/1.1'\nmethod, path, version = line.___(' ')\nprint(method, path)",
+      "answers": [
+        "split"
+      ],
+      "expected_output": "DELETE /api/v1/students/5",
+      "why_tr": "`split(' ')` satırı boşluklardan böler ve tam üç parça verir; üç isim de bu üç parçaya bağlanır.",
+      "why": "`split(' ')` cuts the line at the spaces and gives exactly three parts; the three names are bound to those parts.",
+      "section": "Initial Request Line(Status Line)"
+    },
+    {
+      "id": "d28-c14",
+      "type": "explain",
+      "title_tr": "Durum satırı ve durum kodu sınıfları",
+      "title": "The status line and status code classes",
+      "body_tr": "Yanıtın başlangıç satırına **durum satırı** (status line) denir ve üç parçası vardır: HTTP sürümü, üç haneli **durum kodu** ve kısa bir açıklama: `HTTP/1.1 404 Not Found`.\n\nKodun ilk hanesi sınıfını söyler: **1xx** bilgi, **2xx** başarı, **3xx** yönlendirme, **4xx** istemci hatası, **5xx** sunucu hatası. Bu yüzden `kod // 100` ile sınıfı bulabilirsin (`//` tam sayı bölmesidir, JavaScript'teki `Math.floor(kod / 100)`).\n\nAçıklamanın içinde boşluk olabilir ('Not Found'), bu yüzden durum satırını en fazla iki kez bölmek gerekir: `split(' ', 2)`.",
+      "body": "A response's start line is called the **status line** and has three parts: the HTTP version, a three-digit **status code** and a short reason: `HTTP/1.1 404 Not Found`.\n\nThe first digit gives the class: **1xx** information, **2xx** success, **3xx** redirection, **4xx** client error, **5xx** server error. So `code // 100` finds the class (`//` is integer division, JavaScript's `Math.floor(code / 100)`).\n\nThe reason may contain spaces ('Not Found'), so the status line must be split at most twice: `split(' ', 2)`.",
+      "code": "CLASSES = {1: 'information', 2: 'success', 3: 'redirection',\n           4: 'client error', 5: 'server error'}\n\nline = 'HTTP/1.1 404 Not Found'\nversion, code, reason = line.split(' ', 2)\ncode = int(code)\nprint(code, reason, '->', CLASSES[code // 100])",
+      "expected_output": "404 Not Found -> client error",
+      "section": "Initial Response Line(Status Line)"
+    },
+    {
+      "id": "d28-c15",
+      "type": "explain",
+      "title_tr": "Bilmen gereken kodlar: http.HTTPStatus",
+      "title": "Codes you should know: http.HTTPStatus",
+      "body_tr": "Ders yalnızca 200, 404 ve 500'ü anıyor. Bir API yazarken daha fazlasına ihtiyaç duyarsın: **201** Created (POST yeni bir şey oluşturdu), **204** No Content (başarılı, gövde yok; çoğu zaman DELETE), **301/302** yönlendirme (Gün 26'daki redirect), **400** Bad Request (istek hatalı), **401** Unauthorized (kim olduğun bilinmiyor), **403** Forbidden (biliniyor ama izin yok), **404** Not Found, **405** Method Not Allowed, **500** Internal Server Error.\n\nBunları ezberlemek zorunda değilsin: standart kütüphanedeki `http.HTTPStatus` her kodun adını bilir.",
+      "body": "The lesson mentions only 200, 404 and 500. When you write an API you need more: **201** Created (a POST created something new), **204** No Content (success, no body; often for DELETE), **301/302** redirection (Day 26's redirect), **400** Bad Request (the request is malformed), **401** Unauthorized (we do not know who you are), **403** Forbidden (we know, but you are not allowed), **404** Not Found, **405** Method Not Allowed, **500** Internal Server Error.\n\nYou do not have to memorise them: `http.HTTPStatus` in the standard library knows every code's name.",
+      "code": "from http import HTTPStatus\n\nfor code in [200, 201, 204, 302, 400, 401, 403, 404, 405, 500]:\n    print(code, HTTPStatus(code).phrase)",
+      "expected_output": "200 OK\n201 Created\n204 No Content\n302 Found\n400 Bad Request\n401 Unauthorized\n403 Forbidden\n404 Not Found\n405 Method Not Allowed\n500 Internal Server Error",
+      "section": "Initial Response Line(Status Line)"
+    },
+    {
+      "id": "d28-c16",
+      "type": "predict",
+      "prompt_tr": "Kodlar hangi sınıflara düşer?",
+      "prompt": "Which classes do the codes fall into?",
+      "code": "codes = [200, 302, 404, 418, 503]\nprint([code // 100 for code in codes])",
+      "choices": [
+        "[2, 3, 4, 4, 5]",
+        "[2.0, 3.02, 4.04, 4.18, 5.03]",
+        "[2, 3, 4, 418, 5]",
+        "[200, 300, 400, 400, 500]"
+      ],
+      "answer": "[2, 3, 4, 4, 5]",
+      "why_tr": "`//` tam sayı bölmesidir ve küsuratı atar: 404 // 100 = 4. 418 de bir 4xx kodudur (bir şaka kodu, 'I'm a teapot'), yani 4.",
+      "why": "`//` is integer division and drops the remainder: 404 // 100 = 4. 418 is a 4xx code as well (a joke code, 'I'm a teapot'), so 4.",
+      "section": "Initial Response Line(Status Line)"
+    },
+    {
+      "id": "d28-c17",
+      "type": "explain",
+      "title_tr": "Sık hata: durumu kontrol etmeden JSON okumak",
+      "title": "Common mistake: reading JSON without checking the status",
+      "body_tr": "Bir API her zaman JSON döndürmez. Kaynak yoksa sunucu `404` ile birlikte bir HTML hata sayfası gönderebilir. Kodun durumu kontrol etmeden `json.loads` çağırırsa şunu görürsün:\n\n`JSONDecodeError: Expecting value: line 1 column 1 (char 0)`\n\n\"line 1 column 1\" hatanın ilk karakterde olduğunu söyler: metin JSON gibi başlamıyor bile (`<` ile başlıyor). Asıl sorun JSON değil, başarısız istek. Doğru sıra: önce durum kodu (Gün 22), sonra gövde.",
+      "body": "An API does not always return JSON. If the resource does not exist, the server may send a `404` together with an HTML error page. If your code calls `json.loads` without checking the status, you see:\n\n`JSONDecodeError: Expecting value: line 1 column 1 (char 0)`\n\n\"line 1 column 1\" says the problem is at the very first character: the text does not even start like JSON (it starts with `<`). The real problem is not JSON, it is the failed request. The right order: status code first (Day 22), then the body.",
+      "code": "import json\n\nresponse = {'status': 404, 'body': '<h1>Not Found</h1>'}\ntry:\n    data = json.loads(response['body'])\nexcept json.JSONDecodeError as err:\n    print('JSONDecodeError:', err)\n\nif response['status'] == 200:\n    data = json.loads(response['body'])\nelse:\n    print('request failed with', response['status'])",
+      "expected_output": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)\nrequest failed with 404",
+      "section": "Initial Response Line(Status Line)"
+    },
+    {
+      "id": "d28-c18",
+      "type": "truefalse",
+      "statement_tr": "4xx ile başlayan bir kod, sunucunun çöktüğü anlamına gelir.",
+      "statement": "A code starting with 4 means the server crashed.",
+      "answer": false,
+      "why_tr": "Yanlış. 4xx istemci hatasıdır: istek yanlış, eksik ya da yetkisiz. Sunucunun kendi hatası 5xx ile bildirilir.",
+      "why": "False. 4xx is a client error: the request is wrong, incomplete or unauthorized. The server's own failure is reported with 5xx.",
+      "section": "Initial Response Line(Status Line)"
+    },
+    {
+      "id": "d28-c19",
+      "type": "explain",
+      "title_tr": "Başlık satırlarını okumak",
+      "title": "Reading header lines",
+      "body_tr": "Başlıklar, istek ya da yanıt hakkında ek bilgi taşır. Her satır `İsim: değer` biçimindedir. Dersteki tarayıcı isteğinden birkaç satır aşağıda.\n\nBir satırı `partition(': ')` ile bölmek güvenlidir: değerin içinde başka `:` olsa bile (örneğin bir adresteki `https:`), yalnızca **ilk** ayırıcıdan böler ve her zaman üç parça döndürür. Sonuçları bir dict'te topluyoruz; izleyicide dict'in satır satır dolmasını izle.",
+      "body": "Headers carry extra information about the request or the response. Every line has the form `Name: value`. A few lines from the lesson's browser request are below.\n\nSplitting a line with `partition(': ')` is safe: even if the value contains another `:` (for example `https:` in an address), it splits only at the **first** separator and always returns three parts. We collect the results in a dict; watch it fill line by line in the tracer.",
+      "code": "head = '''Host: thirtydaysofpython-v1-final.herokuapp.com\nConnection: keep-alive\nAccept: text/html,application/xhtml+xml\nReferer: https://thirtydaysofpython-v1-final.herokuapp.com/post\nAccept-Language: en-GB,en;q=0.9,fi-FI;q=0.8'''\nheaders = {}\nfor line in head.splitlines():\n    name, _, value = line.partition(': ')\n    headers[name] = value\nprint(headers['Referer'])\nprint(len(headers))",
+      "expected_output": "https://thirtydaysofpython-v1-final.herokuapp.com/post\n5",
+      "trace": true,
+      "section": "Header Fields"
+    },
+    {
+      "id": "d28-c20",
+      "type": "explain",
+      "title_tr": "Başlık adları büyük-küçük harfe duyarsızdır",
+      "title": "Header names are case-insensitive",
+      "body_tr": "HTTP'de `Content-Type`, `content-type` ve `CONTENT-TYPE` aynı başlıktır. HTTP/2 ise bütün adları küçük harfle gönderir. Python dict'i ise harfe duyarlıdır: `headers['content-type']` anahtarı `'Content-Type'` ile kaydedilmişse KeyError verir.\n\nÇözüm: başlıkları saklarken adı `lower()` ile küçült ve okurken de küçük harf kullan. `requests` ve Flask bunu kendi özel dict'leriyle yapar; o yüzden onlarda `response.headers['content-type']` da çalışır.\n\nKural: dışarıdan gelen bir anahtarı karşılaştırmadan önce **normalleştir**.",
+      "body": "In HTTP, `Content-Type`, `content-type` and `CONTENT-TYPE` are the same header. HTTP/2 even sends every name in lowercase. A Python dict, however, is case-sensitive: `headers['content-type']` raises KeyError if the key was stored as `'Content-Type'`.\n\nThe fix: lowercase the name with `lower()` when you store headers, and use lowercase when you read. `requests` and Flask do this with their own special dicts, which is why `response.headers['content-type']` works there too.\n\nRule: **normalise** a key that comes from outside before you compare it.",
+      "code": "lines = ['Content-Type: application/json', 'CONTENT-LENGTH: 27']\nheaders = {}\nfor line in lines:\n    name, _, value = line.partition(': ')\n    headers[name.lower()] = value\nprint(headers)\nprint(headers['content-length'])",
+      "expected_output": "{'content-type': 'application/json', 'content-length': '27'}\n27",
+      "section": "Header Fields"
+    },
+    {
+      "id": "d28-c21",
+      "type": "predict",
+      "prompt_tr": "Harf farkı neyi değiştirir?",
+      "prompt": "What does the case difference change?",
+      "code": "headers = {'Content-Type': 'text/html'}\nprint(headers.get('content-type'), 'Content-Type' in headers, headers.get('content-type', 'missing'))",
+      "choices": [
+        "None True missing",
+        "text/html True text/html",
+        "None False missing",
+        "KeyError"
+      ],
+      "answer": "None True missing",
+      "why_tr": "Düz bir dict'te 'content-type' ile 'Content-Type' farklı anahtarlardır. `.get` bulamayınca `None` ya da verilen varsayılanı döndürür; KeyError yalnızca köşeli parantezle olurdu.",
+      "why": "In a plain dict 'content-type' and 'Content-Type' are different keys. When `.get` does not find one it returns `None` or the given default; a KeyError would only happen with square brackets.",
+      "section": "Header Fields"
+    },
+    {
+      "id": "d28-c22",
+      "type": "explain",
+      "title_tr": "Önemli başlıklar ve Accept-Language",
+      "title": "Important headers and Accept-Language",
+      "body_tr": "Bazı başlıkları tanı: **Host** hangi siteyi istediğini söyler (tek bir sunucu birçok siteye hizmet verebilir). **User-Agent** istemcinin kim olduğunu söyler (Gün 22'deki kazıyıcılar bunu dürüstçe doldurmalı). **Accept** hangi biçimleri kabul ettiğini söyler; bir API istemcisi `Accept: application/json` gönderir.\n\n**Accept-Language** gerçekçi bir ayrıştırma örneği: `tr-TR,tr;q=0.9,en;q=0.8` \"önce Türkçe, sonra İngilizce\" demektir. `q` bir tercih ağırlığıdır, yazılmadıysa 1'dir. Bir sunucu sayfanın dilini buna göre seçebilir.",
+      "body": "Get to know a few headers: **Host** says which site you want (one server can serve many sites). **User-Agent** says who the client is (the scrapers of Day 22 should fill it honestly). **Accept** says which formats the client accepts; an API client sends `Accept: application/json`.\n\n**Accept-Language** is a realistic parsing example: `tr-TR,tr;q=0.9,en;q=0.8` means \"Turkish first, then English\". `q` is a preference weight, and it is 1 when not written. A server can choose the page's language from it.",
+      "code": "def languages(header):\n    result = []\n    for part in header.split(','):\n        lang, _, q = part.partition(';q=')\n        result.append((lang.strip(), float(q) if q else 1.0))\n    result.sort(key=lambda pair: pair[1], reverse=True)\n    return [lang for lang, weight in result]\n\nprint(languages('tr-TR,tr;q=0.9,en;q=0.8'))\nprint(languages('en;q=0.5, fi'))",
+      "expected_output": "['tr-TR', 'tr', 'en']\n['fi', 'en']",
+      "section": "Header Fields"
+    },
+    {
+      "id": "d28-c23",
+      "type": "order",
+      "prompt_tr": "Satırları sırala: bir başlık satırını küçük harfli adla dict'e kaydet ve yazdır.",
+      "prompt": "Order the lines: store one header line in a dict with a lowercase name and print it.",
+      "lines": [
+        "headers[name.lower()] = value",
+        "line = 'Content-Type: application/json'",
+        "print(headers)",
+        "name, _, value = line.partition(': ')",
+        "headers = {}"
+      ],
+      "correct_order": [
+        4,
+        1,
+        3,
+        0,
+        2
+      ],
+      "expected_output": "{'content-type': 'application/json'}",
+      "section": "Header Fields"
+    },
+    {
+      "id": "d28-c24",
+      "type": "explain",
+      "title_tr": "Gövde ve Content-Type",
+      "title": "The body and Content-Type",
+      "body_tr": "Gövde, mesajın asıl yüküdür. Yanıtta istenen kaynak (HTML, JSON, resim) oradadır; istekte ise form verisi ya da gönderilen JSON.\n\nGövdenin nasıl okunacağını **Content-Type** başlığı söyler. Bu değere MIME tipi denir: `text/html`, `text/plain`, `application/json`, `image/png`. HTML formları (Gün 26) varsayılan olarak `application/x-www-form-urlencoded` gönderir: sorgu dizgesiyle aynı biçim.\n\nAşağıdaki fonksiyon, Content-Type'a bakıp gövdeyi doğru araçla çözüyor: JSON için `json.loads`, form için `parse_qs`.",
+      "body": "The body is the real cargo of the message. In a response it holds the requested resource (HTML, JSON, an image); in a request it holds form data or the JSON being sent.\n\nThe **Content-Type** header says how to read the body. Its value is called a MIME type: `text/html`, `text/plain`, `application/json`, `image/png`. HTML forms (Day 26) send `application/x-www-form-urlencoded` by default: the same format as a query string.\n\nThe function below looks at Content-Type and decodes the body with the right tool: `json.loads` for JSON, `parse_qs` for a form.",
+      "code": "import json\nfrom urllib.parse import parse_qs\n\ndef read_body(content_type, body):\n    if content_type == 'application/json':\n        return json.loads(body)\n    if content_type == 'application/x-www-form-urlencoded':\n        return {k: v[0] for k, v in parse_qs(body).items()}\n    return body\n\nprint(read_body('application/json', '{\"name\": \"Ayşe\", \"age\": 21}'))\nprint(read_body('application/x-www-form-urlencoded', 'name=Ay%C5%9Fe&age=21'))",
+      "expected_output": "{'name': 'Ayşe', 'age': 21}\n{'name': 'Ayşe', 'age': '21'}",
+      "section": "The message body"
+    },
+    {
+      "id": "d28-c25",
+      "type": "explain",
+      "title_tr": "Content-Length bayt sayar, karakter değil",
+      "title": "Content-Length counts bytes, not characters",
+      "body_tr": "**Content-Length** gövdenin uzunluğunu söyler; istemci tam o kadar okur. Ama birim **bayt**'tır, karakter değil. Ağdan metin değil bayt geçer ve metin çoğu zaman UTF-8 ile bayta çevrilir.\n\nİngilizce harfler UTF-8'de 1 bayttır, ama `ş`, `ğ`, `İ` gibi harfler 2 bayttır. Yani `len(body)` Türkçe bir metin için yanlış sayı verir; doğrusu `len(body.encode('utf-8'))`. Başlık eksik sayarsa istemci gövdenin sonunu keser.\n\nÇıktıyı tahmin et: 'Ayşe' kaç karakter, kaç bayt?",
+      "body": "**Content-Length** gives the length of the body; the client reads exactly that much. But the unit is **bytes**, not characters. Bytes cross the network, not text, and text is usually turned into bytes with UTF-8.\n\nEnglish letters take 1 byte in UTF-8, but letters like `ş`, `ğ`, `İ` take 2. So `len(body)` gives the wrong number for Turkish text; the right one is `len(body.encode('utf-8'))`. If the header counts too few, the client cuts off the end of the body.\n\nGuess the output: how many characters is 'Ayşe', and how many bytes?",
+      "code": "body = 'Ayşe'\nprint(len(body))\nprint(body.encode('utf-8'))\nprint(len(body.encode('utf-8')))",
+      "expected_output": "4\nb'Ay\\xc5\\x9fe'\n5",
+      "hide_output": true,
+      "section": "The message body"
+    },
+    {
+      "id": "d28-c26",
+      "type": "predict",
+      "prompt_tr": "Karakter ve bayt sayıları ne?",
+      "prompt": "What are the character and byte counts?",
+      "code": "city = 'İzmir'\nprint(len(city), len(city.encode('utf-8')))",
+      "choices": [
+        "5 5",
+        "5 6",
+        "6 6",
+        "5 10"
+      ],
+      "answer": "5 6",
+      "why_tr": "'İzmir' 5 karakterdir. Noktalı büyük 'İ' UTF-8'de 2 bayt, diğer 4 harf 1'er bayt: toplam 6.",
+      "why": "'İzmir' has 5 characters. The dotted capital 'İ' takes 2 bytes in UTF-8, the other 4 letters 1 byte each: 6 in total.",
+      "section": "The message body"
+    },
+    {
+      "id": "d28-c27",
+      "type": "explain",
+      "title_tr": "Tam bir yanıt mesajı kurmak",
+      "title": "Building a complete response message",
+      "body_tr": "Şimdi parçaları birleştirelim ve bir sunucunun gerçekten gönderdiği metni üretelim: durum satırı, başlıklar, boş satır, gövde.\n\nGövdeyi `json.dumps` ile metne çeviriyoruz; `ensure_ascii=False` Türkçe harfleri `\\u015f` gibi kaçış dizileri yerine olduğu gibi bırakır. Content-Length bayt olarak hesaplanıyor. Satırlar `'\\r\\n'.join` ile birleşiyor ve başlıklardan sonra boş bir satır geliyor.\n\nFlask bunu `Response(...)` ya da `jsonify(...)` ile senin yerine yapar; izleyicide bir kez kendin kurunca o fonksiyonların ne ürettiğini bilirsin.",
+      "body": "Now let us put the parts together and produce the text a server really sends: status line, headers, blank line, body.\n\nWe turn the body into text with `json.dumps`; `ensure_ascii=False` keeps Turkish letters as they are instead of escape sequences like `\\u015f`. Content-Length is computed in bytes. The lines are joined with `'\\r\\n'.join`, and a blank line follows the headers.\n\nFlask does this for you with `Response(...)` or `jsonify(...)`; build it once yourself in the tracer and you know what those functions produce.",
+      "code": "import json\n\ndata = {'name': 'Ayşe', 'city': 'İzmir'}\nbody = json.dumps(data, ensure_ascii=False)\nlines = ['HTTP/1.1 200 OK',\n         'Content-Type: application/json',\n         f'Content-Length: {len(body.encode(\"utf-8\"))}',\n         '', body]\nmessage = '\\r\\n'.join(lines)\nprint(message.replace('\\r\\n', '\\n'))",
+      "expected_output": "HTTP/1.1 200 OK\nContent-Type: application/json\nContent-Length: 35\n\n{\"name\": \"Ayşe\", \"city\": \"İzmir\"}",
+      "trace": true,
+      "section": "The message body"
+    },
+    {
+      "id": "d28-c28",
+      "type": "explain",
+      "title_tr": "Metotlar ve CRUD",
+      "title": "Methods and CRUD",
+      "body_tr": "Ders dört metodu anlatıyor; her biri bir CRUD işlemine denk gelir:\n\n- **GET** okur (Read). Veriyi asla değiştirmemelidir.\n- **POST** yeni bir kaynak oluşturur (Create); yanıt çoğu zaman 201'dir.\n- **PUT** var olan kaynağı gönderilen haliyle değiştirir (Update).\n- **DELETE** kaynağı siler (Delete).\n\nBir beşincisi de sık görülür: **PATCH** yalnızca verilen alanları günceller (Gün 27'deki `$set` gibi), PUT ise kaynağın tamamını yerine koyar. Aşağıdaki tablo bir API dokümanının özeti gibi okunur.",
+      "body": "The lesson covers four methods, and each maps to a CRUD operation:\n\n- **GET** reads (Read). It must never change data.\n- **POST** creates a new resource (Create); the response is usually 201.\n- **PUT** replaces an existing resource with the version sent (Update).\n- **DELETE** removes the resource (Delete).\n\nA fifth one is common too: **PATCH** updates only the given fields (like Day 27's `$set`), while PUT puts the whole resource in place. The table below reads like the summary of an API's documentation.",
+      "code": "CRUD = {'POST': 'Create', 'GET': 'Read', 'PUT': 'Update',\n        'PATCH': 'Update (partial)', 'DELETE': 'Delete'}\n\nrequests_seen = ['GET', 'POST', 'GET', 'DELETE', 'PATCH']\nfor method in requests_seen:\n    print(method, '->', CRUD[method])",
+      "expected_output": "GET -> Read\nPOST -> Create\nGET -> Read\nDELETE -> Delete\nPATCH -> Update (partial)",
+      "section": "Request Methods"
+    },
+    {
+      "id": "d28-c29",
+      "type": "explain",
+      "title_tr": "Güvenli ve idempotent metotlar",
+      "title": "Safe and idempotent methods",
+      "body_tr": "İki kavram, bir isteği tekrarlamanın güvenli olup olmadığını söyler.\n\n**Güvenli** (safe) metot sunucudaki veriyi değiştirmez: GET. **İdempotent** metot, bir kez de yapılsa on kez de yapılsa aynı son durumu bırakır: PUT (aynı içeriği tekrar yazmak), DELETE (zaten silinmiş olanı silmek) ve GET. **POST ise idempotent değildir**: iki kez göndermek iki kayıt oluşturur.\n\nBu yüzden ağ koptuğunda bir istemci GET ya da PUT'u gönül rahatlığıyla tekrarlar, POST'u tekrarlamaz; Gün 26'daki Post/Redirect/Get kalıbının nedeni de budur. İzleyicide iki deponun farkını gör.",
+      "body": "Two ideas tell you whether repeating a request is harmless.\n\nA **safe** method does not change data on the server: GET. An **idempotent** method leaves the same final state whether it runs once or ten times: PUT (writing the same content again), DELETE (deleting something already gone) and GET. **POST is not idempotent**: sending it twice creates two records.\n\nThat is why, when the network drops, a client happily retries a GET or a PUT but not a POST; it is also the reason behind Day 26's Post/Redirect/Get pattern. See the difference between the two stores in the tracer.",
+      "code": "posted = []\nput_store = {}\n\nfor attempt in range(2):\n    posted.append({'name': 'Ayşe'})\n    put_store[7] = {'name': 'Ayşe'}\n\nprint('after 2 POSTs:', len(posted), 'records')\nprint('after 2 PUTs:', len(put_store), 'record')",
+      "expected_output": "after 2 POSTs: 2 records\nafter 2 PUTs: 1 record",
+      "trace": true,
+      "section": "Request Methods"
+    },
+    {
+      "id": "d28-c30",
+      "type": "predict",
+      "prompt_tr": "Aynı istek üç kez gönderiliyor. Çıktı ne?",
+      "prompt": "The same request is sent three times. What is printed?",
+      "code": "store = {1: 'Ece', 2: 'Can'}\nfor attempt in range(3):\n    store.pop(2, None)\n    store[3] = 'Ali'\nprint(store)",
+      "choices": [
+        "{1: 'Ece', 3: 'Ali'}",
+        "{1: 'Ece', 3: 'Ali', 4: 'Ali', 5: 'Ali'}",
+        "KeyError: 2",
+        "{1: 'Ece'}"
+      ],
+      "answer": "{1: 'Ece', 3: 'Ali'}",
+      "why_tr": "Bu iki işlem DELETE ve PUT gibi idempotenttir: 2'yi silmek ikinci turda da sorun çıkarmaz (`pop`'un varsayılanı var) ve 3'e aynı değeri yazmak durumu değiştirmez. Üç tur, bir turla aynı sonucu verir.",
+      "why": "Both operations are idempotent like DELETE and PUT: removing 2 again is harmless (`pop` has a default) and writing the same value to 3 does not change the state. Three rounds give the same result as one.",
+      "section": "Request Methods"
+    },
+    {
+      "id": "d28-c31",
+      "type": "explain",
+      "title_tr": "Gerçek bir istemci nasıl görünür?",
+      "title": "What a real client looks like",
+      "body_tr": "Gerçek kodda bir API'ye `requests` ile istek atılır: `response = requests.get(url, params={'country': 'Finland'})`, ardından `response.status_code` ve `response.json()`. JavaScript'te aynı iş `fetch(url).then(r => r.json())` ile yapılır.\n\nTarayıcının adres çubuğu yalnızca GET gönderebilir; POST, PUT ve DELETE denemek için Postman ya da `curl` gibi araçlar kullanılır (Gün 29).\n\nAşağıda `requests`'in yanıt nesnesini küçük bir sınıfla (Gün 21) taklit ediyoruz: `status_code` bir nitelik, `json()` ise gövdeyi çözen bir metot.",
+      "body": "In real code you call an API with `requests`: `response = requests.get(url, params={'country': 'Finland'})`, then `response.status_code` and `response.json()`. In JavaScript the same job is `fetch(url).then(r => r.json())`.\n\nA browser's address bar can only send GET; to try POST, PUT and DELETE you use tools such as Postman or `curl` (Day 29).\n\nBelow we imitate the response object of `requests` with a small class (Day 21): `status_code` is an attribute and `json()` is a method that decodes the body.",
+      "code": "import json\n\nclass FakeResponse:\n    def __init__(self, status_code, text):\n        self.status_code = status_code\n        self.text = text\n\n    def json(self):\n        return json.loads(self.text)\n\nresponse = FakeResponse(200, '[{\"name\": \"Finland\"}, {\"name\": \"Sweden\"}]')\nif response.status_code == 200:\n    print([c['name'] for c in response.json()])",
+      "expected_output": "['Finland', 'Sweden']",
+      "section": "Request Methods"
+    },
+    {
+      "id": "d28-c32",
+      "type": "truefalse",
+      "statement_tr": "Tarayıcının adres çubuğuna bir URL yazarak DELETE isteği gönderebilirsin.",
+      "statement": "You can send a DELETE request by typing a URL into the browser's address bar.",
+      "answer": false,
+      "why_tr": "Yanlış. Adres çubuğu her zaman GET gönderir. DELETE, PUT ya da POST için bir form, JavaScript (`fetch`) ya da Postman, `curl` gibi bir araç gerekir.",
+      "why": "False. The address bar always sends GET. DELETE, PUT or POST need a form, JavaScript (`fetch`) or a tool such as Postman or `curl`.",
+      "section": "Request Methods"
+    },
+    {
+      "id": "d28-c33",
+      "type": "recap",
+      "points_tr": [
+        "API, neyi isteyebileceğini ve ne alacağını anlatan bir sözleşmedir; web API'leri URL ve HTTP metodu kullanır ve çoğu zaman JSON döndürür.",
+        "Bir HTTP mesajı başlangıç satırı, başlıklar, boş satır ve isteğe bağlı gövdeden oluşur; istek satırı metot, yol ve sürümdür.",
+        "Durum kodunun ilk hanesi sınıfını verir: 2xx başarı, 3xx yönlendirme, 4xx istemci hatası, 5xx sunucu hatası; gövdeyi okumadan önce durumu kontrol et.",
+        "Başlık adları büyük-küçük harfe duyarsızdır; Content-Type gövdenin biçimini, Content-Length ise bayt cinsinden uzunluğunu söyler.",
+        "GET okur, POST oluşturur, PUT değiştirir, DELETE siler; GET güvenlidir, PUT ve DELETE idempotenttir, POST değildir."
+      ],
+      "points": [
+        "An API is a contract for what you may ask and what you get; web APIs use URLs and HTTP methods and usually return JSON.",
+        "An HTTP message is a start line, headers, a blank line and an optional body; the request line is method, path and version.",
+        "The first digit of a status code gives its class: 2xx success, 3xx redirection, 4xx client error, 5xx server error; check the status before reading the body.",
+        "Header names are case-insensitive; Content-Type gives the body's format and Content-Length its length in bytes.",
+        "GET reads, POST creates, PUT replaces, DELETE removes; GET is safe, PUT and DELETE are idempotent, POST is not."
+      ],
+      "cta_tr": "Şimdi alıştırmalara geç",
+      "cta": "Go to the exercises now",
+      "link": "learn",
+      "section": "Request Methods"
+    }
+  ]
 }

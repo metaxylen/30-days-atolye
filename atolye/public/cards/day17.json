@@ -1,306 +1,406 @@
 {
   "day": 17,
-  "title_tr": "Hata Yönetimi ve Açma/Paketleme",
-  "title": "Exception Handling and Packing/Unpacking",
-  "est_minutes": 28,
+  "title_tr": "İstisnalar, Paketleme ve Açma, enumerate, zip",
+  "title": "Exceptions, Packing and Unpacking, enumerate, zip",
+  "est_minutes": 50,
   "cards": [
     {
       "id": "d17-c01",
       "type": "explain",
       "section": "Exception Handling",
-      "title_tr": "try / except",
-      "title": "try / except",
-      "body_tr": "`try` bloğunda hata çıkarsa program çökmez, `except` bloğu çalışır. Hatayı zarifçe karşılamak uygulamayı sağlamlaştırır.",
-      "body": "If the `try` block fails, the program does not crash; the `except` block runs. Handling errors gracefully makes apps robust.",
-      "code": "try:\n    print(10 + '5')\nexcept:\n    print('Something went wrong')\nprint('devam ediyor')",
-      "expected_output": "Something went wrong\ndevam ediyor",
-      "trace": true
+      "title_tr": "Program çökmek zorunda değil",
+      "title": "A program does not have to crash",
+      "body_tr": "Day 15'te hata türlerini okumayı öğrendin; bir hata oluştuğunda program o satırda durur ve hata izi (traceback) basar. Ama hataların çoğu senin kodundan değil dışarıdan gelir: kullanıcı yaşına 'yirmi' yazar, dosya yoktur, ağ kopar. Böyle durumlarda bütün programın ölmesi yerine sorunu yakalayıp kontrollü davranmak istersin. Python'da bunun aracı `try`/`except`'tir. Riskli kod `try` bloğuna girer; bir **istisna (exception)** oluşursa Python `except` bloğuna atlar ve program devam eder. JavaScript'teki `try`/`catch` ile aynı fikir. Çıktıyı tahmin et.",
+      "body": "On Day 15 you learned to read error types; when an error happens, the program stops at that line and prints a traceback. But most errors come not from your code but from outside: the user types 'twenty' as their age, the file is missing, the network drops. In such cases you want to catch the problem and react in a controlled way instead of letting the whole program die. Python's tool for this is `try`/`except`. Risky code goes into the `try` block; if an **exception** happens, Python jumps to the `except` block and the program goes on. Same idea as `try`/`catch` in JavaScript. Guess the output.",
+      "code": "try:\n    print(10 + '5')\nexcept:\n    print('Something went wrong')\nprint('The program is still running')",
+      "expected_output": "Something went wrong\nThe program is still running",
+      "hide_output": true
     },
     {
       "id": "d17-c02",
-      "type": "predict",
+      "type": "explain",
       "section": "Exception Handling",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "try:\n    print('a')\n    print(1 / 0)\n    print('b')\nexcept:\n    print('hata')",
-      "choices": [
-        "a\nhata",
-        "a\nb",
-        "hata",
-        "a\nhata\nb"
-      ],
-      "answer": "a\nhata",
-      "why_tr": "`1 / 0` hata verince `try` anında kesilir; 'b' yazılmaz.",
-      "why": "When `1 / 0` fails, `try` stops at once; 'b' never prints."
+      "title_tr": "try bloğu nasıl çalışır?",
+      "title": "How a try block runs",
+      "body_tr": "Python `try` bloğunu satır satır çalıştırır. Bir satır istisna fırlattığı anda bloğun **geri kalanı atlanır**; o satırdan sonraki `print` hiç çalışmaz. Python eşleşen `except` bloğunu çalıştırır, sonra `try`/`except` yapısından sonraki ilk satırdan devam eder. Hiç istisna olmazsa `except` bloğu tamamen atlanır. Adım adım izle: döngünün her turunda `int()` ya başarılı olur ya da `ValueError` fırlatır. Bozuk değer ('yirmi') yalnızca kendi turunu etkiler, list bitene kadar program yaşar.",
+      "body": "Python runs the `try` block line by line. The moment a line raises an exception, **the rest of the block is skipped**; the `print` after that line never runs. Python runs the matching `except` block, then continues from the first line after the whole `try`/`except`. If no exception happens, the `except` block is skipped entirely. Step through it: in each loop round `int()` either succeeds or raises `ValueError`. The bad value ('yirmi') only affects its own round, and the program lives until the list ends.",
+      "code": "ages = ['21', 'yirmi', '35']\ntotal = 0\nfor a in ages:\n    try:\n        total += int(a)\n        print('ok', a)\n    except ValueError:\n        print('skipped', a)\nprint('total', total)",
+      "expected_output": "ok 21\nskipped yirmi\nok 35\ntotal 56",
+      "trace": true
     },
     {
       "id": "d17-c03",
-      "type": "explain",
+      "type": "predict",
       "section": "Exception Handling",
-      "title_tr": "Hatanın türüne göre yakala",
-      "title": "Catch by error type",
-      "body_tr": "Çıplak `except` neyin yanlış gittiğini söylemez. `except TypeError:` gibi türe özel bloklar yaz; ilk uyan çalışır. (Derste `input()` vardı; burada sabit değerler kullanıyoruz.)",
-      "body": "A bare `except` hides what went wrong. Write type-specific blocks like `except TypeError:`; the first match runs. (The lesson used `input()`; we use fixed values.)",
-      "code": "year_born = '1920'\ntry:\n    age = 2019 - year_born\nexcept TypeError:\n    print('Type error occured')\nexcept ValueError:\n    print('Value error occured')\nexcept ZeroDivisionError:\n    print('zero division error occured')",
-      "expected_output": "Type error occured"
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "try:\n    print('A')\n    x = int('x')\n    print('B')\nexcept ValueError:\n    print('C')\nprint('D')",
+      "choices": [
+        "A\nC\nD",
+        "A\nB\nC\nD",
+        "C\nD",
+        "A\nC"
+      ],
+      "answer": "A\nC\nD",
+      "why_tr": "`A` basılır, `int('x')` istisna fırlatır ve `print('B')` atlanır. `except` `C`'yi basar, sonra program `D` ile devam eder.",
+      "why": "`A` prints, `int('x')` raises and `print('B')` is skipped. The `except` prints `C`, then the program continues with `D`."
     },
     {
       "id": "d17-c04",
-      "type": "fill",
+      "type": "explain",
       "section": "Exception Handling",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "try:\n    number = int('abc')\nexcept ___:\n    print('Value error')",
-      "answers": [
-        "ValueError"
-      ],
-      "expected_output": "Value error",
-      "why_tr": "`int('abc')` ValueError verir.",
-      "why": "`int('abc')` raises ValueError."
+      "title_tr": "Sadece beklediğin hatayı yakala",
+      "title": "Catch only the error you expect",
+      "body_tr": "`except:` tek başına yazılırsa her şeyi yakalar, senin yazım hatalarını da. Aşağıdaki kodda değişken adı yanlış yazılmış (`nmbers`), yani gerçek sorun `NameError`. Ama çıplak `except` bunu 'geçersiz sayı' diye raporlar ve seni yanlış yere bakmaya gönderir. Doğrusu: `except ValueError:` gibi beklediğin türü yaz. O zaman beklemediğin bir hata (`NameError`) yakalanmaz ve hata izinde açıkça görünür. Kural: hangi satırın hangi istisnayı fırlatabileceğini bil, sadece onu yakala. Day 15'teki hata adları burada işe yarar.",
+      "body": "A bare `except:` catches everything, including your own typos. In the code below the variable name is misspelled (`nmbers`), so the real problem is a `NameError`. But the bare `except` reports it as 'invalid number' and sends you looking in the wrong place. The right way: name the type you expect, like `except ValueError:`. Then an unexpected error (`NameError`) is not caught and shows up clearly in the traceback. The rule: know which line can raise which exception, and catch only that. The error names from Day 15 pay off here.",
+      "code": "numbers = ['4', '8']\ntry:\n    print(int(nmbers[0]) * 2)\nexcept:\n    print('invalid number')   # misleading!\n\ntry:\n    print(int(numbers[0]) * 2)\nexcept ValueError:\n    print('invalid number')",
+      "expected_output": "invalid number\n8"
     },
     {
       "id": "d17-c05",
       "type": "explain",
       "section": "Exception Handling",
-      "title_tr": "else ve finally",
-      "title": "else and finally",
-      "body_tr": "`else`: hata çıkmazsa çalışır. `finally`: hata olsa da olmasa da her zaman çalışır (temizlik için ideal). Hatasız çalıştır, sonra '1920' yerine 'abc' dene.",
-      "body": "`else` runs only if no error occurred. `finally` always runs, error or not (ideal for cleanup). Run it as is, then try 'abc' instead of '1920'.",
-      "code": "year_born = '1920'\ntry:\n    age = 2019 - int(year_born)\n    print(f'Your age is {age}.')\nexcept ValueError:\n    print('Value error occur')\nelse:\n    print('I usually run with the try block')\nfinally:\n    print('I alway run.')",
-      "expected_output": "Your age is 99.\nI usually run with the try block\nI alway run.",
-      "trace": true
+      "title_tr": "Birden fazla except",
+      "title": "Several except clauses",
+      "body_tr": "Bir blok farklı şekillerde başarısız olabilir ve her birine farklı tepki vermek isteyebilirsin. Birden çok `except` yazarsın; Python yukarıdan aşağı bakar ve istisnanın türüne **uyan ilk** bloğu çalıştırır, gerisini atlar. Aynı tepkiyi vereceğin türleri bir tuple içinde toplayabilirsin: `except (TypeError, ValueError):`. Örnekteki `average` fonksiyonu boş list için `ZeroDivisionError`, sayı olmayan bir eleman için `TypeError` ile karşılaşır. Fonksiyondan `return` ettiğimize dikkat et; çağıran taraf her durumda bir değer alır.",
+      "body": "A block can fail in different ways, and you may want a different reaction to each. You write several `except` clauses; Python checks them from top to bottom and runs the **first one that matches** the exception's type, skipping the rest. Types that get the same reaction can be grouped in a tuple: `except (TypeError, ValueError):`. The `average` function in the example meets a `ZeroDivisionError` for an empty list and a `TypeError` for an element that is not a number. Notice that we `return` from the function, so the caller gets a value in every case.",
+      "code": "def average(nums):\n    try:\n        return sum(nums) / len(nums)\n    except ZeroDivisionError:\n        return 0\n    except TypeError:\n        return None\n\nprint(average([4, 8]), average([]), average([4, 'x']))",
+      "expected_output": "6.0 0 None"
     },
     {
       "id": "d17-c06",
-      "type": "predict",
+      "type": "fill",
       "section": "Exception Handling",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "try:\n    x = int('abc')\nexcept ValueError:\n    print('E')\nelse:\n    print('ELSE')\nfinally:\n    print('F')",
-      "choices": [
-        "E\nF",
-        "E\nELSE\nF",
-        "ELSE\nF",
-        "E"
+      "prompt_tr": "Doğru istisna türünü yaz.",
+      "prompt": "Write the right exception type.",
+      "code": "try:\n    price = float('12,50')\nexcept ___:\n    price = 0.0\nprint(price)",
+      "answers": [
+        "ValueError"
       ],
-      "answer": "E\nF",
-      "why_tr": "Hata oldu: except çalıştı, else atlandı, finally yine çalıştı.",
-      "why": "An error happened: except ran, else was skipped, finally still ran."
+      "expected_output": "0.0",
+      "why_tr": "`float('12,50')` virgül yüzünden geçersiz bir metindir ve `ValueError` fırlatır; o yüzden fiyat 0.0 olur.",
+      "why": "`float('12,50')` is invalid text because of the comma and raises `ValueError`, so the price becomes 0.0."
     },
     {
       "id": "d17-c07",
       "type": "explain",
       "section": "Exception Handling",
-      "title_tr": "except Exception as e",
-      "title": "except Exception as e",
-      "body_tr": "`Exception as e` her hatayı yakalar ve hata nesnesini `e` içinde verir; `print(e)` mesajı gösterir. Tüm hatalara tek blok yeter ama bilmediğin hataları da sessizce yutar.",
-      "body": "`Exception as e` catches any error and gives you the error object as `e`; `print(e)` shows its message. One block for all errors, but it also silently swallows ones you did not expect.",
-      "code": "try:\n    age = 2019 - '1920'\nexcept Exception as e:\n    print(e)",
-      "expected_output": "unsupported operand type(s) for -: 'int' and 'str'"
+      "title_tr": "except ... as e: istisna bir nesnedir",
+      "title": "except ... as e: the exception is an object",
+      "body_tr": "Bir istisna sadece bir sinyal değil, bir **nesne**dir. `except ValueError as e:` yazınca bu nesne `e` ismine bağlanır. `print(e)` ya da `str(e)` hata mesajını verir, `type(e).__name__` türün adını. Böylece kullanıcıya ya da log dosyasına anlamlı bir mesaj yazarsın. `except Exception as e:` neredeyse tüm hata türlerini yakalar; programın en dış katmanında 'beklenmedik bir şey oldu, kaydet ve devam et' demek için uygundur, ama içerideki küçük bloklarda belirli tür yakalamayı tercih et. `e` ismi `except` bloğu bitince silinir.",
+      "body": "An exception is not just a signal but an **object**. Writing `except ValueError as e:` binds that object to the name `e`. `print(e)` or `str(e)` gives the error message, `type(e).__name__` the type's name. This lets you write a meaningful message for the user or a log file. `except Exception as e:` catches almost every error type; it fits the outermost layer of a program to say 'something unexpected happened, log it and go on', but in small inner blocks prefer a specific type. The name `e` is deleted when the `except` block ends.",
+      "code": "for text in ['7', 'yedi', None]:\n    try:\n        print(int(text) * 2)\n    except Exception as e:\n        print(type(e).__name__, '->', e)",
+      "expected_output": "14\nValueError -> invalid literal for int() with base 10: 'yedi'\nTypeError -> int() argument must be a string, a bytes-like object or a real number, not 'NoneType'"
     },
     {
       "id": "d17-c08",
-      "type": "truefalse",
+      "type": "explain",
       "section": "Exception Handling",
-      "statement_tr": "`finally` bloğu yalnız hata olmadığında çalışır.",
-      "statement": "The `finally` block runs only when no error occurred.",
-      "answer": false,
-      "why_tr": "`finally` her durumda çalışır.",
-      "why": "`finally` runs in every case."
+      "title_tr": "else ve finally",
+      "title": "else and finally",
+      "body_tr": "`try` yapısına iki blok daha eklenebilir. `else:` yalnızca `try` bloğu **hiç istisna fırlatmadan** biterse çalışır; 'başarılı olursa şunu da yap' demektir. Neden bu kodu `try`'ın içine yazmıyoruz? Çünkü `try` bloğunu küçük tutmak istersin: sadece hata beklediğin satır orada olmalı, yoksa başka satırların hatası da yanlışlıkla yakalanır. `finally:` ise **her durumda** çalışır: başarıda, yakalanan hatada, hatta `try` içinde `return` olsa bile. Dosya kapatmak, bağlantı kesmek gibi temizlik işleri buraya yazılır. İki çağrıyı adım adım izle.",
+      "body": "Two more blocks can join a `try`. `else:` runs only if the `try` block finished **without raising any exception**; it means 'if it succeeded, also do this'. Why not put that code inside `try`? Because you want the `try` block small: only the line you expect to fail belongs there, otherwise an error from another line gets caught by accident. `finally:` runs **in every case**: on success, on a caught error, even if `try` contains a `return`. Cleanup work like closing a file or a connection goes there. Step through the two calls.",
+      "code": "def parse(text):\n    try:\n        n = int(text)\n    except ValueError:\n        print('bad input')\n    else:\n        print('parsed', n)\n    finally:\n        print('done')\n\nfor text in ['42', 'x']: parse(text)",
+      "expected_output": "parsed 42\ndone\nbad input\ndone",
+      "trace": true
     },
     {
       "id": "d17-c09",
-      "type": "explain",
-      "section": "Unpacking Lists",
-      "title_tr": "Listeyi argümanlara aç: *",
-      "title": "Unpack a list into arguments: *",
-      "body_tr": "Fonksiyon ayrı ayrı sayılar bekliyorsa ve elindeki bir liste ise `*liste` onu argümanlara açar. Açmadan verirsen TypeError olur.",
-      "body": "If a function expects separate values but you have a list, `*list` spreads it into arguments. Without it you get a TypeError.",
-      "code": "def sum_of_five_nums(a, b, c, d, e):\n    return a + b + c + d + e\n\nlst = [1, 2, 3, 4, 5]\ntry:\n    sum_of_five_nums(lst)\nexcept TypeError:\n    print('TypeError')\nprint(sum_of_five_nums(*lst))",
-      "expected_output": "TypeError\n15"
+      "type": "predict",
+      "section": "Exception Handling",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "try:\n    n = 10 / 2\nexcept ZeroDivisionError:\n    print('zero')\nelse:\n    print('else', n)\nfinally:\n    print('finally')",
+      "choices": [
+        "else 5.0\nfinally",
+        "else 5\nfinally",
+        "zero\nfinally",
+        "else 5.0"
+      ],
+      "answer": "else 5.0\nfinally",
+      "why_tr": "Bölme başarılı olduğu için `except` atlanır, `else` çalışır (`/` her zaman `float` verir: 5.0), `finally` de her durumda çalışır.",
+      "why": "The division succeeds, so `except` is skipped and `else` runs (`/` always gives a `float`: 5.0); `finally` runs in every case."
     },
     {
       "id": "d17-c10",
-      "type": "fill",
-      "section": "Unpacking Lists",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "args = [2, 7]\nprint(list(range(___args)))",
-      "answers": [
-        "*"
-      ],
-      "expected_output": "[2, 3, 4, 5, 6]",
-      "why_tr": "`*args` listeyi `range(2, 7)` olarak açar.",
-      "why": "`*args` expands the list to `range(2, 7)`."
+      "type": "explain",
+      "section": "Exception Handling",
+      "title_tr": "İstisna yukarı doğru yolculuk eder",
+      "title": "An exception travels up",
+      "body_tr": "Bir fonksiyonun içinde fırlatılan istisna orada yakalanmazsa fonksiyon anında biter ve istisna onu **çağıran** yere geçer. Orada da yakalanmazsa bir üst çağırana, en sonunda programın en dışına çıkar ve program durur. Bu yüzden hatayı her fonksiyonda yakalamak zorunda değilsin: ne yapacağını bilen katmanda yakalarsın. Hata izi bu yolculuğun kaydıdır: en alttaki satır istisnanın türü ve mesajı, üstündekiler oraya giden çağrı zinciri. Bu yüzden traceback'i aşağıdan yukarı okursun. Adım adım izle: `load` hiç `except` yazmıyor, `main` yakalıyor.",
+      "body": "If an exception raised inside a function is not caught there, the function ends immediately and the exception passes to the place that **called** it. If it is not caught there either, it goes to the next caller, and finally out of the program, which stops. So you do not have to catch an error in every function: you catch it in the layer that knows what to do about it. A traceback is the record of this journey: the bottom line is the exception's type and message, the lines above are the chain of calls that led there. That is why you read a traceback from the bottom up. Step through: `load` has no `except`, `main` catches.",
+      "code": "def parse(text):\n    return int(text)\n\ndef load(items):\n    return [parse(t) for t in items]\n\ndef main():\n    try:\n        print(load(['1', '2', 'üç']))\n    except ValueError as e:\n        print('main caught:', e)\n\nmain()",
+      "expected_output": "main caught: invalid literal for int() with base 10: 'üç'",
+      "trace": true
     },
     {
       "id": "d17-c11",
       "type": "explain",
-      "section": "Unpacking Lists",
-      "title_tr": "Değişkenlere açmak",
-      "title": "Unpack into variables",
-      "body_tr": "Listeyi değişkenlere dağıtabilirsin; `*adı` kalanları liste olarak toplar.",
-      "body": "You can distribute a list into variables; `*name` gathers the rest as a list.",
-      "code": "countries = ['Finland', 'Sweden', 'Norway', 'Denmark', 'Iceland']\nfin, sw, nor, *rest = countries\nprint(fin, sw, nor, rest)\nnumbers = [1, 2, 3, 4, 5, 6, 7]\none, *middle, last = numbers\nprint(one, middle, last)",
-      "expected_output": "Finland Sweden Norway ['Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7",
-      "trace": true
+      "section": "Exception Handling",
+      "title_tr": "raise: kendi istisnanı fırlat",
+      "title": "raise: throw your own exception",
+      "body_tr": "Bazen Python bir hata görmez ama senin kuralın çiğnenmiştir: yaş negatif olamaz, indirim yüzde 100'ü geçemez. Böyle durumda `raise ValueError('yaş negatif olamaz')` yazarsın; bu, istisnayı senin fırlatmandır (JavaScript'teki `throw`). Doğru türü seç: değer uygunsuzsa `ValueError`, tür yanlışsa `TypeError`. Mesaj sorunu açıklasın. Fonksiyon geçersiz veriyle sessizce yanlış sonuç döndürmek yerine yüksek sesle başarısız olur; ne yapılacağına çağıran karar verir. Örnekte doğrulama fonksiyonu fırlatıyor, çağıran yakalıyor.",
+      "body": "Sometimes Python sees no error but your rule is broken: an age cannot be negative, a discount cannot exceed 100 percent. In that case you write `raise ValueError('age cannot be negative')`; that is you throwing the exception yourself (`throw` in JavaScript). Choose the right type: `ValueError` when the value is unsuitable, `TypeError` when the type is wrong. Let the message explain the problem. Instead of silently returning a wrong result for invalid data, the function fails loudly, and the caller decides what to do. In the example the validation function raises and the caller catches.",
+      "code": "def set_age(age):\n    if age < 0:\n        raise ValueError(f'age cannot be negative: {age}')\n    return age\n\nprint(set_age(30))\ntry:\n    set_age(-5)\nexcept ValueError as e:\n    print('Error:', e)",
+      "expected_output": "30\nError: age cannot be negative: -5"
     },
     {
       "id": "d17-c12",
-      "type": "predict",
-      "section": "Unpacking Lists",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "first, *others = [10, 20, 30]\nprint(first, others)",
-      "choices": [
-        "10 [20, 30]",
-        "10 20",
-        "[10] [20, 30]",
-        "10 30"
-      ],
-      "answer": "10 [20, 30]",
-      "why_tr": "`first` ilk elemanı alır, `*others` kalanı liste yapar.",
-      "why": "`first` takes the first item and `*others` collects the rest as a list."
+      "type": "truefalse",
+      "section": "Exception Handling",
+      "statement_tr": "`try` bloğunda `return` çalışsa bile `finally` bloğu yine çalışır.",
+      "statement": "Even if a `return` runs inside the `try` block, the `finally` block still runs.",
+      "answer": true,
+      "why_tr": "`finally` her çıkış yolunda çalışır: normal bitiş, yakalanan hata, yakalanmayan hata ve `return`.",
+      "why": "`finally` runs on every way out: normal end, caught error, uncaught error and `return`."
     },
     {
       "id": "d17-c13",
       "type": "explain",
-      "section": "Unpacking Dictionaries",
-      "title_tr": "Sözlüğü aç: **",
-      "title": "Unpack a dict: **",
-      "body_tr": "`**sözlük` anahtarları keyword argümana dönüştürür; anahtarlar parametre adlarıyla eşleşmeli.",
-      "body": "`**dict` turns keys into keyword arguments; keys must match parameter names.",
-      "code": "def info(name, country, city, age):\n    return f'{name} lives in {country}, {city}. He is {age} years old.'\n\ndct = {'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250}\nprint(info(**dct))",
-      "expected_output": "Asabeneh lives in Finland, Helsinki. He is 250 years old."
+      "section": "Exception Handling",
+      "title_tr": "Sık hata: hatayı yutmak",
+      "title": "Common mistake: swallowing the error",
+      "body_tr": "En tehlikeli kalıp `except Exception: pass` gibi her şeyi yakalayıp hiçbir şey yapmamaktır. Aşağıdaki kodda anahtar yanlış yazılmış (`'pirce'`), ama program hata vermez; toplam sessizce 0 çıkar ve kimse nedenini bilmez. Bu bir hatayı düzeltmez, sadece gizler. Kurallar: (1) `try` bloğunu tek riskli satıra daralt. (2) Beklediğin türü yakala, burada `KeyError`. (3) Yakaladığında bir şey yap: varsayılan değer ver, mesaj yaz ya da tekrar `raise` et. Eksik anahtar bir hata değil de olağan bir durumsa, bunu sessiz bir `except` yerine `item.get('price', 0)` (Day 8) ile açıkça söyle; son satır düzeltilmiş toplamı gösteriyor.",
+      "body": "The most dangerous pattern is catching everything and doing nothing, like `except Exception: pass`. In the code below the key is misspelled (`'pirce'`), but the program raises no error; the total silently comes out as 0 and nobody knows why. This does not fix a bug, it hides it. The rules: (1) narrow the `try` block to the one risky line. (2) Catch the type you expect, here `KeyError`. (3) When you catch, do something: give a default, print a message, or `raise` again. And if a missing key is a normal case rather than a bug, say so openly with `item.get('price', 0)` (Day 8) instead of a silent `except`; the last line shows the corrected total.",
+      "code": "cart = [{'price': 40}, {'price': 25}]\ntotal = 0\nfor item in cart:\n    try:\n        total += item['pirce']\n    except Exception:\n        pass\nprint(total)   # 0, and no clue why\nprint(sum(item.get('price', 0) for item in cart))",
+      "expected_output": "0\n65"
     },
     {
       "id": "d17-c14",
-      "type": "explain",
-      "section": "Packing Lists",
-      "title_tr": "*args ile paketlemek",
-      "title": "Packing with *args",
-      "body_tr": "Tanımda `*args` argümanları tuple'a paketler; çağrıda `*` ise açar. Aynı işaret, ters iş.",
-      "body": "In a definition `*args` packs arguments into a tuple; in a call `*` unpacks. Same sign, opposite job.",
-      "code": "def sum_all(*args):\n    s = 0\n    for i in args:\n        s += i\n    return s\n\nprint(sum_all(1, 2, 3))\nprint(sum_all(1, 2, 3, 4, 5, 6, 7))",
-      "expected_output": "6\n28",
-      "trace": true
+      "type": "predict",
+      "section": "Exception Handling",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "def check(n):\n    if n > 10:\n        raise ValueError('too big')\n    return n\n\ntry:\n    print(check(5))\n    print(check(50))\n    print(check(1))\nexcept ValueError as e:\n    print(e)",
+      "choices": [
+        "5\ntoo big",
+        "5\ntoo big\n1",
+        "too big",
+        "5\n50\n1"
+      ],
+      "answer": "5\ntoo big",
+      "why_tr": "`check(5)` 5 basar. `check(50)` istisna fırlatır; `try`'ın geri kalanı (`check(1)` dahil) atlanır ve `except` mesajı yazar.",
+      "why": "`check(5)` prints 5. `check(50)` raises; the rest of the `try` (including `check(1)`) is skipped and the `except` prints the message."
     },
     {
       "id": "d17-c15",
       "type": "explain",
-      "section": "Packing Dictionaries",
-      "title_tr": "**kwargs ile paketlemek",
-      "title": "Packing with **kwargs",
-      "body_tr": "`**kwargs` isimli argümanları sözlüğe paketler.",
-      "body": "`**kwargs` packs named arguments into a dict.",
-      "code": "def packing_person_info(**kwargs):\n    for key in kwargs:\n        print(f'{key} = {kwargs[key]}')\n    return kwargs\n\nprint(packing_person_info(name='Asabeneh', country='Finland', age=250))",
-      "expected_output": "name = Asabeneh\ncountry = Finland\nage = 250\n{'name': 'Asabeneh', 'country': 'Finland', 'age': 250}"
+      "section": "Unpacking Lists",
+      "title_tr": "* ile list'i argümanlara açmak",
+      "title": "Unpacking a list into arguments with *",
+      "body_tr": "Beş parametreli bir fonksiyonun var ama sayılar bir list içinde. `sum_of_five(lst)` yazarsan list tek bir argüman sayılır: `TypeError: sum_of_five() missing 4 required positional arguments: 'b', 'c', 'd', and 'e'`. Çağrıda başına `*` koyarsan Python list'i **açar** (unpack) ve elemanları sırayla ayrı argümanlar olarak verir: `sum_of_five(*lst)`. Aynı şey hazır fonksiyonlarda da çalışır: `range(*[2, 7])` ile `range(2, 7)` aynıdır. Not: orijinal ders `print(range(*args))`'ın list yazdığını söylüyor; aslında `range(2, 7)` yazar, list görmek için `list()` gerekir.",
+      "body": "You have a function with five parameters, but the numbers are in a list. If you write `sum_of_five(lst)`, the list counts as one argument: `TypeError: sum_of_five() missing 4 required positional arguments: 'b', 'c', 'd', and 'e'`. If you put a `*` in front of it in the call, Python **unpacks** the list and passes its items as separate arguments in order: `sum_of_five(*lst)`. The same works for built-in functions: `range(*[2, 7])` equals `range(2, 7)`. Note: the original lesson claims `print(range(*args))` prints a list; it actually prints `range(2, 7)`, and you need `list()` to see the items.",
+      "code": "def sum_of_five(a, b, c, d, e):\n    return a + b + c + d + e\n\nlst = [1, 2, 3, 4, 5]\nprint(sum_of_five(*lst))\nargs = [2, 7]\nprint(range(*args))\nprint(list(range(*args)))",
+      "expected_output": "15\nrange(2, 7)\n[2, 3, 4, 5, 6]"
     },
     {
       "id": "d17-c16",
-      "type": "truefalse",
-      "section": "Packing Dictionaries",
-      "statement_tr": "Fonksiyon tanımında `**kwargs`, gelen isimli argümanları sözlük olarak verir.",
-      "statement": "In a definition, `**kwargs` gives incoming named arguments as a dict.",
-      "answer": true,
-      "why_tr": "Anahtar = parametre adı, değer = verdiğin değer.",
-      "why": "Key = argument name, value = the value you passed."
+      "type": "explain",
+      "section": "Unpacking Lists",
+      "title_tr": "Değişkenlere açmak ve yıldızlı isim",
+      "title": "Unpacking into names and the starred name",
+      "body_tr": "Atamanın sol tarafına birden çok isim yazarsan sağdaki list ya da tuple'ın elemanları sırayla bu isimlere bağlanır: `x, y = [3, 4]`. İki değişkeni takas etmenin Python yolu da budur: `a, b = b, a`; geçici değişken gerekmez. Eleman sayısını bilmiyorsan bir ismin başına `*` koy: `first, *rest = items`. Yıldızlı isim geri kalan her şeyi bir **list** olarak toplar, hiç eleman kalmasa bile (boş list). Yıldızlı isim ortada da olabilir: `one, *middle, last`. Bir atamada yalnızca bir yıldız olabilir. JavaScript'teki `const [a, ...rest] = arr` buna karşılık gelir.",
+      "body": "If you write several names on the left of an assignment, the items of the list or tuple on the right are bound to these names in order: `x, y = [3, 4]`. That is also the Python way to swap two variables: `a, b = b, a`; no temporary variable needed. If you do not know how many items there are, put `*` in front of one name: `first, *rest = items`. The starred name collects everything left over as a **list**, even if nothing is left (an empty list). The starred name can also sit in the middle: `one, *middle, last`. Only one star is allowed per assignment. JavaScript's `const [a, ...rest] = arr` is the equivalent.",
+      "code": "countries = ['Finland', 'Sweden', 'Norway', 'Denmark', 'Iceland']\nfin, sw, nor, *rest = countries\nprint(fin, sw, nor, rest)\none, *middle, last = [1, 2, 3, 4, 5, 6, 7]\nprint(one, middle, last)\na, b = 1, 2\na, b = b, a\nprint(a, b)",
+      "expected_output": "Finland Sweden Norway ['Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7\n2 1"
     },
     {
       "id": "d17-c17",
       "type": "explain",
-      "section": "Spreading in Python",
-      "title_tr": "Yayma (spreading)",
-      "title": "Spreading",
-      "body_tr": "Liste içinde `*` ile başka listeleri açıp birleştirebilirsin; yeni bir liste oluşur.",
-      "body": "Inside a list, `*` expands other lists so you can merge them into a new one.",
-      "code": "lst_one = [1, 2, 3]\nlst_two = [4, 5, 6, 7]\nprint([0, *lst_one, *lst_two])\nnordic = [*['Finland', 'Sweden', 'Norway'], *['Denmark', 'Iceland']]\nprint(nordic)",
-      "expected_output": "[0, 1, 2, 3, 4, 5, 6, 7]\n['Finland', 'Sweden', 'Norway', 'Denmark', 'Iceland']"
+      "section": "Unpacking Lists",
+      "title_tr": "Sık hata: sayılar tutmuyor",
+      "title": "Common mistake: the counts do not match",
+      "body_tr": "Yıldızsız açmada sol taraftaki isim sayısı sağdaki eleman sayısına **tam** eşit olmalıdır. Fazla eleman varsa `ValueError: too many values to unpack (expected 2, got 3)`, eksikse `ValueError: not enough values to unpack (expected 3, got 2)` alırsın. Mesajı oku: `expected` kaç isim yazdığını, `got` kaç eleman geldiğini söyler. Gerçek hayatta bu genelde veri beklediğinden farklı geldiğinde olur, örneğin `'Ali Veli Yılmaz'.split()` üç parça verir. Düzeltme: veriyi kontrol et ya da değişken uzunluk için yıldızlı isim kullan: `first, *others = name.split()`.",
+      "body": "Without a star, the number of names on the left must **exactly** equal the number of items on the right. With too many items you get `ValueError: too many values to unpack (expected 2, got 3)`, with too few `ValueError: not enough values to unpack (expected 3, got 2)`. Read the message: `expected` is how many names you wrote, `got` is how many items arrived. In real life this usually happens when data arrives differently than you expected, for example `'Ali Veli Yılmaz'.split()` gives three parts. The fix: check the data, or use a starred name for variable length: `first, *others = name.split()`.",
+      "code": "full = 'Ali Veli Yılmaz'\ntry:\n    first, last = full.split()\nexcept ValueError as e:\n    print(e)\nfirst, *others = full.split()\nprint(first, others)",
+      "expected_output": "too many values to unpack (expected 2, got 3)\nAli ['Veli', 'Yılmaz']"
     },
     {
       "id": "d17-c18",
       "type": "predict",
-      "section": "Spreading in Python",
+      "section": "Unpacking Lists",
       "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "a = [1, 2]\nb = [3]\nprint([*b, *a, 9])",
+      "prompt": "What does this print?",
+      "code": "first, *rest = 'abc'\nhead, *tail = [9]\nprint(first, rest, tail)",
       "choices": [
-        "[3, 1, 2, 9]",
-        "[1, 2, 3, 9]",
-        "[[3], [1, 2], 9]",
-        "[3, 1, 2]"
+        "a ['b', 'c'] []",
+        "a bc []",
+        "a ('b', 'c') None",
+        "ValueError"
       ],
-      "answer": "[3, 1, 2, 9]",
-      "why_tr": "Önce b açılır, sonra a, sonra 9.",
-      "why": "b is spread first, then a, then 9."
+      "answer": "a ['b', 'c'] []",
+      "why_tr": "String de açılabilir: harfleri tek tek dağıtılır. Yıldızlı isim kalanı her zaman list olarak toplar; hiçbir şey kalmazsa boş list olur.",
+      "why": "A string can be unpacked too: its characters are handed out one by one. The starred name always collects the rest as a list; when nothing is left it is an empty list."
     },
     {
       "id": "d17-c19",
       "type": "explain",
-      "section": "Enumerate",
-      "title_tr": "enumerate: indeks + eleman",
-      "title": "enumerate: index + item",
-      "body_tr": "Döngüde hem sırayı hem elemanı istiyorsan `enumerate` ver; her turda `(indeks, eleman)` çifti gelir.",
-      "body": "When you need both position and item in a loop, use `enumerate`; each turn yields an `(index, item)` pair.",
-      "code": "for index, item in enumerate([20, 30, 40]):\n    print(index, item)",
-      "expected_output": "0 20\n1 30\n2 40"
+      "section": "Unpacking Dictionaries",
+      "title_tr": "** ile dict'i isimli argümanlara açmak",
+      "title": "Unpacking a dict into keyword arguments with **",
+      "body_tr": "Çağrıda bir dict'in önüne `**` koyarsan Python her anahtar-değer çiftini `anahtar=değer` biçiminde isimli argümana çevirir. Anahtarlar parametre adlarıyla **eşleşmelidir**; sıra önemli değildir. Fazla bir anahtar varsa `TypeError: describe() got an unexpected keyword argument 'town'`, eksik varsa `missing 1 required positional argument` hatası gelir. Bu, bir ayar dosyasından ya da JSON'dan gelen veriyi bir fonksiyona vermenin kısa yoludur. Orijinal dersteki örneği düzelttik: f-string 'year old' değil 'years old' demeli.",
+      "body": "If you put `**` in front of a dict in a call, Python turns every key-value pair into a keyword argument `key=value`. The keys must **match** the parameter names; their order does not matter. An extra key gives `TypeError: describe() got an unexpected keyword argument 'town'`, a missing one gives `missing 1 required positional argument`. It is the short way to hand data from a settings file or JSON to a function. We fixed the original example: the f-string should say 'years old', not 'year old'.",
+      "code": "def describe(name, country, city, age):\n    return f'{name} lives in {city}, {country}. {age} years old.'\n\nperson = {'city': 'İzmir', 'name': 'Ayşe', 'age': 21, 'country': 'Turkey'}\nprint(describe(**person))\ntry:\n    describe(**{'name': 'Can', 'town': 'Van'})\nexcept TypeError as e:\n    print(e)",
+      "expected_output": "Ayşe lives in İzmir, Turkey. 21 years old.\ndescribe() got an unexpected keyword argument 'town'"
     },
     {
       "id": "d17-c20",
       "type": "fill",
-      "section": "Enumerate",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "for i, ch in ___('ab'):\n    print(i, ch)",
+      "section": "Unpacking Dictionaries",
+      "prompt_tr": "Çıktı `Elif from Bursa` olsun.",
+      "prompt": "Make the output `Elif from Bursa`.",
+      "code": "def greet(name, city):\n    return f'{name} from {city}'\n\ninfo = {'city': 'Bursa', 'name': 'Elif'}\nprint(greet(___))",
       "answers": [
-        "enumerate"
+        "**info"
       ],
-      "expected_output": "0 a\n1 b",
-      "why_tr": "`enumerate` indeks ve elemanı birlikte verir.",
-      "why": "`enumerate` yields index and item together."
+      "expected_output": "Elif from Bursa",
+      "why_tr": "`**info` dict'i `name='Elif', city='Bursa'` isimli argümanlarına açar; anahtarlar parametre adlarıyla eşleştiği için sıra önemsizdir.",
+      "why": "`**info` unpacks the dict into the keyword arguments `name='Elif', city='Bursa'`; the keys match the parameter names, so order does not matter."
     },
     {
       "id": "d17-c21",
       "type": "explain",
-      "section": "Zip",
-      "title_tr": "zip: listeleri eşleştir",
-      "title": "zip: pair up lists",
-      "body_tr": "`zip` iki (ya da daha fazla) listeyi eleman eleman eşler. Kısa olan bitince durur.",
-      "body": "`zip` pairs two or more lists item by item. It stops when the shortest ends.",
-      "code": "fruits = ['banana', 'orange', 'mango']\nvegetables = ['Tomato', 'Potato', 'Cabbage']\nresult = []\nfor f, v in zip(fruits, vegetables):\n    result.append({'fruit': f, 'veg': v})\nprint(result)",
-      "expected_output": "[{'fruit': 'banana', 'veg': 'Tomato'}, {'fruit': 'orange', 'veg': 'Potato'}, {'fruit': 'mango', 'veg': 'Cabbage'}]",
-      "trace": true
+      "section": "Packing Lists",
+      "title_tr": "*args: sınırsız argümanı toplamak",
+      "title": "*args: collecting any number of arguments",
+      "body_tr": "Yıldız tanımda kullanıldığında ters yönde çalışır: açmak yerine **toplar** (packing). Day 11'de gördüğün `def sum_all(*args):` tanımında, çağrıda verilen tüm konumsal argümanlar `args` adlı bir **tuple** içinde toplanır. Hiç argüman verilmezse `args` boş tuple'dır. Normal parametrelerle birlikte kullanılabilir: önce normal parametreler eşleşir, kalanlar yıldızlı isme gider. Aynı `*` işaretinin iki anlamı vardır: çağrıda açar, tanımda toplar. Hatta ikisi birlikte de kullanılabilir: `sum_all(*[1, 2, 3])`.",
+      "body": "When the star appears in a definition it works the other way: instead of unpacking, it **collects** (packing). In `def sum_all(*args):`, which you met on Day 11, all positional arguments of the call are collected into a **tuple** named `args`. With no arguments, `args` is an empty tuple. It can be combined with normal parameters: the normal ones are matched first, and the rest go to the starred name. The same `*` sign has two meanings: in a call it unpacks, in a definition it collects. You can even combine both: `sum_all(*[1, 2, 3])`.",
+      "code": "def sum_all(*args):\n    print(type(args).__name__, args)\n    return sum(args)\n\nprint(sum_all(1, 2, 3))\nprint(sum_all())\n\ndef report(title, *scores):\n    return f'{title}: {max(scores)}'\nprint(report('Best', 70, 95, 88))",
+      "expected_output": "tuple (1, 2, 3)\n6\ntuple ()\n0\nBest: 95"
     },
     {
       "id": "d17-c22",
-      "type": "predict",
-      "section": "Zip",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "print(list(zip([1, 2, 3], ['a', 'b'])))",
-      "choices": [
-        "[(1, 'a'), (2, 'b')]",
-        "[(1, 'a'), (2, 'b'), (3, None)]",
-        "[(1, 2, 3), ('a', 'b')]",
-        "Hata verir"
-      ],
-      "answer": "[(1, 'a'), (2, 'b')]",
-      "why_tr": "`zip` en kısa listede durur.",
-      "why": "`zip` stops at the shortest list."
+      "type": "explain",
+      "section": "Packing Dictionaries",
+      "title_tr": "**kwargs: isimli argümanları dict'te toplamak",
+      "title": "**kwargs: collecting keyword arguments in a dict",
+      "body_tr": "Tanımda `**kwargs` yazarsan çağrıdaki fazladan tüm isimli argümanlar bir **dict** içinde toplanır: anahtar parametre adı, değer verilen değer. Hangi seçeneklerin geleceğini önceden bilmediğinde işe yarar. Örnekte `build_url` bir adres ve istediğin kadar sorgu parametresi alıyor; `.items()` ile çiftleri gezip `?q=python&page=2` gibi bir metin kuruyor. Dict ekleme sırasını koruduğu için parametreler yazdığın sırayla gelir. `args` ve `kwargs` sadece gelenek; önemli olan yıldızlardır.",
+      "body": "If you write `**kwargs` in a definition, all extra keyword arguments of the call are collected in a **dict**: the key is the parameter name, the value the given value. It helps when you do not know in advance which options will come. In the example `build_url` takes an address and any number of query parameters; it walks the pairs with `.items()` and builds text like `?q=python&page=2`. A dict keeps insertion order, so the parameters come out in the order you wrote them. `args` and `kwargs` are only conventions; the stars are what matter.",
+      "code": "def build_url(base, **params):\n    print(params)\n    parts = [f'{k}={v}' for k, v in params.items()]\n    return base + '?' + '&'.join(parts)\n\nprint(build_url('example.com/search', q='python', page=2))",
+      "expected_output": "{'q': 'python', 'page': 2}\nexample.com/search?q=python&page=2"
     },
     {
       "id": "d17-c23",
+      "type": "predict",
+      "section": "Packing Dictionaries",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "def f(*args, **kwargs):\n    print(args, kwargs)\n\nf(1, 2, x=3)",
+      "choices": [
+        "(1, 2) {'x': 3}",
+        "[1, 2] {'x': 3}",
+        "(1, 2, 3) {}",
+        "(1, 2) {x: 3}"
+      ],
+      "answer": "(1, 2) {'x': 3}",
+      "why_tr": "Konumsal argümanlar `args` tuple'ına, isimli argümanlar `kwargs` dict'ine gider. Tuple parantezle, dict anahtarı tırnakla yazdırılır.",
+      "why": "Positional arguments go into the `args` tuple, keyword arguments into the `kwargs` dict. A tuple prints with parentheses, a dict key with quotes."
+    },
+    {
+      "id": "d17-c24",
+      "type": "explain",
+      "section": "Spreading in Python",
+      "title_tr": "Yaymak: list ve dict birleştirmek",
+      "title": "Spreading: merging lists and dicts",
+      "body_tr": "`*` ve `**` bir list ya da dict değişmezinin (literal) içinde de kullanılabilir; JavaScript'teki `[...a, ...b]` ve `{...x, ...y}` yazımının karşılığıdır. `[0, *a, *b]` yeni bir list kurar, eskiler değişmez. `{**defaults, **user}` iki dict'i birleştirir ve aynı anahtar iki yerde varsa **sonda yazılan kazanır**. Bu, varsayılan ayarların üzerine kullanıcı ayarlarını yazmanın standart yoludur. `*` her yinelenebilir nesneyi açar: string, tuple, set, range. Sonuç her zaman yeni bir nesnedir.",
+      "body": "`*` and `**` can also be used inside a list or dict literal; it is the counterpart of JavaScript's `[...a, ...b]` and `{...x, ...y}`. `[0, *a, *b]` builds a new list, and the old ones stay unchanged. `{**defaults, **user}` merges two dicts, and when the same key appears in both, **the one written last wins**. This is the standard way to lay user settings over default settings. `*` unpacks any iterable: string, tuple, set, range. The result is always a new object.",
+      "code": "lst_one = [1, 2, 3]\nlst_two = [4, 5, 6, 7]\nprint([0, *lst_one, *lst_two])\nprint([*'abc', *range(2)])\ndefaults = {'theme': 'light', 'lang': 'en'}\nuser = {'lang': 'tr'}\nprint({**defaults, **user})\nprint(defaults)",
+      "expected_output": "[0, 1, 2, 3, 4, 5, 6, 7]\n['a', 'b', 'c', 0, 1]\n{'theme': 'light', 'lang': 'tr'}\n{'theme': 'light', 'lang': 'en'}"
+    },
+    {
+      "id": "d17-c25",
+      "type": "predict",
+      "section": "Spreading in Python",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "a = {'x': 1, 'y': 2}\nb = {'y': 20, 'z': 30}\nprint({**b, **a})",
+      "choices": [
+        "{'y': 2, 'z': 30, 'x': 1}",
+        "{'x': 1, 'y': 20, 'z': 30}",
+        "{'y': 20, 'z': 30, 'x': 1}",
+        "{'x': 1, 'y': 2, 'z': 30}"
+      ],
+      "answer": "{'y': 2, 'z': 30, 'x': 1}",
+      "why_tr": "Önce `b` açılır (y, z sırası), sonra `a`. `y` anahtarı zaten var, sırası değişmez ama değeri sonradan gelen `a`'nınki (2) olur; `x` sona eklenir.",
+      "why": "`b` is spread first (order y, z), then `a`. The key `y` already exists, so its position stays but its value becomes `a`'s (2), which comes later; `x` is added at the end."
+    },
+    {
+      "id": "d17-c26",
+      "type": "explain",
+      "section": "Enumerate",
+      "title_tr": "enumerate: indeks ve eleman birlikte",
+      "title": "enumerate: index and item together",
+      "body_tr": "Bir list'i gezerken elemanın yanında sırasını da bilmek sık gerekir. JavaScript'ten gelen biri `for i in range(len(items)):` yazıp `items[i]` kullanır; çalışır ama okunması zordur. Python yolu `enumerate`'tir: her turda `(indeks, eleman)` çiftini verir ve biz bu tuple'ı döngü başlığında hemen iki isme açarız. Kullanıcıya numara gösterirken saymaya 1'den başlamak istersin: `enumerate(items, start=1)`. `enumerate` her yinelenebilir nesnede çalışır, string'de bile. Adım adım izle: `i` ve `name` her turda birlikte değişiyor.",
+      "body": "When walking a list you often need the position of each item too. Someone coming from JavaScript writes `for i in range(len(items)):` and uses `items[i]`; it works but reads poorly. The Python way is `enumerate`: each round it gives an `(index, item)` pair, which we unpack into two names right in the loop header. When showing numbers to users you want to count from 1: `enumerate(items, start=1)`. `enumerate` works on any iterable, even a string. Step through it: `i` and `name` change together each round.",
+      "code": "todo = ['buy bread', 'call mom', 'study python']\nfor i, name in enumerate(todo, start=1):\n    print(f'{i}. {name}')\n\ncountries = ['Finland', 'Sweden', 'Norway']\nfor index, c in enumerate(countries):\n    if c == 'Sweden':\n        print(f'{c} found at index {index}')",
+      "expected_output": "1. buy bread\n2. call mom\n3. study python\nSweden found at index 1",
+      "trace": true
+    },
+    {
+      "id": "d17-c27",
+      "type": "fill",
+      "section": "Enumerate",
+      "prompt_tr": "Sıralama 1'den başlasın: çıktı `1 70`, `2 95`, `3 88`.",
+      "prompt": "Make the numbering start at 1: output `1 70`, `2 95`, `3 88`.",
+      "code": "scores = [70, 95, 88]\nfor rank, s in enumerate(scores, ___):\n    print(rank, s)",
+      "answers": [
+        "start=1",
+        "1"
+      ],
+      "expected_output": "1 70\n2 95\n3 88",
+      "why_tr": "`enumerate`'in ikinci argümanı saymanın başlangıcıdır; `start=1` ya da sadece `1` sıralamayı 1'den başlatır.",
+      "why": "The second argument of `enumerate` is the starting count; `start=1` or just `1` makes numbering begin at 1."
+    },
+    {
+      "id": "d17-c28",
+      "type": "explain",
+      "section": "Zip",
+      "title_tr": "zip: list'leri yan yana gezmek",
+      "title": "zip: walking lists side by side",
+      "body_tr": "`zip(a, b)` iki (ya da daha fazla) yinelenebilir nesneyi fermuar gibi birleştirir: her turda her birinden bir eleman alıp bir tuple yapar. Öğrenci adları bir list'te, notlar başka bir list'teyse `for name, score in zip(names, scores):` ikisini birlikte gezer. `dict(zip(keys, values))` iki list'ten tek satırda dict kurar. Önemli tuzak: `zip` **en kısa** olan bittiğinde durur ve fazla elemanları hiç hata vermeden atar. Uzunlukların eşit olması gerekiyorsa Python 3.10+'da `zip(a, b, strict=True)` eşit değilse `ValueError` fırlatır.",
+      "body": "`zip(a, b)` joins two (or more) iterables like a zipper: each round it takes one item from each and makes a tuple. If student names are in one list and grades in another, `for name, score in zip(names, scores):` walks them together. `dict(zip(keys, values))` builds a dict from two lists in one line. The important trap: `zip` stops when the **shortest** one runs out and drops the extra items without any error. If the lengths must be equal, in Python 3.10+ `zip(a, b, strict=True)` raises `ValueError` when they are not.",
+      "code": "names = ['Ali', 'Ece', 'Can']\nscores = [85, 92, 78, 60]\nfor name, score in zip(names, scores):\n    print(name, score)\nprint(dict(zip(names, scores)))\nfruits = ['banana', 'orange']\nveg = ['Tomato', 'Potato']\nprint([{'fruit': f, 'veg': v} for f, v in zip(fruits, veg)])",
+      "expected_output": "Ali 85\nEce 92\nCan 78\n{'Ali': 85, 'Ece': 92, 'Can': 78}\n[{'fruit': 'banana', 'veg': 'Tomato'}, {'fruit': 'orange', 'veg': 'Potato'}]",
+      "trace": true
+    },
+    {
+      "id": "d17-c29",
+      "type": "predict",
+      "section": "Zip",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "print(list(zip('abc', [1, 2])))",
+      "choices": [
+        "[('a', 1), ('b', 2)]",
+        "[('a', 1), ('b', 2), ('c', None)]",
+        "[['a', 1], ['b', 2]]",
+        "ValueError"
+      ],
+      "answer": "[('a', 1), ('b', 2)]",
+      "why_tr": "`zip` en kısa girdi (`[1, 2]`) bitince durur, `'c'` sessizce atılır. Her çift bir tuple'dır.",
+      "why": "`zip` stops when the shortest input (`[1, 2]`) runs out, so `'c'` is silently dropped. Each pair is a tuple."
+    },
+    {
+      "id": "d17-c30",
       "type": "recap",
       "section": "Recap",
       "title_tr": "Özet",
       "title": "Summary",
       "points_tr": [
-        "`try/except/else/finally`: hata, başarı ve her durumda çalışan bloklar.",
-        "Türe özel `except` yaz; `Exception as e` mesajı verir.",
-        "`*` ve `**` çağrıda açar, tanımda paketler.",
-        "`enumerate` indeks, `zip` eşleştirme sağlar."
+        "`try` bloğunda istisna oluşunca bloğun geri kalanı atlanır ve türü uyan ilk `except` çalışır; çıplak `except` yerine beklediğin türü yakala.",
+        "`else` sadece hata yoksa, `finally` her durumda çalışır; yakalanmayan istisna çağıran fonksiyona doğru yukarı çıkar, `raise` ile kendi istisnanı fırlatırsın.",
+        "Çağrıda `*list` elemanları konumsal argümanlara, `**dict` çiftleri isimli argümanlara açar; tanımda `*args` tuple, `**kwargs` dict olarak toplar.",
+        "`a, *rest = items` kalanı list olarak toplar; `[*a, *b]` ve `{**x, **y}` yeni nesne kurar ve dict birleştirmede sondaki kazanır.",
+        "`enumerate(items, start=1)` indeks ile elemanı birlikte verir; `zip(a, b)` list'leri yan yana gezer ve en kısa bitince durur."
       ],
       "points": [
-        "`try/except/else/finally`: blocks for failure, success and always.",
-        "Write type-specific `except`; `Exception as e` gives the message.",
-        "`*` and `**` unpack in calls and pack in definitions.",
-        "`enumerate` gives indexes; `zip` pairs lists."
+        "When an exception happens in a `try` block, the rest of the block is skipped and the first `except` whose type matches runs; catch the type you expect instead of a bare `except`.",
+        "`else` runs only when there was no error, `finally` in every case; an uncaught exception travels up to the calling function, and `raise` throws your own.",
+        "In a call, `*list` unpacks items into positional arguments and `**dict` pairs into keyword arguments; in a definition `*args` collects a tuple and `**kwargs` a dict.",
+        "`a, *rest = items` collects the rest as a list; `[*a, *b]` and `{**x, **y}` build new objects, and in a dict merge the last one wins.",
+        "`enumerate(items, start=1)` gives index and item together; `zip(a, b)` walks lists side by side and stops at the shortest."
       ],
-      "link": "learn",
-      "link_label_tr": "Şimdi alıştırmalara geç",
-      "link_label": "Go to the exercises"
+      "link": "learn"
     }
   ]
 }

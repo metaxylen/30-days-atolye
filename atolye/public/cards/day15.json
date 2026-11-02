@@ -2,249 +2,391 @@
   "day": 15,
   "title_tr": "Python Hata Türleri",
   "title": "Python Error Types",
-  "est_minutes": 22,
+  "est_minutes": 45,
   "cards": [
     {
       "id": "d15-c01",
       "type": "explain",
       "section": "Python Error Types",
-      "title_tr": "Hata mesajı sana yol gösterir",
-      "title": "Error messages are your guide",
-      "body_tr": "Kod çalışmazsa Python hatanın **türünü** ve yerini söyler, bazen çözümü de önerir. Türleri tanımak hata ayıklamayı hızlandırır. Burada hataları `try/except` ile yakalayıp türünü ve mesajını yazdıracağız; `try/except`i 17. günde ayrıntılı göreceksin.",
-      "body": "When code fails, Python reports the error **type** and place, sometimes even a fix. Knowing the types speeds up debugging. Here we catch errors with `try/except` and print type and message; you will study `try/except` on day 17."
+      "title_tr": "Hata mesajı bir haritadır",
+      "title": "An error message is a map",
+      "body_tr": "Python devam edemediğinde durur ve bir **hata izi** (traceback) yazdırır: soruna götüren çağrıların yolu. İşte gerçek bir örnek:\n\n```\nTraceback (most recent call last):\n  File \"main.py\", line 8, in <module>\n    print(report([]))\n  File \"main.py\", line 5, in report\n    avg = average(scores)\n  File \"main.py\", line 2, in average\n    return sum(nums) / len(nums)\nZeroDivisionError: division by zero\n```\n\nOnu **aşağıdan yukarı** oku. Son satır hata türünü ve mesajını verir: sıfıra bölme. Üstteki satırlar nerede olduğunu gösterir: 2. satır, `average` içinde; onu 5. satırda `report` çağırmış, onu da 8. satır çağırmış. \"Most recent call last\" (en son çağrı en sonda) ifadesi, en derindeki çağrının en altta, hata satırının hemen üstünde olduğu anlamına gelir. (Python 3.11 ve sonrası, bir satırın hata veren kısmının altına `~~~^~~~` işaretleri de koyar; burada çıkarıldılar.)",
+      "body": "When Python cannot continue, it stops and prints a **traceback** (hata izi): the path of calls that led to the problem. Here is a real one:\n\n```\nTraceback (most recent call last):\n  File \"main.py\", line 8, in <module>\n    print(report([]))\n  File \"main.py\", line 5, in report\n    avg = average(scores)\n  File \"main.py\", line 2, in average\n    return sum(nums) / len(nums)\nZeroDivisionError: division by zero\n```\n\nRead it **from the bottom up**. The last line gives the error type and message: a division by zero. The lines above show where: line 2, inside `average`, which was called by `report` on line 5, which was called on line 8. \"Most recent call last\" means the deepest call is at the bottom, right above the error line. (Python 3.11 and later also print `~~~^~~~` markers under the exact part of a line that failed; they are left out here.)"
     },
     {
       "id": "d15-c02",
       "type": "explain",
-      "section": "SyntaxError",
-      "title_tr": "SyntaxError: yazım hatası",
-      "title": "SyntaxError: broken syntax",
-      "body_tr": "Kod Python'un dil kurallarına uymuyorsa çalışmadan önce bile bu hata gelir. Python 3'te `print` parantez ister: `print 'hello world'` hatalıdır. Aşağıda yanlış kodu `compile` ile deniyoruz.",
-      "body": "If code breaks the language rules, you get this before anything runs. Python 3 needs parentheses: `print 'hello world'` is wrong. Below we test the bad code with `compile`.",
-      "code": "try:\n    compile(\"print 'hello world'\", 'demo', 'exec')\nexcept SyntaxError as e:\n    print(type(e).__name__)\nprint('hello world')",
-      "expected_output": "SyntaxError\nhello world"
+      "section": "Python Error Types",
+      "title_tr": "İki tür hata",
+      "title": "Two kinds of errors",
+      "body_tr": "Hatalar iki aileye ayrılır; hangisiyle karşılaştığını bilmek nereye bakacağını söyler.\n\n**SyntaxError**, kodun geçerli Python olmadığı anlamına gelir; dilbilgisi bozuk bir cümle gibi. Python bir şey çalıştırmadan önce bütün dosyayı kontrol eder; bu yüzden sözdizimi hatasında **hiçbir satır çalışmaz**, 1. satırdaki `print` bile. Mesaj dosyayı, satırı ve Python'ın kafasının karıştığı yerin altında bir `^` işaretini gösterir.\n\nDiğer bütün hatalar program çalışırken oluşan **istisnalardır** (exception): `NameError`, `TypeError`, `IndexError` ve diğerleri. Hatalı satırdan önceki satırlar zaten çalışmıştır; bu yüzden önce biraz çıktı, sonra hata izini görebilirsin. Her istisnanın, nedeni hakkında çok şey söyleyen bir tür adı vardır; sonraki kartlar bunu gösteriyor.",
+      "body": "Errors come in two families, and knowing which one you have tells you where to look.\n\nA **SyntaxError** means the code is not valid Python, like a sentence with broken grammar. Python checks the whole file before running anything, so with a syntax error **no line runs at all**, not even the `print` on line 1. The message shows the file, the line and a caret `^` under the spot where Python got confused.\n\nAll other errors are **exceptions** (istisna) raised while the program runs: `NameError`, `TypeError`, `IndexError` and so on. The lines before the failing one have already run, so you may see some output first, then the traceback. Each exception has a type name that already says a lot about the cause, as the following cards show."
     },
     {
       "id": "d15-c03",
-      "type": "predict",
-      "section": "SyntaxError",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "try:\n    compile('print(1', 'demo', 'exec')\nexcept SyntaxError:\n    print('SyntaxError')\nelse:\n    print('ok')",
-      "choices": [
-        "SyntaxError",
-        "ok",
-        "NameError",
-        "Çıktı yok"
-      ],
-      "answer": "SyntaxError",
-      "why_tr": "Kapanmamış parantez bir yazım hatasıdır.",
-      "why": "An unclosed parenthesis is a syntax error."
+      "type": "truefalse",
+      "section": "Python Error Types",
+      "statement_tr": "Bir dosyanın 10. satırında SyntaxError varsa, 1-9. satırlardaki `print` çağrıları Python durmadan önce yine de çalışır.",
+      "statement": "If line 10 of a file has a SyntaxError, the `print` calls on lines 1 to 9 still run before Python stops.",
+      "answer": false,
+      "why_tr": "Python dosyayı çalıştırmadan önce bütün dosyanın sözdizimini kontrol eder; hiçbir şey çalışmaz. Önceki satırların çalışmasına yalnızca çalışma anı istisnaları izin verir.",
+      "why": "Python checks the syntax of the whole file before running it, so nothing runs. Only runtime exceptions let earlier lines run first."
     },
     {
       "id": "d15-c04",
       "type": "explain",
-      "section": "NameError",
-      "title_tr": "NameError: tanımsız isim",
-      "title": "NameError: undefined name",
-      "body_tr": "Tanımlamadığın bir değişkeni ya da fonksiyonu kullanırsan gelir. Çözüm: önce tanımla.",
-      "body": "Using a variable or function you never defined raises it. The fix: define it first.",
-      "code": "try:\n    print(age)\nexcept NameError as e:\n    print('NameError:', e)\nage = 25\nprint(age)",
-      "expected_output": "NameError: name 'age' is not defined\n25",
+      "section": "Python Error Types",
+      "title_tr": "Hataları incelemek için bir laboratuvar aracı",
+      "title": "A lab tool to look at errors",
+      "body_tr": "Hataları yan yana karşılaştırmak için bu kartlar küçük bir araç kullanıyor; böylece program ilk hatada durmuyor:\n\n```\ntry:\n    riskli satır\nexcept Exception as e:\n    print(type(e).__name__, e)\n```\n\nŞöyle oku: \"Girintili satırı çalıştırmayı **dene**; orada bir istisna olursa durma, bunun yerine `except`'e atla, istisna nesnesine `e` ismini bağla, türünün adını ve mesajını yazdır.\" `try`/`except`'i 17. günde düzgünce öğreneceksin; bugün yalnızca bir büyüteç.\n\nAdım adım izle: ilk blok normal çalışıyor, ikincisi hatalı satırdan doğrudan `except`'e atlıyor ve program devam ediyor.",
+      "body": "To compare errors side by side, these cards use a small tool so the program does not stop at the first one:\n\n```\ntry:\n    risky line\nexcept Exception as e:\n    print(type(e).__name__, e)\n```\n\nRead it as: \"**try** to run the indented line; if an exception happens there, do not stop, jump to `except` instead, attach the name `e` to the exception object, and print its type name and message.\" You will learn `try`/`except` properly on Day 17; today it is only a magnifying glass.\n\nStep through it: the first block runs normally, the second jumps from the failing line straight into `except`, and the program carries on.",
+      "code": "try:\n    print(int('42') + 1)\nexcept Exception as e:\n    print(type(e).__name__, e)\n\ntry:\n    print(int('12a') + 1)\nexcept Exception as e:\n    print(type(e).__name__, e)\nprint('program devam ediyor')",
+      "expected_output": "43\nValueError invalid literal for int() with base 10: '12a'\nprogram devam ediyor",
       "trace": true
     },
     {
       "id": "d15-c05",
       "type": "explain",
-      "section": "IndexError",
-      "title_tr": "IndexError: liste sınırı",
-      "title": "IndexError: out of range",
-      "body_tr": "Listede olmayan bir indekse erişirsen gelir. 5 elemanlı listede geçerli indeksler 0-4'tür.",
-      "body": "Accessing an index that does not exist raises it. In a 5-item list the valid indexes are 0-4.",
-      "code": "numbers = [1, 2, 3, 4, 5]\ntry:\n    numbers[5]\nexcept IndexError as e:\n    print('IndexError:', e)",
-      "expected_output": "IndexError: list index out of range",
-      "trace": true
+      "section": "SyntaxError",
+      "title_tr": "SyntaxError: bozuk dilbilgisi",
+      "title": "SyntaxError: broken grammar",
+      "body_tr": "Tipik nedenler ve Python 3'ün yazdırdığı gerçek mesajlar:\n\n- `print 'hello world'` (Python 2 tarzı) şunu verir: `SyntaxError: Missing parentheses in call to 'print'. Did you mean print(...)?`\n- İki noktası unutulmuş `if 3 > 2` şunu verir: `SyntaxError: expected ':'`\n- `print('hello'` şunu verir: `SyntaxError: '(' was never closed`\n\nModern Python mesajları nettir ve çoğu zaman çözümü önerir; bu yüzden mesajın tamamını oku. `^` işareti Python'ın sorunu **fark ettiği** yeri gösterir. Kapanmamış bir parantez açıldığı satırda bildirilir; ama bazı hatalar yapıldıkları yerden daha sonra fark edilir. Bu yüzden işaretlenen satır doğru görünüyorsa üstündeki satıra bak. Kod düzeltilmiş hâlleri gösteriyor.",
+      "body": "Typical causes and the real messages Python 3 prints:\n\n- `print 'hello world'` (Python 2 style) gives `SyntaxError: Missing parentheses in call to 'print'. Did you mean print(...)?`\n- `if 3 > 2` without the colon gives `SyntaxError: expected ':'`\n- `print('hello'` gives `SyntaxError: '(' was never closed`\n\nModern Python messages are precise and often suggest the fix, so read the whole message. The caret `^` marks where Python **noticed** the problem. An unclosed bracket is reported at the line where it was opened, but some mistakes are only noticed later than where they were made, so if the marked line looks fine, check the line above it. The code shows the corrected versions.",
+      "code": "print('hello world')\nif 3 > 2:\n    print('yes')\nprint('hello')",
+      "expected_output": "hello world\nyes\nhello"
     },
     {
       "id": "d15-c06",
-      "type": "predict",
-      "section": "IndexError",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "items = ['a', 'b', 'c']\ntry:\n    print(items[3])\nexcept IndexError:\n    print('yok')\nprint(items[-1])",
-      "choices": [
-        "yok\nc",
-        "c",
-        "yok",
-        "a"
-      ],
-      "answer": "yok\nc",
-      "why_tr": "İndeks 3 yok (0-2 var); -1 son elemandır.",
-      "why": "Index 3 does not exist (only 0-2); -1 is the last item."
+      "type": "explain",
+      "section": "SyntaxError",
+      "title_tr": "IndentationError: girinti hatası",
+      "title": "IndentationError",
+      "body_tr": "Girinti Python dilbilgisinin bir parçasıdır; bu yüzden girinti hataları özel bir SyntaxError türüdür. En yaygını, bir blok başlığının ardından girintili bir gövde gelmediğinde ortaya çıkar:\n\n```\ndef greet():\nprint('Merhaba')\n```\n\nşunu verir: `IndentationError: expected an indented block after function definition on line 1`.\n\nDiğer çeşitleri: `unexpected indent` (bir satır sebepsiz yere girintili) ve `unindent does not match any outer indentation level` (bir satır ait olduğu bloktan farklı sayıda boşlukla girintilenmiş). Sekme (tab) ile boşluğu karıştırmak sonuncusuna yol açar; editörlerin dört boşluk ekleyecek şekilde ayarlanmasının nedeni budur. Çözüm her zaman bloğu tutarlı biçimde hizalamaktır.",
+      "body": "Indentation is part of Python's grammar, so its errors are a special kind of SyntaxError. The most common one appears when a block header is not followed by an indented body:\n\n```\ndef greet():\nprint('Merhaba')\n```\n\ngives `IndentationError: expected an indented block after function definition on line 1`.\n\nOther variants: `unexpected indent` (a line is indented for no reason) and `unindent does not match any outer indentation level` (a line is indented by a different number of spaces than the block it belongs to). Mixing tabs and spaces causes the last one, which is why editors are set to insert four spaces. The fix is always to line the block up consistently."
     },
     {
       "id": "d15-c07",
-      "type": "explain",
-      "section": "ModuleNotFoundError",
-      "title_tr": "ModuleNotFoundError: modül yok",
-      "title": "ModuleNotFoundError: no such module",
-      "body_tr": "Var olmayan (ya da yazımı yanlış) bir modülü içe aktarırsan gelir. `maths` yerine `math` yazmalıydık.",
-      "body": "Importing a missing or misspelled module raises it. We should have written `math`, not `maths`.",
-      "code": "try:\n    import maths\nexcept ModuleNotFoundError as e:\n    print('ModuleNotFoundError:', e)\nimport math\nprint(math.pi)",
-      "expected_output": "ModuleNotFoundError: No module named 'maths'\n3.141592653589793"
+      "type": "truefalse",
+      "section": "SyntaxError",
+      "statement_tr": "`IndentationError` özel bir `SyntaxError` türüdür; bu yüzden o da hiçbir satır çalışmadan dosyayı durdurur.",
+      "statement": "`IndentationError` is a special kind of `SyntaxError`, so it also stops the file before any line runs.",
+      "answer": true,
+      "why_tr": "Python'da girinti dilbilgisidir. `IndentationError`, `SyntaxError`'ın bir alt sınıfıdır ve dosya kontrol edilirken, çalıştırmadan önce tespit edilir.",
+      "why": "Indentation is grammar in Python. `IndentationError` is a subclass of `SyntaxError` and is detected while the file is checked, before running."
     },
     {
       "id": "d15-c08",
       "type": "explain",
-      "section": "AttributeError",
-      "title_tr": "AttributeError: olmayan özellik",
-      "title": "AttributeError: no such attribute",
-      "body_tr": "Nesnenin (burada modülün) sahip olmadığı bir özelliği istersen gelir. `math.PI` yok, `math.pi` var; büyük-küçük harf önemlidir.",
-      "body": "Asking an object (here a module) for something it lacks raises it. There is no `math.PI`, only `math.pi`; case matters.",
-      "code": "import math\n\ntry:\n    math.PI\nexcept AttributeError as e:\n    print(type(e).__name__)\nprint(math.pi)",
-      "expected_output": "AttributeError\n3.141592653589793"
+      "section": "NameError",
+      "title_tr": "NameError: böyle bir isim yok",
+      "title": "NameError: no such name",
+      "body_tr": "`NameError: name 'age' is not defined` şu demektir: bu satırda `age` adında bir isim etiketi yok. Yaygın nedenler:\n\n- yazım hatası: `print(cuont)` şunu verir: `NameError: name 'cuont' is not defined. Did you mean: 'count'?`\n- bir ismi, ona değer atayan satırdan **önce** kullanmak; Python yukarıdan aşağı çalışır;\n- tırnakları unutmak, `print(Ankara)`; Python bu durumda Ankara adında bir değişken arar;\n- bir yerel ismi fonksiyonunun dışında kullanmak (11. gün) ya da bir modülü `import` etmeden kullanmak (12. gün).\n\nÇözüm nedene bağlıdır: yazımı düzelt, atamayı yukarı taşı, tırnakları ya da import'u ekle. Kod düzeltilmiş sırayı gösteriyor.",
+      "body": "`NameError: name 'age' is not defined` means: at this line, no name tag `age` exists. Common causes:\n\n- a typo: `print(cuont)` gives `NameError: name 'cuont' is not defined. Did you mean: 'count'?`\n- using a name **before** the line that assigns it, since Python runs top to bottom;\n- forgetting quotes, `print(Ankara)`, so Python looks for a variable named Ankara;\n- a local name used outside its function (Day 11), or a module used without `import` (Day 12).\n\nThe fix depends on the cause: correct the spelling, move the assignment up, add the quotes or the import. The code shows the corrected order.",
+      "code": "age = 25\ncount = 3\nprint(age, count)\nprint('Ankara')",
+      "expected_output": "25 3\nAnkara"
     },
     {
       "id": "d15-c09",
-      "type": "explain",
-      "section": "KeyError",
-      "title_tr": "KeyError: olmayan anahtar",
-      "title": "KeyError: missing key",
-      "body_tr": "Sözlükte olmayan bir anahtarı istersen gelir. Genelde yazım hatasıdır: `county` yerine `country`.",
-      "body": "Asking a dict for a key it lacks raises it. Usually a typo: `county` instead of `country`.",
-      "code": "user = {'name': 'Asab', 'age': 250, 'country': 'Finland'}\ntry:\n    user['county']\nexcept KeyError as e:\n    print('KeyError:', e)\nprint(user['country'])",
-      "expected_output": "KeyError: 'county'\nFinland",
-      "trace": true
+      "type": "predict",
+      "section": "NameError",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "try:\n    total = price * 2\n    price = 40\nexcept Exception as e:\n    print(type(e).__name__)\nprint('bitti')",
+      "choices": [
+        "NameError\nbitti",
+        "80\nbitti",
+        "TypeError\nbitti",
+        "bitti"
+      ],
+      "answer": "NameError\nbitti",
+      "why_tr": "Python yukarıdan aşağı çalışır: `price * 2` çalıştığında `price`'a henüz değer atanmamıştır; bir `NameError` oluşur ve yakalanır, ardından 'bitti' yazdırılır.",
+      "why": "Python runs top to bottom: when `price * 2` runs, `price` has not been assigned yet, so a `NameError` is raised and caught; then 'bitti' is printed."
     },
     {
       "id": "d15-c10",
-      "type": "fill",
-      "section": "KeyError",
-      "prompt_tr": "`Finland` yazdır.",
-      "code": "user = {'name': 'Asab', 'country': 'Finland'}\nprint(user[___])",
-      "answers": [
-        "'country'",
-        "\"country\""
-      ],
-      "expected_output": "Finland",
-      "why_tr": "Anahtar `'country'` yazılmalı, tırnaklarıyla.",
-      "why": "The key is `'country'`, with quotes."
+      "type": "explain",
+      "section": "IndexError",
+      "title_tr": "IndexError: o konumda eleman yok",
+      "title": "IndexError: no item at that position",
+      "body_tr": "5 elemanlı bir list'in indeksleri 0'dan 4'e kadardır (sondan sayınca -1'den -5'e). `numbers[5]` altıncı bir eleman ister ve `IndexError: list index out of range` hatası verir. String'ler ve tuple'lar da aynı şekilde davranır.\n\nKlasik kaynak bir-fazla (off-by-one) döngüsüdür: `for i in range(len(names) + 1)` bir indeks fazla dolaşır. İki alışkanlık çoğu durumu önler: indeksler yerine elemanların kendisi üzerinde döngü kur (`for name in names`) ve bir konuma uzanmadan önce uzunluğu kontrol et (`names[0]`'dan önce `if names:`).\n\nDüzeltilmiş döngüyü ve korumalı erişimi adım adım izle: `i` asla `len(names) - 1`'i geçmiyor.",
+      "body": "A list of 5 items has the indexes 0 to 4 (and -1 to -5 from the end). `numbers[5]` asks for a sixth item and fails with `IndexError: list index out of range`. Strings and tuples behave the same way.\n\nThe classic source is an off-by-one loop: `for i in range(len(names) + 1)` visits one index too many. Two habits avoid most cases: loop over the items themselves (`for name in names`) instead of over indexes, and check the length before reaching for a position (`if names:` before `names[0]`).\n\nStep through the fixed loop and the guarded access: `i` never goes past `len(names) - 1`.",
+      "code": "names = ['Ada', 'Can', 'Ece']\nfor i in range(len(names)):\n    print(i, names[i])\n\nempty = []\nfirst = empty[0] if empty else 'yok'\nprint(first, names[-1])",
+      "expected_output": "0 Ada\n1 Can\n2 Ece\nyok Ece",
+      "trace": true
     },
     {
       "id": "d15-c11",
-      "type": "explain",
-      "section": "TypeError",
-      "title_tr": "TypeError: yanlış tür",
-      "title": "TypeError: wrong type",
-      "body_tr": "Bir işlemi uygun olmayan türlerle yaparsan gelir: sayı + yazı olmaz. Ya yazıyı sayıya (`int`, `float`) ya da sayıyı yazıya (`str`) çevir.",
-      "body": "Using an operation with unsuitable types raises it: number + string does not work. Convert the string with `int`/`float` or the number with `str`.",
-      "code": "try:\n    4 + '3'\nexcept TypeError as e:\n    print(e)\nprint(4 + int('3'))\nprint(4 + float('3'))\nprint(str(4) + '3')",
-      "expected_output": "unsupported operand type(s) for +: 'int' and 'str'\n7\n7.0\n43"
+      "type": "predict",
+      "section": "IndexError",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "letters = ['a', 'b', 'c']\ntry:\n    print(letters[-3])\n    print(letters[3])\nexcept Exception as e:\n    print(type(e).__name__)",
+      "choices": [
+        "a\nc",
+        "IndexError",
+        "c\nIndexError",
+        "a\nIndexError"
+      ],
+      "answer": "a\nIndexError",
+      "why_tr": "Negatif indeksler sondan sayar: -3 ilk elemandır, 'a'. 3 indeksi son geçerli indeks olan 2'yi aşar; bu yüzden sonraki satır `IndexError` verir.",
+      "why": "Negative indexes count from the end: -3 is the first item, 'a'. Index 3 is past the last valid index 2, so the next line raises `IndexError`."
     },
     {
       "id": "d15-c12",
-      "type": "predict",
-      "section": "TypeError",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "print(str(4) + '3')",
-      "choices": [
-        "43",
-        "7",
-        "7.0",
-        "Hata verir"
-      ],
-      "answer": "43",
-      "why_tr": "`str(4)` '4' olur; iki yazı yan yana eklenir.",
-      "why": "`str(4)` becomes '4'; two strings are concatenated."
+      "type": "explain",
+      "section": "ModuleNotFoundError",
+      "title_tr": "ModuleNotFoundError: modül bulunamadı",
+      "title": "ModuleNotFoundError",
+      "body_tr": "`import maths` import satırında şu hatayla patlar: `ModuleNotFoundError: No module named 'maths'`. Python `sys.path`'teki (12. gün) her klasörü aradı ve o isimde bir şey bulamadı.\n\nOlasılık sırasına göre üç neden:\n\n1. isimde bir yazım hatası (`maths`, `Math`, `stats`): modül adları büyük-küçük harfe duyarlıdır;\n2. kurulu olmayan üçüncü taraf bir paket, örneğin `requests`: kendi bilgisayarında onu `pip install requests` ile kurarsın; bu tarayıcı kursunda yalnızca standart kütüphane vardır (24-25. günlerde numpy ile pandas da);\n3. kendi dosyan Python'ın baktığı yerde değil ya da sandığından farklı bir isme sahip.\n\nOrijinal örneğin çözümü basitçe `import math`'tir.",
+      "body": "`import maths` fails at the import line with `ModuleNotFoundError: No module named 'maths'`: Python searched every folder on `sys.path` (Day 12) and found nothing with that name.\n\nThree causes, in order of likelihood:\n\n1. a typo in the name (`maths`, `Math`, `stats`): module names are case-sensitive;\n2. a third-party package that is not installed, such as `requests`: on your own computer you install it with `pip install requests`; in this browser course only the standard library is available (and numpy and pandas on Days 24-25);\n3. your own file is not where Python looks, or it has a different name than you think.\n\nThe fix for the original example is simply `import math`."
     },
     {
       "id": "d15-c13",
       "type": "explain",
-      "section": "ImportError",
-      "title_tr": "ImportError: olmayan isim",
-      "title": "ImportError: name not found",
-      "body_tr": "Modül var ama içinden istediğin isim yok. `math` içinde `power` yok, doğrusu `pow`.",
-      "body": "The module exists but the name does not. `math` has no `power`; it is `pow`.",
-      "code": "try:\n    from math import power\nexcept ImportError:\n    print('ImportError')\nfrom math import pow\nprint(pow(2, 3))",
-      "expected_output": "ImportError\n8.0"
+      "section": "AttributeError",
+      "title_tr": "AttributeError: nesnenin böyle bir parçası yok",
+      "title": "AttributeError: the object has no such part",
+      "body_tr": "**Nitelik** (attribute), nokta ile ulaştığın her şeydir: `math.pi`, `name.upper`. `AttributeError`, nesnenin var olduğu ama o isimde hiçbir şeye sahip olmadığı anlamına gelir:\n\n- `math.PI` şunu verir: `AttributeError: module 'math' has no attribute 'PI'. Did you mean: 'pi'?`\n- `'ali'.uppercase()` şunu verir: `AttributeError: 'str' object has no attribute 'uppercase'`\n\nMesaj nesnenin **türünü** söyler (`module 'math'`, `'str' object`); bu senin ilk ipucundur: nesne gerçekten beklediğin türden mi? Sonra büyük-küçük harfe duyarlı olduğunu hatırlayarak yazımı kontrol et. `dir(obj)` bir nesnenin bütün niteliklerini listeler; doğrusunu bulmanın hızlı bir yolu.",
+      "body": "An **attribute** (nitelik) is anything you reach with a dot: `math.pi`, `name.upper`. `AttributeError` means the object exists, but it has nothing under that name:\n\n- `math.PI` gives `AttributeError: module 'math' has no attribute 'PI'. Did you mean: 'pi'?`\n- `'ali'.uppercase()` gives `AttributeError: 'str' object has no attribute 'uppercase'`\n\nThe message names the **type** of the object (`module 'math'`, `'str' object`), which is your first clue: is the object really of the type you expected? Then check the spelling, remembering that names are case-sensitive. `dir(obj)` lists every attribute an object has, a quick way to find the right one.",
+      "code": "import math\n\nprint(math.pi > 3)\nprint('ali'.upper())\nprint('upper' in dir('ali'), 'uppercase' in dir('ali'))",
+      "expected_output": "True\nALI\nTrue False"
     },
     {
       "id": "d15-c14",
       "type": "explain",
-      "section": "ValueError",
-      "title_tr": "ValueError: değer uygunsuz",
-      "title": "ValueError: unsuitable value",
-      "body_tr": "Tür doğru ama değer uygun değil. `int('12a')`: bu bir yazı (doğru tür) ama sayıya çevrilemez.",
-      "body": "The type is right but the value is not. `int('12a')`: it is a string (right type) but cannot become a number.",
-      "code": "try:\n    int('12a')\nexcept ValueError as e:\n    print('ValueError:', e)\nprint(int('12'))",
-      "expected_output": "ValueError: invalid literal for int() with base 10: '12a'\n12"
+      "section": "AttributeError",
+      "title_tr": "En yaygını: sürpriz bir None",
+      "title": "The most common one: a None by surprise",
+      "body_tr": "`AttributeError: 'NoneType' object has no attribute 'append'` mesajı neredeyse her zaman, bir list ya da string beklerken değişkenin `None` tuttuğu anlamına gelir. `None` nereden geldi? Genellikle bir şeyi **yerinde** değiştirip `None` döndüren bir fonksiyon ya da metottan:\n\n`items = [3, 1, 2].sort()`, `items`'ı `None`'a bağlar, çünkü `sort` `None` döndürür. Sonraki `items.append(2)` satırı da patlar. 12. gündeki `random.shuffle` ve `return`'süz kendi fonksiyonların da aynı şekilde davranır.\n\nÇözüm: yerinde çalışan metotları kendi satırlarında çağır ya da yeni bir nesne döndüren sürümü kullan, örneğin `sorted()`. Düzeltilmiş kodu adım adım izle ve `items`'ın list olarak kaldığına bak.",
+      "body": "The message `AttributeError: 'NoneType' object has no attribute 'append'` almost always means a variable holds `None` when you expected a list or a string. Where did the `None` come from? Usually from a function or method that changes something **in place** and returns `None`:\n\n`items = [3, 1, 2].sort()` attaches `items` to `None`, because `sort` returns `None`. The next line `items.append(2)` then fails. Day 12's `random.shuffle` and your own functions without `return` behave the same way.\n\nThe fix: call in-place methods on their own line, or use the version that returns a new object, such as `sorted()`. Step through the fixed code and watch `items` stay a list.",
+      "code": "items = [3, 1, 2]\nitems.sort()\nitems.append(4)\nprint(items)\n\nresult = sorted([9, 7, 8])\nprint(result)",
+      "expected_output": "[1, 2, 3, 4]\n[7, 8, 9]",
+      "trace": true
     },
     {
       "id": "d15-c15",
-      "type": "explain",
-      "section": "ZeroDivisionError",
-      "title_tr": "ZeroDivisionError: sıfıra bölme",
-      "title": "ZeroDivisionError: dividing by zero",
-      "body_tr": "Bir sayıyı sıfıra bölmek matematiksel olarak tanımsızdır.",
-      "body": "Dividing by zero is undefined in math.",
-      "code": "try:\n    1 / 0\nexcept ZeroDivisionError as e:\n    print('ZeroDivisionError:', e)",
-      "expected_output": "ZeroDivisionError: division by zero"
+      "type": "predict",
+      "section": "AttributeError",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "names = ['Ece', 'Ada']\nordered = names.sort()\ntry:\n    print(ordered[0])\nexcept Exception as e:\n    print(type(e).__name__, names)",
+      "choices": [
+        "Ada",
+        "AttributeError ['Ada', 'Ece']",
+        "IndexError ['Ece', 'Ada']",
+        "TypeError ['Ada', 'Ece']"
+      ],
+      "answer": "TypeError ['Ada', 'Ece']",
+      "why_tr": "`names.sort()` `names`'ı yerinde sıralar ve `None` döndürür; `ordered` `None` olur. `None`'u indekslemek `TypeError` ('NoneType' object is not subscriptable) verir; `names` ise zaten sıralanmıştır.",
+      "why": "`names.sort()` sorts `names` in place and returns `None`, so `ordered` is `None`. Indexing `None` raises `TypeError` ('NoneType' object is not subscriptable), and `names` is already sorted."
     },
     {
       "id": "d15-c16",
-      "type": "predict",
-      "section": "ValueError",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "try:\n    int('3.5')\nexcept ValueError:\n    print('ValueError')",
-      "choices": [
-        "ValueError",
-        "3",
-        "3.5",
-        "TypeError"
-      ],
-      "answer": "ValueError",
-      "why_tr": "`int()` '3.5' yazısını doğrudan çeviremez; değer uygunsuz.",
-      "why": "`int()` cannot convert the string '3.5' directly; the value is unsuitable."
+      "type": "explain",
+      "section": "KeyError",
+      "title_tr": "KeyError: anahtar dict'te yok",
+      "title": "KeyError: the key is not in the dict",
+      "body_tr": "O anahtara sahip olmayan bir dict üzerinde `user['county']` şu hatayı verir: `KeyError: 'county'`. Mesaj yalnızca eksik anahtardır; onu gerçek anahtarlarla dikkatle karşılaştır: burada `country` yanlış yazılmış.\n\nBir anahtarın gerçekten eksik olabildiği durumlarda almadan önce sor:\n\n- `'email' in user`, `True` ya da `False`'tur;\n- `user.get('email')` hata vermek yerine `None` döndürür;\n- `user.get('email', 'yok')` senin varsayılanını döndürür.\n\nAnahtarın var **olması gerekiyorsa** düz `user['name']` kullan: o zaman `KeyError`, verinin yanlış olduğuna dair işe yarar bir alarmdır. İsteğe bağlı alanlar için `.get` kullan. Kodu adım adım izle ve hangi satırın çökmek yerine varsayılan verdiğine bak.",
+      "body": "`user['county']` on a dict without that key fails with `KeyError: 'county'`. The message is just the missing key, so compare it carefully with the real keys: here `country` was misspelled.\n\nWhen a key may legitimately be missing, ask before you take:\n\n- `'email' in user` is `True` or `False`;\n- `user.get('email')` returns `None` instead of raising;\n- `user.get('email', 'yok')` returns your default.\n\nUse plain `user['name']` when the key **must** exist: then a `KeyError` is a useful alarm that the data is wrong. Use `.get` for optional fields. Step through the code and watch which line gives a default instead of crashing.",
+      "code": "user = {'name': 'Asab', 'age': 250, 'country': 'Finland'}\nprint(user['country'])\nprint('email' in user)\nprint(user.get('email'))\nprint(user.get('email', 'yok'))",
+      "expected_output": "Finland\nFalse\nNone\nyok",
+      "trace": true
     },
     {
       "id": "d15-c17",
-      "type": "truefalse",
-      "section": "TypeError",
-      "statement_tr": "`'5' + 3` bir ValueError verir.",
-      "statement": "`'5' + 3` raises a ValueError.",
-      "answer": false,
-      "why_tr": "Tür uyuşmazlığı olduğu için TypeError verir.",
-      "why": "It is a type mismatch, so it raises a TypeError."
+      "type": "fill",
+      "section": "KeyError",
+      "prompt_tr": "Kod gösterilen çıktıyı versin diye boşluğu doldur.",
+      "prompt": "Fill in the blank so the code prints the output shown.",
+      "code": "stock = {'kalem': 12, 'defter': 4}\nfor item in ['kalem', 'silgi', 'defter']:\n    print(item, stock.___)",
+      "answers": [
+        "get(item, 0)"
+      ],
+      "expected_output": "kalem 12\nsilgi 0\ndefter 4",
+      "why_tr": "`stock['silgi']` `KeyError` verirdi. `.get(item, 0)` kayıtlı adedi, dict'te olmayan bir ürün için de 0'ı döndürür.",
+      "why": "`stock['silgi']` would raise `KeyError`. `.get(item, 0)` returns the stored count, or 0 for an item that is not in the dict."
     },
     {
       "id": "d15-c18",
-      "type": "truefalse",
-      "section": "NameError",
-      "statement_tr": "Hata mesajının son satırı, hata türünü ve nedenini söyler.",
-      "statement": "The last line of an error message tells the type and the cause.",
-      "answer": true,
-      "why_tr": "Önce en alttaki satırı oku.",
-      "why": "Read the bottom line first."
+      "type": "explain",
+      "section": "TypeError",
+      "title_tr": "TypeError: bu işlem için yanlış tür",
+      "title": "TypeError: the wrong type for this operation",
+      "body_tr": "`4 + '3'` şu hatayı verir: `TypeError: unsupported operand type(s) for +: 'int' and 'str'`. Python ne demek istediğini tahmin etmez; JavaScript ise sessizce `'43'` üretirdi. Mesaj operatörü ve iki türü de söyler; bu da doğrudan nedeni gösterir.\n\nİki olası çözüm var ve niyetine uyanı seçmen gerekir:\n\n- sayılar: `4 + int('3')` `7`, `4 + float('3')` `7.0` verir;\n- metin: `str(4) + '3'` `'43'` verir.\n\nSolda bir string olunca mesaj farklı ifade edilir: `'Yaş: ' + 30` şunu verir: `TypeError: can only concatenate str (not \"int\") to str`. Burada en temiz çözüm bir f-string'tir: `f'Yaş: {30}'`.",
+      "body": "`4 + '3'` fails with `TypeError: unsupported operand type(s) for +: 'int' and 'str'`. Python does not guess what you meant; JavaScript would silently produce `'43'`. The message names the operator and both types, which points straight at the cause.\n\nThere are two possible fixes, and you must choose the one that matches your intent:\n\n- numbers: `4 + int('3')` is `7`, `4 + float('3')` is `7.0`;\n- text: `str(4) + '3'` is `'43'`.\n\nWith a string on the left, the message is worded differently: `'Yaş: ' + 30` gives `TypeError: can only concatenate str (not \"int\") to str`. Here an f-string is the cleanest fix: `f'Yaş: {30}'`.",
+      "code": "print(4 + int('3'))\nprint(4 + float('3'))\nprint(str(4) + '3')\nprint(f'Yaş: {30}')",
+      "expected_output": "7\n7.0\n43\nYaş: 30"
     },
     {
       "id": "d15-c19",
+      "type": "explain",
+      "section": "TypeError",
+      "title_tr": "Karşılaşacağın diğer TypeError'lar",
+      "title": "More TypeErrors you will meet",
+      "body_tr": "`TypeError`, \"bu tür bunu yapamaz\" durumlarının hepsini kapsar. Sık göreceğin üç tane daha:\n\n- **yanlış sayıda argüman** (11. gün): `TypeError: greet() missing 1 required positional argument: 'name'`.\n- **çağrılamaz** (not callable): `TypeError: 'int' object is not callable`, fonksiyon olmayan bir şeyin arkasına `()` koyduğunda çıkar. Sinsi bir nedeni, hazır bir fonksiyonun adını yeniden kullanmaktır: `list = [1, 2]` sonrasında `list('abc')` çağrısı `TypeError: 'list' object is not callable` hatasıyla patlar, çünkü `list` artık senin list'ini gösterir. Değişkenlerine asla `list`, `str`, `sum` ya da `max` adını verme.\n- **indekslenemez** (not subscriptable): `TypeError: 'NoneType' object is not subscriptable`, `None` üzerinde `[ ]` kullanmaktan gelir; yine genellikle eksik bir `return`.\n\nKod güvenli alternatifleri gösteriyor.",
+      "body": "`TypeError` covers every \"this type cannot do that\" situation. Three more you will see often:\n\n- **wrong number of arguments** (Day 11): `TypeError: greet() missing 1 required positional argument: 'name'`.\n- **not callable**: `TypeError: 'int' object is not callable` appears when you put `()` after something that is not a function. A sneaky cause is reusing a built-in's name: after `list = [1, 2]`, the call `list('abc')` fails with `TypeError: 'list' object is not callable`, because `list` now points to your list. Never name variables `list`, `str`, `sum` or `max`.\n- **not subscriptable**: `TypeError: 'NoneType' object is not subscriptable` comes from using `[ ]` on `None`, again usually a missing `return`.\n\nThe code shows the safe alternatives.",
+      "code": "numbers = [1, 2]\nprint(list('abc'), sum(numbers))\n\ndef first_item(items):\n    return items[0]\n\nprint(first_item(['x', 'y']))",
+      "expected_output": "['a', 'b', 'c'] 3\nx"
+    },
+    {
+      "id": "d15-c20",
+      "type": "predict",
+      "section": "TypeError",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "try:\n    print(len(2025))\nexcept Exception as e:\n    print(type(e).__name__)\ntry:\n    print(len(str(2025)))\nexcept Exception as e:\n    print(type(e).__name__)",
+      "choices": [
+        "4\n4",
+        "ValueError\n4",
+        "TypeError\n4",
+        "TypeError\nTypeError"
+      ],
+      "answer": "TypeError\n4",
+      "why_tr": "Bir int'in uzunluğu yoktur; `len(2025)` `TypeError` verir (object of type 'int' has no len()). `str(2025)` sonrasında ise uzunluğu 4 olan '2025' string'idir.",
+      "why": "An int has no length, so `len(2025)` raises `TypeError` (object of type 'int' has no len()). After `str(2025)` it is the string '2025', whose length is 4."
+    },
+    {
+      "id": "d15-c21",
+      "type": "explain",
+      "section": "ImportError",
+      "title_tr": "ImportError: modül var, isim yok",
+      "title": "ImportError: the module exists, the name does not",
+      "body_tr": "`from math import power` şu hatayı verir: `ImportError: cannot import name 'power' from 'math' (unknown location)`; parantez içindeki kısım yalnızca `math`'in bir dosya olarak değil, Python'ın içine gömülü olarak durduğunu söyler. Bunu yukarıdaki `ModuleNotFoundError` ile karşılaştır: orada **modül** yoktu; burada `math` modülü bulundu, ama içinde `power` adında bir isim yok. Fonksiyonun adı `pow`.\n\nYani sorulacak soru farklıdır. `ModuleNotFoundError` için modül adını kontrol et ya da paketi kur. `ImportError` için `import`'tan sonraki ismi kontrol et: doğru yazımı bulmak için belgelere bak ya da `dir(math)` çalıştır.\n\nİlginç bir bilgi: `ModuleNotFoundError`, `ImportError`'ın özel bir türüdür (alt sınıfıdır); bu yüzden 17. günde `ImportError`'ı yakalayan kod eksik bir modülü de yakalayacak.",
+      "body": "`from math import power` fails with `ImportError: cannot import name 'power' from 'math' (unknown location)`; the part in parentheses only says that `math` is built into Python rather than stored as a file. Compare it with `ModuleNotFoundError` above: there the **module** was missing; here the module `math` was found, but it has no name `power`. The function is called `pow`.\n\nSo the question to ask is different. For `ModuleNotFoundError`, check the module name or install the package. For `ImportError`, check the name after `import`: open the documentation or run `dir(math)` to find the right spelling.\n\nFun fact: `ModuleNotFoundError` is a special kind (a subclass) of `ImportError`, so on Day 17 code that catches `ImportError` will also catch a missing module.",
+      "code": "from math import pow\n\nprint(pow(2, 3))\nimport math\nprint('power' in dir(math), 'pow' in dir(math))",
+      "expected_output": "8.0\nFalse True"
+    },
+    {
+      "id": "d15-c22",
+      "type": "truefalse",
+      "section": "ImportError",
+      "statement_tr": "`ModuleNotFoundError: No module named 'maths'` ile `ImportError: cannot import name 'power' from 'math'` aynı anlama gelir: modül bulunamadı.",
+      "statement": "`ModuleNotFoundError: No module named 'maths'` and `ImportError: cannot import name 'power' from 'math'` mean the same thing: the module could not be found.",
+      "answer": false,
+      "why_tr": "İlki modülün kendisinin olmadığını söyler. İkincisi `math` modülünün bulunduğunu ama `power` adında bir isim içermediğini söyler.",
+      "why": "The first says the module itself is missing. The second says the module `math` was found but contains no name `power`."
+    },
+    {
+      "id": "d15-c23",
+      "type": "explain",
+      "section": "ValueError",
+      "title_tr": "ValueError: doğru tür, yanlış değer",
+      "title": "ValueError: right type, wrong value",
+      "body_tr": "`int('12a')` şu hatayı verir: `ValueError: invalid literal for int() with base 10: '12a'`. Tür doğrudur, `int()` string kabul eder; ama bu belirli değer `a` harfi yüzünden dönüştürülemez. Onu `TypeError`'dan ayıran budur.\n\nSık görülen bir başkası: `a, b = [1, 2, 3]` şunu verir: `ValueError: too many values to unpack (expected 2, got 3)`.\n\nDeğerler kullanıcılardan ya da dosyalardan geliyorsa dönüştürmeden önce kontrol et. `int()`'in kendisi etraftaki boşluklara tahammül eder, yani `int(' 42 ')` `42` verir; ama `'4.5'` için `float()` gerekir. `.isdigit()` string metodu her karakterin rakam olup olmadığını söyler. Kod çökmek yerine dönüştürmeden önce kontrol ediyor.",
+      "body": "`int('12a')` fails with `ValueError: invalid literal for int() with base 10: '12a'`. The type is right, `int()` accepts strings, but this particular value cannot be converted, because of the letter `a`. That distinguishes it from `TypeError`.\n\nAnother frequent one: `a, b = [1, 2, 3]` gives `ValueError: too many values to unpack (expected 2, got 3)`.\n\nWhen values come from users or files, check them before converting. `int()` itself tolerates surrounding spaces, so `int(' 42 ')` is `42`, but `'4.5'` needs `float()`. The string method `.isdigit()` tells you whether every character is a digit. The code checks before converting instead of crashing.",
+      "code": "for text in ['12', '12a', ' 42 ']:\n    if text.strip().isdigit():\n        print(int(text) * 2)\n    else:\n        print('sayı değil:', text)\nprint(float('4.5'))",
+      "expected_output": "24\nsayı değil: 12a\n84\n4.5"
+    },
+    {
+      "id": "d15-c24",
+      "type": "predict",
+      "section": "ValueError",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "for text in [' 7 ', '7.0', 'yedi']:\n    try:\n        print(int(text))\n    except Exception as e:\n        print(type(e).__name__)",
+      "choices": [
+        "7\n7\nValueError",
+        "ValueError\nValueError\nValueError",
+        "7\nValueError\nTypeError",
+        "7\nValueError\nValueError"
+      ],
+      "answer": "7\nValueError\nValueError",
+      "why_tr": "`int` etraftaki boşlukları yok sayar; ' 7 ' 7 verir. '7.0' bir tam sayı yazımı değildir, 'yedi' de sayı değildir; ikisi de `ValueError` verir.",
+      "why": "`int` ignores surrounding spaces, so ' 7 ' gives 7. '7.0' is not an integer literal and 'yedi' is not a number, so both raise `ValueError`."
+    },
+    {
+      "id": "d15-c25",
+      "type": "explain",
+      "section": "ZeroDivisionError",
+      "title_tr": "ZeroDivisionError: sıfıra bölme",
+      "title": "ZeroDivisionError",
+      "body_tr": "`1 / 0` şu hatayı verir: `ZeroDivisionError: division by zero`; sağ tarafta sıfır olan `//` ve `%` da öyle. JavaScript bunun yerine `Infinity` ya da `NaN` döndürür; Python ise durur, bu da hatayı erkenden görünür kılar.\n\nPratikte sıfır nadiren elle yazılır. Veriden gelir: boş bir list'in ortalaması, ilk karttaki hata izinde olduğu gibi `len(nums) == 0` iken `sum(nums) / len(nums)`; adet 0 iken birim fiyat; tesadüfen 0 olan bir toplamın yüzdesi.\n\nÇözüm, bölmeden önce o durumda cevabın ne olması gerektiğine karar veren bir korumadır; çoğu zaman `0` ya da `None`.",
+      "body": "`1 / 0` fails with `ZeroDivisionError: division by zero`; so do `//` and `%` with a zero on the right. JavaScript returns `Infinity` or `NaN` instead; Python stops, which makes the bug visible early.\n\nIn practice the zero is rarely typed by hand. It comes from data: an average of an empty list, `sum(nums) / len(nums)` with `len(nums) == 0`, as in the traceback on the first card; a price per item when the quantity is 0; a percentage of a total that happens to be 0.\n\nThe fix is a guard that decides what the answer should be in that case, often `0` or `None`, before dividing.",
+      "code": "def average(nums):\n    if len(nums) == 0:\n        return 0\n    return sum(nums) / len(nums)\n\nprint(average([70, 80]), average([]))",
+      "expected_output": "75.0 0"
+    },
+    {
+      "id": "d15-c26",
+      "type": "predict",
+      "section": "ZeroDivisionError",
+      "prompt_tr": "Bu kod ne yazdırır?",
+      "prompt": "What does this print?",
+      "code": "def ratio(done, total):\n    return round(done / total * 100)\n\nfor done, total in [(3, 4), (0, 5), (2, 0)]:\n    try:\n        print(ratio(done, total))\n    except Exception as e:\n        print(type(e).__name__)",
+      "choices": [
+        "75\n0\nZeroDivisionError",
+        "75\n0\n0",
+        "75\nZeroDivisionError\nZeroDivisionError",
+        "0.75\n0\nZeroDivisionError"
+      ],
+      "answer": "75\n0\nZeroDivisionError",
+      "why_tr": "0 / 5 sorunsuzdur ve 0 verir; yalnızca sağ taraftaki sıfır sorundur, bu yüzden yalnızca son çift `ZeroDivisionError` verir.",
+      "why": "0 / 5 is fine and gives 0; only a zero on the right side is a problem, so just the last pair raises `ZeroDivisionError`."
+    },
+    {
+      "id": "d15-c27",
+      "type": "explain",
+      "section": "Python Error Types",
+      "title_tr": "Hata ayıklama rutini",
+      "title": "A debugging routine",
+      "body_tr": "Sakin bir rutin tahmin yürütmekten iyidir:\n\n1. **Son satırı** oku: tür kategoriyi, mesaj ayrıntıları söyler.\n2. Hata izinde *senin* kodundaki en derin satıra kadar **yukarı** çık; ilk bakacağın yer orasıdır.\n3. Orada hangi değerler vardı diye sor. O satırdan hemen önce değişkenleri yazdıran geçici bir `print` ekle ya da izleyiciyle adım adım ilerle.\n4. Belirtiyi değil **nedeni** düzelt. `len(nums)` 0 ise asıl soru list'in neden boş olduğu ya da fonksiyonun o zaman ne döndürmesi gerektiğidir.\n\nKod, ilk karttaki hata izi örneğinin bir korumayla düzeltilmiş hâli. Boş bir list ile adım adım izle ve korumanın bölme gerçekleşmeden önce nasıl döndüğüne bak.",
+      "body": "A calm routine beats guessing:\n\n1. Read the **last line**: the type tells you the category, the message the details.\n2. Walk **up** the traceback to the deepest line that is in *your* code; that is where to look first.\n3. Ask what values were there. Add a temporary `print` of the variables just before that line, or step through with the tracer.\n4. Fix the **cause**, not the symptom. If `len(nums)` is 0, the real question is why the list is empty or what the function should return then.\n\nThe code is the traceback example from the first card, fixed with a guard. Step through it with an empty list and watch the guard return before the division can happen.",
+      "code": "def average(nums):\n    if not nums:\n        return None\n    return sum(nums) / len(nums)\n\ndef report(scores):\n    avg = average(scores)\n    return 'Not yok' if avg is None else f'Ortalama: {avg}'\n\nprint(report([80, 90]))\nprint(report([]))",
+      "expected_output": "Ortalama: 85.0\nNot yok",
+      "trace": true
+    },
+    {
+      "id": "d15-c28",
+      "type": "order",
+      "section": "Python Error Types",
+      "prompt_tr": "Satırları sırala: anahtarı okumadan önce kontrol eden bir fonksiyon, sonra eksik bir ürünle bir çağrı.",
+      "prompt": "Put the lines in order: a function that checks the key before reading it, then a call with a missing item.",
+      "lines": [
+        "    if item not in prices:",
+        "        return 'bilinmiyor'",
+        "print(safe_price({'çay': 15}, 'kahve'))",
+        "def safe_price(prices, item):",
+        "    return f'{prices[item]} TL'"
+      ],
+      "correct_order": [
+        3,
+        0,
+        1,
+        4,
+        2
+      ],
+      "expected_output": "bilinmiyor"
+    },
+    {
+      "id": "d15-c29",
+      "type": "truefalse",
+      "section": "Python Error Types",
+      "statement_tr": "Birden fazla `File ...` satırı olan bir hata izinde, hatanın gerçekten oluştuğu satır en alta en yakın olanıdır.",
+      "statement": "In a traceback with several `File ...` lines, the line where the error actually happened is the one closest to the bottom.",
+      "answer": true,
+      "why_tr": "'Most recent call last': çerçeveler ilk çağrıdan en derindekine doğru listelenir; en derindeki, son hata satırının hemen üstünde durur.",
+      "why": "'Most recent call last': the frames are listed from the first call down to the deepest one, which sits right above the final error line."
+    },
+    {
+      "id": "d15-c30",
       "type": "recap",
       "section": "Recap",
       "title_tr": "Özet",
       "title": "Summary",
       "points_tr": [
-        "Hata mesajını oku: tür (örn. NameError) ve açıklama çözümü gösterir.",
-        "NameError tanımsız isim, IndexError liste sınırı, KeyError olmayan anahtar demektir.",
-        "TypeError yanlış tür, ValueError yanlış değer, ZeroDivisionError sıfıra bölmedir.",
-        "ModuleNotFoundError modül yok, ImportError modülde o isim yok, AttributeError özellik yok."
+        "Hata izini aşağıdan yukarı oku: son satır hata türünü ve mesajını verir, hemen üstündeki çerçeve tam satırı, onun üstündekiler de onu kimin çağırdığını gösterir.",
+        "`SyntaxError` (`IndentationError` dahil) dosyayı hiçbir satır çalışmadan durdurur; diğer bütün hatalar program çalışırken oluşan istisnalardır.",
+        "`NameError` böyle bir isim yok, `AttributeError` o nesnede böyle bir parça yok (çoğu zaman sürpriz bir `None`), `ModuleNotFoundError` böyle bir modül yok, `ImportError` ise modülün içinde böyle bir isim yok demektir.",
+        "`IndexError` ve `KeyError`, o konumun ya da anahtarın olmadığı anlamına gelir; elemanlar üzerinde döngü kur, `len`'i kontrol et, isteğe bağlı anahtarlar için `in` ya da `.get(anahtar, varsayılan)` kullan.",
+        "`TypeError` bir işlem için yanlış tür, `ValueError` doğru tür ama kullanılamayan değer, `ZeroDivisionError` ise `/`, `//` ya da `%` işaretinin sağında sıfır demektir; riskli satırdan önce girdileri koru."
       ],
       "points": [
-        "Read the message: the type (e.g. NameError) and note point to the fix.",
-        "NameError means undefined name, IndexError list bounds, KeyError a missing key.",
-        "TypeError is a wrong type, ValueError a wrong value, ZeroDivisionError dividing by zero.",
-        "ModuleNotFoundError: no module; ImportError: no such name in it; AttributeError: no such attribute."
+        "Read a traceback from the bottom up: the last line gives the error type and message, the frame just above it shows the exact line, and the frames above that show who called it.",
+        "A `SyntaxError` (including `IndentationError`) stops the file before any line runs; all other errors are exceptions raised while the program runs.",
+        "`NameError` means no such name, `AttributeError` no such part on that object (often a surprise `None`), `ModuleNotFoundError` no such module and `ImportError` no such name inside a module.",
+        "`IndexError` and `KeyError` mean the position or key does not exist; loop over items, check `len`, and use `in` or `.get(key, default)` for optional keys.",
+        "`TypeError` is the wrong type for an operation, `ValueError` the right type with an unusable value, and `ZeroDivisionError` a zero on the right of `/`, `//` or `%`; guard the inputs before the risky line."
       ],
-      "link": "learn",
-      "link_label_tr": "Şimdi alıştırmalara geç",
-      "link_label": "Go to the exercises"
+      "link": "learn"
     }
   ]
 }
