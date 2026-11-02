@@ -1,914 +1,1503 @@
 {
- "day": 26,
- "title": "Python Web (Flask)",
- "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
- "blocks": [
-  {
-   "id": "d26-b1",
-   "concept": "routes-view-functions",
-   "tags": [
-    "flask",
-    "routes",
-    "functions",
-    "decorators"
-   ],
-   "worked_example": {
-    "code": "def home():\n    return '<h1>Welcome</h1>'\ndef about():\n    return '<h1>About us</h1>'\nroutes = {'/': home, '/about': about}\nprint(routes['/about']())",
-    "notes": [
-     "A route links a URL path to a view function that returns the page.",
-     "Flask's @app.route('/about') does this registration for you."
-    ],
-    "notes_tr": [
-     "Route (yönlendirme), bir URL yolunu sayfayı döndüren bir view fonksiyonuna bağlar.",
-     "Flask'taki @app.route('/about') bu kaydı senin yerine yapar."
-    ]
-   },
-   "exercises": [
+  "day": 26,
+  "title": "Python for the Web (Flask)",
+  "title_tr": "Python ile Web (Flask)",
+  "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+  "blocks": [
     {
-     "id": "d26-b1-e1",
-     "type": "predict",
-     "concept": "routes-view-functions",
-     "tags": [
-      "flask",
-      "routes",
-      "functions",
-      "decorators"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "class App:\n    def __init__(self):\n        self.routes = {}\n    def route(self, path):\n        def register(func):\n            self.routes[path] = func\n            return func\n        return register\n\napp = App()\n\n@app.route('/')\ndef home():\n    return 'Welcome'\n\n@app.route('/about')\ndef about():\n    return 'About us'\n\nprint(sorted(app.routes), app.routes['/about']())",
-     "choices": [
-      "['/', '/about'] About us",
-      "['home', 'about'] About us",
-      "['/', '/about'] Welcome",
-      "[] About us"
-     ],
-     "expected_output": "['/', '/about'] About us",
-     "explanation": "@app.route(path) stores the function in app.routes under that path. The keys are the paths, and routes['/about'] is the about function; calling it returns 'About us'.",
-     "misconceptions": {
-      "['home', 'about'] About us": "The dict keys are the URL paths ('/', '/about'), not the function names.",
-      "['/', '/about'] Welcome": "app.routes['/about'] is the about function, which returns 'About us'.",
-      "[] About us": "The decorator runs when the function is defined, so both routes are registered before the print."
-     },
-     "explanation_tr": "@app.route(yol) fonksiyonu app.routes içinde o yolun altına kaydeder. Anahtarlar yollardır ve routes['/about'] about fonksiyonudur; çağırınca 'About us' döner.",
-     "misconceptions_tr": {
-      "['home', 'about'] About us": "Dict anahtarları fonksiyon adları değil, URL yollarıdır ('/', '/about').",
-      "['/', '/about'] Welcome": "app.routes['/about'] about fonksiyonudur ve 'About us' döndürür.",
-      "[] About us": "Dekoratör fonksiyon tanımlanırken çalışır; yani iki route da print'ten önce kaydedilir."
-     }
+      "id": "d26-b1",
+      "concept": "routes-and-dispatch",
+      "concept_tr": "Route tablosu ve view fonksiyonları",
+      "tags": [
+        "flask",
+        "routes",
+        "dicts",
+        "decorators"
+      ],
+      "worked_example": {
+        "code": "routes = {}\ndef route(path):\n    def register(func):\n        routes[path] = func\n        return func\n    return register\n@route('/about')\ndef about():\n    return 'About us'\nprint(routes['/about']())",
+        "notes": [
+          "`route('/about')` runs first and returns `register`; the `@` line then calls `register(about)`.",
+          "`register` stores the function in the table under its path and returns it unchanged, so `about` still works as a normal function.",
+          "Registration happens when the `def` runs, long before any request; a request only looks the path up and calls the stored function."
+        ],
+        "notes_tr": [
+          "Önce `route('/about')` çalışır ve `register`'ı döndürür; ardından `@` satırı `register(about)` çağrısını yapar.",
+          "`register` fonksiyonu tabloya kendi yolu altında kaydeder ve değiştirmeden geri döndürür; böylece `about` normal bir fonksiyon olarak çalışmaya devam eder.",
+          "Kayıt, herhangi bir istekten çok önce, `def` çalıştığında olur; bir istek yalnızca yolu tabloda arar ve kayıtlı fonksiyonu çağırır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d26-b1-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "routes = {}\ndef route(path):\n    def register(func):\n        routes[path] = func\n        return func\n    return register\n\n@route('/')\ndef home():\n    return 'Welcome'\n\n@route('/about')\ndef about():\n    return 'About us'\n\nprint(len(routes), routes['/']())",
+          "choices": [
+            "2 Welcome",
+            "0 Welcome",
+            "2 About us",
+            "2 home"
+          ],
+          "expected_output": "2 Welcome",
+          "explanation": "Both decorators run when their `def` lines run, so the table already has two entries before the print. `routes['/']` is the home function; calling it returns 'Welcome'.",
+          "explanation_tr": "İki dekoratör de kendi `def` satırı çalışırken uygulanır; yani print'ten önce tabloda zaten iki kayıt vardır. `routes['/']` home fonksiyonudur; çağrılınca 'Welcome' döner.",
+          "misconceptions": {
+            "0 Welcome": "The decorator does not wait for a call: registration happens while the `def` runs.",
+            "2 About us": "Each function is stored under its own path; '/' holds home, not about.",
+            "2 home": "`routes['/']()` calls the function and prints what it returns, not its name."
+          },
+          "misconceptions_tr": {
+            "0 Welcome": "Dekoratör bir çağrıyı beklemez: kayıt `def` çalışırken olur.",
+            "2 About us": "Her fonksiyon kendi yolu altında saklanır; '/' altında about değil home vardır.",
+            "2 home": "`routes['/']()` fonksiyonu çağırır ve adını değil döndürdüğü değeri yazdırır."
+          },
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        },
+        {
+          "id": "d26-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Complete `handle(path)`: look the view up with a method that returns None for unknown paths, then call it. Unknown paths return '404 Not Found'.",
+          "prompt_tr": "`handle(path)` fonksiyonunu tamamla: view'ı, bilinmeyen yollarda None döndüren bir metotla bul ve çağır. Bilinmeyen yollar '404 Not Found' döndürür.",
+          "starter_code": "def home():\n    return '<h1>Welcome</h1>'\n\nroutes = {'/': home}\n\ndef handle(path):\n    view = routes.___(path)\n    if view is None:\n        return '404 Not Found'\n    return ___",
+          "blanks": [
+            {
+              "answer": [
+                "get"
+              ]
+            },
+            {
+              "answer": [
+                "view()"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert handle('/') == '<h1>Welcome</h1>'",
+              "visible": true,
+              "label": "A known path returns the page",
+              "label_tr": "Bilinen yol sayfayı döndürüyor"
+            },
+            {
+              "code": "assert handle('/missing') == '404 Not Found'",
+              "visible": true,
+              "label": "An unknown path returns 404",
+              "label_tr": "Bilinmeyen yol 404 döndürüyor"
+            }
+          ],
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        },
+        {
+          "id": "d26-b1-e3",
+          "type": "modify",
+          "prompt": "Change `route` so it accepts any number of paths, for example `@route('/', '/home', '/index')`, and registers the same function under every one of them. It must still return the function unchanged.",
+          "prompt_tr": "`route` fonksiyonunu değiştir: `@route('/', '/home', '/index')` gibi istediği kadar yol alsın ve aynı fonksiyonu hepsinin altına kaydetsin. Fonksiyonu yine değiştirmeden döndürmeli.",
+          "starter_code": "routes = {}\n\ndef route(path):\n    def register(func):\n        routes[path] = func\n        return func\n    return register",
+          "tests": [
+            {
+              "code": "@route('/', '/home')\ndef home():\n    return 'Welcome'\nassert routes['/']() == 'Welcome' and routes['/home']() == 'Welcome'",
+              "visible": true,
+              "label": "Both paths lead to home",
+              "label_tr": "İki yol da home'a gidiyor"
+            },
+            {
+              "code": "assert home() == 'Welcome'",
+              "visible": true,
+              "label": "home is still a normal function",
+              "label_tr": "home hâlâ normal bir fonksiyon"
+            },
+            {
+              "code": "@route('/a', '/b', '/c')\ndef page():\n    return 'P'\nassert [routes[p]() for p in ('/a', '/b', '/c')] == ['P', 'P', 'P']",
+              "visible": false,
+              "failure_message": "With three paths, three entries must be added: loop over all of the paths.",
+              "failure_message_tr": "Üç yol verilince tabloya üç kayıt eklenmeli: yolların hepsi üzerinde dön."
+            },
+            {
+              "code": "@route('/solo')\ndef solo():\n    return 'S'\nassert routes['/solo']() == 'S' and solo() == 'S'",
+              "visible": false,
+              "failure_message": "A single path must still work, and the decorator must still return the function.",
+              "failure_message_tr": "Tek bir yol da çalışmalı ve dekoratör fonksiyonu yine döndürmeli."
+            }
+          ],
+          "hints": [
+            "A parameter written as `*paths` collects all positional arguments into a tuple (Day 11).",
+            "Inside `register` you need a loop that stores `func` once for each path.",
+            "Change the header to take `*paths`; inside `register`, put the dictionary assignment into a `for` loop over `paths` and keep `return func` after the loop."
+          ],
+          "hints_tr": [
+            "`*paths` diye yazılan bir parametre bütün konumsal argümanları bir tuple'da toplar (Gün 11).",
+            "`register` içinde `func`'ı her yol için bir kez saklayan bir döngü gerekir.",
+            "Başlığı `*paths` alacak şekilde değiştir; `register` içinde dict atamasını `paths` üzerinde dönen bir `for` döngüsüne koy ve `return func` satırını döngüden sonra bırak."
+          ],
+          "solution": {
+            "approach": "Collect the paths with *paths and register the function once per path, then return it.",
+            "approach_tr": "Yolları *paths ile topla, fonksiyonu her yol için bir kez kaydet ve sonra geri döndür.",
+            "code": "routes = {}\n\ndef route(*paths):\n    def register(func):\n        for path in paths:\n            routes[path] = func\n        return func\n    return register"
+          },
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        },
+        {
+          "id": "d26-b1-e4",
+          "type": "debug",
+          "prompt": "This program should print `Welcome` twice, but the second print crashes with `TypeError: 'NoneType' object is not callable`. Find out why `home` became `None` and fix the decorator.",
+          "prompt_tr": "Bu program iki kez `Welcome` yazdırmalı, ama ikinci print `TypeError: 'NoneType' object is not callable` ile çöküyor. `home`'un neden `None` olduğunu bul ve dekoratörü düzelt.",
+          "starter_code": "routes = {}\n\ndef route(path):\n    def register(func):\n        routes[path] = func\n    return register\n\n@route('/')\ndef home():\n    return 'Welcome'\n\nprint(routes['/']())\nprint(home())",
+          "tests": [
+            {
+              "code": "assert callable(home)",
+              "visible": true,
+              "label": "home is still a function",
+              "label_tr": "home hâlâ bir fonksiyon"
+            }
+          ],
+          "hints": [
+            "Read the error: something that should be a function is `None`. Which name is it?",
+            "`@route('/')` above `def home` means `home = route('/')(home)`, so `home` becomes whatever `register` returns.",
+            "A function without a `return` returns `None`; give `register` a last line that hands the function back."
+          ],
+          "hints_tr": [
+            "Hatayı oku: fonksiyon olması gereken bir şey `None`. Hangi isim bu?",
+            "`def home`'un üstündeki `@route('/')`, `home = route('/')(home)` demektir; yani `home`, `register`'ın döndürdüğü şey olur.",
+            "`return` içermeyen bir fonksiyon `None` döndürür; `register`'a fonksiyonu geri veren son bir satır ekle."
+          ],
+          "solution": {
+            "approach": "register must return func; otherwise the decorator rebinds home to None.",
+            "approach_tr": "register, func'ı döndürmeli; yoksa dekoratör home ismini None'a bağlar.",
+            "code": "routes = {}\n\ndef route(path):\n    def register(func):\n        routes[path] = func\n        return func\n    return register\n\n@route('/')\ndef home():\n    return 'Welcome'\n\nprint(routes['/']())\nprint(home())"
+          },
+          "expected_output": "Welcome\nWelcome",
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        },
+        {
+          "id": "d26-b1-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "routes = {'/': lambda: 'Welcome'}\nresults = []\nfor path in ['/', '/about', '/']:\n    view = routes.get(path)\n    results.append(view() if view else 404)\nprint(results)",
+          "choices": [
+            "['Welcome', 404, 'Welcome']",
+            "['Welcome', None, 'Welcome']",
+            "['Welcome', 404]",
+            "KeyError: '/about'"
+          ],
+          "expected_output": "['Welcome', 404, 'Welcome']",
+          "explanation": "`.get` returns None for '/about', and None is falsy, so the conditional expression picks 404. '/' appears twice in the list of paths, so the view runs twice.",
+          "explanation_tr": "`.get`, '/about' için None döndürür; None yanlış (falsy) sayıldığı için koşullu ifade 404'ü seçer. '/' yol listesinde iki kez geçtiği için view iki kez çalışır.",
+          "misconceptions": {
+            "['Welcome', None, 'Welcome']": "None is not appended: `view() if view else 404` turns a missing view into 404.",
+            "['Welcome', 404]": "The loop runs once per item in the list, and '/' is in it twice.",
+            "KeyError: '/about'": "`.get` never raises KeyError; only `routes['/about']` with square brackets would."
+          },
+          "misconceptions_tr": {
+            "['Welcome', None, 'Welcome']": "None eklenmez: `view() if view else 404` eksik view'ı 404'e çevirir.",
+            "['Welcome', 404]": "Döngü listedeki her öğe için bir kez döner ve '/' listede iki kez var.",
+            "KeyError: '/about'": "`.get` asla KeyError vermez; yalnızca köşeli parantezli `routes['/about']` verirdi."
+          },
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        },
+        {
+          "id": "d26-b1-e6",
+          "type": "write",
+          "prompt": "Write `dispatch(routes, path)`. `routes` maps URL paths to view functions that take no arguments. Return what the view returns, or the string '404 Not Found' when the path is not in `routes`. Example: `dispatch({'/': lambda: 'home'}, '/')` returns 'home'.",
+          "prompt_tr": "`dispatch(routes, path)` yaz. `routes`, URL yollarını argüman almayan view fonksiyonlarına eşler. View'ın döndürdüğünü döndür; yol `routes` içinde yoksa '404 Not Found' string'ini döndür. Örnek: `dispatch({'/': lambda: 'home'}, '/')` 'home' döndürür.",
+          "starter_code": "",
+          "signature": "def dispatch(routes, path):",
+          "tests": [
+            {
+              "code": "assert dispatch({'/': lambda: 'home'}, '/') == 'home'",
+              "visible": true,
+              "label": "A known path returns the view's result",
+              "label_tr": "Bilinen yol view'ın sonucunu veriyor"
+            },
+            {
+              "code": "assert dispatch({'/': lambda: 'home'}, '/x') == '404 Not Found'",
+              "visible": true,
+              "label": "An unknown path returns 404",
+              "label_tr": "Bilinmeyen yol 404 veriyor"
+            },
+            {
+              "code": "assert dispatch({}, '/') == '404 Not Found'",
+              "visible": false,
+              "failure_message": "An empty route table has no pages, so every path is a 404.",
+              "failure_message_tr": "Boş bir route tablosunda sayfa yoktur, yani her yol 404 olur."
+            },
+            {
+              "code": "assert dispatch({'/a': lambda: 1 + 1, '/b': lambda: 'B'}, '/a') == 2",
+              "visible": false,
+              "failure_message": "Call the view and return its result; do not return the function itself or a fixed text.",
+              "failure_message_tr": "View'ı çağır ve sonucunu döndür; fonksiyonun kendisini ya da sabit bir metni döndürme."
+            },
+            {
+              "code": "assert dispatch({'/about': lambda: 'A'}, '/about/') == '404 Not Found'",
+              "visible": false,
+              "failure_message": "Paths must match exactly: '/about/' is a different key from '/about'.",
+              "failure_message_tr": "Yollar birebir eşleşmeli: '/about/', '/about' anahtarından farklıdır."
+            }
+          ],
+          "hints": [
+            "There are two cases: the path is in the table or it is not.",
+            "`routes.get(path)` returns None for an unknown path; otherwise it returns the function, which you still have to call.",
+            "Store the result of `routes.get(path)` in a variable; if it is None return the 404 text, otherwise return that variable followed by `()`."
+          ],
+          "hints_tr": [
+            "İki durum var: yol tabloda ya var ya yok.",
+            "`routes.get(path)` bilinmeyen yolda None döndürür; aksi halde fonksiyonu döndürür, onu ayrıca çağırman gerekir.",
+            "`routes.get(path)` sonucunu bir değişkende tut; None ise 404 metnini, değilse o değişkeni `()` ile çağırıp döndür."
+          ],
+          "solution": {
+            "approach": "Look the view up with .get, return the 404 text for None, otherwise call the view.",
+            "approach_tr": "View'ı .get ile bul; None ise 404 metnini döndür, değilse view'ı çağır.",
+            "code": "def dispatch(routes, path):\n    view = routes.get(path)\n    if view is None:\n        return '404 Not Found'\n    return view()"
+          },
+          "twin": "d26-b1-e7",
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        },
+        {
+          "id": "d26-b1-e7",
+          "type": "write",
+          "prompt": "Write `access_log(routes, paths)`. For each path in `paths`, in order, build a log line `'GET <path> 200'` if the path is in `routes`, otherwise `'GET <path> 404'`. Return the list of lines. Example: `access_log({'/': f}, ['/', '/x'])` returns `['GET / 200', 'GET /x 404']`.",
+          "prompt_tr": "`access_log(routes, paths)` yaz. `paths` içindeki her yol için, sırayla, yol `routes` içindeyse `'GET <yol> 200'`, değilse `'GET <yol> 404'` biçiminde bir kayıt satırı oluştur. Satırların listesini döndür. Örnek: `access_log({'/': f}, ['/', '/x'])` `['GET / 200', 'GET /x 404']` döndürür.",
+          "starter_code": "",
+          "signature": "def access_log(routes, paths):",
+          "tests": [
+            {
+              "code": "f = lambda: 'x'\nassert access_log({'/': f}, ['/', '/x']) == ['GET / 200', 'GET /x 404']",
+              "visible": true,
+              "label": "One hit and one miss",
+              "label_tr": "Bir bulunan, bir bulunmayan yol"
+            },
+            {
+              "code": "assert access_log({}, []) == []",
+              "visible": true,
+              "label": "No requests, empty log",
+              "label_tr": "İstek yoksa kayıt da boş"
+            },
+            {
+              "code": "f = lambda: 'x'\nassert access_log({'/a': f, '/b': f}, ['/b', '/c', '/b']) == ['GET /b 200', 'GET /c 404', 'GET /b 200']",
+              "visible": false,
+              "failure_message": "Keep the order of `paths` and log a repeated path every time it appears.",
+              "failure_message_tr": "`paths` sırasını koru ve tekrar eden bir yolu her geçişinde kaydet."
+            },
+            {
+              "code": "assert access_log({'/': None}, ['/']) == ['GET / 200']",
+              "visible": false,
+              "failure_message": "The status depends only on whether the path is a key in `routes`.",
+              "failure_message_tr": "Durum kodu yalnızca yolun `routes` içinde anahtar olup olmadığına bağlıdır."
+            }
+          ],
+          "hints": [
+            "Start with an empty list and loop over `paths`.",
+            "`path in routes` checks the keys of the dict; choose 200 or 404 from that, then build the text with an f-string.",
+            "In the loop, set a status variable with a one-line `if ... else`, append the f-string `GET {path} {status}` and return the list after the loop."
+          ],
+          "hints_tr": [
+            "Boş bir listeyle başla ve `paths` üzerinde dön.",
+            "`path in routes` dict'in anahtarlarına bakar; buna göre 200 ya da 404 seç, sonra metni bir f-string ile kur.",
+            "Döngüde tek satırlık bir `if ... else` ile status değişkenini belirle, `GET {path} {status}` f-string'ini listeye ekle ve döngüden sonra listeyi döndür."
+          ],
+          "solution": {
+            "approach": "Loop over the paths in order, pick 200 or 404 with `in`, and collect formatted lines.",
+            "approach_tr": "Yollar üzerinde sırayla dön, `in` ile 200 ya da 404 seç ve biçimlenmiş satırları topla.",
+            "code": "def access_log(routes, paths):\n    lines = []\n    for path in paths:\n        status = 200 if path in routes else 404\n        lines.append(f'GET {path} {status}')\n    return lines"
+          },
+          "twin": "d26-b1-e6",
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        },
+        {
+          "id": "d26-b1-e8",
+          "type": "explain",
+          "prompt": "In your own words: what does `@app.route('/about')` do to the function below it, and when does that happen?",
+          "prompt_tr": "Kendi cümlelerinle anlat: `@app.route('/about')` altındaki fonksiyona ne yapar ve bu ne zaman olur?",
+          "model_answer": "The decorator registers the function in the app's route table under the path '/about' and returns the function unchanged. This happens once, when the def statement runs, not when a request arrives. Later a request for /about looks the path up and calls the stored view function.",
+          "model_answer_tr": "Dekoratör fonksiyonu uygulamanın route tablosuna '/about' yolu altında kaydeder ve fonksiyonu değiştirmeden geri döndürür. Bu, istek geldiğinde değil, def satırı çalıştığında bir kez olur. Sonra /about için gelen bir istek yolu tabloda bulur ve kayıtlı view fonksiyonunu çağırır.",
+          "keywords": [
+            "regist",
+            "path",
+            "call"
+          ],
+          "keywords_tr": [
+            "kaydeder",
+            "yol",
+            "çağır"
+          ],
+          "min_words": 12,
+          "concept": "routes-and-dispatch",
+          "tags": [
+            "flask",
+            "routes",
+            "dicts",
+            "decorators"
+          ]
+        }
+      ]
     },
     {
-     "id": "d26-b1-e2",
-     "type": "fill_blank",
-     "concept": "routes-view-functions",
-     "tags": [
-      "flask",
-      "routes",
-      "functions",
-      "decorators"
-     ],
-     "prompt": "Complete handle(path): look the view up in routes and call it, or return '404 Not Found'.",
-     "prompt_tr": "handle(path) fonksiyonunu tamamla: view'ı routes içinde ara ve çağır; bulunamazsa '404 Not Found' döndür.",
-     "starter_code": "def home():\n    return '<h1>Welcome</h1>'\nroutes = {'/': home}\ndef handle(path):\n    view = routes.___(path)\n    if view is None:\n        return '404 Not Found'\n    return ___()",
-     "blanks": [
-      {
-       "answer": [
-        "get"
-       ]
+      "id": "d26-b2",
+      "concept": "templates-and-rendering",
+      "concept_tr": "Şablonlar ve doldurma (render)",
+      "tags": [
+        "flask",
+        "templates",
+        "strings",
+        "kwargs"
+      ],
+      "worked_example": {
+        "code": "def render(template, **context):\n    for key, value in context.items():\n        template = template.replace('{{' + key + '}}', str(value))\n    return template\n\npage = render('<h1>{{name}}</h1><p>{{count}} techs</p>', name='Flask', count=4)\nprint(page)",
+        "notes": [
+          "`**context` collects the keyword arguments into a dict, exactly as `render_template('home.html', name=name)` receives them.",
+          "Each key names a blank; `replace` swaps every `{{key}}` for the value, and `str()` lets numbers in too.",
+          "`template` is rebound to a new string on every turn: strings are immutable, so `replace` builds a new string instead of changing the old one."
+        ],
+        "notes_tr": [
+          "`**context` anahtar kelimeli argümanları bir dict'te toplar; `render_template('home.html', name=name)` da onları tam böyle alır.",
+          "Her anahtar bir boşluğun adıdır; `replace` her `{{anahtar}}`'ı değerle değiştirir, `str()` sayıların da girmesini sağlar.",
+          "`template` ismi her turda yeni bir string'e bağlanır: string'ler değiştirilemez, bu yüzden `replace` eskisini değiştirmez, yeni bir string üretir."
+        ]
       },
-      {
-       "answer": [
-        "view"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert handle('/') == '<h1>Welcome</h1>'",
-       "visible": true,
-       "label_tr": "Var olan yol sayfayı döndürüyor"
-      },
-      {
-       "code": "assert handle('/missing') == '404 Not Found'",
-       "visible": true,
-       "label_tr": "Olmayan yol 404 döndürüyor"
-      }
-     ]
+      "exercises": [
+        {
+          "id": "d26-b2-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def render(template, **context):\n    for key, value in context.items():\n        template.replace('{{' + key + '}}', str(value))\n    return template\n\nprint(render('Hi {{name}}', name='Ayşe'))",
+          "choices": [
+            "Hi Ayşe",
+            "Hi {{name}}",
+            "Hi name",
+            "None"
+          ],
+          "expected_output": "Hi {{name}}",
+          "explanation": "`replace` returns a new string and the result is thrown away, because it is not assigned to anything. Strings are immutable, so `template` still holds the original text.",
+          "explanation_tr": "`replace` yeni bir string döndürür ve sonuç hiçbir isme atanmadığı için kaybolur. String'ler değiştirilemez; `template` hâlâ ilk metni tutar.",
+          "misconceptions": {
+            "Hi Ayşe": "This assumes `replace` changes the string in place. It cannot: strings are immutable, and the new string is not saved.",
+            "Hi name": "Nothing removes the braces; the template is returned exactly as it came in.",
+            "None": "The function does return something: `template`, which still holds the original string."
+          },
+          "misconceptions_tr": {
+            "Hi Ayşe": "Bu, `replace`'in string'i yerinde değiştirdiğini varsayar. Değiştiremez: string'ler değiştirilemez ve yeni string saklanmıyor.",
+            "Hi name": "Süslü parantezleri silen bir şey yok; şablon geldiği gibi döndürülür.",
+            "None": "Fonksiyon bir şey döndürüyor: hâlâ ilk string'i tutan `template`."
+          },
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        },
+        {
+          "id": "d26-b2-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order: `render_list(items)` returns the items as an HTML list, like Jinja's `{% for %}`.",
+          "prompt_tr": "Satırları sırala: `render_list(items)`, Jinja'daki `{% for %}` gibi öğeleri bir HTML listesi olarak döndürür.",
+          "lines": [
+            "    for item in items:",
+            "print(render_list(['HTML', 'CSS']))",
+            "def render_list(items):",
+            "    html += '</ul>'",
+            "    html = '<ul>'",
+            "    return html",
+            "        html += f'<li>{item}</li>'"
+          ],
+          "correct_order": [
+            2,
+            4,
+            0,
+            6,
+            3,
+            5,
+            1
+          ],
+          "distractors": [
+            "        html = f'<li>{item}</li>'",
+            "        return html"
+          ],
+          "expected_output": "<ul><li>HTML</li><li>CSS</li></ul>",
+          "tests": [
+            {
+              "code": "assert render_list([]) == '<ul></ul>'",
+              "visible": true,
+              "label": "An empty list gives an empty <ul>",
+              "label_tr": "Boş liste boş bir <ul> veriyor"
+            }
+          ],
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        },
+        {
+          "id": "d26-b2-e3",
+          "type": "modify",
+          "prompt": "`render` pastes values in as they are. Change it so every value is escaped with `html.escape` before it is inserted, as Jinja2 does. The template's own text must not be escaped.",
+          "prompt_tr": "`render` değerleri olduğu gibi yapıştırıyor. Onu değiştir: Jinja2'nin yaptığı gibi her değer eklenmeden önce `html.escape` ile kaçışlansın. Şablonun kendi metni kaçışlanmamalı.",
+          "starter_code": "def render(template, **context):\n    for key, value in context.items():\n        template = template.replace('{{' + key + '}}', str(value))\n    return template",
+          "tests": [
+            {
+              "code": "assert render('<p>{{c}}</p>', c='<b>hi</b>') == '<p>&lt;b&gt;hi&lt;/b&gt;</p>'",
+              "visible": true,
+              "label": "HTML in a value is escaped",
+              "label_tr": "Değerdeki HTML kaçışlanıyor"
+            },
+            {
+              "code": "assert render('{{n}} items', n=3) == '3 items'",
+              "visible": true,
+              "label": "Numbers still work",
+              "label_tr": "Sayılar hâlâ çalışıyor"
+            },
+            {
+              "code": "assert render('{{a}} & {{b}}', a='Tom & Jerry', b='x') == 'Tom &amp; Jerry & x'",
+              "visible": false,
+              "failure_message": "Escape only the values; the & written in the template itself must stay as it is.",
+              "failure_message_tr": "Yalnızca değerleri kaçışla; şablonun kendisinde yazan & olduğu gibi kalmalı."
+            },
+            {
+              "code": "assert render('<a title=\"{{t}}\">', t='say \"hi\"') == '<a title=\"say &quot;hi&quot;\">'",
+              "visible": false,
+              "failure_message": "Double quotes in a value must become &quot; too; html.escape does that for you.",
+              "failure_message_tr": "Değerdeki çift tırnaklar da &quot; olmalı; html.escape bunu senin yerine yapar."
+            }
+          ],
+          "hints": [
+            "Only the values come from outside; the template is your own HTML.",
+            "The standard library has `html.escape(text)`; import the `html` module at the top of your code.",
+            "Inside the loop, escape `str(value)` with that function before passing it to `replace`; do not forget the import line."
+          ],
+          "hints_tr": [
+            "Dışarıdan gelen yalnızca değerlerdir; şablon senin kendi HTML'indir.",
+            "Standart kütüphanede `html.escape(text)` var; kodunun en üstünde `html` modülünü içe aktar.",
+            "Döngünün içinde `str(value)` değerini `replace`'e vermeden önce o fonksiyonla kaçışla; import satırını unutma."
+          ],
+          "solution": {
+            "approach": "Escape each value with html.escape(str(value)) before replacing the blank.",
+            "approach_tr": "Boşluğu değiştirmeden önce her değeri html.escape(str(value)) ile kaçışla.",
+            "code": "import html\n\ndef render(template, **context):\n    for key, value in context.items():\n        template = template.replace('{{' + key + '}}', html.escape(str(value)))\n    return template"
+          },
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        },
+        {
+          "id": "d26-b2-e4",
+          "type": "debug",
+          "prompt": "`render('{{n}} items', n=3)` should print `3 items` but crashes with `TypeError: replace() argument 2 must be str, not int`. Fix `render` so any value works.",
+          "prompt_tr": "`render('{{n}} items', n=3)` `3 items` yazdırmalı ama `TypeError: replace() argument 2 must be str, not int` ile çöküyor. `render`'ı her değerle çalışacak şekilde düzelt.",
+          "starter_code": "def render(template, **context):\n    for key, value in context.items():\n        template = template.replace('{{' + key + '}}', value)\n    return template\n\nprint(render('{{n}} items', n=3))",
+          "tests": [
+            {
+              "code": "assert render('{{a}}-{{b}}', a=1.5, b=True) == '1.5-True'",
+              "visible": true,
+              "label": "Floats and booleans work too",
+              "label_tr": "Ondalıklı sayılar ve boolean'lar da çalışıyor"
+            }
+          ],
+          "hints": [
+            "The message says which argument is wrong: argument 2 of `replace`, and its type.",
+            "`replace` only accepts strings; the value 3 is an int.",
+            "Convert the value to text before handing it to `replace`; the built-in that does this is the same one `print` uses internally."
+          ],
+          "hints_tr": [
+            "Mesaj hangi argümanın yanlış olduğunu söylüyor: `replace`'in 2. argümanı ve onun tipi.",
+            "`replace` yalnızca string kabul eder; 3 değeri bir int.",
+            "Değeri `replace`'e vermeden önce metne çevir; bunu yapan yerleşik fonksiyon, `print`'in de içeride kullandığı fonksiyondur."
+          ],
+          "solution": {
+            "approach": "replace needs a string, so convert the value with str() first.",
+            "approach_tr": "replace string ister; değeri önce str() ile çevir.",
+            "code": "def render(template, **context):\n    for key, value in context.items():\n        template = template.replace('{{' + key + '}}', str(value))\n    return template\n\nprint(render('{{n}} items', n=3))"
+          },
+          "expected_output": "3 items",
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        },
+        {
+          "id": "d26-b2-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def title_text(title=''):\n    if title:\n        return 'Site - ' + title\n    return 'Site'\n\nprint([title_text('About'), title_text(), title_text(' ')])",
+          "choices": [
+            "['Site - About', 'Site', 'Site -  ']",
+            "['Site - About', 'Site', 'Site']",
+            "['Site - About', 'Site - ', 'Site -  ']",
+            "TypeError"
+          ],
+          "expected_output": "['Site - About', 'Site', 'Site -  ']",
+          "explanation": "This is the layout's `{% if title %}`. The empty string is falsy, so `title_text()` gives 'Site'. A string with one space is not empty, so it is truthy and gets added.",
+          "explanation_tr": "Bu, layout'taki `{% if title %}`'ın aynısı. Boş string yanlış (falsy) sayılır, bu yüzden `title_text()` 'Site' verir. Tek boşluk içeren string boş değildir, doğru (truthy) sayılır ve eklenir.",
+          "misconceptions": {
+            "['Site - About', 'Site', 'Site']": "Only the empty string is falsy; ' ' has one character, so it counts as true.",
+            "['Site - About', 'Site - ', 'Site -  ']": "The default '' is falsy, so the `if` branch is skipped for the call without arguments.",
+            "TypeError": "Calling without arguments is fine because `title` has a default value."
+          },
+          "misconceptions_tr": {
+            "['Site - About', 'Site', 'Site']": "Yalnızca boş string yanlıştır; ' ' bir karakter içerir, bu yüzden doğru sayılır.",
+            "['Site - About', 'Site - ', 'Site -  ']": "Varsayılan '' yanlıştır; argümansız çağrıda `if` dalı atlanır.",
+            "TypeError": "Argümansız çağırmak sorun değil, çünkü `title`'ın varsayılan bir değeri var."
+          },
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        },
+        {
+          "id": "d26-b2-e6",
+          "type": "write",
+          "prompt": "Write `nav_html(pages)`. `pages` is a list of `(label, path)` tuples. Return one string: `<ul>`, then one `<li><a href=\"PATH\">LABEL</a></li>` per page in order, then `</ul>`, with no spaces or newlines between the parts. Example: `nav_html([('Home', '/')])` returns `'<ul><li><a href=\"/\">Home</a></li></ul>'`.",
+          "prompt_tr": "`nav_html(pages)` yaz. `pages`, `(etiket, yol)` tuple'larından oluşan bir list. Tek bir string döndür: önce `<ul>`, sonra sırayla her sayfa için bir `<li><a href=\"YOL\">ETİKET</a></li>`, en sonda `</ul>`; parçalar arasında boşluk ya da satır sonu olmasın. Örnek: `nav_html([('Home', '/')])` `'<ul><li><a href=\"/\">Home</a></li></ul>'` döndürür.",
+          "starter_code": "",
+          "signature": "def nav_html(pages):",
+          "tests": [
+            {
+              "code": "assert nav_html([('Home', '/')]) == '<ul><li><a href=\"/\">Home</a></li></ul>'",
+              "visible": true,
+              "label": "One page",
+              "label_tr": "Tek sayfa"
+            },
+            {
+              "code": "assert nav_html([('Home', '/'), ('About', '/about')]) == '<ul><li><a href=\"/\">Home</a></li><li><a href=\"/about\">About</a></li></ul>'",
+              "visible": true,
+              "label": "Two pages in order",
+              "label_tr": "Sırayla iki sayfa"
+            },
+            {
+              "code": "assert nav_html([]) == '<ul></ul>'",
+              "visible": false,
+              "failure_message": "With no pages, return just the opening and closing tags.",
+              "failure_message_tr": "Hiç sayfa yoksa yalnızca açılış ve kapanış etiketlerini döndür."
+            },
+            {
+              "code": "assert nav_html([('İletişim', '/iletisim'), ('Blog', '/blog')]).count('<li>') == 2 and nav_html([('B', '/b'), ('A', '/a')]).index('/b') < nav_html([('B', '/b'), ('A', '/a')]).index('/a')",
+              "visible": false,
+              "failure_message": "Build one item per page and keep the order you were given; do not sort.",
+              "failure_message_tr": "Her sayfa için bir öğe oluştur ve verilen sırayı koru; sıralama yapma."
+            }
+          ],
+          "hints": [
+            "Each tuple unpacks into a label and a path: `for label, path in pages`.",
+            "Build each `<li>` with an f-string, collect them, and glue them with `''.join(...)`.",
+            "Return the f-string or concatenation of '<ul>', the joined items and '</ul>'; a list comprehension can build the items in one line."
+          ],
+          "hints_tr": [
+            "Her tuple bir etikete ve bir yola açılır: `for label, path in pages`.",
+            "Her `<li>`'yi bir f-string ile kur, topla ve `''.join(...)` ile birleştir.",
+            "'<ul>', birleştirilmiş öğeler ve '</ul>' parçalarını birleştirip döndür; öğeleri tek satırda bir list comprehension kurabilir."
+          ],
+          "solution": {
+            "approach": "Unpack each (label, path), format an <li>, join them and wrap them in <ul>.",
+            "approach_tr": "Her (etiket, yol) çiftini aç, bir <li> biçimlendir, hepsini birleştir ve <ul> ile sar.",
+            "code": "def nav_html(pages):\n    items = [f'<li><a href=\"{path}\">{label}</a></li>' for label, path in pages]\n    return '<ul>' + ''.join(items) + '</ul>'"
+          },
+          "twin": "d26-b2-e7",
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        },
+        {
+          "id": "d26-b2-e7",
+          "type": "write",
+          "prompt": "Write `product_list(products)` for a shop page. `products` is a list of dicts with keys 'name' (str) and 'price' (number). Return a list of strings, one per product in order, formatted as `'<li>NAME: PRICE TL</li>'` where PRICE has exactly 2 decimals and NAME is escaped with `html.escape`. Example: `product_list([{'name': 'Çay', 'price': 25}])` returns `['<li>Çay: 25.00 TL</li>']`.",
+          "prompt_tr": "Bir mağaza sayfası için `product_list(products)` yaz. `products`, 'name' (str) ve 'price' (sayı) anahtarlı dict'lerden oluşan bir list. Her ürün için sırayla bir string içeren bir list döndür: `'<li>İSİM: FİYAT TL</li>'`; FİYAT tam 2 ondalık basamaklı olsun, İSİM `html.escape` ile kaçışlansın. Örnek: `product_list([{'name': 'Çay', 'price': 25}])` `['<li>Çay: 25.00 TL</li>']` döndürür.",
+          "starter_code": "",
+          "signature": "def product_list(products):",
+          "tests": [
+            {
+              "code": "assert product_list([{'name': 'Çay', 'price': 25}]) == ['<li>Çay: 25.00 TL</li>']",
+              "visible": true,
+              "label": "Two decimals on a whole number",
+              "label_tr": "Tam sayıda iki ondalık"
+            },
+            {
+              "code": "assert product_list([]) == []",
+              "visible": true,
+              "label": "No products, empty list",
+              "label_tr": "Ürün yoksa boş list"
+            },
+            {
+              "code": "assert product_list([{'name': 'Simit', 'price': 12.5}, {'name': 'Ayran', 'price': 17.999}]) == ['<li>Simit: 12.50 TL</li>', '<li>Ayran: 18.00 TL</li>']",
+              "visible": false,
+              "failure_message": "Use the format spec :.2f so every price has exactly two decimals (it also rounds).",
+              "failure_message_tr": "Her fiyatın tam iki ondalığı olması için :.2f biçimini kullan (yuvarlamayı da o yapar)."
+            },
+            {
+              "code": "assert product_list([{'name': 'Ali & Veli <Kitap>', 'price': 1}]) == ['<li>Ali &amp; Veli &lt;Kitap&gt;: 1.00 TL</li>']",
+              "visible": false,
+              "failure_message": "Names come from a database that visitors can fill: escape them with html.escape.",
+              "failure_message_tr": "İsimler ziyaretçilerin doldurabildiği bir veritabanından gelir: html.escape ile kaçışla."
+            }
+          ],
+          "hints": [
+            "Loop over the dicts and read `p['name']` and `p['price']`.",
+            "Inside an f-string, `{price:.2f}` prints a number with exactly two decimals; `html.escape` needs `import html`.",
+            "Build each line as an f-string with the escaped name and the price formatted with `:.2f`, collect the lines in a list and return it."
+          ],
+          "hints_tr": [
+            "Dict'ler üzerinde dön ve `p['name']` ile `p['price']` değerlerini oku.",
+            "Bir f-string içinde `{price:.2f}` sayıyı tam iki ondalıkla yazar; `html.escape` için `import html` gerekir.",
+            "Her satırı kaçışlanmış isim ve `:.2f` ile biçimlenmiş fiyat içeren bir f-string olarak kur, satırları bir list'te topla ve döndür."
+          ],
+          "solution": {
+            "approach": "Escape each name, format each price with :.2f, and collect the <li> lines in order.",
+            "approach_tr": "Her ismi kaçışla, her fiyatı :.2f ile biçimlendir ve <li> satırlarını sırayla topla.",
+            "code": "import html\n\ndef product_list(products):\n    lines = []\n    for p in products:\n        name = html.escape(p['name'])\n        lines.append(f\"<li>{name}: {p['price']:.2f} TL</li>\")\n    return lines"
+          },
+          "twin": "d26-b2-e6",
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        },
+        {
+          "id": "d26-b2-e8",
+          "type": "explain",
+          "prompt": "Why does Jinja2 escape a value like `{{ comment }}` automatically, and what could happen without it?",
+          "prompt_tr": "Jinja2 neden `{{ comment }}` gibi bir değeri otomatik olarak kaçışlar ve kaçış olmasa ne olabilir?",
+          "model_answer": "A value can contain text typed by a visitor. Without escaping, characters like < and > would be pasted into the page as real HTML, so a comment containing a script tag would run in every other visitor's browser (XSS). Escaping turns < into &lt; and & into &amp;, so the browser shows the characters instead of running them.",
+          "model_answer_tr": "Bir değer, bir ziyaretçinin yazdığı metni içerebilir. Kaçış olmasa < ve > gibi karakterler sayfaya gerçek HTML olarak yapıştırılır; script etiketi içeren bir yorum diğer her ziyaretçinin tarayıcısında çalışır (XSS). Kaçış < işaretini &lt;, & işaretini &amp; yapar; böylece tarayıcı karakterleri çalıştırmaz, gösterir.",
+          "keywords": [
+            "script",
+            "&lt;",
+            "browser"
+          ],
+          "keywords_tr": [
+            "script",
+            "&lt;",
+            "tarayıcı"
+          ],
+          "min_words": 12,
+          "concept": "templates-and-rendering",
+          "tags": [
+            "flask",
+            "templates",
+            "strings",
+            "kwargs"
+          ]
+        }
+      ]
     },
     {
-     "id": "d26-b1-e3",
-     "type": "write",
-     "concept": "routes-view-functions",
-     "tags": [
-      "flask",
-      "routes",
-      "functions",
-      "decorators"
-     ],
-     "prompt": "Write dispatch(routes, path). routes maps URL paths to view functions that take no arguments. Return what the view returns, or '404 Not Found' when the path is unknown.",
-     "prompt_tr": "dispatch(routes, path) yaz. routes, URL yollarını argüman almayan view fonksiyonlarına eşler. View'ın döndürdüğünü döndür; yol bilinmiyorsa '404 Not Found' döndür.",
-     "starter_code": "",
-     "signature": "def dispatch(routes, path):",
-     "tests": [
-      {
-       "code": "assert dispatch({'/': lambda: 'home'}, '/') == 'home'",
-       "visible": true,
-       "label_tr": "Var olan yol view'ın sonucunu veriyor"
+      "id": "d26-b3",
+      "concept": "forms-and-text-analyzer",
+      "concept_tr": "GET/POST, formlar ve metin çözümleyici",
+      "tags": [
+        "flask",
+        "http-methods",
+        "forms",
+        "dicts",
+        "sorting"
+      ],
+      "worked_example": {
+        "code": "def post(request):\n    if request['method'] == 'GET':\n        return 'form'\n    text = request['form'].get('content', '')\n    return f'{len(text.split())} words'\n\nprint(post({'method': 'GET'}))\nprint(post({'method': 'POST', 'form': {'content': 'Python is fun'}}))",
+        "notes": [
+          "Opening the page is a GET, so the view returns the form; submitting the form is a POST to the same path.",
+          "Form data is keyed by each field's HTML `name` attribute; `<textarea name=\"content\">` arrives as `form['content']`.",
+          "`.get('content', '')` returns an empty string instead of raising KeyError when the field is missing."
+        ],
+        "notes_tr": [
+          "Sayfayı açmak bir GET'tir, bu yüzden view formu döndürür; formu göndermek aynı yola bir POST'tur.",
+          "Form verisi her alanın HTML'deki `name` niteliğiyle anahtarlanır; `<textarea name=\"content\">` `form['content']` olarak gelir.",
+          "`.get('content', '')`, alan eksikse KeyError vermek yerine boş string döndürür."
+        ]
       },
-      {
-       "code": "assert dispatch({'/': lambda: 'home'}, '/x') == '404 Not Found'",
-       "visible": true,
-       "label_tr": "Olmayan yol 404 veriyor"
-      },
-      {
-       "code": "assert dispatch({}, '/') == '404 Not Found'",
-       "visible": false,
-       "failure_message": "An empty routes dict has no pages, so every path is a 404.",
-       "failure_message_tr": "Boş routes sözlüğünde sayfa yoktur, yani her yol 404 olur."
-      },
-      {
-       "code": "assert dispatch({'/a': lambda: 1 + 1}, '/a') == 2",
-       "visible": false,
-       "failure_message": "Call the view function and return its result; do not return the function itself.",
-       "failure_message_tr": "View fonksiyonunu çağır ve sonucunu döndür; fonksiyonun kendisini döndürme."
-      }
-     ],
-     "hints": [
-      "Two cases: path exists or not.",
-      "routes.get(path) gives None for unknown paths; call the function if it exists.",
-      "Last step: store routes.get(path) in view; if view is None return the 404 text, otherwise return view followed by parentheses."
-     ],
-     "solution": {
-      "approach": "Look the view up with .get and call it.",
-      "code": "def dispatch(routes, path):\n    view = routes.get(path)\n    if view is None:\n        return '404 Not Found'\n    return view()",
-      "approach_tr": "View'ı .get ile bul ve çağır."
-     },
-     "twin": "d26-b1-e4",
-     "hints_tr": [
-      "İki durum var: yol var ya da yok.",
-      "routes.get(path) bilinmeyen yollar için None verir; fonksiyon varsa onu çağır.",
-      "Son adım: routes.get(path) sonucunu view'a ata; view None ise 404 metnini döndür, değilse view'ı parantezle çağırıp döndür."
-     ]
+      "exercises": [
+        {
+          "id": "d26-b3-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def post(request):\n    if request['method'] == 'POST':\n        return 'saved ' + request['form']['content']\n    return 'form'\n\nprint(post({'method': 'GET', 'form': {'content': 'hi'}}))",
+          "choices": [
+            "form",
+            "saved hi",
+            "KeyError: 'form'",
+            "None"
+          ],
+          "expected_output": "form",
+          "explanation": "The method is 'GET', so the POST branch is skipped even though form data is present, and the function returns 'form'.",
+          "explanation_tr": "Metot 'GET' olduğu için form verisi olsa bile POST dalı atlanır ve fonksiyon 'form' döndürür.",
+          "misconceptions": {
+            "saved hi": "The branch depends on the method, not on whether form data exists.",
+            "KeyError: 'form'": "The 'form' key is never read on a GET, and it exists here anyway.",
+            "None": "The last line `return 'form'` runs whenever the `if` is false."
+          },
+          "misconceptions_tr": {
+            "saved hi": "Dal, form verisinin varlığına değil metoda bağlıdır.",
+            "KeyError: 'form'": "GET'te 'form' anahtarı hiç okunmaz; zaten burada mevcut.",
+            "None": "`if` yanlış olduğunda son satırdaki `return 'form'` çalışır."
+          },
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d26-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Complete `count_words(text)`: it returns a dict that maps each lowercase word to how many times it appears.",
+          "prompt_tr": "`count_words(text)` fonksiyonunu tamamla: her küçük harfli kelimeyi kaç kez geçtiğine eşleyen bir dict döndürür.",
+          "starter_code": "def count_words(text):\n    counts = {}\n    for word in text.lower().___():\n        counts[word] = counts.___(word, 0) + 1\n    return counts",
+          "blanks": [
+            {
+              "answer": [
+                "split"
+              ]
+            },
+            {
+              "answer": [
+                "get"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert count_words('a b A') == {'a': 2, 'b': 1}",
+              "visible": true,
+              "label": "Case is ignored",
+              "label_tr": "Büyük-küçük harf fark etmiyor"
+            },
+            {
+              "code": "assert count_words('') == {}",
+              "visible": true,
+              "label": "Empty text, empty dict",
+              "label_tr": "Boş metin, boş dict"
+            }
+          ],
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d26-b3-e3",
+          "type": "modify",
+          "prompt": "`analyze(text)` returns the word and character counts. Add a third key, 'top': the most frequent lowercase word. On a tie, pick the word that appears first in the text. For empty text, 'top' is None.",
+          "prompt_tr": "`analyze(text)` kelime ve karakter sayılarını döndürüyor. Üçüncü bir anahtar ekle: 'top', yani en sık geçen küçük harfli kelime. Eşitlikte metinde önce geçen kelimeyi seç. Boş metinde 'top' None olsun.",
+          "starter_code": "def analyze(text):\n    words = text.lower().split()\n    return {'words': len(words), 'chars': len(text)}",
+          "tests": [
+            {
+              "code": "assert analyze('to be or not to be') == {'words': 6, 'chars': 18, 'top': 'to'}",
+              "visible": true,
+              "label": "'to' wins the tie with 'be'",
+              "label_tr": "'to', 'be' ile eşitliği kazanıyor"
+            },
+            {
+              "code": "assert analyze('') == {'words': 0, 'chars': 0, 'top': None}",
+              "visible": true,
+              "label": "Empty text gives None",
+              "label_tr": "Boş metin None veriyor"
+            },
+            {
+              "code": "assert analyze('Bir iki bir') == {'words': 3, 'chars': 11, 'top': 'bir'}",
+              "visible": false,
+              "failure_message": "Count lowercase words: 'Bir' and 'bir' are the same word.",
+              "failure_message_tr": "Küçük harfli kelimeleri say: 'Bir' ve 'bir' aynı kelimedir."
+            },
+            {
+              "code": "assert analyze('b a a b')['top'] == 'b'",
+              "visible": false,
+              "failure_message": "On a tie, the word that appears first wins; build the counts in text order.",
+              "failure_message_tr": "Eşitlikte önce geçen kelime kazanır; sayaçları metindeki sırayla oluştur."
+            }
+          ],
+          "hints": [
+            "First count the words in a dict, the same way as `count_words`.",
+            "`max(counts, key=counts.get)` returns the key with the biggest count; on a tie it keeps the first key it saw, and dicts keep insertion order.",
+            "After the counting loop, set `top` with a one-line `if ... else` that uses `max` only when `counts` is not empty, then add it to the returned dict."
+          ],
+          "hints_tr": [
+            "Önce kelimeleri `count_words`'teki gibi bir dict'te say.",
+            "`max(counts, key=counts.get)` en büyük sayıya sahip anahtarı döndürür; eşitlikte ilk gördüğü anahtarı tutar ve dict'ler ekleme sırasını korur.",
+            "Sayma döngüsünden sonra `top`'u, yalnızca `counts` boş değilse `max` kullanan tek satırlık bir `if ... else` ile belirle ve döndürülen dict'e ekle."
+          ],
+          "solution": {
+            "approach": "Count the words in text order, then take max with key=counts.get, guarding the empty case.",
+            "approach_tr": "Kelimeleri metin sırasıyla say, sonra boş durumu koruyarak key=counts.get ile max al.",
+            "code": "def analyze(text):\n    words = text.lower().split()\n    counts = {}\n    for word in words:\n        counts[word] = counts.get(word, 0) + 1\n    top = max(counts, key=counts.get) if counts else None\n    return {'words': len(words), 'chars': len(text), 'top': top}"
+          },
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d26-b3-e4",
+          "type": "debug",
+          "prompt": "The form is `<textarea name=\"content\">`. `post` should print `3` (the word count) but crashes with `KeyError: 'text'`. Fix it.",
+          "prompt_tr": "Form `<textarea name=\"content\">`. `post` `3` (kelime sayısı) yazdırmalı ama `KeyError: 'text'` ile çöküyor. Düzelt.",
+          "starter_code": "def post(request):\n    if request['method'] == 'POST':\n        text = request['form']['text']\n        return len(text.split())\n    return 0\n\nprint(post({'method': 'POST', 'form': {'content': 'one two three'}}))",
+          "tests": [
+            {
+              "code": "assert post({'method': 'POST', 'form': {'content': 'a b'}}) == 2",
+              "visible": true,
+              "label": "Reads the content field",
+              "label_tr": "content alanını okuyor"
+            }
+          ],
+          "hints": [
+            "The KeyError shows the key your code asked for. Is it in the form dict?",
+            "Form keys come from the HTML `name` attribute, and the textarea is named 'content'.",
+            "Change only the key inside the square brackets so it matches the textarea's name."
+          ],
+          "hints_tr": [
+            "KeyError, kodunun istediği anahtarı gösterir. Bu anahtar form dict'inde var mı?",
+            "Form anahtarları HTML'deki `name` niteliğinden gelir ve textarea'nın adı 'content'.",
+            "Yalnızca köşeli parantezin içindeki anahtarı textarea'nın adıyla aynı olacak şekilde değiştir."
+          ],
+          "solution": {
+            "approach": "Read the key that matches the form field's name attribute.",
+            "approach_tr": "Form alanının name niteliğiyle eşleşen anahtarı oku.",
+            "code": "def post(request):\n    if request['method'] == 'POST':\n        text = request['form']['content']\n        return len(text.split())\n    return 0\n\nprint(post({'method': 'POST', 'form': {'content': 'one two three'}}))"
+          },
+          "expected_output": "3",
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d26-b3-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order: the Post/Redirect/Get pattern. A POST saves the text and returns a redirect.",
+          "prompt_tr": "Satırları sırala: Post/Redirect/Get kalıbı. Bir POST metni kaydeder ve bir yönlendirme döndürür.",
+          "lines": [
+            "    return ('page', 'post.html')",
+            "def post(method, form):",
+            "        saved.append(form['content'])",
+            "print(post('POST', {'content': 'hi'}), saved)",
+            "saved = []",
+            "        return ('redirect', '/result')",
+            "    if method == 'POST':"
+          ],
+          "correct_order": [
+            4,
+            1,
+            6,
+            2,
+            5,
+            0,
+            3
+          ],
+          "distractors": [
+            "        return ('page', 'result.html')"
+          ],
+          "expected_output": "('redirect', '/result') ['hi']",
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d26-b3-e6",
+          "type": "write",
+          "prompt": "Write `char_stats(text)` that returns a dict with three keys: 'chars' (length of the text), 'letters' (how many characters are letters, use `str.isalpha`) and 'spaces' (how many characters are exactly ' '). Example: `char_stats('Hi 2 u')` returns `{'chars': 6, 'letters': 3, 'spaces': 2}`.",
+          "prompt_tr": "`char_stats(text)` yaz; üç anahtarlı bir dict döndürsün: 'chars' (metnin uzunluğu), 'letters' (kaç karakter harf; `str.isalpha` kullan) ve 'spaces' (kaç karakter tam olarak ' '). Örnek: `char_stats('Hi 2 u')` `{'chars': 6, 'letters': 3, 'spaces': 2}` döndürür.",
+          "starter_code": "",
+          "signature": "def char_stats(text):",
+          "tests": [
+            {
+              "code": "assert char_stats('Hi 2 u') == {'chars': 6, 'letters': 3, 'spaces': 2}",
+              "visible": true,
+              "label": "Letters, a digit and spaces",
+              "label_tr": "Harfler, bir rakam ve boşluklar"
+            },
+            {
+              "code": "assert char_stats('') == {'chars': 0, 'letters': 0, 'spaces': 0}",
+              "visible": true,
+              "label": "Empty text",
+              "label_tr": "Boş metin"
+            },
+            {
+              "code": "assert char_stats('Çağrı ışık') == {'chars': 10, 'letters': 9, 'spaces': 1}",
+              "visible": false,
+              "failure_message": "Turkish letters are letters too; str.isalpha handles them.",
+              "failure_message_tr": "Türkçe harfler de harftir; str.isalpha onları da tanır."
+            },
+            {
+              "code": "assert char_stats('a\\tb  c!')['spaces'] == 2",
+              "visible": false,
+              "failure_message": "Count only the space character ' ', not tabs or punctuation.",
+              "failure_message_tr": "Yalnızca boşluk karakterini (' ') say; sekme ya da noktalama işaretlerini sayma."
+            }
+          ],
+          "hints": [
+            "`len(text)` gives 'chars'; the other two need a loop or a counting expression.",
+            "`sum(1 for ch in text if ch.isalpha())` counts letters; `text.count(' ')` counts spaces.",
+            "Return a dict literal with the three keys, using `len`, a `sum` over a generator with `isalpha`, and `count(' ')`."
+          ],
+          "hints_tr": [
+            "'chars' için `len(text)` yeter; diğer ikisi bir döngü ya da sayma ifadesi ister.",
+            "`sum(1 for ch in text if ch.isalpha())` harfleri, `text.count(' ')` boşlukları sayar.",
+            "Üç anahtarlı bir dict döndür: `len`, `isalpha` kullanan bir üreteç üzerinde `sum` ve `count(' ')`."
+          ],
+          "solution": {
+            "approach": "Use len for all characters, isalpha in a counting sum for letters, and count(' ') for spaces.",
+            "approach_tr": "Tüm karakterler için len, harfler için isalpha ile bir sayma toplamı, boşluklar için count(' ') kullan.",
+            "code": "def char_stats(text):\n    return {\n        'chars': len(text),\n        'letters': sum(1 for ch in text if ch.isalpha()),\n        'spaces': text.count(' '),\n    }"
+          },
+          "twin": "d26-b3-e7",
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d26-b3-e7",
+          "type": "write",
+          "prompt": "Write `top_words(text, n)` for the Text Analyzer. Lowercase the text, split it into words, strip the characters `.,!?` from both ends of each word, skip words that become empty, count them, and return the `n` most frequent as a list of `(word, count)` tuples, highest count first; equal counts keep the order of first appearance. Example: `top_words('Python is fun. Python!', 1)` returns `[('python', 2)]`.",
+          "prompt_tr": "Metin çözümleyici için `top_words(text, n)` yaz. Metni küçük harfe çevir, kelimelere böl, her kelimenin iki ucundaki `.,!?` karakterlerini sil, boş kalan kelimeleri atla, kelimeleri say ve en sık geçen `n` tanesini `(kelime, sayı)` tuple'larından oluşan bir list olarak, en büyük sayı önde olacak şekilde döndür; eşit sayılar ilk görünme sırasını korusun. Örnek: `top_words('Python is fun. Python!', 1)` `[('python', 2)]` döndürür.",
+          "starter_code": "",
+          "signature": "def top_words(text, n):",
+          "tests": [
+            {
+              "code": "assert top_words('Python is fun. Python!', 1) == [('python', 2)]",
+              "visible": true,
+              "label": "Punctuation is stripped before counting",
+              "label_tr": "Saymadan önce noktalama siliniyor"
+            },
+            {
+              "code": "assert top_words('a b b c c c', 2) == [('c', 3), ('b', 2)]",
+              "visible": true,
+              "label": "Highest counts first",
+              "label_tr": "En büyük sayılar önde"
+            },
+            {
+              "code": "assert top_words('x y z y x', 3) == [('x', 2), ('y', 2), ('z', 1)]",
+              "visible": false,
+              "failure_message": "Equal counts must keep the order of first appearance: sorted is stable, so sort only by the count.",
+              "failure_message_tr": "Eşit sayılar ilk görünme sırasını korumalı: sorted kararlıdır, bu yüzden yalnızca sayıya göre sırala."
+            },
+            {
+              "code": "assert top_words('Hi! ... hi?', 5) == [('hi', 2)]",
+              "visible": false,
+              "failure_message": "Strip the punctuation, then skip words that became empty like '...'; asking for more than exist returns all of them.",
+              "failure_message_tr": "Noktalamayı sil, sonra '...' gibi boş kalan kelimeleri atla; var olandan fazlası istenirse hepsini döndür."
+            },
+            {
+              "code": "assert top_words('', 3) == []",
+              "visible": false,
+              "failure_message": "Empty text has no words, so the result is an empty list.",
+              "failure_message_tr": "Boş metinde kelime yoktur, sonuç boş bir list olur."
+            }
+          ],
+          "hints": [
+            "Do it in three steps: clean the words, count them in a dict, then sort the dict's items.",
+            "`word.strip('.,!?')` removes those characters from both ends; `sorted(counts.items(), key=lambda p: p[1], reverse=True)` orders by count.",
+            "After counting, sort the items by their count in reverse and return a slice of the first `n` items."
+          ],
+          "hints_tr": [
+            "Üç adımda yap: kelimeleri temizle, bir dict'te say, sonra dict'in öğelerini sırala.",
+            "`word.strip('.,!?')` bu karakterleri iki uçtan siler; `sorted(counts.items(), key=lambda p: p[1], reverse=True)` sayıya göre sıralar.",
+            "Saydıktan sonra öğeleri sayılarına göre ters sırala ve ilk `n` öğeyi bir dilimle döndür."
+          ],
+          "solution": {
+            "approach": "Clean and count the words, sort the (word, count) pairs by count in reverse, and slice the first n.",
+            "approach_tr": "Kelimeleri temizleyip say, (kelime, sayı) çiftlerini sayıya göre ters sırala ve ilk n tanesini dilimle.",
+            "code": "def top_words(text, n):\n    counts = {}\n    for raw in text.lower().split():\n        word = raw.strip('.,!?')\n        if word:\n            counts[word] = counts.get(word, 0) + 1\n    ranked = sorted(counts.items(), key=lambda pair: pair[1], reverse=True)\n    return ranked[:n]"
+          },
+          "twin": "d26-b3-e6",
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d26-b3-e8",
+          "type": "explain",
+          "prompt": "Why does the post view redirect after it handles a POST instead of returning the result page directly?",
+          "prompt_tr": "post view'ı bir POST'u işledikten sonra sonuç sayfasını doğrudan döndürmek yerine neden yönlendirme yapar?",
+          "model_answer": "If the response to a POST is a page, refreshing that page makes the browser send the same POST again, so the form data is submitted twice. A redirect tells the browser to GET another address instead, and refreshing then only repeats that harmless GET. This is the Post/Redirect/Get pattern.",
+          "model_answer_tr": "Bir POST'un yanıtı bir sayfa olursa, o sayfayı yenilemek tarayıcının aynı POST'u tekrar göndermesine yol açar ve form verisi iki kez gönderilir. Yönlendirme ise tarayıcıya başka bir adrese GET yapmasını söyler; yenileme artık yalnızca o zararsız GET'i tekrarlar. Bu, Post/Redirect/Get kalıbıdır.",
+          "keywords": [
+            "refresh",
+            "twice",
+            "get"
+          ],
+          "keywords_tr": [
+            "yenile",
+            "iki kez",
+            "get"
+          ],
+          "min_words": 12,
+          "concept": "forms-and-text-analyzer",
+          "tags": [
+            "flask",
+            "http-methods",
+            "forms",
+            "dicts",
+            "sorting"
+          ]
+        }
+      ]
     },
     {
-     "id": "d26-b1-e4",
-     "type": "write",
-     "concept": "routes-view-functions",
-     "tags": [
-      "flask",
-      "routes",
-      "functions",
-      "decorators"
-     ],
-     "prompt": "Write dispatch_many(routes, paths). Return a list with the response for every path in paths (the view's result, or '404 Not Found'), in the same order.",
-     "prompt_tr": "dispatch_many(routes, paths) yaz. paths içindeki her yol için yanıtı (view'ın sonucu ya da '404 Not Found') aynı sırayla bir liste olarak döndür.",
-     "starter_code": "",
-     "signature": "def dispatch_many(routes, paths):",
-     "tests": [
-      {
-       "code": "assert dispatch_many({'/': lambda: 'home', '/about': lambda: 'about'}, ['/', '/about']) == ['home', 'about']",
-       "visible": true,
-       "label_tr": "İki yol sırayla yanıtlanıyor"
+      "id": "d26-b4",
+      "concept": "config-and-deployment",
+      "concept_tr": "Ayarlar ve yayına alma dosyaları",
+      "tags": [
+        "deployment",
+        "environment",
+        "strings",
+        "exceptions"
+      ],
+      "worked_example": {
+        "code": "env = {'PORT': '8080'}\nport = int(env.get('PORT', 5000))\ndebug = env.get('FLASK_DEBUG') == '1'\nprint(port, debug)",
+        "notes": [
+          "Environment variables are always strings, so the port needs `int()`, and the default covers machines without a PORT.",
+          "`debug` is the result of a comparison, so it is a real boolean: only the exact text '1' turns debug mode on.",
+          "Reading settings from the environment lets the same code run on your laptop and on a public server."
+        ],
+        "notes_tr": [
+          "Ortam değişkenleri her zaman string'dir; bu yüzden port `int()` ister ve varsayılan değer PORT'u olmayan makineleri karşılar.",
+          "`debug` bir karşılaştırmanın sonucudur, yani gerçek bir boolean'dır: debug modunu yalnızca tam olarak '1' metni açar.",
+          "Ayarları ortamdan okumak, aynı kodun hem kendi bilgisayarında hem herkese açık bir sunucuda çalışmasını sağlar."
+        ]
       },
-      {
-       "code": "assert dispatch_many({'/': lambda: 'home'}, []) == []",
-       "visible": true,
-       "label_tr": "Boş yol listesi boş liste veriyor"
-      },
-      {
-       "code": "assert dispatch_many({'/': lambda: 'home'}, ['/', '/nope']) == ['home', '404 Not Found']",
-       "visible": false,
-       "failure_message": "Unknown paths must give '404 Not Found' inside the list.",
-       "failure_message_tr": "Bilinmeyen yollar liste içinde '404 Not Found' vermeli."
-      },
-      {
-       "code": "assert dispatch_many({'/a': lambda: 'A'}, ['/a', '/a']) == ['A', 'A']",
-       "visible": false,
-       "failure_message": "Repeated paths give repeated answers; call the view for every path.",
-       "failure_message_tr": "Tekrar eden yollar tekrar eden yanıt verir; view'ı her yol için çağır."
-      }
-     ],
-     "hints": [
-      "It is dispatch applied to every path.",
-      "A list comprehension that calls .get for each path.",
-      "Last step: start with an empty list, loop over paths, and append either the 404 text or the called view; return the list at the end."
-     ],
-     "solution": {
-      "approach": "Loop over the paths and apply the same lookup.",
-      "code": "def dispatch_many(routes, paths):\n    result = []\n    for path in paths:\n        view = routes.get(path)\n        result.append('404 Not Found' if view is None else view())\n    return result",
-      "approach_tr": "Yollar üzerinde dön ve aynı aramayı uygula."
-     },
-     "twin": "d26-b1-e3",
-     "hints_tr": [
-      "Bu, dispatch'in her yola uygulanmış hâli.",
-      "Her yol için .get çağıran bir liste kapsamı (list comprehension) kullanabilirsin.",
-      "Son adım: boş bir listeyle başla, paths üzerinde dön ve her yol için ya 404 metnini ya da çağrılmış view sonucunu ekle; sonda listeyi döndür."
-     ]
-    },
-    {
-     "id": "d26-b1-e5",
-     "type": "explain",
-     "concept": "routes-view-functions",
-     "tags": [
-      "flask",
-      "routes",
-      "functions",
-      "decorators"
-     ],
-     "prompt": "In your own words: what does @app.route('/about') do, and what is a view function?",
-     "prompt_tr": "Kendi cümlelerinle anlat: @app.route('/about') ne yapar ve view fonksiyonu nedir?",
-     "model_answer": "The route decorator registers the function below it for the URL path '/about', so when a browser asks for that path the app calls the function. That function is the view: it runs and returns the content (HTML or text) that is sent back as the response.",
-     "keywords": [
-      "path",
-      "function",
-      "response"
-     ],
-     "model_answer_tr": "Route dekoratörü, altındaki fonksiyonu '/about' URL yolu için kaydeder; tarayıcı bu yolu istediğinde uygulama o fonksiyonu çağırır. Bu fonksiyon view'dır: çalışır ve yanıt olarak gönderilen içeriği (HTML ya da metin) döndürür.",
-     "keywords_tr": [
-      "yol",
-      "fonksiyon",
-      "yanıt"
-     ],
-     "min_words": 6
+      "exercises": [
+        {
+          "id": "d26-b4-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "env = {'PORT': '8080', 'FLASK_DEBUG': '0'}\nport = env.get('PORT', 5000)\ndebug = env.get('FLASK_DEBUG') == '1'\nprint(port + '1', debug)",
+          "choices": [
+            "8081 False",
+            "80801 False",
+            "80801 True",
+            "TypeError"
+          ],
+          "expected_output": "80801 False",
+          "explanation": "`port` is the string '8080' because nothing converted it, so `+ '1'` glues text together: '80801'. '0' is not equal to '1', so debug is False.",
+          "explanation_tr": "Hiçbir şey çevirmediği için `port` '8080' string'idir; `+ '1'` metinleri birleştirir: '80801'. '0', '1'e eşit değildir; debug False olur.",
+          "misconceptions": {
+            "8081 False": "Values from the environment are strings; without int() the + joins text instead of adding numbers.",
+            "80801 True": "debug compares with '1'; '0' == '1' is False. (Even though '0' is a truthy string, it is not used as a condition here.)",
+            "TypeError": "Both operands are strings, so + is string concatenation, which is allowed."
+          },
+          "misconceptions_tr": {
+            "8081 False": "Ortamdan gelen değerler string'dir; int() olmadan + sayıları toplamaz, metinleri birleştirir.",
+            "80801 True": "debug, '1' ile karşılaştırılır; '0' == '1' False'tur. ('0' doğru (truthy) bir string olsa da burada koşul olarak kullanılmıyor.)",
+            "TypeError": "İki taraf da string olduğu için + metin birleştirmedir ve buna izin verilir."
+          },
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        },
+        {
+          "id": "d26-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Complete `parse_requirement(line)`: it splits a line like 'Flask==1.1.1' and returns the lowercase name and the version as a tuple.",
+          "prompt_tr": "`parse_requirement(line)` fonksiyonunu tamamla: 'Flask==1.1.1' gibi bir satırı böler ve küçük harfli adı ve sürümü bir tuple olarak döndürür.",
+          "starter_code": "def parse_requirement(line):\n    name, version = line.___('==')\n    return name.___(), version",
+          "blanks": [
+            {
+              "answer": [
+                "split"
+              ]
+            },
+            {
+              "answer": [
+                "lower"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert parse_requirement('Flask==1.1.1') == ('flask', '1.1.1')",
+              "visible": true,
+              "label": "Splits name and version",
+              "label_tr": "Adı ve sürümü ayırıyor"
+            },
+            {
+              "code": "assert parse_requirement('Jinja2==2.10.3') == ('jinja2', '2.10.3')",
+              "visible": true,
+              "label": "Works for another package",
+              "label_tr": "Başka bir pakette de çalışıyor"
+            }
+          ],
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        },
+        {
+          "id": "d26-b4-e3",
+          "type": "modify",
+          "prompt": "`get_port(env)` crashes with ValueError when PORT holds something that is not a number, such as 'abc'. Change it so it returns 5000 in that case (and still 5000 when PORT is missing).",
+          "prompt_tr": "`get_port(env)`, PORT sayı olmayan bir şey (örneğin 'abc') tuttuğunda ValueError ile çöküyor. Onu değiştir: bu durumda 5000 döndürsün (PORT yoksa da yine 5000).",
+          "starter_code": "def get_port(env):\n    return int(env.get('PORT', 5000))",
+          "tests": [
+            {
+              "code": "assert get_port({}) == 5000",
+              "visible": true,
+              "label": "Missing PORT gives 5000",
+              "label_tr": "PORT yoksa 5000"
+            },
+            {
+              "code": "assert get_port({'PORT': 'abc'}) == 5000",
+              "visible": true,
+              "label": "Invalid PORT gives 5000",
+              "label_tr": "Geçersiz PORT 5000 veriyor"
+            },
+            {
+              "code": "assert get_port({'PORT': '8000'}) == 8000",
+              "visible": false,
+              "failure_message": "A valid PORT must still be used and returned as an int.",
+              "failure_message_tr": "Geçerli bir PORT yine kullanılmalı ve int olarak döndürülmeli."
+            },
+            {
+              "code": "assert get_port({'PORT': ' 9000 '}) == 9000 and get_port({'PORT': ''}) == 5000",
+              "visible": false,
+              "failure_message": "int() accepts surrounding spaces, but an empty string is invalid and must fall back to 5000.",
+              "failure_message_tr": "int() çevresindeki boşlukları kabul eder, ama boş string geçersizdir ve 5000'e düşmeli."
+            }
+          ],
+          "hints": [
+            "The crash is a ValueError raised by `int()`. Which Day 17 tool lets you react to an error instead of crashing?",
+            "Put the conversion in a `try` block and handle `ValueError` in an `except` block.",
+            "Keep the existing return inside `try`, and add an `except ValueError:` branch whose body returns the default port."
+          ],
+          "hints_tr": [
+            "Çökme, `int()`'in fırlattığı bir ValueError. Gün 17'deki hangi araç çökmek yerine hataya tepki vermeni sağlar?",
+            "Dönüşümü bir `try` bloğuna koy ve `ValueError`'u bir `except` bloğunda yakala.",
+            "Var olan return satırını `try` içinde bırak ve gövdesi varsayılan portu döndüren bir `except ValueError:` dalı ekle."
+          ],
+          "solution": {
+            "approach": "Wrap the conversion in try/except ValueError and return the default on failure.",
+            "approach_tr": "Dönüşümü try/except ValueError ile sar ve hata olursa varsayılanı döndür.",
+            "code": "def get_port(env):\n    try:\n        return int(env.get('PORT', 5000))\n    except ValueError:\n        return 5000"
+          },
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        },
+        {
+          "id": "d26-b4-e4",
+          "type": "debug",
+          "prompt": "`requirements_txt(packages)` should turn a dict like `{'Flask': '1.1.1'}` into lines `Flask==1.1.1`, but it crashes with `ValueError: too many values to unpack (expected 2)`. Fix it.",
+          "prompt_tr": "`requirements_txt(packages)`, `{'Flask': '1.1.1'}` gibi bir dict'i `Flask==1.1.1` satırlarına çevirmeli, ama `ValueError: too many values to unpack (expected 2)` ile çöküyor. Düzelt.",
+          "starter_code": "def requirements_txt(packages):\n    lines = []\n    for name, version in packages:\n        lines.append(name + '==' + version)\n    return '\\n'.join(lines)\n\nprint(requirements_txt({'Flask': '1.1.1', 'Jinja2': '2.10.3'}))",
+          "tests": [
+            {
+              "code": "assert requirements_txt({'A': '1'}) == 'A==1'",
+              "visible": true,
+              "label": "A single package",
+              "label_tr": "Tek paket"
+            }
+          ],
+          "hints": [
+            "The error comes from the `for` line: Python tried to unpack something into two names and found more than two values.",
+            "Looping over a dict gives only its keys, so `name, version` tries to unpack the string 'Flask' letter by letter.",
+            "Loop over the dict's key-value pairs instead of the dict itself; there is a dict method that returns them (Day 8)."
+          ],
+          "hints_tr": [
+            "Hata `for` satırından geliyor: Python bir şeyi iki isme açmaya çalıştı ve ikiden fazla değer buldu.",
+            "Bir dict üzerinde dönmek yalnızca anahtarları verir; bu yüzden `name, version` 'Flask' string'ini harf harf açmaya çalışıyor.",
+            "Dict'in kendisi yerine anahtar-değer çiftleri üzerinde dön; onları döndüren bir dict metodu var (Gün 8)."
+          ],
+          "solution": {
+            "approach": "Iterate over packages.items() to get (name, version) pairs.",
+            "approach_tr": "(ad, sürüm) çiftlerini almak için packages.items() üzerinde dön.",
+            "code": "def requirements_txt(packages):\n    lines = []\n    for name, version in packages.items():\n        lines.append(name + '==' + version)\n    return '\\n'.join(lines)\n\nprint(requirements_txt({'Flask': '1.1.1', 'Jinja2': '2.10.3'}))"
+          },
+          "expected_output": "Flask==1.1.1\nJinja2==2.10.3",
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        },
+        {
+          "id": "d26-b4-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "freeze = 'Flask==1.1.1\\nJinja2==2.10.3\\n'\nlines = freeze.split('\\n')\nprint(len(lines), lines[-1] == '')",
+          "choices": [
+            "3 True",
+            "2 False",
+            "2 True",
+            "3 False"
+          ],
+          "expected_output": "3 True",
+          "explanation": "The text ends with a newline, so splitting on '\\n' leaves an empty string after it: ['Flask==1.1.1', 'Jinja2==2.10.3', '']. `splitlines()` would give 2.",
+          "explanation_tr": "Metin bir satır sonuyla bitiyor; '\\n' ile bölmek sonda boş bir string bırakır: ['Flask==1.1.1', 'Jinja2==2.10.3', '']. `splitlines()` 2 verirdi.",
+          "misconceptions": {
+            "2 False": "That is what `splitlines()` does; `split('\\n')` keeps an empty piece after the final newline.",
+            "2 True": "If there were only 2 items, the last one would be 'Jinja2==2.10.3', not ''.",
+            "3 False": "The third item exists only because of the trailing newline, and it is the empty string."
+          },
+          "misconceptions_tr": {
+            "2 False": "Bunu `splitlines()` yapar; `split('\\n')` son satır sonundan sonra boş bir parça bırakır.",
+            "2 True": "Yalnızca 2 öğe olsaydı sonuncusu '' değil 'Jinja2==2.10.3' olurdu.",
+            "3 False": "Üçüncü öğe yalnızca sondaki satır sonu yüzünden var ve o boş string'dir."
+          },
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        },
+        {
+          "id": "d26-b4-e6",
+          "type": "write",
+          "prompt": "Write `parse_requirements(text)` that turns the text of a requirements.txt file into a dict mapping each package name (as written) to its version. Skip empty lines (also lines with only spaces) and comment lines that start with '#'. Example: `parse_requirements('Flask==1.1.1\\n# web\\n')` returns `{'Flask': '1.1.1'}`.",
+          "prompt_tr": "Bir requirements.txt dosyasının metnini, her paket adını (yazıldığı gibi) sürümüne eşleyen bir dict'e çeviren `parse_requirements(text)` yaz. Boş satırları (yalnızca boşluk içerenler dahil) ve '#' ile başlayan yorum satırlarını atla. Örnek: `parse_requirements('Flask==1.1.1\\n# web\\n')` `{'Flask': '1.1.1'}` döndürür.",
+          "starter_code": "",
+          "signature": "def parse_requirements(text):",
+          "tests": [
+            {
+              "code": "assert parse_requirements('Flask==1.1.1\\n# web\\n') == {'Flask': '1.1.1'}",
+              "visible": true,
+              "label": "A comment and a trailing newline are skipped",
+              "label_tr": "Yorum ve sondaki satır sonu atlanıyor"
+            },
+            {
+              "code": "assert parse_requirements('') == {}",
+              "visible": true,
+              "label": "Empty file",
+              "label_tr": "Boş dosya"
+            },
+            {
+              "code": "assert parse_requirements('A==1\\n\\nB==2.0\\n   \\n#C==3') == {'A': '1', 'B': '2.0'}",
+              "visible": false,
+              "failure_message": "Skip blank lines (strip them first) and lines starting with '#'.",
+              "failure_message_tr": "Boş satırları (önce strip ile temizleyip) ve '#' ile başlayan satırları atla."
+            },
+            {
+              "code": "assert parse_requirements('  Werkzeug==0.16.0  ') == {'Werkzeug': '0.16.0'}",
+              "visible": false,
+              "failure_message": "Strip spaces around each line before splitting it.",
+              "failure_message_tr": "Her satırı bölmeden önce çevresindeki boşlukları sil."
+            }
+          ],
+          "hints": [
+            "Go through `text.splitlines()` and clean each line with `strip()`.",
+            "Use `continue` for a line that is empty or starts with '#'; otherwise split it on '=='.",
+            "In the loop, after the two `continue` checks, unpack `line.split('==')` into name and version and store them in the dict you return."
+          ],
+          "hints_tr": [
+            "`text.splitlines()` üzerinde dön ve her satırı `strip()` ile temizle.",
+            "Boş olan ya da '#' ile başlayan satırda `continue` kullan; diğerlerini '==' ile böl.",
+            "Döngüde iki `continue` kontrolünden sonra `line.split('==')` sonucunu ad ve sürüme aç ve döndüreceğin dict'e kaydet."
+          ],
+          "solution": {
+            "approach": "Strip each line, skip blanks and comments, split the rest on '==' into the dict.",
+            "approach_tr": "Her satırı temizle, boşları ve yorumları atla, kalanları '==' ile bölüp dict'e koy.",
+            "code": "def parse_requirements(text):\n    packages = {}\n    for line in text.splitlines():\n        line = line.strip()\n        if not line or line.startswith('#'):\n            continue\n        name, version = line.split('==')\n        packages[name] = version\n    return packages"
+          },
+          "twin": "d26-b4-e7",
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        },
+        {
+          "id": "d26-b4-e7",
+          "type": "write",
+          "prompt": "Write `missing_packages(required, installed)`. Both arguments are dicts mapping package names to versions. Return a sorted list of the names in `required` that are either not in `installed` or installed with a different version. Example: `missing_packages({'Flask': '1.1.1', 'Jinja2': '2.10.3'}, {'Flask': '1.1.1'})` returns `['Jinja2']`.",
+          "prompt_tr": "`missing_packages(required, installed)` yaz. İki argüman da paket adlarını sürümlere eşleyen dict'ler. `required` içinde olup `installed` içinde hiç olmayan ya da farklı sürümle kurulu olan adların sıralı bir list'ini döndür. Örnek: `missing_packages({'Flask': '1.1.1', 'Jinja2': '2.10.3'}, {'Flask': '1.1.1'})` `['Jinja2']` döndürür.",
+          "starter_code": "",
+          "signature": "def missing_packages(required, installed):",
+          "tests": [
+            {
+              "code": "assert missing_packages({'Flask': '1.1.1', 'Jinja2': '2.10.3'}, {'Flask': '1.1.1'}) == ['Jinja2']",
+              "visible": true,
+              "label": "A package that is not installed",
+              "label_tr": "Kurulu olmayan bir paket"
+            },
+            {
+              "code": "assert missing_packages({}, {'Flask': '1.1.1'}) == []",
+              "visible": true,
+              "label": "Nothing required",
+              "label_tr": "Hiçbir şey gerekmiyor"
+            },
+            {
+              "code": "assert missing_packages({'Flask': '2.0', 'Click': '7.0'}, {'Flask': '1.1.1', 'Click': '7.0'}) == ['Flask']",
+              "visible": false,
+              "failure_message": "A package installed with a different version also counts as missing.",
+              "failure_message_tr": "Farklı sürümle kurulu bir paket de eksik sayılır."
+            },
+            {
+              "code": "assert missing_packages({'b': '1', 'a': '1', 'c': '1'}, {}) == ['a', 'b', 'c']",
+              "visible": false,
+              "failure_message": "Return the names sorted alphabetically.",
+              "failure_message_tr": "Adları alfabetik sırayla döndür."
+            }
+          ],
+          "hints": [
+            "Look at each name and version in `required` and compare with `installed`.",
+            "`installed.get(name)` is None when the package is missing, so one comparison `installed.get(name) != version` covers both cases.",
+            "Build the list with a comprehension over `required.items()` that keeps names failing that comparison, and wrap it in `sorted(...)`."
+          ],
+          "hints_tr": [
+            "`required` içindeki her ad ve sürüme bak ve `installed` ile karşılaştır.",
+            "Paket eksikse `installed.get(name)` None olur; bu yüzden tek bir `installed.get(name) != version` karşılaştırması iki durumu da kapsar.",
+            "`required.items()` üzerinde, o karşılaştırmayı geçemeyen adları tutan bir comprehension kur ve onu `sorted(...)` içine al."
+          ],
+          "solution": {
+            "approach": "Keep the names whose installed version (or None) differs from the required one, sorted.",
+            "approach_tr": "Kurulu sürümü (ya da None) gerekenden farklı olan adları sıralı olarak tut.",
+            "code": "def missing_packages(required, installed):\n    return sorted(name for name, version in required.items()\n                  if installed.get(name) != version)"
+          },
+          "twin": "d26-b4-e6",
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        },
+        {
+          "id": "d26-b4-e8",
+          "type": "explain",
+          "prompt": "Why should a deployed Flask app read its port and debug setting from environment variables instead of writing `app.run(debug=True, port=5000)` in the code?",
+          "prompt_tr": "Yayındaki bir Flask uygulaması portunu ve debug ayarını neden kodda `app.run(debug=True, port=5000)` yazmak yerine ortam değişkenlerinden okumalı?",
+          "model_answer": "The hosting platform decides which port the app must listen on and passes it in the PORT environment variable, so a fixed 5000 may not work there. Debug mode must be off on a public server because its debugger can let visitors run code. Reading both from the environment lets the same code run safely on a laptop and in production.",
+          "model_answer_tr": "Uygulamanın hangi portu dinleyeceğine barındırma platformu karar verir ve bunu PORT ortam değişkeniyle iletir; sabit bir 5000 orada çalışmayabilir. Herkese açık bir sunucuda debug modu kapalı olmalı, çünkü hata ayıklayıcısı ziyaretçilerin kod çalıştırmasına izin verebilir. İkisini de ortamdan okumak, aynı kodun hem bilgisayarda hem yayında güvenle çalışmasını sağlar.",
+          "keywords": [
+            "port",
+            "environment",
+            "debug"
+          ],
+          "keywords_tr": [
+            "port",
+            "ortam",
+            "debug"
+          ],
+          "min_words": 12,
+          "concept": "config-and-deployment",
+          "tags": [
+            "deployment",
+            "environment",
+            "strings",
+            "exceptions"
+          ]
+        }
+      ]
     }
-   ],
-   "concept_tr": "Route ve view fonksiyonları"
-  },
-  {
-   "id": "d26-b2",
-   "concept": "templates-and-context",
-   "tags": [
-    "flask",
-    "templates",
-    "strings"
-   ],
-   "worked_example": {
-    "code": "template = '<h1>Welcome to {{name}}</h1>'\nhtml = template.replace('{{name}}', '30 Days Of Python')\nprint(html)",
-    "notes": [
-     "A template is HTML with placeholders like {{name}}; rendering fills them with data.",
-     "Flask uses Jinja2 for this; replace() shows the idea offline."
-    ],
-    "notes_tr": [
-     "Şablon, {{name}} gibi yer tutucuları olan HTML'dir; render etmek yer tutucuları veriyle doldurmaktır.",
-     "Flask bunun için Jinja2 kullanır; replace() fikri internetsiz göstermek içindir."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d26-b2-e1",
-     "type": "predict",
-     "concept": "templates-and-context",
-     "tags": [
-      "flask",
-      "templates",
-      "strings"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "template = '<h1>Welcome to {{name}}</h1><ul>{{items}}</ul>'\ntechs = ['HTML', 'CSS']\nitems = ''.join(f'<li>{t}</li>' for t in techs)\nhtml = template.replace('{{name}}', 'Python').replace('{{items}}', items)\nprint(html)",
-     "choices": [
-      "<h1>Welcome to Python</h1><ul><li>HTML</li><li>CSS</li></ul>",
-      "<h1>Welcome to Python</h1><ul>{{items}}</ul>",
-      "<h1>Welcome to {{name}}</h1><ul><li>HTML</li><li>CSS</li></ul>",
-      "<h1>Welcome to Python</h1><ul>['<li>HTML</li>', '<li>CSS</li>']</ul>"
-     ],
-     "expected_output": "<h1>Welcome to Python</h1><ul><li>HTML</li><li>CSS</li></ul>",
-     "explanation": "join glues the two <li> strings into one string, then both placeholders are replaced.",
-     "misconceptions": {
-      "<h1>Welcome to Python</h1><ul>{{items}}</ul>": "The second replace() swaps {{items}} for the joined <li> string.",
-      "<h1>Welcome to {{name}}</h1><ul><li>HTML</li><li>CSS</li></ul>": "The first replace() swaps {{name}} for 'Python'.",
-      "<h1>Welcome to Python</h1><ul>['<li>HTML</li>', '<li>CSS</li>']</ul>": "''.join(...) builds one string, not a list, so there are no brackets."
-     },
-     "explanation_tr": "join iki <li> metnini tek bir metinde birleştirir, sonra iki yer tutucu da değiştirilir.",
-     "misconceptions_tr": {
-      "<h1>Welcome to Python</h1><ul>{{items}}</ul>": "İkinci replace() {{items}} yerine birleştirilmiş <li> metnini koyar.",
-      "<h1>Welcome to {{name}}</h1><ul><li>HTML</li><li>CSS</li></ul>": "İlk replace() {{name}} yerine 'Python' koyar.",
-      "<h1>Welcome to Python</h1><ul>['<li>HTML</li>', '<li>CSS</li>']</ul>": "''.join(...) liste değil tek bir metin üretir, bu yüzden köşeli parantez çıkmaz."
-     }
-    },
-    {
-     "id": "d26-b2-e2",
-     "type": "fill_blank",
-     "concept": "templates-and-context",
-     "tags": [
-      "flask",
-      "templates",
-      "strings"
-     ],
-     "prompt": "Fill the {{title}} placeholder with the page title.",
-     "prompt_tr": "{{title}} yer tutucusunu sayfa başlığıyla doldur.",
-     "starter_code": "template = '<title>30 Days - {{title}}</title>'\ntitle = 'Home'\nhtml = template.___('{{title}}', ___)",
-     "blanks": [
-      {
-       "answer": [
-        "replace"
-       ]
-      },
-      {
-       "answer": [
-        "title"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert html == '<title>30 Days - Home</title>'",
-       "visible": true,
-       "label_tr": "Başlık şablona doğru yerleşiyor"
-      }
-     ]
-    },
-    {
-     "id": "d26-b2-e3",
-     "type": "modify",
-     "concept": "templates-and-context",
-     "tags": [
-      "flask",
-      "templates",
-      "strings"
-     ],
-     "prompt": "render only fills {{name}}. Change it so render(template, context) takes a dict and fills every {{key}} with its value.",
-     "prompt_tr": "render yalnızca {{name}} alanını dolduruyor. Onu değiştir: render(template, context) bir dict alsın ve her {{anahtar}} yer tutucusunu karşılığıyla doldursun.",
-     "starter_code": "def render(template, name):\n    return template.replace('{{name}}', name)",
-     "tests": [
-      {
-       "code": "assert render('Hi {{name}} from {{city}}', {'name': 'Ada', 'city': 'Ankara'}) == 'Hi Ada from Ankara'",
-       "visible": true,
-       "label_tr": "İki yer tutucu birlikte dolduruluyor"
-      },
-      {
-       "code": "assert render('No placeholders', {'a': '1'}) == 'No placeholders'",
-       "visible": true,
-       "label_tr": "Yer tutucusuz metin değişmiyor"
-      },
-      {
-       "code": "assert render('{{x}}{{x}}', {'x': 'ab'}) == 'abab'",
-       "visible": false,
-       "failure_message": "A placeholder can appear more than once; replace handles all occurrences.",
-       "failure_message_tr": "Bir yer tutucu birden çok kez geçebilir; replace hepsini değiştirir."
-      }
-     ],
-     "hints": [
-      "The second parameter becomes a dict; you need to go through its pairs.",
-      "for key, value in context.items(): replace '{{' + key + '}}' with value.",
-      "Last step: rename the second parameter to context, loop over context.items(), and inside the loop reassign template to template.replace(___, value); return template."
-     ],
-     "solution": {
-      "approach": "Loop over the dict items and replace each placeholder.",
-      "code": "def render(template, context):\n    for key, value in context.items():\n        template = template.replace('{{' + key + '}}', value)\n    return template",
-      "approach_tr": "Dict öğeleri üzerinde dön ve her yer tutucuyu değiştir."
-     },
-     "hints_tr": [
-      "İkinci parametre bir dict olur; çiftlerini dolaşman gerekir.",
-      "for key, value in context.items(): '{{' + key + '}}' yer tutucusunu value ile değiştir.",
-      "Son adım: ikinci parametreyi context yap, context.items() üzerinde dön, döngüde template'i template.replace(___, value) ile yeniden ata ve template'i döndür."
-     ]
-    },
-    {
-     "id": "d26-b2-e4",
-     "type": "write",
-     "concept": "templates-and-context",
-     "tags": [
-      "flask",
-      "templates",
-      "strings"
-     ],
-     "prompt": "Write render_ul(items). It returns an HTML list: '<ul><li>HTML</li><li>CSS</li></ul>' for ['HTML', 'CSS'], and '<ul></ul>' for an empty list.",
-     "prompt_tr": "render_ul(items) yaz. ['HTML', 'CSS'] için '<ul><li>HTML</li><li>CSS</li></ul>', boş liste için '<ul></ul>' biçiminde bir HTML listesi döndürsün.",
-     "starter_code": "",
-     "signature": "def render_ul(items):",
-     "tests": [
-      {
-       "code": "assert render_ul(['HTML', 'CSS']) == '<ul><li>HTML</li><li>CSS</li></ul>'",
-       "visible": true,
-       "label_tr": "İki öğeli liste doğru kuruluyor"
-      },
-      {
-       "code": "assert render_ul([]) == '<ul></ul>'",
-       "visible": true,
-       "label_tr": "Boş liste '<ul></ul>' veriyor"
-      },
-      {
-       "code": "assert render_ul(['Flask']) == '<ul><li>Flask</li></ul>'",
-       "visible": false,
-       "failure_message": "A single item still needs its own <li>...</li>.",
-       "failure_message_tr": "Tek öğe için de kendi <li>...</li> parçası gerekir."
-      },
-      {
-       "code": "assert render_ul(['b', 'a']) == '<ul><li>b</li><li>a</li></ul>'",
-       "visible": false,
-       "failure_message": "Keep the original order; do not sort.",
-       "failure_message_tr": "Özgün sırayı koru; sıralama yapma."
-      }
-     ],
-     "hints": [
-      "Build the <li> parts first, then wrap them.",
-      "''.join(f'<li>{i}</li>' for i in items) gives the inner part.",
-      "Last step: build the inner string by joining one <li> piece per item, then return it wrapped between the opening and closing ul tags."
-     ],
-     "solution": {
-      "approach": "Join the <li> elements and wrap them in <ul>.",
-      "code": "def render_ul(items):\n    inner = ''.join(f'<li>{i}</li>' for i in items)\n    return f'<ul>{inner}</ul>'",
-      "approach_tr": "<li> öğelerini birleştir ve <ul> içine sar."
-     },
-     "twin": "d26-b2-e5",
-     "hints_tr": [
-      "Önce <li> parçalarını kur, sonra onları sar.",
-      "''.join(f'<li>{i}</li>' for i in items) iç kısmı verir.",
-      "Son adım: her öğe için bir <li> parçasını birleştirerek iç metni kur, sonra onu açılış ve kapanış ul etiketleri arasında döndür."
-     ]
-    },
-    {
-     "id": "d26-b2-e5",
-     "type": "write",
-     "concept": "templates-and-context",
-     "tags": [
-      "flask",
-      "templates",
-      "strings"
-     ],
-     "prompt": "Write render_nav(links). links is a dict {label: href}. Return '<ul><li><a href=\"/\">Home</a></li>...</ul>' with one <li><a href=\"href\">label</a></li> per entry (keep the dict order; '<ul></ul>' when empty).",
-     "prompt_tr": "render_nav(links) yaz. links, {etiket: href} biçiminde bir dict'tir. Her kayıt için bir <li><a href=\"href\">etiket</a></li> içeren '<ul>...</ul>' döndür (dict sırasını koru; boşsa '<ul></ul>').",
-     "starter_code": "",
-     "signature": "def render_nav(links):",
-     "tests": [
-      {
-       "code": "assert render_nav({'Home': '/'}) == '<ul><li><a href=\"/\">Home</a></li></ul>'",
-       "visible": true,
-       "label_tr": "Tek bağlantı doğru kuruluyor"
-      },
-      {
-       "code": "assert render_nav({}) == '<ul></ul>'",
-       "visible": true,
-       "label_tr": "Boş dict '<ul></ul>' veriyor"
-      },
-      {
-       "code": "assert render_nav({'Home': '/', 'About': '/about'}) == '<ul><li><a href=\"/\">Home</a></li><li><a href=\"/about\">About</a></li></ul>'",
-       "visible": false,
-       "failure_message": "Each entry becomes <li><a href=\"href\">label</a></li>, in dict order.",
-       "failure_message_tr": "Her kayıt, dict sırasıyla <li><a href=\"href\">etiket</a></li> olur."
-      },
-      {
-       "code": "assert render_nav({'x': '/y'}) == '<ul><li><a href=\"/y\">x</a></li></ul>'",
-       "visible": false,
-       "failure_message": "The href is the dict VALUE and the visible label is the KEY.",
-       "failure_message_tr": "href dict DEĞERİDİR, görünen etiket ise ANAHTARDIR."
-      }
-     ],
-     "hints": [
-      "Same idea as render_ul but each item is a link.",
-      "Loop with links.items() and build f'<li><a href=\"{href}\">{label}</a></li>'.",
-      "Last step: loop over links.items() as (label, href) pairs, join one <li><a> piece per pair, and wrap the result in ul tags."
-     ],
-     "solution": {
-      "approach": "Join one <li><a> per dict entry and wrap in <ul>.",
-      "code": "def render_nav(links):\n    inner = ''.join(f'<li><a href=\"{href}\">{label}</a></li>' for label, href in links.items())\n    return f'<ul>{inner}</ul>'",
-      "approach_tr": "Her dict kaydı için bir <li><a> birleştir ve <ul> içine sar."
-     },
-     "twin": "d26-b2-e4",
-     "hints_tr": [
-      "render_ul ile aynı fikir, ama her öğe bir bağlantı.",
-      "links.items() üzerinde dön ve her çift için f'<li><a href=\"{href}\">{label}</a></li>' kur.",
-      "Son adım: links.items() üzerinde (label, href) çiftleriyle dön, her çift için bir <li><a> parçası birleştir ve sonucu ul etiketlerine sar."
-     ]
-    }
-   ],
-   "concept_tr": "Şablonlar (template) ve context"
-  },
-  {
-   "id": "d26-b3",
-   "concept": "request-methods-forms",
-   "tags": [
-    "flask",
-    "http-methods",
-    "forms",
-    "conditionals"
-   ],
-   "worked_example": {
-    "code": "def post(method, form):\n    if method == 'GET':\n        return 'show form'\n    if method == 'POST':\n        return 'got: ' + form['content']\nprint(post('POST', {'content': 'hello'}))",
-    "notes": [
-     "GET shows the form; POST sends the data typed in the form.",
-     "In Flask the same checks use request.method and request.form['content']."
-    ],
-    "notes_tr": [
-     "GET formu gösterir; POST formda yazılan veriyi gönderir.",
-     "Flask'ta aynı kontroller request.method ve request.form['content'] ile yapılır."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d26-b3-e1",
-     "type": "predict",
-     "concept": "request-methods-forms",
-     "tags": [
-      "flask",
-      "http-methods",
-      "forms",
-      "conditionals"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "def post(method, form):\n    if method == 'GET':\n        return 'show form'\n    if method == 'POST':\n        return len(form['content'].split())\n    return 'not allowed'\n\nprint(post('GET', {}), post('POST', {'content': 'one two three'}), post('PUT', {}))",
-     "choices": [
-      "show form 3 not allowed",
-      "show form 13 not allowed",
-      "show form 3 show form",
-      "not allowed 3 not allowed"
-     ],
-     "expected_output": "show form 3 not allowed",
-     "explanation": "GET returns 'show form'. POST counts the words of the text: 3. PUT matches neither branch, so 'not allowed' is returned.",
-     "misconceptions": {
-      "show form 13 not allowed": "split() splits the text into words, so len counts words (3), not characters.",
-      "show form 3 show form": "PUT is neither GET nor POST, so it reaches the last return.",
-      "not allowed 3 not allowed": "GET matches the first branch and returns 'show form'."
-     },
-     "explanation_tr": "GET 'show form' döndürür. POST metindeki kelimeleri sayar: 3. PUT iki dala da uymaz, bu yüzden 'not allowed' döner.",
-     "misconceptions_tr": {
-      "show form 13 not allowed": "split() metni kelimelere böler, bu yüzden len karakterleri değil kelimeleri sayar (3).",
-      "show form 3 show form": "PUT ne GET ne POST'tur, bu yüzden son return'e ulaşır.",
-      "not allowed 3 not allowed": "GET ilk dala uyar ve 'show form' döndürür."
-     }
-    },
-    {
-     "id": "d26-b3-e2",
-     "type": "parsons",
-     "concept": "request-methods-forms",
-     "tags": [
-      "flask",
-      "http-methods",
-      "forms",
-      "conditionals"
-     ],
-     "prompt": "Put the lines in order: a text analyzer that counts words and characters.",
-     "prompt_tr": "Satırları sırala: kelime ve karakter sayan bir metin çözümleyici.",
-     "lines": [
-      "print(analyze('Python is fun'))",
-      "    words = text.split()",
-      "def analyze(text):",
-      "    return {'words': len(words), 'chars': len(text)}"
-     ],
-     "correct_order": [
-      2,
-      1,
-      3,
-      0
-     ],
-     "distractors": [
-      "    return {'words': len(text), 'chars': len(words)}"
-     ],
-     "expected_output": "{'words': 3, 'chars': 13}"
-    },
-    {
-     "id": "d26-b3-e3",
-     "type": "write",
-     "concept": "request-methods-forms",
-     "tags": [
-      "flask",
-      "http-methods",
-      "forms",
-      "conditionals"
-     ],
-     "prompt": "Write post_view(method, form). For 'GET' return {'status': 200, 'page': 'form'}. For 'POST' return {'status': 200, 'words': <number of words in form['content']>, 'chars': <number of characters>}. For any other method return {'status': 405}.",
-     "prompt_tr": "post_view(method, form) yaz. 'GET' için {'status': 200, 'page': 'form'} döndür. 'POST' için {'status': 200, 'words': <form['content'] içindeki kelime sayısı>, 'chars': <karakter sayısı>} döndür. Diğer her yöntem için {'status': 405} döndür.",
-     "starter_code": "",
-     "signature": "def post_view(method, form):",
-     "tests": [
-      {
-       "code": "assert post_view('GET', {}) == {'status': 200, 'page': 'form'}",
-       "visible": true,
-       "label_tr": "GET formu gösteriyor"
-      },
-      {
-       "code": "assert post_view('POST', {'content': 'Python is fun'}) == {'status': 200, 'words': 3, 'chars': 13}",
-       "visible": true,
-       "label_tr": "POST kelime ve karakter sayısını veriyor"
-      },
-      {
-       "code": "assert post_view('DELETE', {}) == {'status': 405}",
-       "visible": false,
-       "failure_message": "Methods other than GET and POST must return {'status': 405}.",
-       "failure_message_tr": "GET ve POST dışındaki yöntemler {'status': 405} döndürmeli."
-      },
-      {
-       "code": "assert post_view('POST', {'content': ''}) == {'status': 200, 'words': 0, 'chars': 0}",
-       "visible": false,
-       "failure_message": "Empty text has 0 words: split() on an empty string gives an empty list.",
-       "failure_message_tr": "Boş metnin 0 kelimesi vardır: boş metinde split() boş liste verir."
-      }
-     ],
-     "hints": [
-      "Three cases: GET, POST, everything else.",
-      "For POST use text = form['content']; words = len(text.split()); chars = len(text).",
-      "Last step: branch with if for GET, if for POST (reading form['content'] and counting with len), and a final return of the 405 dict."
-     ],
-     "solution": {
-      "approach": "Branch on the method; compute the counts only for POST.",
-      "code": "def post_view(method, form):\n    if method == 'GET':\n        return {'status': 200, 'page': 'form'}\n    if method == 'POST':\n        text = form['content']\n        return {'status': 200, 'words': len(text.split()), 'chars': len(text)}\n    return {'status': 405}",
-      "approach_tr": "Yönteme göre dallan; sayıları yalnızca POST için hesapla."
-     },
-     "twin": "d26-b3-e4",
-     "hints_tr": [
-      "Üç durum var: GET, POST ve geri kalan her şey.",
-      "POST için text = form['content']; words = len(text.split()); chars = len(text) kullan.",
-      "Son adım: GET için bir if, POST için bir if (form['content'] okuyup len ile say) ve sonda 405 sözlüğünü döndüren bir return yaz."
-     ]
-    },
-    {
-     "id": "d26-b3-e4",
-     "type": "write",
-     "concept": "request-methods-forms",
-     "tags": [
-      "flask",
-      "http-methods",
-      "forms",
-      "conditionals"
-     ],
-     "prompt": "Write contact_view(method, form). For 'GET' return {'status': 200, 'page': 'contact'}. For 'POST' return {'status': 200, 'message': 'Thanks, <name>!'} using form['name']. For any other method return {'status': 405}.",
-     "prompt_tr": "contact_view(method, form) yaz. 'GET' için {'status': 200, 'page': 'contact'} döndür. 'POST' için form['name'] kullanarak {'status': 200, 'message': 'Thanks, <name>!'} döndür. Diğer her yöntem için {'status': 405} döndür.",
-     "starter_code": "",
-     "signature": "def contact_view(method, form):",
-     "tests": [
-      {
-       "code": "assert contact_view('GET', {}) == {'status': 200, 'page': 'contact'}",
-       "visible": true,
-       "label_tr": "GET iletişim sayfasını gösteriyor"
-      },
-      {
-       "code": "assert contact_view('POST', {'name': 'Ada'}) == {'status': 200, 'message': 'Thanks, Ada!'}",
-       "visible": true,
-       "label_tr": "POST teşekkür mesajı veriyor"
-      },
-      {
-       "code": "assert contact_view('PUT', {}) == {'status': 405}",
-       "visible": false,
-       "failure_message": "Methods other than GET and POST must return {'status': 405}.",
-       "failure_message_tr": "GET ve POST dışındaki yöntemler {'status': 405} döndürmeli."
-      },
-      {
-       "code": "assert contact_view('POST', {'name': 'Sami'})['message'] == 'Thanks, Sami!'",
-       "visible": false,
-       "failure_message": "Use the name from the form; do not hard-code one.",
-       "failure_message_tr": "Formdaki adı kullan; sabit bir ad yazma."
-      }
-     ],
-     "hints": [
-      "Same three-way branch as post_view.",
-      "In the POST branch build f'Thanks, {form[\"name\"]}!'.",
-      "Last step: GET branch, POST branch that builds the message from form['name'], and a last return of the 405 dict."
-     ],
-     "solution": {
-      "approach": "Branch on the method and build the message from the form field.",
-      "code": "def contact_view(method, form):\n    if method == 'GET':\n        return {'status': 200, 'page': 'contact'}\n    if method == 'POST':\n        return {'status': 200, 'message': f\"Thanks, {form['name']}!\"}\n    return {'status': 405}",
-      "approach_tr": "Yönteme göre dallan ve mesajı form alanından kur."
-     },
-     "twin": "d26-b3-e3",
-     "hints_tr": [
-      "post_view ile aynı üç yollu dallanma.",
-      "POST dalında f'Thanks, {form[\"name\"]}!' kur.",
-      "Son adım: GET dalı, mesajı form['name'] ile kuran POST dalı ve 405 sözlüğünü döndüren son bir return."
-     ]
-    },
-    {
-     "id": "d26-b3-e5",
-     "type": "debug",
-     "concept": "request-methods-forms",
-     "tags": [
-      "flask",
-      "http-methods",
-      "forms",
-      "conditionals"
-     ],
-     "prompt": "post('POST', ...) should print 3 (the number of words) but crashes with a KeyError. Fix it.",
-     "prompt_tr": "post('POST', ...) 3 (kelime sayısı) yazdırmalı ama KeyError ile çöküyor. Düzelt.",
-     "starter_code": "def post(method, form):\n    if method == 'POST':\n        return len(form['text'].split())\n    return 0\n\nprint(post('POST', {'content': 'one two three'}))",
-     "hints": [
-      "The KeyError names the missing key. Compare it with the form dict.",
-      "The textarea is called 'content' (name=\"content\"), so form['content'] is the field to read.",
-      "Last step: the key you read from form must be the same word as the key used in the form dict at the bottom."
-     ],
-     "solution": {
-      "approach": "The key you read must match the form field name.",
-      "code": "def post(method, form):\n    if method == 'POST':\n        return len(form['content'].split())\n    return 0\n\nprint(post('POST', {'content': 'one two three'}))",
-      "approach_tr": "Okuduğun anahtar, form alanının adıyla eşleşmeli."
-     },
-     "expected_output": "3",
-     "hints_tr": [
-      "KeyError eksik anahtarı söyler. Onu form dict'iyle karşılaştır.",
-      "Metin alanının adı 'content'tir (name=\"content\"), yani okunacak alan form['content']'tir.",
-      "Son adım: form'dan okuduğun anahtar, en alttaki form dict'inde kullanılan anahtarla aynı kelime olmalı."
-     ]
-    }
-   ],
-   "concept_tr": "İstek yöntemleri (GET/POST) ve formlar"
-  },
-  {
-   "id": "d26-b4",
-   "concept": "procfile-requirements",
-   "tags": [
-    "flask",
-    "deployment",
-    "strings",
-    "parsing"
-   ],
-   "worked_example": {
-    "code": "line = 'web: python app.py'\nprocess, command = line.split(': ')\nprint(process, '->', command)",
-    "notes": [
-     "A Procfile line is process type, a colon, then the command that starts it.",
-     "pip freeze > requirements.txt lists the packages the server must install."
-    ],
-    "notes_tr": [
-     "Bir Procfile satırı şöyledir: süreç türü, iki nokta ve onu başlatan komut.",
-     "pip freeze > requirements.txt, sunucunun kurması gereken paketleri listeler."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d26-b4-e1",
-     "type": "predict",
-     "concept": "procfile-requirements",
-     "tags": [
-      "flask",
-      "deployment",
-      "strings",
-      "parsing"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "procfile = 'web: python app.py\\nworker: python jobs.py'\ncommands = {}\nfor line in procfile.split('\\n'):\n    process, command = line.split(': ')\n    commands[process] = command\nprint(commands['worker'], len(commands))",
-     "choices": [
-      "python jobs.py 2",
-      "worker 2",
-      "python app.py 2",
-      "python jobs.py 1"
-     ],
-     "expected_output": "python jobs.py 2",
-     "explanation": "The loop stores process -> command for both lines. commands['worker'] is 'python jobs.py' and the dict has 2 entries.",
-     "misconceptions": {
-      "worker 2": "commands['worker'] is the command text, not the key.",
-      "python app.py 2": "That is the command of the web process. We asked for 'worker'.",
-      "python jobs.py 1": "Both lines are processed, so the dict has 2 entries."
-     },
-     "explanation_tr": "Döngü iki satır için süreç -> komut kaydeder. commands['worker'] 'python jobs.py' olur ve dict'te 2 kayıt vardır.",
-     "misconceptions_tr": {
-      "worker 2": "commands['worker'] anahtar değil, komut metnidir.",
-      "python app.py 2": "Bu web sürecinin komutudur. Biz 'worker'ı istedik.",
-      "python jobs.py 1": "İki satır da işlenir, bu yüzden dict'te 2 kayıt vardır."
-     }
-    },
-    {
-     "id": "d26-b4-e2",
-     "type": "fill_blank",
-     "concept": "procfile-requirements",
-     "tags": [
-      "flask",
-      "deployment",
-      "strings",
-      "parsing"
-     ],
-     "prompt": "Read the package names from the output of pip freeze (the text before ==).",
-     "prompt_tr": "pip freeze çıktısından paket adlarını oku (== işaretinden önceki metin).",
-     "starter_code": "freeze = 'Click==7.0\\nFlask==1.1.1\\nJinja2==2.10.3'\nnames = [line.split('==')[___] for line in freeze.___('\\n')]",
-     "blanks": [
-      {
-       "answer": [
-        "0"
-       ]
-      },
-      {
-       "answer": [
-        "split"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert names == ['Click', 'Flask', 'Jinja2']",
-       "visible": true,
-       "label_tr": "Paket adları doğru çıkarılıyor"
-      }
-     ]
-    },
-    {
-     "id": "d26-b4-e3",
-     "type": "write",
-     "concept": "procfile-requirements",
-     "tags": [
-      "flask",
-      "deployment",
-      "strings",
-      "parsing"
-     ],
-     "prompt": "Write parse_procfile(text). Each line of the text looks like 'web: python app.py'. Return a dict {process: command}. Skip empty lines.",
-     "prompt_tr": "parse_procfile(text) yaz. Metnin her satırı 'web: python app.py' gibidir. {süreç: komut} biçiminde bir dict döndür. Boş satırları atla.",
-     "starter_code": "",
-     "signature": "def parse_procfile(text):",
-     "tests": [
-      {
-       "code": "assert parse_procfile('web: python app.py') == {'web': 'python app.py'}",
-       "visible": true,
-       "label_tr": "Tek satır sözlüğe çevriliyor"
-      },
-      {
-       "code": "assert parse_procfile('') == {}",
-       "visible": true,
-       "label_tr": "Boş metin boş sözlük veriyor"
-      },
-      {
-       "code": "assert parse_procfile('web: gunicorn app:app\\nworker: python jobs.py\\n') == {'web': 'gunicorn app:app', 'worker': 'python jobs.py'}",
-       "visible": false,
-       "failure_message": "Skip empty lines (a trailing newline makes one) and keep colons inside the command.",
-       "failure_message_tr": "Boş satırları atla (sondaki yeni satır bir tane yaratır) ve komutun içindeki iki noktaları koru."
-      },
-      {
-       "code": "assert parse_procfile('web: python -m flask run --port 5000') == {'web': 'python -m flask run --port 5000'}",
-       "visible": false,
-       "failure_message": "Split only at the FIRST ': ' so the rest of the command stays intact (split(': ', 1)).",
-       "failure_message_tr": "Komutun geri kalanı bozulmasın diye yalnızca İLK ': ' işaretinde böl (split(': ', 1))."
-      }
-     ],
-     "hints": [
-      "Loop over lines and ignore empty ones.",
-      "line.split(': ', 1) splits only at the first colon+space.",
-      "Last step: for each non-empty line, split it once at the first ': ' into process and command, then store result[process] = ___."
-     ],
-     "solution": {
-      "approach": "Split at the first ': ' on every non-empty line.",
-      "code": "def parse_procfile(text):\n    result = {}\n    for line in text.split('\\n'):\n        if line.strip():\n            process, command = line.split(': ', 1)\n            result[process] = command\n    return result",
-      "approach_tr": "Boş olmayan her satırı ilk ': ' noktasından böl."
-     },
-     "twin": "d26-b4-e4",
-     "hints_tr": [
-      "Satırlar üzerinde dön ve boş olanları yok say.",
-      "line.split(': ', 1) yalnızca ilk iki nokta + boşlukta böler.",
-      "Son adım: boş olmayan her satırı ilk ': ' işaretinde bir kez bölerek süreç ve komuta ayır, sonra result[process] = ___ ata."
-     ]
-    },
-    {
-     "id": "d26-b4-e4",
-     "type": "write",
-     "concept": "procfile-requirements",
-     "tags": [
-      "flask",
-      "deployment",
-      "strings",
-      "parsing"
-     ],
-     "prompt": "Write run_command(text, process). text is the content of a Procfile. Return the command for the given process type, or None if it is not defined. Skip empty lines.",
-     "prompt_tr": "run_command(text, process) yaz. text bir Procfile'ın içeriğidir. Verilen süreç türünün komutunu döndür; tanımlı değilse None döndür. Boş satırları atla.",
-     "starter_code": "",
-     "signature": "def run_command(text, process):",
-     "tests": [
-      {
-       "code": "assert run_command('web: python app.py', 'web') == 'python app.py'",
-       "visible": true,
-       "label_tr": "Var olan süreç komutunu veriyor"
-      },
-      {
-       "code": "assert run_command('web: python app.py', 'worker') is None",
-       "visible": true,
-       "label_tr": "Olmayan süreç için None dönüyor"
-      },
-      {
-       "code": "assert run_command('web: python app.py\\nworker: python jobs.py\\n', 'worker') == 'python jobs.py'",
-       "visible": false,
-       "failure_message": "Look at every line, not only the first, and ignore the empty line at the end.",
-       "failure_message_tr": "Yalnızca ilk satıra değil her satıra bak ve sondaki boş satırı yok say."
-      },
-      {
-       "code": "assert run_command('web: gunicorn app:app', 'web') == 'gunicorn app:app'",
-       "visible": false,
-       "failure_message": "Split only at the first ': ' so the command keeps its own colons.",
-       "failure_message_tr": "Komutun kendi iki noktaları korunsun diye yalnızca ilk ': ' işaretinde böl."
-      }
-     ],
-     "hints": [
-      "Parse the lines as in parse_procfile, then look the process up.",
-      "Build the dict, then use .get(process).",
-      "Last step: build the dict of commands from the non-empty lines, then return the result of .get with the process argument."
-     ],
-     "solution": {
-      "approach": "Parse into a dict and return .get(process).",
-      "code": "def run_command(text, process):\n    commands = {}\n    for line in text.split('\\n'):\n        if line.strip():\n            name, command = line.split(': ', 1)\n            commands[name] = command\n    return commands.get(process)",
-      "approach_tr": "Bir dict'e ayrıştır ve .get(process) döndür."
-     },
-     "twin": "d26-b4-e3",
-     "hints_tr": [
-      "Satırları parse_procfile'daki gibi ayrıştır, sonra süreci ara.",
-      "Dict'i kur, sonra .get(process) kullan.",
-      "Son adım: boş olmayan satırlardan komut dict'ini kur, sonra process argümanıyla .get sonucunu döndür."
-     ]
-    }
-   ],
-   "concept_tr": "Procfile ve requirements.txt"
-  }
- ],
- "review_pool": [
-  "d26-b1-e1",
-  "d26-b1-e3",
-  "d26-b2-e1",
-  "d26-b2-e4",
-  "d26-b3-e1",
-  "d26-b3-e3"
- ],
- "title_tr": "Python ile Web (Flask)"
+  ],
+  "review_pool": [
+    "d26-b1-e1",
+    "d26-b1-e6",
+    "d26-b2-e1",
+    "d26-b3-e7",
+    "d26-b4-e1",
+    "d26-b4-e6"
+  ]
 }
