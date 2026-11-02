@@ -242,7 +242,7 @@
       "type": "explain",
       "title_tr": "Gerçekçi örnek: alışveriş sepeti",
       "title": "Realistic example: a shopping cart",
-      "body_tr": "Bir e-ticaret sepetini düşün. Veri: ürünler listesi. Davranış: ürün eklemek, toplamı hesaplamak, ürün sayısını söylemek. Sınıf ikisini tek yerde toplar.\n\n`self.items = []` listesi `__init__` içinde kurulduğu için her sepetin kendi listesi olur. `add` metodu listeyi yerinde değiştirir (`append`), `total` ise listeyi okuyup bir sayı döndürür. Dışarıdaki kod sepetin içinin nasıl düzenlendiğini bilmek zorunda değildir; yalnızca `add` ve `total` metotlarını kullanır.",
+      "body_tr": "Bir e-ticaret sepetini düşün. Veri: ürünler list'i. Davranış: ürün eklemek, toplamı hesaplamak, ürün sayısını söylemek. Sınıf ikisini tek yerde toplar.\n\n`self.items = []` list'i `__init__` içinde kurulduğu için her sepetin kendi list'i olur. `add` metodu list'i yerinde değiştirir (`append`), `total` ise list'i okuyup bir sayı döndürür. Dışarıdaki kod sepetin içinin nasıl düzenlendiğini bilmek zorunda değildir; yalnızca `add` ve `total` metotlarını kullanır.",
       "body": "Think of an online shop's cart. Data: a list of products. Behaviour: add a product, compute the total, report how many items there are. A class keeps both in one place.\n\nThe list `self.items = []` is built inside `__init__`, so every cart gets its own list. The `add` method changes the list in place (`append`), while `total` reads the list and returns a number. Outside code does not need to know how the cart is organised inside; it only uses `add` and `total`.",
       "code": "class Cart:\n    def __init__(self):\n        self.items = []\n\n    def add(self, name, price):\n        self.items.append((name, price))\n\n    def total(self):\n        return sum(price for name, price in self.items)\n\ncart = Cart()\ncart.add('kalem', 12.5)\ncart.add('defter', 40)\nprint(len(cart.items), cart.total())",
       "expected_output": "2 52.5",
@@ -316,7 +316,7 @@
       "type": "explain",
       "title_tr": "Sık hata: değiştirilebilir varsayılan",
       "title": "Common mistake: a mutable default",
-      "body_tr": "Şu tuzak deneyimli geliştiricileri bile yakalar. Varsayılan değer, `def` satırı çalıştığında **bir kez** üretilir; her çağrıda yeniden değil. `skills=[]` yazarsan bütün nesneler aynı list nesnesine bağlanır. Biri ona ekleme yaptığında ötekiler de görür.\n\nİzleyicide `a.skills` ve `b.skills` etiketlerinin aynı listeyi gösterdiğini izle. Çözüm: varsayılan olarak `None` ver ve listeyi `__init__` içinde kur. Böylece her çağrıda yeni bir liste doğar. Bu kural list, dict ve set gibi bütün değiştirilebilir değerler için geçerlidir.",
+      "body_tr": "Şu tuzak deneyimli geliştiricileri bile yakalar. Varsayılan değer, `def` satırı çalıştığında **bir kez** üretilir; her çağrıda yeniden değil. `skills=[]` yazarsan bütün nesneler aynı list nesnesine bağlanır. Biri ona ekleme yaptığında ötekiler de görür.\n\nİzleyicide `a.skills` ve `b.skills` etiketlerinin aynı list'i gösterdiğini izle. Çözüm: varsayılan olarak `None` ver ve list'i `__init__` içinde kur. Böylece her çağrıda yeni bir list doğar. Bu kural list, dict ve set gibi bütün değiştirilebilir değerler için geçerlidir.",
       "body": "This trap catches even experienced developers. A default value is created **once**, when the `def` line runs, not on every call. If you write `skills=[]`, every object is bound to the same list object, and when one adds to it the others see it too.\n\nIn the tracer, watch `a.skills` and `b.skills` point at the same list. The fix: use `None` as the default and build the list inside `__init__`, so every call makes a new one. The rule applies to every mutable value: lists, dicts and sets.",
       "code": "class Dev:\n    def __init__(self, name, skills=[]):\n        self.name = name\n        self.skills = skills\n\na = Dev('Ali')\nb = Dev('Banu')\na.skills.append('Python')\nprint(b.skills)\nprint(a.skills is b.skills)",
       "expected_output": "['Python']\nTrue",
@@ -336,7 +336,7 @@
         "Error"
       ],
       "answer": "1 0",
-      "why_tr": "`None` varsayılanıyla her çağrı `skills = []` satırına girer ve yeni bir liste kurar. `a` ile `b` ayrı listeler taşır; ekleme yalnızca `a`'yı etkiler.",
+      "why_tr": "`None` varsayılanıyla her çağrı `skills = []` satırına girer ve yeni bir list kurar. `a` ile `b` ayrı list'ler taşır; ekleme yalnızca `a`'yı etkiler.",
       "why": "With the `None` default every call reaches `skills = []` and builds a new list. `a` and `b` carry separate lists, so the append affects only `a`.",
       "section": "Object Default Methods"
     },
@@ -345,7 +345,7 @@
       "type": "explain",
       "title_tr": "Durumu değiştiren metotlar",
       "title": "Methods that change state",
-      "body_tr": "Nesnenin o anki nitelik değerlerine **durum** (state) denir. Bazı metotlar durumu yalnızca okur (`person_info`), bazıları değiştirir (`add_skill`).\n\nOrijinal derste `skills` listesi `__init__` içinde `self.skills = []` ile kurulur. Böylece her kişinin kendi listesi olur ve `add_skill` yalnızca çağrıldığı nesnenin listesine ekleme yapar. İzleyicide `p1.add_skill('HTML')` çağrısında `self`'in `p1`'e, sonraki çağrıda yine `p1`'e bağlandığını, `p2`'nin listesinin ise boş kaldığını gör.",
+      "body_tr": "Nesnenin o anki nitelik değerlerine **durum** (state) denir. Bazı metotlar durumu yalnızca okur (`person_info`), bazıları değiştirir (`add_skill`).\n\nOrijinal derste `skills` list'i `__init__` içinde `self.skills = []` ile kurulur. Böylece her kişinin kendi list'i olur ve `add_skill` yalnızca çağrıldığı nesnenin list'ine ekleme yapar. İzleyicide `p1.add_skill('HTML')` çağrısında `self`'in `p1`'e, sonraki çağrıda yine `p1`'e bağlandığını, `p2`'nin list'inin ise boş kaldığını gör.",
       "body": "The current values of an object's attributes are its **state**. Some methods only read the state (`person_info`), others change it (`add_skill`).\n\nIn the original lesson the `skills` list is built in `__init__` with `self.skills = []`. That gives every person a list of their own, and `add_skill` appends only to the list of the object it was called on. In the tracer, watch `self` bind to `p1` during `p1.add_skill('HTML')` and again on the next call, while `p2`'s list stays empty.",
       "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n        self.skills = []\n\n    def add_skill(self, skill):\n        self.skills.append(skill)\n\np1 = Person('Asabeneh')\np2 = Person('John')\np1.add_skill('HTML')\np1.add_skill('CSS')\nprint(p1.skills)\nprint(p2.skills)",
       "expected_output": "['HTML', 'CSS']\n[]",
@@ -596,7 +596,7 @@
         "Sınıf bir kalıptır; sınıfı çağırmak (`Person('Ada')`) yeni bir nesne üretir, `b = a` ise aynı nesneye ikinci bir isim etiketi yapıştırır.",
         "`__init__` nesne kurulduktan hemen sonra otomatik çağrılır; `self` o nesnenin kendisidir ve `self.x = x` değeri nesnenin üzerine yazar.",
         "`p.person_info()` çağrısı `Person.person_info(p)` demektir; her metodun ilk parametresi `self`'tir ve nitelikler her zaman `self.` ile okunur.",
-        "Varsayılan değer olarak `[]` gibi değiştirilebilir bir değer verme; `None` ver ve listeyi `__init__` içinde kur.",
+        "Varsayılan değer olarak `[]` gibi değiştirilebilir bir değer verme; `None` ver ve list'i `__init__` içinde kur.",
         "Kalıtımda alt sınıf ebeveynin her şeyini alır; kendi `__init__`'i varsa `super().__init__()` çağırır, aynı isimli metotla ebeveyni ezer ve `super()` ile genişletir."
       ],
       "points": [

@@ -114,7 +114,7 @@
         "/b /b"
       ],
       "answer": "/c /b",
-      "why_tr": "Arama sırası listedeki sıradır. `python` için `/c` ilk sırada ve onda var. `pip` için `/c`'de yok, sonraki `/b`'de var; `/a`'ya hiç bakılmaz.",
+      "why_tr": "Arama sırası list'teki sıradır. `python` için `/c` ilk sırada ve onda var. `pip` için `/c`'de yok, sonraki `/b`'de var; `/a`'ya hiç bakılmaz.",
       "why": "The search order is the list's order. For `python`, `/c` comes first and has it. For `pip`, `/c` lacks it and the next folder `/b` has it; `/a` is never checked.",
       "section": "Setting up Virtual Environments"
     },
@@ -123,7 +123,7 @@
       "type": "explain",
       "title_tr": "import paketleri nerede arar? sys.path",
       "title": "Where does import look? sys.path",
-      "body_tr": "`import flask` yazınca Python, `sys.path` listesindeki klasörleri sırayla dolaşır ve `flask` adlı modülü bulduğu **ilk** yerde durur. Liste genellikle betiğin klasörüyle başlar, standart kütüphaneyle devam eder ve `site-packages` ile biter. Venv etkinken bu son klasör venv'in kendi `site-packages`'ıdır; bu yüzden ortamın paketleri görünür, dışarıdakiler görünmez.\n\nBu da isim etiketi fikrinin bir benzeri: `import` bir arama yapar ve bulduğu modül nesnesini bir isme bağlar. `sys.path` sıradan bir list'tir; içeriği bilgisayardan bilgisayara değişir.",
+      "body_tr": "`import flask` yazınca Python, `sys.path` list'indeki klasörleri sırayla dolaşır ve `flask` adlı modülü bulduğu **ilk** yerde durur. List genellikle betiğin klasörüyle başlar, standart kütüphaneyle devam eder ve `site-packages` ile biter. Venv etkinken bu son klasör venv'in kendi `site-packages`'ıdır; bu yüzden ortamın paketleri görünür, dışarıdakiler görünmez.\n\nBu da isim etiketi fikrinin bir benzeri: `import` bir arama yapar ve bulduğu modül nesnesini bir isme bağlar. `sys.path` sıradan bir list'tir; içeriği bilgisayardan bilgisayara değişir.",
       "body": "When you write `import flask`, Python walks through the folders in the `sys.path` list in order and stops at the **first** place that has a module named `flask`. The list usually starts with the script's folder, continues with the standard library and ends with `site-packages`. With a venv active, that last folder is the venv's own `site-packages`; that is why the environment's packages are visible and outside ones are not.\n\nIt mirrors the name-tag idea: `import` does a search and binds the module object it found to a name. `sys.path` is an ordinary list, and its contents differ from computer to computer.",
       "code": "import sys\nimport json\n\nprint(type(sys.path).__name__)\nprint(all(isinstance(folder, str) for folder in sys.path))\nprint(json.__name__, 'json' in sys.modules)",
       "expected_output": "list\nTrue\njson True",
@@ -172,7 +172,7 @@
         "+"
       ],
       "expected_output": "/proje/venv/bin",
-      "why_tr": "`activate` ortamın klasörünü listenin **başına** ekler: `[active] + path`. Arama baştan başladığı için ilk bakılan yer venv olur.",
+      "why_tr": "`activate` ortamın klasörünü list'in **başına** ekler: `[active] + path`. Arama baştan başladığı için ilk bakılan yer venv olur.",
       "why": "`activate` puts the environment's folder at the **front** of the list: `[active] + path`. The search starts at the front, so the venv is checked first.",
       "section": "Setting up Virtual Environments"
     },
@@ -181,7 +181,7 @@
       "type": "explain",
       "title_tr": "pip freeze ve requirements.txt",
       "title": "pip freeze and requirements.txt",
-      "body_tr": "Etkin ortamda `pip freeze` kurulu her paketi `ad==sürüm` biçiminde, satır satır yazar. Orijinal derste Flask kurduktan sonra listede `Click`, `Jinja2`, `Werkzeug` gibi başka paketler de görünür: Flask bunlara **bağımlıdır** ve pip onları da kurmuştur.\n\nBu çıktıyı `pip freeze > requirements.txt` ile dosyaya yazarsın. Projeyi başka bir bilgisayara taşıyan kişi yeni bir venv açar ve `pip install -r requirements.txt` ile aynı sürümleri kurar. Dosya düz metin olduğu için Python'la kolayca okunur.",
+      "body_tr": "Etkin ortamda `pip freeze` kurulu her paketi `ad==sürüm` biçiminde, satır satır yazar. Orijinal derste Flask kurduktan sonra list'te `Click`, `Jinja2`, `Werkzeug` gibi başka paketler de görünür: Flask bunlara **bağımlıdır** ve pip onları da kurmuştur.\n\nBu çıktıyı `pip freeze > requirements.txt` ile dosyaya yazarsın. Projeyi başka bir bilgisayara taşıyan kişi yeni bir venv açar ve `pip install -r requirements.txt` ile aynı sürümleri kurar. Dosya düz metin olduğu için Python'la kolayca okunur.",
       "body": "In an active environment, `pip freeze` prints every installed package as `name==version`, one per line. In the original lesson, after installing Flask the list also shows packages such as `Click`, `Jinja2` and `Werkzeug`: Flask **depends** on them and pip installed them too.\n\nYou write this output to a file with `pip freeze > requirements.txt`. Someone moving the project to another computer creates a new venv and installs the same versions with `pip install -r requirements.txt`. The file is plain text, so Python reads it easily.",
       "code": "freeze = '''Click==7.0\nFlask==1.1.1\nitsdangerous==1.1.0\nJinja2==2.10.3\nMarkupSafe==1.1.1\nWerkzeug==0.16.0'''\n\npackages = {}\nfor line in freeze.splitlines():\n    name, version = line.split('==')\n    packages[name] = version\nprint(len(packages), packages['Flask'])",
       "expected_output": "6 1.1.1",
@@ -325,8 +325,8 @@
       "type": "explain",
       "title_tr": "Gerçekçi örnek: çakışmayı önceden bulmak",
       "title": "Realistic example: spotting a conflict early",
-      "body_tr": "İki kütüphane aynı bağımlılığın farklı sürümlerini isteyebilir: biri `urllib3==1.26`, öteki `urllib3==2.2` der. Tek bir ortamda ikisi birden kurulamaz; pip bunu fark edince \"ResolutionImpossible\" benzeri bir hatayla durur.\n\nAşağıdaki kod her paketin istediği bağımlılıkları bir dict'te topluyor. Her bağımlılık için istenen sürümleri bir set'te biriktiriyor (7. gün). Set'te birden fazla sürüm varsa çakışma vardır. Çözüm çoğu zaman paketlerden birinin başka bir sürümünü seçmek ya da projeleri ayrı venv'lere bölmektir.",
-      "body": "Two libraries can ask for different versions of the same dependency: one says `urllib3==1.26`, the other `urllib3==2.2`. Both cannot be installed in one environment; when pip notices, it stops with an error along the lines of \"ResolutionImpossible\".\n\nThe code below collects each package's required dependencies in a dict. For every dependency it gathers the requested versions in a set (Day 7). If the set holds more than one version, there is a conflict. The fix is usually choosing a different version of one package, or splitting the projects into separate venvs.",
+      "body_tr": "İki kütüphane aynı bağımlılığın farklı sürümlerini isteyebilir: biri `urllib3==1.26`, öteki `urllib3==2.2` der. Tek bir ortamda ikisi birden kurulamaz; pip bunu fark edince \"ResolutionImpossible\" benzeri bir hatayla durur.\n\nAşağıdaki kod her paketin istediği bağımlılıkları bir dict'te topluyor. Her bağımlılık için istenen sürümleri bir set'te biriktiriyor (7. gün). `setdefault(anahtar, set())` anahtar yoksa ona boş bir set bağlar ve o set'i döndürür; `.add` de sürümü ekler. Set'te birden fazla sürüm varsa çakışma vardır. Çözüm çoğu zaman paketlerden birinin başka bir sürümünü seçmek ya da projeleri ayrı venv'lere bölmektir.",
+      "body": "Two libraries can ask for different versions of the same dependency: one says `urllib3==1.26`, the other `urllib3==2.2`. Both cannot be installed in one environment; when pip notices, it stops with an error along the lines of \"ResolutionImpossible\".\n\nThe code below collects each package's required dependencies in a dict. For every dependency it gathers the requested versions in a set (Day 7). `setdefault(key, set())` binds an empty set to the key if it is missing and returns that set, and `.add` adds the version. If the set holds more than one version, there is a conflict. The fix is usually choosing a different version of one package, or splitting the projects into separate venvs.",
       "code": "needs = {'old-sdk': {'urllib3': '1.26', 'six': '1.16'},\n         'new-client': {'urllib3': '2.2'},\n         'helper': {'six': '1.16'}}\n\nwanted = {}\nfor package, deps in needs.items():\n    for dep, version in deps.items():\n        wanted.setdefault(dep, set()).add(version)\n\nconflicts = {dep: sorted(v) for dep, v in wanted.items() if len(v) > 1}\nprint(conflicts)",
       "expected_output": "{'urllib3': ['1.26', '2.2']}",
       "trace": true,
