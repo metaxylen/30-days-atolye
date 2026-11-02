@@ -1,253 +1,533 @@
 {
   "day": 6,
-  "title_tr": "Tuple'lar",
+  "title_tr": "Tuple'lar (demetler)",
   "title": "Tuples",
-  "est_minutes": 18,
+  "est_minutes": 40,
   "cards": [
     {
       "id": "d06-c01",
       "type": "explain",
       "section": "Tuples",
-      "title_tr": "Tuple nedir?",
-      "title": "What is a tuple?",
-      "body_tr": "**Tuple**, sıralı ama değiştirilemeyen (immutable) bir koleksiyondur. Yuvarlak parantezle yazılır. Oluşturduktan sonra öğe ekleyemez, silemez, değiştiremezsin. List'e çok benzer, tek fark değişmezliktir.",
-      "body": "A **tuple** is an ordered but unchangeable (immutable) collection. It is written with round brackets. After creating it you cannot add, remove or change items. It is much like a list; the only difference is that it cannot change.",
-      "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint(fruits)\nprint(type(fruits))",
-      "expected_output": "('banana', 'orange', 'mango', 'lemon')\n<class 'tuple'>"
+      "title_tr": "Değişmemesi gereken bir kayıt",
+      "title": "A record that must not change",
+      "body_tr": "Bir kurye uygulaması düşün. Müşterinin konumu enlem ve boylam olarak saklanıyor: birbirine ait, sırası sabit iki sayı. Programın ortasında kimse yanlışlıkla üçüncü bir sayı eklememeli ya da ikisinin yerini değiştirmemeli.\n\nPython'da tam bunun için bir koleksiyon var: **tuple** (demet). List gibi sıralıdır, öğeleri indeksle okursun; ama bir kez oluşturulduktan sonra değiştirilemez. Yuvarlak parantezle yazılır.\n\nKodu çalıştır: tuple yuvarlak parantezle yazdırılır, `type()` da `tuple` der.",
+      "body": "Imagine a delivery app. A customer's location is stored as latitude and longitude: two numbers that belong together, in a fixed order. Nobody should accidentally add a third number or swap them halfway through the program.\n\nPython has a collection made for exactly this: the **tuple**. It is ordered like a list, so you can read items by index, but once it is created it cannot be changed. You write it with round brackets.\n\nRun the code: the tuple prints with round brackets and `type()` reports `tuple`.",
+      "code": "ankara = (39.93, 32.85)\nprint(ankara)\nprint(type(ankara))\nprint(ankara[0])",
+      "expected_output": "(39.93, 32.85)\n<class 'tuple'>\n39.93"
     },
     {
       "id": "d06-c02",
       "type": "explain",
-      "section": "Creating a Tuple",
-      "title_tr": "Tuple oluşturmak",
-      "title": "Creating a tuple",
-      "body_tr": "Boş tuple `()` ya da `tuple()` ile yapılır. Değerli tuple, öğeleri virgülle ayırarak yazılır.",
-      "body": "An empty tuple is made with `()` or `tuple()`. A tuple with values lists the items separated by commas.",
-      "code": "empty_tuple = ()\nanother_empty = tuple()\ntpl = ('item1', 'item2', 'item3')\nprint(len(empty_tuple), len(another_empty), len(tpl))",
-      "expected_output": "0 0 3"
+      "section": "Tuples",
+      "title_tr": "Tuple, list ve JavaScript dizisi",
+      "title": "Tuple, list and the JavaScript array",
+      "body_tr": "List'i 5. günden tanıyorsun. Tuple neredeyse aynı görünür; ama parantezler farklıdır, verdiği söz de: list **değiştirilebilir** (mutable), tuple **değiştirilemez** (immutable).\n\nJavaScript'te tuple türü yoktur; en yakını hiç dokunmadığın bir dizi ya da `Object.freeze([...])`'dir. Python'da ise tuple'ı dilin kendisi korur: onu değiştirme girişimi hatayla biter.\n\nDeğişemediği için tuple'ın yalnızca iki metodu vardır: `count()` ve `index()`. List'in ise çok metodu vardır (`append`, `sort`, `remove`...). Aşağıda karşılaştır.",
+      "body": "You already know the list from Day 5. A tuple looks almost the same, but the brackets differ and so does the promise: a list is **mutable** (changeable), a tuple is **immutable** (unchangeable).\n\nJavaScript has no tuple type; the closest thing is an array you never modify, or `Object.freeze([...])`. In Python the language itself guards the tuple: any attempt to change it is an error.\n\nBecause a tuple cannot change, it has only two methods, `count()` and `index()`, while a list has many (`append`, `sort`, `remove`...). Compare them below.",
+      "code": "scores_list = [70, 85, 85]\nscores_tuple = (70, 85, 85)\nprint(type(scores_list), type(scores_tuple))\nprint(scores_list == list(scores_tuple))\nscores_list.append(90)\nprint(scores_list)\nprint(scores_tuple)",
+      "expected_output": "<class 'list'> <class 'tuple'>\nTrue\n[70, 85, 85, 90]\n(70, 85, 85)"
     },
     {
       "id": "d06-c03",
-      "type": "explain",
-      "section": "Tuple length",
-      "title_tr": "Uzunluk: len()",
-      "title": "Length: len()",
-      "body_tr": "Tuple'ın öğe sayısını `len()` verir, tıpkı listelerde olduğu gibi.",
-      "body": "`len()` gives the number of items in a tuple, just as with lists.",
-      "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint(len(fruits))",
-      "expected_output": "4"
+      "type": "predict",
+      "section": "Tuples",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "a = [1, 2, 3]\nb = (1, 2, 3)\nprint(a == b, list(b) == a)",
+      "choices": [
+        "True False",
+        "False True",
+        "True True",
+        "False False"
+      ],
+      "answer": "False True",
+      "why_tr": "List ile tuple farklı türlerdir; öğeleri aynı olsa bile aralarındaki `==` False olur. `list(b)` sonrası iki taraf da list'tir ve öğeleri eşittir, bu yüzden ikinci karşılaştırma True'dur.",
+      "why": "A list and a tuple are different types, so `==` between them is False even with the same items. After `list(b)` both sides are lists with equal items, so the second comparison is True."
     },
     {
       "id": "d06-c04",
-      "type": "predict",
-      "section": "Tuple length",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "print(len(('a', 'b', 'c', 'd')))",
-      "choices": [
-        "3",
-        "4",
-        "5",
-        "Error"
-      ],
-      "answer": "4",
-      "why_tr": "Dört öğe var: 4.",
-      "why": "There are four items: 4."
+      "type": "explain",
+      "section": "Creating a Tuple",
+      "title_tr": "Tuple oluşturmak",
+      "title": "Creating a tuple",
+      "body_tr": "Boş tuple yapmanın iki yolu var: `()` ya da `tuple()`. Değerli bir tuple için öğeleri yuvarlak parantez içine, virgülle ayırarak yaz.\n\nÖğeler her türden olabilir ve karışık durabilir: bir öğrenci kaydı ad, yaş ve şehri birlikte tutabilir. Hangi sırayla yazarsan o sırayla geri alırsın; `len()` de öğeleri sayar.\n\nTuple yazdırıldığında yuvarlak parantez görünür, list'te köşeli parantez görünür. Çıktıda ikisini bu sayede ayırt edersin.",
+      "body": "There are two ways to make an empty tuple: `()` or `tuple()`. For a tuple with values, write the items between round brackets, separated by commas.\n\nThe items can be of any type and can be mixed: a student record can hold a name, an age and a city together. The order you write is the order you get back, and `len()` counts the items.\n\nNote that printing a tuple shows the round brackets, just as printing a list shows square ones. That is how you can tell them apart in output.",
+      "code": "empty = ()\nalso_empty = tuple()\nstudent = ('Elif', 20, 'İzmir')\nprint(empty, also_empty)\nprint(student, len(student))",
+      "expected_output": "() ()\n('Elif', 20, 'İzmir') 3"
     },
     {
       "id": "d06-c05",
       "type": "explain",
-      "section": "Tuples",
-      "title_tr": "count() ve index()",
-      "title": "count() and index()",
-      "body_tr": "Değiştirilemediği için tuple'ın az metodu vardır: `count()` bir öğenin kaç kez geçtiğini, `index()` ilk indeksini verir. `+` ile de iki tuple birleştirilir.",
-      "body": "Because it cannot change, a tuple has few methods: `count()` gives how often an item appears and `index()` its first index. `+` joins two tuples.",
-      "code": "ages = (22, 19, 24, 24)\nprint(ages.count(24))\nprint(ages.index(19))",
-      "expected_output": "2\n1"
+      "section": "Creating a Tuple",
+      "title_tr": "Tuple'ı virgül yapar",
+      "title": "The comma makes the tuple",
+      "body_tr": "Pek çok yeni başlayanı şaşırtan bir durum: tuple'ı parantezler değil, **virgül** oluşturur. Python'da parantez gruplama için de kullanılır, `(2 + 3) * 4` gibi; bu yüzden `(5)` parantez içindeki 5 sayısından ibarettir.\n\nTek öğeli bir tuple için sona bir virgül koymalısın: `(5,)`. Parantezleri hiç yazmasan da olur: `5,` de bir tuple'dır. Çıktıyı açmadan önce dört türü tahmin et.",
+      "body": "Here is a surprise that confuses many beginners: the parentheses do not create a tuple, the **comma** does. Parentheses in Python are also used for grouping, as in `(2 + 3) * 4`, so `(5)` is just the number 5 in brackets.\n\nTo make a tuple with one item you must write a trailing comma: `(5,)`. You can even leave out the brackets entirely: `5,` is also a tuple. Guess the four types before you reveal the output.",
+      "code": "a = (5)\nb = (5,)\nc = 5,\nd = 3, 4\nprint(type(a), type(b))\nprint(type(c), type(d))",
+      "expected_output": "<class 'int'> <class 'tuple'>\n<class 'tuple'> <class 'tuple'>",
+      "hide_output": true
     },
     {
       "id": "d06-c06",
-      "type": "explain",
-      "section": "Accessing Tuple Items",
-      "title_tr": "Öğelere erişim",
-      "title": "Accessing items",
-      "body_tr": "Pozitif ve negatif indeksleme listelerdeki gibi çalışır: `0` ilk, `-1` son öğedir.",
-      "body": "Positive and negative indexing work as in lists: `0` is the first item and `-1` the last.",
-      "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint(fruits[0])\nprint(fruits[-1])\nprint(fruits[len(fruits) - 1])",
-      "expected_output": "banana\nlemon\nlemon"
+      "type": "predict",
+      "section": "Creating a Tuple",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "t = ('Ankara')\nprint(len(t))",
+      "choices": [
+        "6",
+        "1",
+        "Error",
+        "7"
+      ],
+      "answer": "6",
+      "why_tr": "Virgül olmadığı için `('Ankara')` parantez içindeki 'Ankara' string'idir. String'in `len()` değeri karakter sayısıdır: 6.",
+      "why": "Without a comma, `('Ankara')` is just the string 'Ankara' in brackets. `len()` of a string counts its characters: 6."
     },
     {
       "id": "d06-c07",
+      "type": "explain",
+      "section": "Creating a Tuple",
+      "title_tr": "Sık hata: unutulan virgül",
+      "title": "Common mistake: the missing comma",
+      "body_tr": "Tek şehirden oluşan bir izinli şehirler tuple'ı istiyorsun: `cities = ('Bursa')`. Sonra program `'B' in cities` kontrolü yapıyor ve `True` alıyor; oysa 'B' bir şehir değil.\n\nNeden? Virgül olmadığı için `cities` aslında `'Bursa'` string'idir ve string üzerinde `in` bir metin parçası arar. Hata mesajı çıkmaz, hata sessizdir; bu onu daha da kötü yapar.\n\nNasıl okursun: \"tuple\" metin gibi davranıyorsa önce `type()`'ı yazdır. Çözüm tek karakter: `('Bursa',)`.",
+      "body": "You want a tuple of allowed cities with just one city: `cities = ('Bursa')`. Later the program checks `'B' in cities` and gets `True`, even though 'B' is not a city.\n\nWhy? Without the comma, `cities` is the string `'Bursa'`, and `in` on a string looks for a piece of text. No error appears, the bug is silent, which makes it worse.\n\nHow to read it: when a \"tuple\" behaves like text, print `type()` first. The fix is one character: `('Bursa',)`.",
+      "code": "wrong = ('Bursa')\nright = ('Bursa',)\nprint(type(wrong), 'B' in wrong)\nprint(type(right), 'B' in right)\nprint('Bursa' in right)",
+      "expected_output": "<class 'str'> True\n<class 'tuple'> False\nTrue"
+    },
+    {
+      "id": "d06-c08",
+      "type": "fill",
+      "section": "Creating a Tuple",
+      "title_tr": "Tek öğeli tuple yap",
+      "title": "Make a one-item tuple",
+      "code": "days_off = ('Sunday'___)\nprint(type(days_off), len(days_off))",
+      "answers": [
+        ","
+      ],
+      "expected_output": "<class 'tuple'> 1",
+      "why_tr": "Tek öğeli tuple'ın sonunda virgül olmalı; virgül yoksa değer 'Sunday' string'idir ve `len()` 6 verirdi.",
+      "why": "A one-item tuple needs a trailing comma; without it the value is just the string 'Sunday' and `len()` would give 6."
+    },
+    {
+      "id": "d06-c09",
+      "type": "explain",
+      "section": "Creating a Tuple",
+      "title_tr": "tuple() diğer koleksiyonları tuple'a çevirir",
+      "title": "tuple() turns other collections into a tuple",
+      "body_tr": "Argümansız `tuple()` boş bir tuple verir; ama ona herhangi bir koleksiyon da verebilirsin, öğeleri sırasıyla yeni bir tuple'a kopyalar.\n\nString karakterlerden oluşan bir dizidir, bu yüzden `tuple('abc')` sonucu `('a', 'b', 'c')` olur. List sırasını korur: `tuple([3, 1, 2])` sonucu `(3, 1, 2)`'dir.\n\nBu, 5. gündeki `list()` ile aynı fikir, sadece ters yönde. Veri list olarak gelip bundan sonra değişmemesi gerektiğinde bunu kullanırsın.",
+      "body": "`tuple()` with no argument gives an empty tuple, but you can also hand it any collection and it copies the items into a new tuple, in order.\n\nA string is a sequence of characters, so `tuple('abc')` becomes `('a', 'b', 'c')`. A list keeps its order: `tuple([3, 1, 2])` is `(3, 1, 2)`.\n\nThis is the same idea as `list()` from Day 5, just in the other direction. You will use it whenever data arrives as a list but should be frozen from then on.",
+      "code": "letters = tuple('abc')\nprint(letters)\norder = [3, 1, 2]\nfrozen = tuple(order)\nprint(frozen, type(frozen))\nprint(tuple())",
+      "expected_output": "('a', 'b', 'c')\n(3, 1, 2) <class 'tuple'>\n()"
+    },
+    {
+      "id": "d06-c10",
+      "type": "explain",
+      "section": "Tuple length",
+      "title_tr": "len(), count() ve index()",
+      "title": "len(), count() and index()",
+      "body_tr": "`len()` tuple'da tıpkı list'teki gibi çalışır: öğe sayısını döndürür.\n\nTuple'ın iki metodu iki sık soruyu yanıtlar. `count(x)`, `x`'in kaç kez geçtiğini söyler. `index(x)`, `x`'in ilk göründüğü konumu 0'dan sayarak söyler.\n\nÖrnekte bir haftanın sınav notları bir tuple'da tutuluyor. Üç not 85 ve ilk 85, 1. indekste duruyor. `index()` ilk eşleşmede durur, daha ileriye bakmaz.",
+      "body": "`len()` works on a tuple exactly as on a list: it returns the number of items.\n\nA tuple's two methods answer two common questions. `count(x)` says how many times `x` appears. `index(x)` says at which position `x` first appears, counting from 0.\n\nIn the example a week's exam grades are stored in a tuple. Three grades are 85, and the first 85 sits at index 1. `index()` stops at the first match and does not look further.",
+      "code": "grades = (70, 85, 92, 85, 85)\nprint(len(grades))\nprint(grades.count(85))\nprint(grades.index(85))\nprint(grades.count(100))",
+      "expected_output": "5\n3\n1\n0"
+    },
+    {
+      "id": "d06-c11",
+      "type": "predict",
+      "section": "Tuple length",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "answers = ('a', 'c', 'a', 'b', 'a')\nprint(answers.count('a'), answers.index('b'))",
+      "choices": [
+        "3 3",
+        "3 4",
+        "2 3",
+        "3 2"
+      ],
+      "answer": "3 3",
+      "why_tr": "'a' üç kez geçiyor. 'b' ilk olarak 3. konumda (konumlar 0, 1, 2, 3, 4).",
+      "why": "'a' appears three times. 'b' first appears at position 3 (positions are 0, 1, 2, 3, 4)."
+    },
+    {
+      "id": "d06-c12",
+      "type": "explain",
+      "section": "Tuple length",
+      "title_tr": "Sık hata: olmayan bir öğenin index()'i",
+      "title": "Common mistake: index() of a missing item",
+      "body_tr": "Olmayan bir öğenin `count()` değeri basitçe 0'dır; ama `index()` var olmayan bir konumu döndüremez. `grades.index(100)` yazmak programı şu hatayla durdurur:\n\n`ValueError: tuple.index(x): x not in tuple`\n\nSağdan oku: \"x not in tuple\", istediğin değerin orada olmadığını söyler. **ValueError**, türün doğru ama bu değerin yanlış olduğunu belirtir.\n\nÇözüm: önce `in` ile sor (3. günden tanıdığın True/False cevabı) ya da sayı yeterliyse `count()` kullan. `if` ile seçim yapmayı 9. günde öğreneceksin.",
+      "body": "`count()` of a missing item is simply 0, but `index()` cannot return a position that does not exist. Writing `grades.index(100)` stops the program with:\n\n`ValueError: tuple.index(x): x not in tuple`\n\nRead it from the right: \"x not in tuple\" means the value you asked for is not there. **ValueError** means the type was fine but this particular value is wrong.\n\nThe fix: ask first with `in` (a True/False answer you saw on Day 3), or use `count()` when a number is enough. You will learn to choose with `if` on Day 9.",
+      "code": "grades = (70, 85, 92)\nprint(100 in grades)\nprint(grades.count(100))\nprint(grades.index(92))",
+      "expected_output": "False\n0\n2"
+    },
+    {
+      "id": "d06-c13",
+      "type": "explain",
+      "section": "Accessing Tuple Items",
+      "title_tr": "Öğeleri indeksle okumak",
+      "title": "Reading items by index",
+      "body_tr": "Tuple'da indeksleme list ya da string'deki ile birebir aynıdır. Konumlar 0'dan başlar; negatif konumlar sondan sayar, yani `-1` son öğe, `-2` ondan önceki öğedir.\n\n`t[len(t) - 1]` ve `t[-1]` ikisi de son öğeyi verir. Negatif yazım daha kısadır ve uzunluğa ihtiyaç duymaz; Python geliştiricileri bu yüzden onu tercih eder.\n\nBurada bir tarih (yıl, ay, gün) olarak saklanıyor. Her konumun sabit bir anlamı var; tuple tam da bunun içindir.",
+      "body": "Indexing a tuple works exactly like indexing a list or a string. Positions start at 0; negative positions count from the end, so `-1` is the last item and `-2` the one before it.\n\n`t[len(t) - 1]` and `t[-1]` both give the last item. The negative form is shorter and does not need the length, which is why Python developers prefer it.\n\nHere a date is stored as (year, month, day). Each position has a fixed meaning, which is exactly what tuples are for.",
+      "code": "exam_date = (2026, 11, 2)\nprint(exam_date[0])\nprint(exam_date[-1])\nprint(exam_date[len(exam_date) - 1])\nprint(exam_date[-3] == exam_date[0])",
+      "expected_output": "2026\n2\n2\nTrue"
+    },
+    {
+      "id": "d06-c14",
       "type": "fill",
       "section": "Accessing Tuple Items",
       "title_tr": "mango'yu yazdır",
       "title": "Print mango",
       "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint(fruits[___])",
       "answers": [
-        "-2",
-        "2"
+        "2",
+        "-2"
       ],
       "expected_output": "mango",
-      "why_tr": "Sondan ikinci öğe `-2` ile alınır: mango.",
-      "why": "The second last item is `-2`: mango."
+      "why_tr": "mango üçüncü öğe, indeksi 2; sondan sayınca sondan ikinci, yani -2. İkisi de doğru.",
+      "why": "mango is the third item, so its index is 2; counting from the end it is the second last, -2. Both are correct."
     },
     {
-      "id": "d06-c08",
+      "id": "d06-c15",
+      "type": "explain",
+      "section": "Accessing Tuple Items",
+      "title_tr": "Sık hata: IndexError",
+      "title": "Common mistake: IndexError",
+      "body_tr": "3 öğeli bir tuple'ın indeksleri 0, 1 ve 2'dir. `exam_date[3]` istemek bir adım fazladır ve Python şu hatayla durur:\n\n`IndexError: tuple index out of range`\n\nMesaj türü (tuple) ve sorunu (indeks geçerli aralığın dışında) söyler. Genellikle sebep, saymanın 0'dan başladığını unutmaktır; son indeks her zaman `len(t) - 1`'dir.\n\nÇözüm: son öğe için `-1` kullan ya da önce uzunluğu kontrol et. Negatif indeksler de fazla gidebilir: `exam_date[-4]` aynı hatayı verir.",
+      "body": "A tuple with 3 items has the indexes 0, 1 and 2. Asking for `exam_date[3]` is one step too far and Python stops with:\n\n`IndexError: tuple index out of range`\n\nThe message names the type (tuple) and the problem (the index is outside the valid range). The usual cause is forgetting that counting starts at 0, so the last index is always `len(t) - 1`.\n\nThe fix: use `-1` for the last item, or check the length first. Negative indexes can also go too far: `exam_date[-4]` raises the same error.",
+      "code": "exam_date = (2026, 11, 2)\nprint(len(exam_date))\nprint(exam_date[len(exam_date) - 1])\nprint(exam_date[-1])",
+      "expected_output": "3\n2\n2"
+    },
+    {
+      "id": "d06-c16",
+      "type": "explain",
+      "section": "Accessing Tuple Items",
+      "title_tr": "Açma (unpacking): her öğeye bir isim",
+      "title": "Unpacking: one name per item",
+      "body_tr": "`student[0]`, `student[1]`, `student[2]` okumak zor takip edilir. **Unpacking** (açma) her öğeye tek satırda bir isim verir: `name, age, city = student`.\n\nAdım adım izle. Python öğeleri soldan sağa alır ve her ismi karşısındaki nesneye bağlar. İsim sayısı öğe sayısına eşit olmalıdır.\n\nTersi de olur: `point = 3, 4` iki değeri bir tuple'a paketler. Paketleme ve açma birlikte, tuple'ların Python'da bu kadar doğal hissettirmesinin sebebidir.",
+      "body": "Reading `student[0]`, `student[1]`, `student[2]` is hard to follow. **Unpacking** gives each item a name in one line: `name, age, city = student`.\n\nStep through it. Python takes the items from left to right and binds each name to the matching object. The number of names must equal the number of items.\n\nThe reverse also happens: `point = 3, 4` packs two values into a tuple. Packing and unpacking together are why tuples feel so natural in Python.",
+      "code": "student = ('Elif', 20, 'İzmir')\nname, age, city = student\nprint(name)\nprint(age + 1)\npoint = 3, 4\nx, y = point\nprint(point, x, y)",
+      "expected_output": "Elif\n21\n(3, 4) 3 4",
+      "trace": true
+    },
+    {
+      "id": "d06-c17",
+      "type": "explain",
+      "section": "Accessing Tuple Items",
+      "title_tr": "İki değeri tek satırda yer değiştirmek",
+      "title": "Swapping two values in one line",
+      "body_tr": "Pek çok dilde iki değişkeni yer değiştirmek için geçici bir üçüncü değişken gerekir. Python'da `a, b = b, a` yazarsın.\n\nKoddaki 3. satırı izle. Sağ taraf `second, first` önce hesaplanır ve geçici bir tuple'a paketlenir: `('Deniz', 'Can')`. Ancak ondan sonra `first` ve `second` isimlerine açılır. Sağ taraf hiçbir isim yer değiştirmeden bittiği için hiçbir şey kaybolmaz.\n\nGerçekçi kullanım: iki oyuncunun yer değiştirdiği bir sıralama ya da bir (min, max) çiftini doğru sıraya koymak.",
+      "body": "In many languages, swapping two variables needs a temporary third one. In Python you write `a, b = b, a`.\n\nWatch line 3 of the code. The right side `second, first` is evaluated first and packed into a temporary tuple `('Deniz', 'Can')`. Only then is it unpacked into `first` and `second`. Because the right side is finished before any name moves, nothing is lost.\n\nRealistic use: a ranking list where two players change places, or putting a (min, max) pair into the right order.",
+      "code": "first = 'Can'\nsecond = 'Deniz'\nfirst, second = second, first\nprint(first, second)\nlow, high = 90, 40\nlow, high = high, low\nprint(low, high)",
+      "expected_output": "Deniz Can\n40 90",
+      "trace": true
+    },
+    {
+      "id": "d06-c18",
+      "type": "predict",
+      "section": "Accessing Tuple Items",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "a, b, c = 1, 2, 3\na, b, c = c, a, b\nprint(a, b, c)",
+      "choices": [
+        "2 3 1",
+        "3 1 2",
+        "1 2 3",
+        "3 3 3"
+      ],
+      "answer": "3 1 2",
+      "why_tr": "Sağ taraf önce ESKİ değerlerle hesaplanır: (3, 1, 2). Sonra a, b ve c bu üç nesneye bağlanır: a=3, b=1, c=2.",
+      "why": "The right side is computed first with the OLD values: (3, 1, 2). Then a, b and c are bound to those three objects, so a=3, b=1, c=2."
+    },
+    {
+      "id": "d06-c19",
+      "type": "explain",
+      "section": "Accessing Tuple Items",
+      "title_tr": "Açma hataları ve *rest",
+      "title": "Unpacking errors and *rest",
+      "body_tr": "Sayılar uyuşmazsa Python reddeder. `a, b = (1, 2, 3)` şu hatayı verir: `ValueError: too many values to unpack (expected 2, got 3)`. `a, b, c = (1, 2)` ise: `ValueError: not enough values to unpack (expected 3, got 2)`. Mesaj kaç isim beklediğini ve kaç değer bulduğunu söyler. (3.14'ten eski Python sürümleri ilk mesajdaki \"got 3\" kısmını yazmaz.)\n\nYalnızca ilk öğelerle ilgileniyorsan bir isme yıldız koy: `first, *rest = t`. Yıldızlı isim kalan bütün öğeleri bir **list**'te toplar; kaynak tuple olsa bile. Bunu 5. günde list'lerle görmüştün.",
+      "body": "If the counts do not match, Python refuses. `a, b = (1, 2, 3)` raises `ValueError: too many values to unpack (expected 2, got 3)`, and `a, b, c = (1, 2)` raises `ValueError: not enough values to unpack (expected 3, got 2)`. The message tells you how many names it expected and how many values it got. (Python versions before 3.14 leave out the \"got 3\" in the first message.)\n\nWhen you only care about the first items, put a star on one name: `first, *rest = t`. The starred name collects all remaining items into a **list**, even when the source is a tuple. You met this on Day 5 with lists.",
+      "code": "podium = ('Ece', 'Mert', 'Selin', 'Ali')\nwinner, *others = podium\nprint(winner)\nprint(others)\n*top, last = podium\nprint(top, last)",
+      "expected_output": "Ece\n['Mert', 'Selin', 'Ali']\n['Ece', 'Mert', 'Selin'] Ali"
+    },
+    {
+      "id": "d06-c20",
       "type": "explain",
       "section": "Slicing tuples",
-      "title_tr": "Dilimleme",
-      "title": "Slicing",
-      "body_tr": "Dilimleme tuple'da da aynıdır ve **yeni bir tuple** döndürür. Son indeks dahil değildir.",
-      "body": "Slicing works the same in tuples and returns a **new tuple**. The end index is not included.",
-      "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint(fruits[1:3])\nprint(fruits[1:])\nprint(fruits[-3:-1])",
-      "expected_output": "('orange', 'mango')\n('orange', 'mango', 'lemon')\n('orange', 'mango')"
+      "title_tr": "Dilimleme yeni bir tuple verir",
+      "title": "Slicing gives a new tuple",
+      "body_tr": "Bir **dilim** `t[start:stop]`, `start`'tan başlayıp `stop`'a kadar (o dahil değil) öğeleri alır. Tuple'da sonuç yeni bir tuple'dır; asıl tuple'a dokunulmaz.\n\n`start`'ı yazmazsan 0'dan başlar, `stop`'u yazmazsan sona kadar gider. Üçüncü sayı adımdır: `t[::2]` her ikinci öğeyi alır, `t[::-1]` geriye doğru yürür ve ters bir kopya verir.\n\nDilimleme asla IndexError vermez: `t[1:100]` sonda durur. Tek bir öğeyi indekslemek ise hata verir.",
+      "body": "A **slice** `t[start:stop]` takes the items from `start` up to, but not including, `stop`. On a tuple the result is a new tuple; the original is untouched.\n\nLeave out `start` to begin at 0 and leave out `stop` to go to the end. A third number is the step: `t[::2]` takes every second item and `t[::-1]` walks backwards, giving a reversed copy.\n\nSlicing never raises IndexError: `t[1:100]` just stops at the end. Indexing a single item does raise it.",
+      "code": "weekdays = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri')\nprint(weekdays[1:3])\nprint(weekdays[:2], weekdays[3:])\nprint(weekdays[::2])\nprint(weekdays[::-1])\nprint(weekdays[1:100])",
+      "expected_output": "('Tue', 'Wed')\n('Mon', 'Tue') ('Thu', 'Fri')\n('Mon', 'Wed', 'Fri')\n('Fri', 'Thu', 'Wed', 'Tue', 'Mon')\n('Tue', 'Wed', 'Thu', 'Fri')"
     },
     {
-      "id": "d06-c09",
+      "id": "d06-c21",
       "type": "predict",
       "section": "Slicing tuples",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "print((10, 20, 30, 40)[:2])",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint(fruits[-3:-1])",
       "choices": [
-        "(10, 20, 30)",
-        "[10, 20]",
-        "(10, 20)",
-        "(20, 30)"
+        "('orange', 'mango')",
+        "('orange', 'mango', 'lemon')",
+        "('mango', 'lemon')",
+        "['orange', 'mango']"
       ],
-      "answer": "(10, 20)",
-      "why_tr": "İlk iki öğe alınır ve sonuç yine bir tuple'dır: (10, 20).",
-      "why": "The first two items are taken and the result is still a tuple: (10, 20)."
+      "answer": "('orange', 'mango')",
+      "why_tr": "-3 'orange', -1 'lemon'dur; durma konumu dahil değildir, bu yüzden dilimde 'orange' ve 'mango' kalır. Tuple'ı dilimlemek list değil, tuple verir.",
+      "why": "-3 is 'orange' and -1 is 'lemon'; the stop position is not included, so the slice holds 'orange' and 'mango'. Slicing a tuple gives a tuple, not a list."
     },
     {
-      "id": "d06-c10",
+      "id": "d06-c22",
+      "type": "fill",
+      "section": "Slicing tuples",
+      "title_tr": "İlk çeyreği al",
+      "title": "Take the first quarter",
+      "code": "months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun')\nfirst_quarter = months[___]\nprint(first_quarter)",
+      "answers": [
+        ":3",
+        "0:3",
+        "-6:-3"
+      ],
+      "expected_output": "('Jan', 'Feb', 'Mar')",
+      "why_tr": "İlk üç öğe 0, 1 ve 2. indekslerde; dilim 3'ten ÖNCE durmalı: `[:3]`.",
+      "why": "The first three items are at indexes 0, 1 and 2, so the slice stops BEFORE 3: `[:3]`."
+    },
+    {
+      "id": "d06-c23",
       "type": "explain",
       "section": "Changing Tuples to Lists",
-      "title_tr": "Tuple'ı değiştirmek: list'e çevir",
-      "title": "Changing a tuple: convert to a list",
-      "body_tr": "Tuple'ı değiştirmek istersen önce `list()` ile liste yap, değiştir, sonra `tuple()` ile geri çevir. Satır satır izle.",
-      "body": "To change a tuple, first turn it into a list with `list()`, change it, then convert back with `tuple()`. Step through.",
+      "title_tr": "Değiştirilemez olmak pratikte nasıl görünür",
+      "title": "What 'immutable' looks like in practice",
+      "body_tr": "Bir tuple'ı değiştirmeye çalışırsan Python seni durdurur. `t[0] = 5` şunu verir:\n\n`TypeError: 'tuple' object does not support item assignment`\n\n`t.append(3)` ise şunu verir:\n\n`AttributeError: 'tuple' object has no attribute 'append'`\n\nİlki, bu işlemin bu tür için yasak olduğunu söyler. İkincisi, tuple'larda böyle bir metodun hiç olmadığını söyler. Senin için anlamları aynı: tuple salt okunurdur. Okumak, dilimlemek, saymak ve yeni bir tuple'a birleştirmek ise çalışmaya devam eder.",
+      "body": "Try to change a tuple and Python stops you. `t[0] = 5` raises:\n\n`TypeError: 'tuple' object does not support item assignment`\n\nand `t.append(3)` raises:\n\n`AttributeError: 'tuple' object has no attribute 'append'`\n\nThe first says the operation itself is not allowed for this type. The second says the method simply does not exist on tuples. Both mean the same thing for you: a tuple is read-only. Reading, slicing, counting and joining into a new tuple all still work.",
+      "code": "t = (1, 2, 3)\nprint(t[0], t[1:], t.count(2))\nprint(t + (4,))\nprint(t)",
+      "expected_output": "1 (2, 3) 1\n(1, 2, 3, 4)\n(1, 2, 3)"
+    },
+    {
+      "id": "d06-c24",
+      "type": "explain",
+      "section": "Changing Tuples to Lists",
+      "title_tr": "Gidiş dönüş: tuple'dan list'e ve geri",
+      "title": "The round trip: tuple to list and back",
+      "body_tr": "Gerçekten değişmiş bir sürüm gerekiyorsa dönüştür: `list(t)` öğeleri yeni bir list'e kopyalar, list'i değiştirirsin, sonra `tuple(...)` sonucu yeniden dondurur.\n\nAdım adım izle ve `fruits` ismine bak. 2. satırda isim yepyeni bir list nesnesine taşınır. 3. satır o list'i yerinde değiştirir. 5. satır ismi yine taşır, bu kez yeni bir tuple'a. Asıl tuple hiç değişmedi; yeni nesneler kurduk ve isim etiketini taşıdık.",
+      "body": "If you really need a changed version, convert: `list(t)` copies the items into a new list, you change the list, then `tuple(...)` freezes the result again.\n\nStep through and watch the name `fruits`. On line 2 it is moved to a brand new list object. Line 3 changes that list in place. Line 5 moves the name again, to a new tuple. The original tuple was never changed; we built new objects and moved the name tag.",
       "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nfruits = list(fruits)\nfruits[0] = 'apple'\nprint(fruits)\nfruits = tuple(fruits)\nprint(fruits)",
       "expected_output": "['apple', 'orange', 'mango', 'lemon']\n('apple', 'orange', 'mango', 'lemon')",
       "trace": true
     },
     {
-      "id": "d06-c11",
+      "id": "d06-c25",
+      "type": "explain",
+      "section": "Changing Tuples to Lists",
+      "title_tr": "Yeniden bağlamak değiştirmek değildir",
+      "title": "Rebinding is not changing",
+      "body_tr": "`t = t + (4,)`, `t`'yi değiştiriyor gibi görünür ama değiştirmez. `t + (4,)` **yeni** bir tuple kurar, atama da `t` isim etiketini ona taşır.\n\nModeli hatırla: değişken, bir nesneye takılmış isim etiketidir. İzlemede `backup = t` ilk tuple'a ikinci bir etiket takar. `t` yeni tuple'a geçince `backup` eskisinde asılı kalır; o da değişmemiştir.\n\nList ve `append` ile iki etiket de değişikliği görürdü. Tuple'da bu asla olmaz.",
+      "body": "`t = t + (4,)` looks like it changes `t`, but it does not. `t + (4,)` builds a **new** tuple, and the assignment moves the name tag `t` onto it.\n\nRemember the model: a variable is a name tag attached to an object. In the trace, `backup = t` puts a second tag on the first tuple. When `t` moves to the new tuple, `backup` still hangs on the old one, which is unchanged.\n\nWith a list and `append`, both tags would see the change. With a tuple, that can never happen.",
+      "code": "t = (1, 2, 3)\nbackup = t\nt = t + (4,)\nprint(t)\nprint(backup)\nprint(t is backup)",
+      "expected_output": "(1, 2, 3, 4)\n(1, 2, 3)\nFalse",
+      "trace": true
+    },
+    {
+      "id": "d06-c26",
+      "type": "predict",
+      "section": "Changing Tuples to Lists",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "a = [1, 2]\nb = a\na.append(3)\nx = (1, 2)\ny = x\nx = x + (3,)\nprint(b, y)",
+      "choices": [
+        "[1, 2, 3] (1, 2, 3)",
+        "[1, 2] (1, 2, 3)",
+        "[1, 2, 3] (1, 2)",
+        "[1, 2] (1, 2)"
+      ],
+      "answer": "[1, 2, 3] (1, 2)",
+      "why_tr": "`b` aynı list'e takılmış ikinci etikettir, append'i görür. `x + (3,)` yeni bir tuple kurar ve yalnızca `x` ona geçer; `y` eski (1, 2)'de kalır.",
+      "why": "`b` is a second tag on the same list, so it sees the append. `x + (3,)` builds a new tuple and only `x` moves to it; `y` stays on the old (1, 2)."
+    },
+    {
+      "id": "d06-c27",
+      "type": "explain",
+      "section": "Changing Tuples to Lists",
+      "title_tr": "Tuple'ın içindeki list yine değişebilir",
+      "title": "A list inside a tuple can still change",
+      "body_tr": "Tuple, nesnelere **referans** tutar. Bu referansların asla değişmeyeceğini söz verir: 1. konum hep aynı nesneyi gösterir. Ama o nesnenin kendisinin değişmeyeceğini söz vermez.\n\nİzlemede `order`, ikinci öğesi bir list olan bir tuple'dır. `order[1] = [...]` reddedilir, çünkü bu bir referansı değiştirmek olurdu. Ama `items = order[1]` aynı list'e yalnızca ikinci bir etiket takar; `items.append('tea')` list'i yerinde değiştirir ve tuple bunu gösterir.\n\nPratik kural: tuple ancak içindeki her şey değiştirilemez olduğunda (sayılar, string'ler, böyle tuple'lar) tamamen donmuştur.",
+      "body": "A tuple holds **references** to objects. It promises that those references never change: position 1 will always point to the same object. It does not promise that the object itself cannot change.\n\nIn the trace, `order` is a tuple whose second item is a list. `order[1] = [...]` is refused, because that would replace a reference. But `items = order[1]` only puts a second tag on that same list, and `items.append('tea')` changes the list in place, so the tuple shows it.\n\nRule of thumb: a tuple is only fully frozen when everything inside it is immutable (numbers, strings, other such tuples).",
+      "code": "order = ('table 4', ['soup', 'bread'])\nitems = order[1]\nitems.append('tea')\nprint(order)\nprint(len(order), len(order[1]))",
+      "expected_output": "('table 4', ['soup', 'bread', 'tea'])\n2 3",
+      "trace": true
+    },
+    {
+      "id": "d06-c28",
       "type": "truefalse",
-      "section": "Checking an Item in a Tuple",
+      "section": "Changing Tuples to Lists",
       "title_tr": "Doğru mu, yanlış mı?",
       "title": "True or false?",
-      "statement_tr": "`fruits[0] = 'apple'` tuple üzerinde çalışır ve ilk öğeyi değiştirir.",
-      "statement": "`fruits[0] = 'apple'` works on a tuple and changes the first item.",
+      "statement_tr": "`t = (1, [2]); t[1].append(3)` satırı tuple'lar değiştirilemez olduğu için TypeError verir.",
+      "statement": "`t = (1, [2]); t[1].append(3)` raises a TypeError because tuples are immutable.",
       "answer": false,
-      "why_tr": "Tuple değişmezdir; bu satır `TypeError: 'tuple' object does not support item assignment` hatası verir.",
-      "why": "A tuple is immutable; this line raises `TypeError: 'tuple' object does not support item assignment`."
+      "why_tr": "Tuple'ın referansları değişmez; `t[1]` hâlâ aynı list'i gösterir. Yalnızca list yerinde değişir ve bu serbesttir. Sonrasında t, (1, [2, 3]) olur.",
+      "why": "The tuple's references do not change; `t[1]` still points to the same list. Only the list changes in place, which is allowed. After it, t is (1, [2, 3])."
     },
     {
-      "id": "d06-c12",
+      "id": "d06-c29",
       "type": "explain",
       "section": "Checking an Item in a Tuple",
-      "title_tr": "Öğe var mı? (in)",
-      "title": "Is the item there? (in)",
-      "body_tr": "`in` tuple'da da çalışır ve True/False döndürür.",
-      "body": "`in` works with tuples too and returns True/False.",
-      "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint('orange' in fruits)\nprint('apple' in fruits)",
-      "expected_output": "True\nFalse"
+      "title_tr": "İçinde var mı? in ve not in",
+      "title": "Is it in there? in and not in",
+      "body_tr": "`x in t`, `t`'nin öğelerinden biri `x`'e eşit mi diye sorar ve `True` ya da `False` yanıtlar. `x not in t` bunun tersidir. String ve list'lerde kullandığın operatörlerin aynısıdır.\n\nTuple'da `in` öğelerin tamamını karşılaştırır. `'Sat' in weekend` True'dur; ama `'Sa' in weekend` False'tur: 'Sa' hiçbir öğeye eşit değil. String ile karşılaştır: orada `'Sa' in 'Saturday'` True'dur, çünkü string araması bir metin parçası arar.\n\nGerçekçi kullanım: bir şehrin sabit teslimat şehirleri arasında olup olmadığını kontrol etmek.",
+      "body": "`x in t` asks whether any item of `t` equals `x` and answers `True` or `False`. `x not in t` is the opposite. These are the same operators you used on strings and lists.\n\nOn a tuple, `in` compares whole items. `'Sat' in weekend` is True, but `'Sa' in weekend` is False: 'Sa' is not equal to any item. Compare that with a string, where `'Sa' in 'Saturday'` is True because a string search looks for a piece of text.\n\nRealistic use: checking whether a city is in a fixed list of delivery cities.",
+      "code": "weekend = ('Sat', 'Sun')\nprint('Sat' in weekend)\nprint('Sa' in weekend, 'Sa' in 'Saturday')\ndelivery = ('Ankara', 'İzmir', 'Bursa')\nprint('Konya' not in delivery)",
+      "expected_output": "True\nFalse True\nTrue"
     },
     {
-      "id": "d06-c13",
+      "id": "d06-c30",
+      "type": "predict",
+      "section": "Checking an Item in a Tuple",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "nordic = ('Denmark', 'Finland', 'Iceland', 'Norway', 'Sweden')\nprint('Estonia' in nordic, 'land' in nordic, 'land' in nordic[1])",
+      "choices": [
+        "False True True",
+        "False False False",
+        "True False True",
+        "False False True"
+      ],
+      "answer": "False False True",
+      "why_tr": "Estonia bir öğe değil. 'land' hiçbir öğenin tamamına eşit değil, bu yüzden tuple kontrolü False. `nordic[1]` ise 'Finland' string'idir ve orada `in` 'land' metnini bulur.",
+      "why": "Estonia is not an item. 'land' is not equal to any whole item, so the tuple check is False. `nordic[1]` is the string 'Finland', where `in` finds the text 'land'."
+    },
+    {
+      "id": "d06-c31",
       "type": "explain",
       "section": "Joining Tuples",
-      "title_tr": "Tuple birleştirme: +",
-      "title": "Joining tuples: +",
-      "body_tr": "`+` iki tuple'ı yapıştırıp yeni bir tuple üretir; eskiler olduğu gibi kalır.",
-      "body": "`+` glues two tuples into a new tuple; the originals stay as they are.",
-      "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nvegetables = ('Tomato', 'Potato')\nprint(fruits + vegetables)",
-      "expected_output": "('banana', 'orange', 'mango', 'lemon', 'Tomato', 'Potato')"
+      "title_tr": "+ ile birleştirmek, * ile tekrarlamak",
+      "title": "Joining with + and repeating with *",
+      "body_tr": "`+` iki tuple'ı uç uca yapıştırıp **yeni** bir tuple yapar; tam sayıyla `*` ise tuple'ı tekrarlar. Asıllar olduğu gibi kalır.\n\n`+`'nın iki tarafı da tuple olmalıdır. `(1, 2) + 3` şu hatayla düşer: `TypeError: can only concatenate tuple (not \"int\") to tuple`. Bir list eklemek de aynı şekilde `(not \"list\")` ile düşer. Mesaj, aldığı yanlış türü bile söyler. Çözüm değeri sarmaktır: `(1, 2) + (3,)`.",
+      "body": "`+` glues two tuples end to end into a **new** tuple, and `*` with a whole number repeats a tuple. The originals stay exactly as they were.\n\nBoth sides of `+` must be tuples. `(1, 2) + 3` fails with `TypeError: can only concatenate tuple (not \"int\") to tuple`, and adding a list fails the same way with `(not \"list\")`. The message even names the wrong type it received. The fix is to wrap the value: `(1, 2) + (3,)`.",
+      "code": "fruits = ('banana', 'mango')\nvegetables = ('tomato', 'onion')\nfood = fruits + vegetables\nprint(food)\nprint(fruits)\nprint(('-',) * 3)\nprint((1, 2) + (3,))",
+      "expected_output": "('banana', 'mango', 'tomato', 'onion')\n('banana', 'mango')\n('-', '-', '-')\n(1, 2, 3)"
     },
     {
-      "id": "d06-c14",
+      "id": "d06-c32",
       "type": "predict",
       "section": "Joining Tuples",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "print((1, 2) + (3, 4))",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "a = (1, 2)\nb = a + a * 2\nprint(b, len(a))",
       "choices": [
-        "(1, 2, 3, 4)",
-        "(4, 6)",
-        "((1, 2), (3, 4))",
-        "10"
+        "(1, 2, 1, 2, 1, 2) 2",
+        "(3, 6) 2",
+        "(1, 2, 1, 2, 1, 2) 6",
+        "(1, 2, 2, 4) 2"
       ],
-      "answer": "(1, 2, 3, 4)",
-      "why_tr": "`+` tuple'ları uç uca ekler: (1, 2, 3, 4).",
-      "why": "`+` puts the tuples end to end: (1, 2, 3, 4)."
+      "answer": "(1, 2, 1, 2, 1, 2) 2",
+      "why_tr": "`*`, `+`'dan önce yapılır: `a * 2` (1, 2, 1, 2) olur, sonra `a +` ile altı öğe çıkar. `a`'nın kendisi hiç değişmez, uzunluğu 2 kalır.",
+      "why": "`*` happens before `+`: `a * 2` is (1, 2, 1, 2), then `a +` that gives six items. `a` itself is never changed, so its length stays 2."
     },
     {
-      "id": "d06-c15",
+      "id": "d06-c33",
       "type": "explain",
-      "section": "Deleting Tuples",
-      "title_tr": "Tuple silmek",
-      "title": "Deleting tuples",
-      "body_tr": "Tuple'dan tek bir öğeyi silemezsin; ama `del` ile tuple'ın tamamını silebilirsin. Silinen isme sonra erişirsen NameError alırsın.",
-      "body": "You cannot delete a single item from a tuple, but you can delete the whole tuple with `del`. Using the deleted name afterwards gives a NameError.",
-      "code": "fruits = ('banana', 'orange')\ndel fruits\nprint('tuple deleted')",
-      "expected_output": "tuple deleted"
+      "section": "Joining Tuples",
+      "title_tr": "Tuple'ları karşılaştırmak ve öğelerini sıralamak",
+      "title": "Comparing tuples and sorting their items",
+      "body_tr": "Tuple'lar öğe öğe, soldan sağa, sözlükteki kelimeler gibi karşılaştırılır. `(2026, 3, 1) < (2026, 11, 2)` önce 2026 ile 2026'ya bakar (eşit, devam), sonra 3 ile 11'e bakar ve orada karar verir. (yıl, ay, gün) olarak saklanan tarihlerin doğru karşılaştırılmasının sebebi budur.\n\nTuple'ın `sort()` metodu yoktur, çünkü sıralamak onu değiştirirdi. `sorted(t)` öğesi olan her şeyde çalışır ve her zaman yeni bir **list** döndürür. `min()`, `max()` ve `sum()` da tuple'larda çalışır.",
+      "body": "Tuples are compared item by item, from left to right, like words in a dictionary. `(2026, 3, 1) < (2026, 11, 2)` looks at 2026 vs 2026 (equal, keep going), then 3 vs 11, and decides there. That is why dates stored as (year, month, day) compare correctly.\n\nA tuple has no `sort()` method, because sorting would change it. `sorted(t)` works on anything with items and always returns a new **list**. `min()`, `max()` and `sum()` work on tuples too.",
+      "code": "print((2026, 3, 1) < (2026, 11, 2))\nprint((1, 2, 3) == (1, 2, 3))\nprices = (45, 12, 30)\nprint(sorted(prices))\nprint(min(prices), max(prices), sum(prices))\nprint(prices)",
+      "expected_output": "True\nTrue\n[12, 30, 45]\n12 45 87\n(45, 12, 30)"
     },
     {
-      "id": "d06-c16",
+      "id": "d06-c34",
       "type": "order",
-      "section": "Changing Tuples to Lists",
-      "title_tr": "Satırları doğru sıraya diz",
-      "title": "Put the lines in order",
+      "section": "Joining Tuples",
+      "title_tr": "Tarihleri sırala",
+      "title": "Order the dates",
       "lines": [
-        "print(fruits)",
-        "fruits[0] = 'apple'",
-        "fruits = ('banana', 'orange')",
-        "fruits = tuple(fruits)",
-        "fruits = list(fruits)"
+        "print(start < end)",
+        "start = (2026, 9, 14)",
+        "print(start)",
+        "start, end = end, start",
+        "end = (2026, 6, 20)"
       ],
       "correct_order": [
-        2,
-        4,
         1,
+        4,
         3,
-        0
+        0,
+        2
       ],
-      "expected_output": "('apple', 'orange')"
+      "expected_output": "True\n(2026, 6, 20)",
+      "why_tr": "Önce isimler oluşturulur, sonra yer değiştirilir, en son karşılaştırılır: değişimden sonra start haziran, end eylül olur; start < end True'dur.",
+      "why": "The names are created first, swapped, and only then compared: after the swap start is June and end is September, so start < end is True."
     },
     {
-      "id": "d06-c17",
+      "id": "d06-c35",
+      "type": "explain",
+      "section": "Deleting Tuples",
+      "title_tr": "del isim siler, öğe değil",
+      "title": "del removes the name, not the items",
+      "body_tr": "Tuple'dan tek bir öğe silemezsin: `del t[0]` şu hatayı verir: `TypeError: 'tuple' object doesn't support item deletion`. Bir öğeyi \"çıkarmak\" için dilimlerden yeni bir tuple kur: `t[:1] + t[2:]`.\n\n`del t` farklıdır: `t` **ismini**, yani etiketin kendisini siler. Sonrasında `t`'yi kullanmak `NameError: name 't' is not defined` verir. Aynı tuple'da başka bir etiket hâlâ asılıysa tuple o isim üzerinden yaşamaya devam eder.\n\nGünlük kodda bütün bir tuple'ı `del` ile silmek nadirdir. Hiçbir isim bir nesneyi göstermediğinde Python onu kendisi temizler.",
+      "body": "You cannot remove one item from a tuple: `del t[0]` raises `TypeError: 'tuple' object doesn't support item deletion`. To \"remove\" an item, build a new tuple from slices: `t[:1] + t[2:]`.\n\n`del t` is different: it deletes the **name** `t`, the tag itself. After it, using `t` gives `NameError: name 't' is not defined`. If another tag still hangs on the same tuple, the tuple lives on through that name.\n\nIn everyday code `del` on a whole tuple is rare. Python frees objects by itself once no name refers to them.",
+      "code": "colors = ('red', 'green', 'blue')\nwithout_green = colors[:1] + colors[2:]\nprint(without_green)\npalette = colors\ndel colors\nprint(palette)",
+      "expected_output": "('red', 'blue')\n('red', 'green', 'blue')",
+      "trace": true
+    },
+    {
+      "id": "d06-c36",
       "type": "truefalse",
       "section": "Deleting Tuples",
       "title_tr": "Doğru mu, yanlış mı?",
       "title": "True or false?",
-      "statement_tr": "`del` ile bir tuple'dan tek bir öğe silinebilir.",
-      "statement": "`del` can remove a single item from a tuple.",
-      "answer": false,
-      "why_tr": "Tek öğe silinemez; yalnızca tuple'ın tamamı silinebilir.",
-      "why": "A single item cannot be deleted; only the whole tuple can."
+      "statement_tr": "`a = (1, 2)`, `b = a` ve `del a` satırlarından sonra `b`'yi yazdırmak hâlâ `(1, 2)` gösterir.",
+      "statement": "After `a = (1, 2)`, `b = a` and `del a`, printing `b` still shows `(1, 2)`.",
+      "answer": true,
+      "why_tr": "`del a` yalnızca `a` etiketini kaldırır. Tuple'da hâlâ `b` etiketi var, bu yüzden yaşıyor ve değişmemiş durumda.",
+      "why": "`del a` only removes the tag `a`. The tuple still has the tag `b`, so it is alive and unchanged."
     },
     {
-      "id": "d06-c18",
+      "id": "d06-c37",
+      "type": "explain",
+      "section": "Tuples",
+      "title_tr": "Ne zaman tuple seçmeli",
+      "title": "When to choose a tuple",
+      "body_tr": "Koleksiyon büyüyecek, küçülecek ya da sıralanacaksa **list** seç: alışveriş sepeti, yapılacaklar listesi, bugünün log satırları.\n\nŞekil sabitse ve her konumun bir anlamı varsa **tuple** seç: bir koordinat (enlem, boylam), bir RGB rengi (255, 128, 0), bir tarih (2026, 11, 2), bir (ad, not) çifti. Tuple niyetini belgeler ve veriyi kazara değişikliklerden korur.\n\n8. günde göreceğin bir sebep daha var: sözlükte anahtar yalnızca değiştirilemez değerler olabilir; sayılardan ya da string'lerden oluşan bir tuple anahtar olabilir, list olamaz.",
+      "body": "Choose a **list** when the collection grows, shrinks or gets sorted: a shopping cart, a to-do list, today's log lines.\n\nChoose a **tuple** when the shape is fixed and each position means something: a coordinate (lat, lon), an RGB colour (255, 128, 0), a date (2026, 11, 2), a (name, grade) pair. The tuple documents your intent and protects the data from accidental changes.\n\nThere is one more reason you will meet on Day 8: only unchangeable values can be dictionary keys, so a tuple of numbers or strings can be a key and a list cannot.",
+      "code": "orange = (255, 128, 0)\nred, green, blue = orange\nprint(red, green, blue)\ncart = ['milk', 'bread']\ncart.append('eggs')\nprint(cart)",
+      "expected_output": "255 128 0\n['milk', 'bread', 'eggs']"
+    },
+    {
+      "id": "d06-c38",
+      "type": "truefalse",
+      "section": "Tuples",
+      "title_tr": "Doğru mu, yanlış mı?",
+      "title": "True or false?",
+      "statement_tr": "Kullanıcının sürekli görev eklediği bir yapılacaklar listesi için tuple iyi bir seçimdir.",
+      "statement": "A tuple is a good choice for a to-do list that the user keeps adding tasks to.",
+      "answer": false,
+      "why_tr": "Yapılacaklar listesi büyür ve değişir, bu yüzden değiştirilebilir bir list gerekir. Tuple, konumlarının anlamı olan sabit kayıtlara uyar.",
+      "why": "A to-do list grows and changes, so it needs a mutable list. Tuples fit fixed records whose positions have a meaning."
+    },
+    {
+      "id": "d06-c39",
       "type": "recap",
-      "section": "Deleting Tuples",
-      "title_tr": "Özet",
-      "title": "Recap",
+      "section": "Tuples",
+      "title_tr": "Bugünün beş notu",
+      "title": "Today in five notes",
       "points_tr": [
-        "Tuple sıralıdır ve değiştirilemez; yuvarlak parantezle yazılır.",
-        "İndeksleme, dilimleme, `in`, `len()`, `+` listelerdeki gibidir.",
-        "Değiştirmek için `list()` ile çevir, değiştir, `tuple()` ile geri çevir.",
-        "Tuple'ın metodları yalnızca `count()` ve `index()`'tir."
+        "Tuple sıralı ve değiştirilemez bir koleksiyondur; yuvarlak parantezle yazılır ama onu yapan virgüldür, bu yüzden tek öğeli tuple ('Bursa',) gibi sonda virgül ister.",
+        "Tuple'lar list gibi okunur: 0'dan başlayan indeksler, sondan sayan negatif indeksler, yeni tuple döndüren dilimleme, len(), count() ve index().",
+        "Açma (unpacking) her öğeye bir isim bağlar (name, age = student); a, b = b, a iki değeri yer değiştirir, çünkü sağ taraf hiçbir isim taşınmadan önce kurulur.",
+        "Tuple'da öğe atayamaz, ekleyemez, silemezsin; değişmiş bir sürüm için yeni bir tuple kur (+ ile, dilimlerle ya da list'e gidip dönerek) ve ismi ona taşı.",
+        "Koordinat ve tarih gibi sabit kayıtlar için tuple, büyüyen, küçülen ya da sıralanan koleksiyonlar için list kullan."
       ],
       "points": [
-        "A tuple is ordered and unchangeable; it is written with round brackets.",
-        "Indexing, slicing, `in`, `len()` and `+` work as in lists.",
-        "To change one, convert with `list()`, change, convert back with `tuple()`.",
-        "A tuple's only methods are `count()` and `index()`."
+        "A tuple is an ordered, immutable collection; it is written with round brackets, but the comma is what makes it, so a one-item tuple needs a trailing comma like ('Bursa',).",
+        "Tuples are read like lists: indexing from 0, negative indexes from the end, slicing that returns a new tuple, len(), count() and index().",
+        "Unpacking binds one name per item (name, age = student), and a, b = b, a swaps two values because the right side is built before any name moves.",
+        "You cannot assign, append or delete items in a tuple; to get a changed version build a new tuple (with +, slices or a list round trip) and move the name to it.",
+        "Use a tuple for fixed records such as coordinates and dates, and a list for collections that grow, shrink or get sorted."
       ],
-      "cta_tr": "Şimdi alıştırmalara geç",
-      "cta": "Go to the exercises now",
-      "target": "learn"
+      "target": "learn",
+      "cta_tr": "Tuple alıştırmalarına geç",
+      "cta": "Practise tuples"
     }
   ]
 }

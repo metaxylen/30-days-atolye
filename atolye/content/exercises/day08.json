@@ -1,209 +1,153 @@
 {
   "day": 8,
   "title": "Dictionaries",
-  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "title_tr": "Dict'ler (sözlükler)",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__. Script-style tasks (Days 6-10 come before functions) are re-run by hidden tests with a different first line: the test finds the line that starts with the given variable name, replaces it with new data, executes the program again and checks the new result.",
   "blocks": [
     {
       "id": "d08-b1",
       "concept": "dict-access",
+      "concept_tr": "Sözlük oluşturmak ve okumak: [], get(), iç içe erişim",
       "tags": [
-        "dictionaries",
-        "keys",
-        "get"
+        "dicts",
+        "access",
+        "get",
+        "nested"
       ],
       "worked_example": {
-        "code": "person = {'first_name': 'Asabeneh', 'country': 'Finland'}\nprint(person['country'])\nprint(person.get('city'))",
+        "code": "person = {'name': 'Elif', 'skills': ['Python', 'SQL'],\n          'address': {'city': 'İzmir'}}\nprint(person['name'], len(person))\nprint(person['skills'][-1], person['address']['city'])\nprint(person.get('phone'), person.get('phone', '-'))",
         "notes": [
-          "A dictionary stores key: value pairs; you look values up by key.",
-          "get() returns None for a missing key instead of crashing."
+          "d[key] reads the value stored under the key, and every extra pair of brackets opens one more nested level.",
+          "len() counts key: value pairs; a nested list or dict counts as one pair.",
+          "get(key) returns None for a missing key and get(key, default) returns the default, where d[key] would raise KeyError."
         ],
         "notes_tr": [
-          "Dictionary anahtar: değer çiftlerini saklar; değerleri anahtarla ararsın.",
-          "get(), olmayan anahtar için hata vermez, None döndürür."
+          "d[key] anahtar altında saklanan değeri okur; her ek köşeli parantez çifti iç içe bir seviye daha açar.",
+          "len() anahtar: değer çiftlerini sayar; iç içe bir list ya da dict tek çift sayılır.",
+          "get(key) eksik anahtar için None, get(key, default) varsayılanı döndürür; d[key] ise KeyError verirdi."
         ]
       },
       "exercises": [
         {
           "id": "d08-b1-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "person = {'name': 'Asabeneh', 'skills': ['Python', 'JS'], 'address': {'street': 'Space street'}}\nprint(person['skills'][1])\nprint(person['address']['street'])\nprint(person.get('age'))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "book = {'title': 'Kuyucaklı Yusuf', 'year': 1937, 'tags': ['novel', 'classic']}\nprint(len(book), book['tags'][1], book.get('pages', 0))",
           "choices": [
-            "JS\nSpace street\nNone",
-            "Python\nSpace street\nNone",
-            "JS\nSpace street\nKeyError",
-            "JS\n{'street': 'Space street'}\nNone"
+            "3 classic None",
+            "3 classic 0",
+            "4 classic 0",
+            "3 novel 0"
           ],
-          "expected_output": "JS\nSpace street\nNone",
-          "explanation": "person['skills'] is a list, and index 1 of it is 'JS'. person['address'] is a dictionary, so ['street'] looks inside it. get on a missing key gives None.",
+          "expected_output": "3 classic 0",
+          "explanation": "The dict has 3 pairs; book['tags'][1] is the second tag 'classic'; 'pages' is missing, so get returns the default 0.",
+          "explanation_tr": "Dict'te 3 çift var; book['tags'][1] ikinci etiket olan 'classic'tir; 'pages' yok, get varsayılan 0'ı döndürür.",
           "misconceptions": {
-            "Python\nSpace street\nNone": "Indexes start at 0: index 1 of ['Python', 'JS'] is 'JS'.",
-            "JS\nSpace street\nKeyError": "get() never raises KeyError; it returns None for a missing key.",
-            "JS\n{'street': 'Space street'}\nNone": "The second lookup goes one level deeper with ['street'], so only the street is printed."
+            "4 classic 0": "len() counts pairs: title, year and tags make 3, the list inside counts once.",
+            "3 novel 0": "Index 1 of the list is its second item, 'classic'.",
+            "3 classic None": "get() with a default returns the default (0) when the key is missing."
           },
-          "explanation_tr": "person['skills'] bir listedir ve 1 numaralı elemanı 'JS'dir. person['address'] bir dictionary olduğu için ['street'] onun içine bakar. Olmayan anahtarda get None verir.",
           "misconceptions_tr": {
-            "Python\nSpace street\nNone": "İndeksler 0'dan başlar: ['Python', 'JS'] listesinin 1. elemanı 'JS'dir.",
-            "JS\nSpace street\nKeyError": "get() hiçbir zaman KeyError vermez; olmayan anahtar için None döndürür.",
-            "JS\n{'street': 'Space street'}\nNone": "İkinci arama ['street'] ile bir seviye daha içeri girer, bu yüzden sadece sokak adı yazdırılır."
+            "4 classic 0": "len() çiftleri sayar: title, year ve tags 3 eder; içteki list bir kez sayılır.",
+            "3 novel 0": "List'in 1. indeksi ikinci öğesidir: 'classic'.",
+            "3 classic None": "Varsayılanlı get(), anahtar yoksa varsayılanı (0) döndürür."
           }
         },
         {
           "id": "d08-b1-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so the program prints Finland.",
-          "prompt_tr": "Programın Finland yazdırması için boşluğu doldur.",
-          "starter_code": "person = {'name': 'Mia', 'country': 'Finland'}\nprint(person[___])",
+          "prompt": "Fill the blank so the program prints the street of the person's address (Kordon).",
+          "prompt_tr": "Boşluğu doldur: program kişinin adresindeki sokağı (Kordon) yazdırsın.",
+          "starter_code": "person = {'name': 'Elif', 'address': {'street': 'Kordon', 'zip': '35000'}}\nstreet = person___\nprint(street)",
           "blanks": [
             {
               "answer": [
-                "'country'",
-                "\"country\""
+                "['address']['street']",
+                "[\"address\"][\"street\"]"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == 'Finland'",
+              "code": "assert street == 'Kordon'",
               "visible": true,
-              "failure_message": "The program must print Finland.",
-              "failure_message_tr": "Program Finland yazdırmalı.",
-              "label_tr": "Program Finland yazdırıyor"
+              "label": "street is Kordon",
+              "label_tr": "street Kordon",
+              "failure_message": "street should be 'Kordon'.",
+              "failure_message_tr": "street 'Kordon' olmalı."
             }
           ],
           "hints": [
-            "Which key holds the country?",
-            "Keys in this dictionary are strings, so the key you type needs quotes.",
-            "Type the key name that stores the country, inside quotes, in the blank."
+            "The street is not a key of person itself; it is inside another dict.",
+            "First open the 'address' level, then look up the street.",
+            "Two pairs of square brackets in a row, each with a string key."
           ],
           "hints_tr": [
-            "Ülkeyi hangi anahtar tutuyor?",
-            "Bu dictionary'deki anahtarlar string, bu yüzden yazdığın anahtarın tırnak içinde olması gerekir.",
-            "Boşluğa ülkeyi tutan anahtarın adını tırnak içinde yaz."
+            "Sokak person'ın kendi anahtarı değil; başka bir dict'in içinde.",
+            "Önce 'address' seviyesini aç, sonra sokağı ara.",
+            "Art arda iki köşeli parantez çifti, her birinde bir string anahtar."
           ]
         },
         {
           "id": "d08-b1-e3",
-          "type": "modify",
-          "prompt": "Change the program so it prints exactly: Asabeneh Yetayeh lives in Finland.",
-          "prompt_tr": "Programı, tam olarak şunu yazdıracak şekilde değiştir: Asabeneh Yetayeh lives in Finland.",
-          "starter_code": "person = {'first_name': 'Asabeneh', 'last_name': 'Yetayeh', 'age': 250, 'country': 'Finland'}\nprint(person['first_name'])",
-          "tests": [
-            {
-              "code": "assert __stdout__.strip() == 'Asabeneh Yetayeh lives in Finland.'",
-              "visible": true,
-              "failure_message": "Expected: Asabeneh Yetayeh lives in Finland.",
-              "failure_message_tr": "Beklenen çıktı: Asabeneh Yetayeh lives in Finland.",
-              "label_tr": "Cümle doğru yazdırılıyor"
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nn = sum(1 for x in ast.walk(t) if isinstance(x, ast.Subscript)) + sum(1 for x in ast.walk(t) if isinstance(x, ast.Call) and isinstance(x.func, ast.Attribute) and x.func.attr == 'get')\nassert n >= 3, 'look values up'\nassert 'lives in Finland' not in __source__, 'typed answer'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The sentence must be built from the dictionary values, not typed out in full.",
-              "failure_message_tr": "Cümle, dictionary değerlerinden oluşturulmalı; tamamını elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print the city: İzmir. It crashes with KeyError: 'city'. Fix the lookup without changing the dict.",
+          "prompt_tr": "Program şehri yazdırmalı: İzmir. KeyError: 'city' ile çöküyor. Dict'i değiştirmeden aramayı düzelt.",
+          "starter_code": "person = {'name': 'Elif', 'address': {'city': 'İzmir', 'zip': '35000'}}\nprint(person['city'])",
           "hints": [
-            "You need three values from the dictionary.",
-            "An f-string lets you put dictionary lookups inside curly brackets; use double quotes around the f-string so the single quotes of the keys still work.",
-            "Write one print with an f-string that has three lookups: first_name, last_name and country, with the fixed words between them."
+            "KeyError: 'city' means the dict you searched has no key 'city'.",
+            "Print person to see which keys the outer dict really has.",
+            "Open the inner dict with its key first, then ask for 'city'."
+          ],
+          "hints_tr": [
+            "KeyError: 'city', aradığın dict'te 'city' anahtarı olmadığı anlamına gelir.",
+            "Dıştaki dict'in gerçekte hangi anahtarları olduğunu görmek için person'ı yazdır.",
+            "Önce içteki dict'i anahtarıyla aç, sonra 'city'yi iste."
           ],
           "solution": {
-            "approach": "Look up three keys and combine them in an f-string.",
-            "code": "person = {'first_name': 'Asabeneh', 'last_name': 'Yetayeh', 'age': 250, 'country': 'Finland'}\nprint(f\"{person['first_name']} {person['last_name']} lives in {person['country']}.\")",
-            "approach_tr": "Üç anahtarı ara ve f-string ile birleştir."
+            "approach": "'city' is a key of the inner address dict, so look it up one level deeper.",
+            "approach_tr": "'city' içteki address dict'inin anahtarıdır; bir seviye daha derinde ara.",
+            "code": "person = {'name': 'Elif', 'address': {'city': 'İzmir', 'zip': '35000'}}\nprint(person['address']['city'])"
           },
-          "hints_tr": [
-            "Dictionary'den üç değere ihtiyacın var.",
-            "f-string, süslü parantez içine dictionary aramaları koymana izin verir; anahtarların tek tırnağı çalışsın diye f-string'i çift tırnakla yaz.",
-            "Tek bir print yaz; içinde üç arama olan bir f-string kullan: first_name, last_name ve country; aralarına sabit kelimeleri koy."
-          ]
+          "expected_output": "İzmir"
         },
         {
           "id": "d08-b1-e4",
-          "type": "debug",
-          "prompt": "This should print None, but it crashes with a KeyError because there is no 'city' key. Fix it without adding the key.",
-          "prompt_tr": "Bu None yazdırmalı ama 'city' anahtarı olmadığı için KeyError ile çöküyor. Anahtarı eklemeden düzelt.",
-          "starter_code": "person = {'name': 'Asabeneh', 'country': 'Finland'}\nprint(person['city'])",
-          "expected_output": "None",
-          "hints": [
-            "The error name tells you which key was not found.",
-            "Square brackets raise an error for a missing key. Dictionaries have another way to look up a key that gives None when it is missing.",
-            "Replace the square-bracket lookup with the dictionary method named get, called with the key in parentheses."
-          ],
-          "solution": {
-            "approach": "Use get() so a missing key gives None.",
-            "code": "person = {'name': 'Asabeneh', 'country': 'Finland'}\nprint(person.get('city'))",
-            "approach_tr": "Olmayan anahtar None versin diye get() kullan."
-          },
-          "hints_tr": [
-            "Hata adı hangi anahtarın bulunamadığını söylüyor.",
-            "Köşeli parantez, olmayan anahtarda hata verir. Dictionary'lerde olmayan anahtar için None veren başka bir arama yolu var.",
-            "Köşeli parantezli aramayı, anahtarı parantez içine alan get metoduyla değiştir."
-          ]
-        }
-      ],
-      "concept_tr": "Dictionary erişimi: değerleri anahtarla bulmak."
-    },
-    {
-      "id": "d08-b2",
-      "concept": "dict-change",
-      "tags": [
-        "dictionaries",
-        "add",
-        "modify",
-        "remove"
-      ],
-      "worked_example": {
-        "code": "person = {'name': 'Mia'}\nperson['age'] = 30\nperson['name'] = 'Eva'\nprint(person)",
-        "notes": [
-          "Assigning to a new key adds a pair; assigning to an existing key replaces its value.",
-          "pop(key) and del dct[key] remove a pair."
-        ],
-        "notes_tr": [
-          "Yeni bir anahtara atama yapmak çift ekler; var olan anahtara atama yapmak değeri değiştirir.",
-          "pop(anahtar) ve del dct[anahtar] bir çifti siler."
-        ]
-      },
-      "exercises": [
-        {
-          "id": "d08-b2-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "scores = {'ana': 70, 'bo': 85}\nscores['bo'] = 90\nscores['cem'] = 60\nscores.pop('ana')\nprint(scores)\nprint(len(scores), 'ana' in scores)",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "settings = {'theme': 'dark', 'font': None}\nprint(settings.get('font', 12), settings.get('size', 12))",
           "choices": [
-            "{'bo': 90, 'cem': 60}\n2 False",
-            "{'bo': 85, 'cem': 60}\n2 False",
-            "{'ana': 70, 'bo': 90, 'cem': 60}\n3 True",
-            "{'bo': 90, 'cem': 60}\n2 True"
+            "12 12",
+            "None None",
+            "Error",
+            "None 12"
           ],
-          "expected_output": "{'bo': 90, 'cem': 60}\n2 False",
-          "explanation": "bo is updated to 90, cem is added, and pop removes ana. So two pairs remain and 'ana' in scores is False.",
+          "expected_output": "None 12",
+          "explanation": "get returns the default only when the KEY is missing. 'font' exists (with the value None), 'size' does not.",
+          "explanation_tr": "get varsayılanı yalnızca ANAHTAR yoksa döndürür. 'font' var (değeri None), 'size' yok.",
           "misconceptions": {
-            "{'bo': 85, 'cem': 60}\n2 False": "scores['bo'] = 90 replaces the old value 85.",
-            "{'ana': 70, 'bo': 90, 'cem': 60}\n3 True": "scores.pop('ana') removes the pair, so ana is gone.",
-            "{'bo': 90, 'cem': 60}\n2 True": "in checks the keys; ana was removed, so it is False."
+            "12 12": "The key 'font' exists; its value is None, and get returns the stored value, not the default.",
+            "None None": "'size' is missing, so get returns the default 12.",
+            "Error": "get() never raises KeyError; that is its purpose."
           },
-          "explanation_tr": "bo 90 olarak güncellenir, cem eklenir, pop ise ana'yı siler. Geriye iki çift kalır ve 'ana' in scores False olur.",
           "misconceptions_tr": {
-            "{'bo': 85, 'cem': 60}\n2 False": "scores['bo'] = 90 eski değer 85'in yerine geçer.",
-            "{'ana': 70, 'bo': 90, 'cem': 60}\n3 True": "scores.pop('ana') çifti siler, yani ana artık yok.",
-            "{'bo': 90, 'cem': 60}\n2 True": "in anahtarları kontrol eder; ana silindiği için sonuç False olur."
+            "12 12": "'font' anahtarı var; değeri None ve get varsayılanı değil saklanan değeri döndürür.",
+            "None None": "'size' yok, bu yüzden get varsayılan 12'yi döndürür.",
+            "Error": "get() asla KeyError vermez; amacı budur."
           }
         },
         {
-          "id": "d08-b2-e2",
+          "id": "d08-b1-e5",
           "type": "parsons",
-          "prompt": "Put the lines in order so the program prints {'apple': 5, 'pear': 5}.",
-          "prompt_tr": "Satırları, program {'apple': 5, 'pear': 5} yazdıracak şekilde sırala.",
+          "prompt": "Put the lines in order so the program builds a product record and prints: Lamp costs 250 TL",
+          "prompt_tr": "Satırları sıraya koy: program bir ürün kaydı kursun ve şunu yazdırsın: Lamp costs 250 TL",
           "lines": [
-            "stock['apple'] += 2",
-            "stock = {'apple': 3}",
-            "print(stock)",
-            "stock['pear'] = 5"
+            "price = product['price']",
+            "product = {'name': 'Lamp', 'price': 250}",
+            "print(f'{name} costs {price} TL')",
+            "name = product['name']"
           ],
           "correct_order": [
             1,
@@ -212,382 +156,1423 @@
             2
           ],
           "distractors": [
-            "stock.append('pear')"
+            "price = product[1]"
           ],
-          "expected_output": "{'apple': 5, 'pear': 5}"
+          "expected_output": "Lamp costs 250 TL"
+        },
+        {
+          "id": "d08-b1-e6",
+          "type": "modify",
+          "prompt": "The program crashes with KeyError when the user has no 'language' setting. Change the lookup so a missing language falls back to 'tr'. Keep the first line. For the given data it prints tr.",
+          "prompt_tr": "Kullanıcının 'language' ayarı yoksa program KeyError ile çöküyor. Aramayı değiştir: eksik dil 'tr'ye düşsün. İlk satırı koru. Verilen veri için tr yazdırır.",
+          "starter_code": "user = {'name': 'Can', 'theme': 'dark'}\nprint(user['language'])",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'tr'",
+              "visible": true,
+              "label": "Falls back to tr",
+              "label_tr": "tr'ye düşüyor",
+              "failure_message": "Expected tr.",
+              "failure_message_tr": "tr beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('user=')][0]\n_src[_i] = \"user = {'name': 'Ali', 'language': 'en'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'en'",
+              "visible": false,
+              "failure_message": "When the user has a language it must be printed; read it with get() and a default.",
+              "failure_message_tr": "Kullanıcının dili varsa o yazdırılmalı; onu get() ve bir varsayılanla oku.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Which method reads a key without crashing?",
+            "That method takes a second argument for the missing case.",
+            "Replace the square-bracket lookup with the method call, passing the key and 'tr'."
+          ],
+          "hints_tr": [
+            "Hangi metot bir anahtarı çökmeden okur?",
+            "O metot eksik durum için ikinci bir argüman alır.",
+            "Köşeli parantezli aramayı, anahtarı ve 'tr'yi veren metot çağrısıyla değiştir."
+          ],
+          "solution": {
+            "approach": "get(key, default) returns the default for a missing key.",
+            "approach_tr": "get(key, default) eksik anahtar için varsayılanı döndürür.",
+            "code": "user = {'name': 'Can', 'theme': 'dark'}\nprint(user.get('language', 'tr'))"
+          }
+        },
+        {
+          "id": "d08-b1-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: student = {'first_name': 'Elif', 'last_name': 'Kaya', 'grades': [85, 92, 78]}. Print exactly: Kaya, Elif: best 92 of 3 (use max() and len() on the grades).",
+          "prompt_tr": "Programına tam olarak şu satırla başla: student = {'first_name': 'Elif', 'last_name': 'Kaya', 'grades': [85, 92, 78]}. Tam olarak şunu yazdır: Kaya, Elif: best 92 of 3 (notlar üzerinde max() ve len() kullan).",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Kaya, Elif: best 92 of 3'",
+              "visible": true,
+              "label": "Formatted line",
+              "label_tr": "Biçimli satır",
+              "failure_message": "Expected exactly: Kaya, Elif: best 92 of 3",
+              "failure_message_tr": "Tam olarak beklenen: Kaya, Elif: best 92 of 3"
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('student=')][0]\n_src[_i] = \"student = {'first_name': 'Can', 'last_name': 'Er', 'grades': [50, 70]}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Er, Can: best 70 of 2'",
+              "visible": false,
+              "failure_message": "Read every part from the dict, so another student gives another line.",
+              "failure_message_tr": "Her parçayı dict'ten oku ki başka öğrenci başka satır versin.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('student=')][0]\n_src[_i] = \"student = {'first_name': 'Su', 'last_name': 'Ak', 'grades': [100]}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Ak, Su: best 100 of 1'",
+              "visible": false,
+              "failure_message": "Edge case: a single grade is both the best and the only one.",
+              "failure_message_tr": "Kenar durum: tek not hem en iyi hem tek nottur."
+            }
+          ],
+          "hints": [
+            "You need four values: last name, first name, best grade, number of grades.",
+            "The grades list is student['grades']; max() and len() work on it directly.",
+            "Inside the f-string use double quotes outside so that student['last_name'] can keep its single quotes."
+          ],
+          "hints_tr": [
+            "Dört değer gerekiyor: soyadı, ad, en iyi not, not sayısı.",
+            "Not list'i student['grades']'tir; max() ve len() doğrudan onda çalışır.",
+            "f-string'in dışında çift tırnak kullan ki student['last_name'] tek tırnaklarını koruyabilsin."
+          ],
+          "solution": {
+            "approach": "Read three values by key and combine them in an f-string.",
+            "approach_tr": "Üç değeri anahtarla oku ve bir f-string'de birleştir.",
+            "code": "student = {'first_name': 'Elif', 'last_name': 'Kaya', 'grades': [85, 92, 78]}\ngrades = student['grades']\nprint(f\"{student['last_name']}, {student['first_name']}: best {max(grades)} of {len(grades)}\")"
+          },
+          "twin": "d08-b1-e8"
+        },
+        {
+          "id": "d08-b1-e8",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: prices = {'tea': 10, 'coffee': 25, 'cake': 40} and then order = ['coffee', 'cake']. The order always has two items. Print the total price of the order. For the given lines: 65.",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: prices = {'tea': 10, 'coffee': 25, 'cake': 40} ve ardından order = ['coffee', 'cake']. Siparişte her zaman iki ürün var. Siparişin toplam fiyatını yazdır. Verilen satırlar için: 65.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '65'",
+              "visible": true,
+              "label": "Total is 65",
+              "label_tr": "Toplam 65",
+              "failure_message": "Expected 65.",
+              "failure_message_tr": "65 beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('order=')][0]\n_src[_i] = \"order = ['tea', 'tea']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '20'",
+              "visible": false,
+              "failure_message": "Look the prices up through the order list, so another order gives another total.",
+              "failure_message_tr": "Fiyatları order list'i üzerinden ara ki başka sipariş başka toplam versin.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('prices=')][0]\n_src[_i] = \"prices = {'tea': 1, 'coffee': 2, 'cake': 3}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '5'",
+              "visible": false,
+              "failure_message": "Use the prices from the dict, not numbers you typed.",
+              "failure_message_tr": "Elle yazdığın sayıları değil, dict'teki fiyatları kullan."
+            }
+          ],
+          "hints": [
+            "order[0] is the name of the first product.",
+            "A product name is a key, so prices[name] is its price.",
+            "Add prices looked up with order[0] and order[1] and print the sum."
+          ],
+          "hints_tr": [
+            "order[0] ilk ürünün adıdır.",
+            "Ürün adı bir anahtardır, prices[ad] onun fiyatıdır.",
+            "order[0] ve order[1] ile aranan fiyatları topla ve toplamı yazdır."
+          ],
+          "solution": {
+            "approach": "Each item of the order is a key into prices.",
+            "approach_tr": "Siparişin her öğesi prices için bir anahtardır.",
+            "code": "prices = {'tea': 10, 'coffee': 25, 'cake': 40}\norder = ['coffee', 'cake']\ntotal = prices[order[0]] + prices[order[1]]\nprint(total)"
+          },
+          "twin": "d08-b1-e7"
+        }
+      ]
+    },
+    {
+      "id": "d08-b2",
+      "concept": "dict-add-modify",
+      "concept_tr": "Çift eklemek, değiştirmek ve sayma kalıbı",
+      "tags": [
+        "dicts",
+        "mutation",
+        "counting",
+        "update"
+      ],
+      "worked_example": {
+        "code": "counts = {}\ncounts['tea'] = counts.get('tea', 0) + 1\ncounts['tea'] = counts.get('tea', 0) + 1\ncounts['milk'] = counts.get('milk', 0) + 1\ncounts.update({'milk': 5, 'jam': 1})\nprint(counts)",
+        "notes": [
+          "d[key] = value adds the pair when the key is new and replaces the value when the key already exists.",
+          "counts.get(key, 0) + 1 reads the current count, using 0 for a key that has never been seen, and stores one more.",
+          "update() overwrites or adds several pairs at once and keeps every other key."
+        ],
+        "notes_tr": [
+          "d[key] = value anahtar yeniyse çifti ekler, anahtar zaten varsa değeri değiştirir.",
+          "counts.get(key, 0) + 1 mevcut sayıyı okur, hiç görülmemiş anahtar için 0 kullanır ve bir fazlasını saklar.",
+          "update() birden çok çifti birden üzerine yazar ya da ekler, diğer her anahtarı korur."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d08-b2-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "stock = {'apple': 5}\nstock['pear'] = 2\nstock['apple'] = stock['apple'] - 1\nprint(stock, len(stock))",
+          "choices": [
+            "{'pear': 2, 'apple': 4} 2",
+            "{'apple': 4, 'pear': 2, 'apple': 4} 3",
+            "{'apple': 4, 'pear': 2} 2",
+            "{'apple': 5, 'pear': 2} 2"
+          ],
+          "expected_output": "{'apple': 4, 'pear': 2} 2",
+          "explanation": "'pear' is new and is added at the end; 'apple' exists, so its value is replaced by 4. Two pairs remain.",
+          "explanation_tr": "'pear' yenidir ve sona eklenir; 'apple' var, değeri 4 ile değiştirilir. İki çift kalır.",
+          "misconceptions": {
+            "{'apple': 5, 'pear': 2} 2": "The third line replaces the value of 'apple' with 5 - 1.",
+            "{'pear': 2, 'apple': 4} 2": "Changing a value keeps the key's position; only new keys go to the end.",
+            "{'apple': 4, 'pear': 2, 'apple': 4} 3": "A key exists once; assigning to it again replaces the value instead of adding a pair."
+          },
+          "misconceptions_tr": {
+            "{'apple': 5, 'pear': 2} 2": "Üçüncü satır 'apple' değerini 5 - 1 ile değiştirir.",
+            "{'pear': 2, 'apple': 4} 2": "Bir değeri değiştirmek anahtarın konumunu korur; yalnızca yeni anahtarlar sona gider.",
+            "{'apple': 4, 'pear': 2, 'apple': 4} 3": "Bir anahtar bir kez bulunur; ona yeniden atama yapmak çift eklemek yerine değeri değiştirir."
+          }
+        },
+        {
+          "id": "d08-b2-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program counts one more visit for 'home', also when 'home' has never been seen.",
+          "prompt_tr": "Boşluğu doldur: program 'home' için bir ziyaret daha saysın; 'home' hiç görülmemiş olsa bile.",
+          "starter_code": "visits = {'cart': 3}\nvisits['home'] = ___ + 1\nprint(visits)",
+          "blanks": [
+            {
+              "answer": [
+                "visits.get('home', 0)",
+                "visits.get(\"home\", 0)"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert visits == {'cart': 3, 'home': 1}",
+              "visible": true,
+              "label": "home counted",
+              "label_tr": "home sayıldı",
+              "failure_message": "visits should be {'cart': 3, 'home': 1}.",
+              "failure_message_tr": "visits {'cart': 3, 'home': 1} olmalı."
+            }
+          ],
+          "hints": [
+            "visits['home'] would crash because 'home' is not there yet.",
+            "Use the safe lookup that accepts a fallback value.",
+            "The fallback for a count that has never started is zero."
+          ],
+          "hints_tr": [
+            "visits['home'] çökerdi, çünkü 'home' henüz yok.",
+            "Yedek değer kabul eden güvenli aramayı kullan.",
+            "Hiç başlamamış bir sayının yedek değeri sıfırdır."
+          ]
         },
         {
           "id": "d08-b2-e3",
-          "type": "write",
-          "prompt": "Start with car = {'brand': 'Volvo', 'year': 2015}. Add the pair 'color': 'red', change year to 2020, and remove 'brand' with pop(). Print car.",
-          "prompt_tr": "car = {'brand': 'Volvo', 'year': 2015} ile başla. 'color': 'red' çiftini ekle, year'ı 2020 yap ve pop() ile 'brand'i sil. car'ı yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert car == {'year': 2020, 'color': 'red'}",
-              "visible": true,
-              "failure_message": "Expected {'year': 2020, 'color': 'red'}.",
-              "failure_message_tr": "Beklenen sonuç iki çiftli bir dictionary: year 2020 ve color red.",
-              "label_tr": "car doğru hale geliyor"
-            },
-            {
-              "code": "assert 'brand' not in car",
-              "visible": true,
-              "failure_message": "'brand' should be removed.",
-              "failure_message_tr": "'brand' silinmiş olmalı.",
-              "label_tr": "brand silinmiş"
-            },
-            {
-              "code": "assert car['year'] == 2020",
-              "visible": false,
-              "failure_message": "year must be updated to 2020, not added as a new key.",
-              "failure_message_tr": "year yeni anahtar olarak eklenmemeli, 2020 ile değiştirilmeli."
-            },
-            {
-              "code": "assert car.get('color') == 'red' and len(car) == 2",
-              "visible": false,
-              "failure_message": "car should hold exactly two pairs, including 'color': 'red'.",
-              "failure_message_tr": "car tam iki çift içermeli, 'color': 'red' dahil."
-            },
-            {
-              "code": "assert __stdout__.strip() == \"{'year': 2020, 'color': 'red'}\"",
-              "visible": false,
-              "failure_message": "Print car.",
-              "failure_message_tr": "car'ı yazdır."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert any(isinstance(n, ast.Subscript) and isinstance(n.ctx, ast.Store) for n in ast.walk(t)), 'assign'\nassert 'pop' in attrs, 'pop'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The dictionary must be changed with assignments and pop(), not typed in its final form.",
-              "failure_message_tr": "Dictionary'yi atamalar ve pop() ile değiştirmelisin; son halini elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should raise the age to 21 and print {'name': 'Can', 'age': 21}. Instead it prints a dict with three keys. Find the typo and fix it.",
+          "prompt_tr": "Program yaşı 21 yapmalı ve {'name': 'Can', 'age': 21} yazdırmalı. Bunun yerine üç anahtarlı bir dict yazdırıyor. Yazım hatasını bul ve düzelt.",
+          "starter_code": "person = {'name': 'Can', 'age': 20}\nperson['Age'] = 21\nprint(person)",
           "hints": [
-            "Declare car first, then change it with one line per requirement.",
-            "Assigning to a new key adds a pair, assigning to an existing key replaces its value, and a dictionary method removes a pair by key.",
-            "Use three lines: an assignment for 'color', an assignment for 'year', and the pop method with 'brand'. Then print car."
+            "Print the dict and compare the keys letter by letter.",
+            "Assigning to a key that does not exist adds a new pair.",
+            "Write the key exactly as it is spelled in the first line."
+          ],
+          "hints_tr": [
+            "Dict'i yazdır ve anahtarları harf harf karşılaştır.",
+            "Var olmayan bir anahtara atama yeni bir çift ekler.",
+            "Anahtarı ilk satırda yazıldığı gibi aynen yaz."
           ],
           "solution": {
-            "approach": "Add, replace, remove.",
-            "code": "car = {'brand': 'Volvo', 'year': 2015}\ncar['color'] = 'red'\ncar['year'] = 2020\ncar.pop('brand')\nprint(car)",
-            "approach_tr": "Ekle, değiştir, sil."
+            "approach": "Keys are case sensitive: 'Age' is a new key; the existing key is 'age'.",
+            "approach_tr": "Anahtarlar büyük/küçük harfe duyarlıdır: 'Age' yeni bir anahtardır; var olan anahtar 'age'dir.",
+            "code": "person = {'name': 'Can', 'age': 20}\nperson['age'] = 21\nprint(person)"
           },
-          "twin": "d08-b2-e4",
-          "hints_tr": [
-            "Önce car'ı tanımla, sonra her istek için bir satırla değiştir.",
-            "Yeni anahtara atama yapmak çift ekler, var olan anahtara atama yapmak değeri değiştirir, bir dictionary metodu da anahtarla çift siler.",
-            "Üç satır kullan: 'color' için bir atama, 'year' için bir atama ve 'brand' ile pop metodu. Sonra car'ı yazdır."
-          ]
+          "expected_output": "{'name': 'Can', 'age': 21}"
         },
         {
           "id": "d08-b2-e4",
-          "type": "write",
-          "prompt": "Start with student = {'name': 'Selin', 'grade': 80}. Add the pair 'city': 'Ankara', change grade to 95, and remove 'name' with del. Print student.",
-          "prompt_tr": "student = {'name': 'Selin', 'grade': 80} ile başla. 'city': 'Ankara' çiftini ekle, grade'i 95 yap ve del ile 'name'i sil. student'ı yazdır.",
-          "starter_code": "",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "config = {'debug': False, 'port': 80}\nconfig.update({'port': 8080, 'host': 'localhost'})\nprint(config['port'], len(config))",
+          "choices": [
+            "80 3",
+            "8080 4",
+            "8080 2",
+            "8080 3"
+          ],
+          "expected_output": "8080 3",
+          "explanation": "update() replaces the value of 'port' and adds 'host', so port is 8080 and there are 3 pairs.",
+          "explanation_tr": "update() 'port' değerini değiştirir ve 'host'u ekler; port 8080 olur, 3 çift vardır.",
+          "misconceptions": {
+            "80 3": "update() overwrites keys that already exist, so port becomes 8080.",
+            "8080 4": "'port' is replaced, not duplicated; only 'host' is new.",
+            "8080 2": "'host' is a new key, so it is added."
+          },
+          "misconceptions_tr": {
+            "80 3": "update() var olan anahtarların üzerine yazar; port 8080 olur.",
+            "8080 4": "'port' değiştirilir, çoğaltılmaz; yalnızca 'host' yenidir.",
+            "8080 2": "'host' yeni bir anahtardır, bu yüzden eklenir."
+          }
+        },
+        {
+          "id": "d08-b2-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program counts the words red, blue, red and prints {'red': 2, 'blue': 1}.",
+          "prompt_tr": "Satırları sıraya koy: program red, blue, red kelimelerini saysın ve {'red': 2, 'blue': 1} yazdırsın.",
+          "lines": [
+            "print(counts)",
+            "counts['red'] = counts.get('red', 0) + 1",
+            "counts = {}",
+            "counts['red'] = counts.get('red', 0) + 1",
+            "counts['blue'] = counts.get('blue', 0) + 1"
+          ],
+          "correct_order": [
+            2,
+            1,
+            4,
+            3,
+            0
+          ],
+          "distractors": [
+            "counts['red'] = 1"
+          ],
+          "expected_output": "{'red': 2, 'blue': 1}"
+        },
+        {
+          "id": "d08-b2-e6",
+          "type": "modify",
+          "prompt": "The program adds 'HTML' to the skills by replacing the whole list, which loses Python. Change it so 'HTML' is appended to the existing list and print the dict. Keep the first line. For the given data: {'name': 'Elif', 'skills': ['Python', 'HTML']}.",
+          "prompt_tr": "Program bütün list'i değiştirerek becerilere 'HTML' ekliyor, bu da Python'u kaybettiriyor. 'HTML' var olan list'e eklensin ve dict yazdırılsın diye değiştir. İlk satırı koru. Verilen veri için: {'name': 'Elif', 'skills': ['Python', 'HTML']}.",
+          "starter_code": "person = {'name': 'Elif', 'skills': ['Python']}\nperson['skills'] = ['HTML']\nprint(person)",
           "tests": [
             {
-              "code": "assert student == {'grade': 95, 'city': 'Ankara'}",
+              "code": "assert person == {'name': 'Elif', 'skills': ['Python', 'HTML']}",
               "visible": true,
-              "failure_message": "Expected {'grade': 95, 'city': 'Ankara'}.",
-              "failure_message_tr": "Beklenen sonuç: grade 95 ve city Ankara.",
-              "label_tr": "student doğru hale geliyor"
+              "label": "HTML appended",
+              "label_tr": "HTML eklendi",
+              "failure_message": "Expected skills ['Python', 'HTML'].",
+              "failure_message_tr": "Beceriler ['Python', 'HTML'] olmalı."
             },
             {
-              "code": "assert 'name' not in student",
-              "visible": true,
-              "failure_message": "'name' should be removed with del.",
-              "failure_message_tr": "'name' del ile silinmeli.",
-              "label_tr": "name silinmiş"
-            },
-            {
-              "code": "assert student['grade'] == 95",
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('person=')][0]\n_src[_i] = \"person = {'name': 'Ali', 'skills': ['Go', 'SQL']}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['person']['skills'] == ['Go', 'SQL', 'HTML']",
               "visible": false,
-              "failure_message": "grade must be replaced with 95.",
-              "failure_message_tr": "grade, 95 ile değiştirilmeli."
-            },
-            {
-              "code": "assert student.get('city') == 'Ankara' and len(student) == 2",
-              "visible": false,
-              "failure_message": "student should hold exactly two pairs, including 'city': 'Ankara'.",
-              "failure_message_tr": "student tam iki çift içermeli, 'city': 'Ankara' dahil."
-            },
-            {
-              "code": "assert __stdout__.strip() == \"{'grade': 95, 'city': 'Ankara'}\"",
-              "visible": false,
-              "failure_message": "Print student.",
-              "failure_message_tr": "student'ı yazdır."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nassert any(isinstance(n, ast.Subscript) and isinstance(n.ctx, ast.Store) for n in ast.walk(t)), 'assign'\nassert any(isinstance(n, ast.Delete) for n in ast.walk(t)), 'del'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The dictionary must be changed with assignments and del, not typed in its final form.",
-              "failure_message_tr": "Dictionary'yi atamalar ve del ile değiştirmelisin; son halini elle yazma."
+              "failure_message": "Keep the existing skills: append to the list instead of assigning a new one.",
+              "failure_message_tr": "Var olan becerileri koru: yeni list atamak yerine list'e ekle.",
+              "anti_hardcode": true
             }
           ],
           "hints": [
-            "Declare student first.",
-            "Same three kinds of change: add a key by assigning, replace a value by assigning, and remove a key with the del statement.",
-            "Use two assignments (for 'city' and 'grade') and one del statement for 'name'. Then print student."
+            "person['skills'] is a list, and lists have a method that adds at the end.",
+            "Do not assign to person['skills']; call a method on it.",
+            "Replace line 2 with a call of the list method that adds one item, on person['skills']."
+          ],
+          "hints_tr": [
+            "person['skills'] bir list'tir ve list'lerin sona ekleyen bir metodu vardır.",
+            "person['skills']'e atama yapma; onun üzerinde bir metot çağır.",
+            "2. satırı, person['skills'] üzerinde tek öğe ekleyen list metodunun çağrısıyla değiştir."
           ],
           "solution": {
-            "approach": "Add, replace, del.",
-            "code": "student = {'name': 'Selin', 'grade': 80}\nstudent['city'] = 'Ankara'\nstudent['grade'] = 95\ndel student['name']\nprint(student)",
-            "approach_tr": "Ekle, değiştir, del ile sil."
-          },
-          "twin": "d08-b2-e3",
+            "approach": "Append to the list stored under 'skills' instead of replacing it.",
+            "approach_tr": "'skills' altında saklanan list'i değiştirmek yerine ona ekle.",
+            "code": "person = {'name': 'Elif', 'skills': ['Python']}\nperson['skills'].append('HTML')\nprint(person)"
+          }
+        },
+        {
+          "id": "d08-b2-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: dog = {}. Add the keys name, color, breed, legs and age (in that order) with the values 'Karabaş', 'black', 'Kangal', 4 and 3. Then add 1 to the age using the existing value, and print dog.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: dog = {}. Sırasıyla name, color, breed, legs ve age anahtarlarını 'Karabaş', 'black', 'Kangal', 4 ve 3 değerleriyle ekle. Sonra var olan değeri kullanarak yaşa 1 ekle ve dog'u yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert dog == {'name': 'Karabaş', 'color': 'black', 'breed': 'Kangal', 'legs': 4, 'age': 4}",
+              "visible": true,
+              "label": "dog record",
+              "label_tr": "dog kaydı",
+              "failure_message": "dog should have five keys and age 4.",
+              "failure_message_tr": "dog'un beş anahtarı olmalı ve yaşı 4 olmalı."
+            },
+            {
+              "code": "assert list(dog) == ['name', 'color', 'breed', 'legs', 'age']",
+              "visible": true,
+              "label": "Key order",
+              "label_tr": "Anahtar sırası",
+              "failure_message": "Add the keys in the order given.",
+              "failure_message_tr": "Anahtarları verilen sırayla ekle."
+            },
+            {
+              "code": "assert __stdout__.strip() == str(dog)",
+              "visible": false,
+              "failure_message": "Print the dog dict at the end.",
+              "failure_message_tr": "Sonda dog dict'ini yazdır."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_sub = [n for n in ast.walk(_t) if (isinstance(n, ast.BinOp) or isinstance(n, ast.AugAssign)) and isinstance(n.op, ast.Add)]\nassert _sub and 'dog = {}' in __source__",
+              "visible": false,
+              "failure_message": "Start from dog = {} and increase the stored age with + 1 (or += 1) instead of typing 4.",
+              "failure_message_tr": "dog = {} ile başla ve yaşı 4 yazmak yerine saklanan değer üzerinde + 1 (ya da += 1) ile artır.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Start empty and add one pair per line.",
+            "The age is first stored as 3, then a later line adds one to it.",
+            "The last change reads dog['age'], adds 1 and stores the result under the same key."
+          ],
           "hints_tr": [
-            "Önce student'ı tanımla.",
-            "Aynı üç değişiklik türü: atamayla anahtar ekle, atamayla değer değiştir, del ifadesiyle anahtar sil.",
-            "İki atama ('city' ve 'grade' için) ve 'name' için bir del ifadesi kullan. Sonra student'ı yazdır."
-          ]
+            "Boş başla ve her satıra bir çift ekle.",
+            "Yaş önce 3 olarak saklanır, sonra bir satır ona bir ekler.",
+            "Son değişiklik dog['age']'i okur, 1 ekler ve sonucu aynı anahtar altına saklar."
+          ],
+          "solution": {
+            "approach": "One assignment per key, then read and store the age again.",
+            "approach_tr": "Her anahtar için bir atama, sonra yaşı okuyup yeniden sakla.",
+            "code": "dog = {}\ndog['name'] = 'Karabaş'\ndog['color'] = 'black'\ndog['breed'] = 'Kangal'\ndog['legs'] = 4\ndog['age'] = 3\ndog['age'] = dog['age'] + 1\nprint(dog)"
+          },
+          "twin": "d08-b2-e8"
+        },
+        {
+          "id": "d08-b2-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: words = 'tea coffee tea'.split(). The list always has 3 words. Count them in a dict counts using get(key, 0) + 1 once for each of words[0], words[1] and words[2] (loops come on Day 10). Print counts. For the given line: {'tea': 2, 'coffee': 1}.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: words = 'tea coffee tea'.split(). List'te her zaman 3 kelime var. words[0], words[1] ve words[2] için birer kez get(key, 0) + 1 kullanarak onları counts adlı bir dict'te say (döngüler 10. günde). counts'u yazdır. Verilen satır için: {'tea': 2, 'coffee': 1}.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert counts == {'tea': 2, 'coffee': 1}",
+              "visible": true,
+              "label": "Counts correct",
+              "label_tr": "Sayılar doğru",
+              "failure_message": "Expected {'tea': 2, 'coffee': 1}.",
+              "failure_message_tr": "{'tea': 2, 'coffee': 1} beklenir."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"{'tea': 2, 'coffee': 1}\"",
+              "visible": true,
+              "label": "Prints counts",
+              "label_tr": "counts yazdırılıyor",
+              "failure_message": "Print counts.",
+              "failure_message_tr": "counts'u yazdır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('words=')][0]\n_src[_i] = \"words = 'a a a'.split()\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['counts'] == {'a': 3}",
+              "visible": false,
+              "failure_message": "Count with get(word, 0) + 1 for each of the three words, not with typed numbers.",
+              "failure_message_tr": "Üç kelimenin her biri için elle yazılmış sayılarla değil, get(word, 0) + 1 ile say.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('words=')][0]\n_src[_i] = \"words = 'x y z'.split()\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['counts'] == {'x': 1, 'y': 1, 'z': 1}",
+              "visible": false,
+              "failure_message": "Edge case: three different words each get 1.",
+              "failure_message_tr": "Kenar durum: üç farklı kelimenin her biri 1 alır."
+            }
+          ],
+          "hints": [
+            "Start with an empty dict.",
+            "For each word, read its current count with a default of 0 and store one more.",
+            "The key is words[0] (then words[1], words[2]) on both sides of the = sign."
+          ],
+          "hints_tr": [
+            "Boş bir dict ile başla.",
+            "Her kelime için mevcut sayısını 0 varsayılanıyla oku ve bir fazlasını sakla.",
+            "Anahtar, = işaretinin iki tarafında da words[0] (sonra words[1], words[2]) olur."
+          ],
+          "solution": {
+            "approach": "The counting line three times, once per index.",
+            "approach_tr": "Sayma satırı her indeks için bir kez, üç kez.",
+            "code": "words = 'tea coffee tea'.split()\ncounts = {}\ncounts[words[0]] = counts.get(words[0], 0) + 1\ncounts[words[1]] = counts.get(words[1], 0) + 1\ncounts[words[2]] = counts.get(words[2], 0) + 1\nprint(counts)"
+          },
+          "twin": "d08-b2-e7"
         }
-      ],
-      "concept_tr": "Dictionary'yi değiştirmek: çift eklemek, güncellemek ve silmek."
+      ]
     },
     {
       "id": "d08-b3",
-      "concept": "dict-keys-values-items",
+      "concept": "dict-membership-removal",
+      "concept_tr": "Anahtar kontrolü (in) ve silme: pop, popitem, del",
       "tags": [
-        "dictionaries",
-        "keys",
-        "values",
-        "items"
+        "dicts",
+        "membership",
+        "removal"
       ],
       "worked_example": {
-        "code": "d = {'a': 1, 'b': 2}\nprint(list(d.keys()))\nprint(list(d.values()))\nprint(list(d.items()))",
+        "code": "cart = {'milk': 2, 'bread': 1, 'eggs': 12}\nprint('milk' in cart, 2 in cart)\nremoved = cart.pop('eggs')\nprint(removed, cart.pop('jam', 0))\ndel cart['bread']\nprint(cart)",
         "notes": [
-          "keys() and values() give the keys or the values only.",
-          "items() gives (key, value) pairs as tuples."
+          "key in d checks the keys only; to search the values ask d.values().",
+          "pop(key) removes the pair and returns its value, and pop(key, default) does not crash when the key is missing.",
+          "del d[key] removes a pair without returning anything, and popitem() removes the pair inserted last."
         ],
         "notes_tr": [
-          "keys() ve values() yalnızca anahtarları ya da değerleri verir.",
-          "items() (anahtar, değer) çiftlerini tuple olarak verir."
+          "key in d yalnızca anahtarlara bakar; değerlerde aramak için d.values()'e sor.",
+          "pop(key) çifti siler ve değerini döndürür; pop(key, default) anahtar yoksa çökmez.",
+          "del d[key] bir çifti hiçbir şey döndürmeden siler; popitem() en son eklenen çifti siler."
         ]
       },
       "exercises": [
         {
           "id": "d08-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "d = {'x': 1, 'y': 2}\nprint(list(d.keys()))\nprint(sum(d.values()))\nprint(list(d.items())[0])",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "capitals = {'TR': 'Ankara', 'FR': 'Paris'}\nprint('Paris' in capitals, 'FR' in capitals, 'Paris' in capitals.values())",
           "choices": [
-            "['x', 'y']\n3\n('x', 1)",
-            "[1, 2]\n3\n('x', 1)",
-            "['x', 'y']\n2\n('x', 1)",
-            "['x', 'y']\n3\n'x'"
+            "True True True",
+            "False True False",
+            "True False True",
+            "False True True"
           ],
-          "expected_output": "['x', 'y']\n3\n('x', 1)",
-          "explanation": "keys() holds the names x and y. values() holds 1 and 2, whose sum is 3. items() gives tuples, and index 0 is ('x', 1).",
+          "expected_output": "False True True",
+          "explanation": "'Paris' is not a key (False), 'FR' is a key (True), and 'Paris' is among the values (True).",
+          "explanation_tr": "'Paris' bir anahtar değil (False), 'FR' bir anahtar (True), 'Paris' değerler arasında (True).",
           "misconceptions": {
-            "[1, 2]\n3\n('x', 1)": "keys() returns the keys, not the values.",
-            "['x', 'y']\n2\n('x', 1)": "sum adds all the values: 1 + 2 = 3.",
-            "['x', 'y']\n3\n'x'": "Each item from items() is a (key, value) tuple, not just the key."
+            "True True True": "in on a dict checks keys; 'Paris' is a value, not a key.",
+            "False True False": "capitals.values() does contain 'Paris'.",
+            "True False True": "'FR' is a key of the dict."
           },
-          "explanation_tr": "keys() x ve y adlarını verir. values() 1 ve 2'yi verir, toplamları 3'tür. items() tuple'lar verir ve 0. eleman ('x', 1)'dir.",
           "misconceptions_tr": {
-            "[1, 2]\n3\n('x', 1)": "keys() değerleri değil, anahtarları döndürür.",
-            "['x', 'y']\n2\n('x', 1)": "sum tüm değerleri toplar: 1 + 2 = 3.",
-            "['x', 'y']\n3\n'x'": "items()'tan gelen her eleman bir (anahtar, değer) tuple'ıdır, sadece anahtar değil."
+            "True True True": "Dict'te in anahtarlara bakar; 'Paris' bir değer, anahtar değil.",
+            "False True False": "capitals.values() gerçekten 'Paris' içerir.",
+            "True False True": "'FR' dict'in bir anahtarıdır."
           }
         },
         {
           "id": "d08-b3-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so the program prints 8 (the sum of the prices).",
-          "prompt_tr": "Programın 8 (fiyatların toplamı) yazdırması için boşluğu doldur.",
-          "starter_code": "prices = {'tea': 3, 'cake': 5}\nprint(sum(prices.___()))",
+          "prompt": "Fill the blank so the program removes 'eggs' from the cart and keeps the removed quantity in removed.",
+          "prompt_tr": "Boşluğu doldur: program 'eggs'i sepetten silsin ve silinen miktarı removed'da tutsun.",
+          "starter_code": "cart = {'milk': 2, 'eggs': 12}\nremoved = cart.___('eggs')\nprint(removed, cart)",
           "blanks": [
             {
               "answer": [
-                "values"
+                "pop"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == '8'",
+              "code": "assert removed == 12 and cart == {'milk': 2}",
               "visible": true,
-              "failure_message": "The program must print 8.",
-              "failure_message_tr": "Program 8 yazdırmalı.",
-              "label_tr": "Program 8 yazdırıyor"
+              "label": "Removed and returned",
+              "label_tr": "Silindi ve döndürüldü",
+              "failure_message": "removed should be 12 and cart {'milk': 2}.",
+              "failure_message_tr": "removed 12, cart {'milk': 2} olmalı."
             }
           ],
           "hints": [
-            "You want to add up the numbers, not the names.",
-            "A dictionary has one method that returns only the numbers (the values), and sum can add what it returns.",
-            "The blank is the name of the method that returns the values, written without arguments."
+            "You need a method that removes AND gives the value back.",
+            "del removes but returns nothing.",
+            "It is the same method name lists use to take out an item."
           ],
           "hints_tr": [
-            "İsimleri değil, sayıları toplamak istiyorsun.",
-            "Dictionary'nin yalnızca sayıları (değerleri) döndüren bir metodu var ve sum onun döndürdüğünü toplayabilir.",
-            "Boşluk, değerleri döndüren metodun adı; argümansız yazılır."
+            "Hem silen HEM değeri geri veren bir metot gerekiyor.",
+            "del siler ama hiçbir şey döndürmez.",
+            "List'lerin bir öğeyi çıkarmak için kullandığı metotla aynı isimdir."
           ]
         },
         {
           "id": "d08-b3-e3",
-          "type": "write",
-          "prompt": "Create inventory = {'apples': 12, 'pears': 7, 'plums': 4}. Then create names (a list of its keys), counts (a list of its values), total (the sum of the counts) and pairs (a list of its (key, value) tuples). Print total.",
-          "prompt_tr": "inventory = {'apples': 12, 'pears': 7, 'plums': 4} oluştur. Sonra names (anahtarların listesi), counts (değerlerin listesi), total (değerlerin toplamı) ve pairs ((anahtar, değer) tuple'larının listesi) değişkenlerini oluştur. total'ı yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert names == ['apples', 'pears', 'plums']",
-              "visible": true,
-              "failure_message": "names should be the list of keys.",
-              "failure_message_tr": "names, anahtarların listesi olmalı.",
-              "label_tr": "names doğru"
-            },
-            {
-              "code": "assert counts == [12, 7, 4] and total == 23",
-              "visible": true,
-              "failure_message": "counts is [12, 7, 4] and total 23.",
-              "failure_message_tr": "counts [12, 7, 4], total 23 olmalı.",
-              "label_tr": "counts ve total doğru"
-            },
-            {
-              "code": "assert pairs == [('apples', 12), ('pears', 7), ('plums', 4)]",
-              "visible": false,
-              "failure_message": "pairs: use list(inventory.items()).",
-              "failure_message_tr": "pairs için list(inventory.items()) kullan."
-            },
-            {
-              "code": "assert type(names) is list and type(counts) is list",
-              "visible": false,
-              "failure_message": "Wrap keys() and values() in list().",
-              "failure_message_tr": "keys() ve values() sonuçlarını list() ile sar."
-            },
-            {
-              "code": "assert __stdout__.strip() == '23'",
-              "visible": false,
-              "failure_message": "Print total.",
-              "failure_message_tr": "total'ı yazdır."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert 'values' in attrs and 'items' in attrs, 'use dict methods'\ncalls = {n.func.id for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert 'sum' in calls, 'sum'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The lists and the total look typed in by hand. Get them from the dictionary with its methods and sum().",
-              "failure_message_tr": "Listeleri ve toplamı elle yazmışsın gibi görünüyor. Bunları dictionary'nin metotlarıyla ve sum() ile elde et."
-            }
-          ],
+          "type": "debug",
+          "prompt": "This program comes from the original course: it should delete the marriage information and print {'name': 'Asabeneh', 'country': 'Finland'}. It crashes with KeyError: 'is_married'. Find the misspelled key and correct its spelling.",
+          "prompt_tr": "Bu program orijinal dersten geliyor: evlilik bilgisini silmeli ve {'name': 'Asabeneh', 'country': 'Finland'} yazdırmalı. KeyError: 'is_married' ile çöküyor. Yanlış yazılmış anahtarı bul ve yazımını düzelt.",
+          "starter_code": "person = {'name': 'Asabeneh', 'country': 'Finland', 'is_marred': True}\ndel person['is_married']\nprint(person)",
           "hints": [
-            "Declare inventory first.",
-            "A dictionary has one method for its keys, one for its values and one for its (key, value) pairs; list() turns each result into a list, and sum adds numbers.",
-            "Call the keys, values and items methods (each wrapped in list()), use sum on the counts, and print total."
+            "Compare the key in the dict with the key in the del line, letter by letter.",
+            "One of them is missing an 'i'.",
+            "Fix the spelling in the dict so both places use the same key."
+          ],
+          "hints_tr": [
+            "Dict'teki anahtarla del satırındaki anahtarı harf harf karşılaştır.",
+            "Birinde bir 'i' eksik.",
+            "Dict'teki yazımı düzelt ki iki yer de aynı anahtarı kullansın."
           ],
           "solution": {
-            "approach": "keys, values, items, then sum.",
-            "code": "inventory = {'apples': 12, 'pears': 7, 'plums': 4}\nnames = list(inventory.keys())\ncounts = list(inventory.values())\ntotal = sum(counts)\npairs = list(inventory.items())\nprint(total)",
-            "approach_tr": "Önce keys, values ve items, sonra sum."
+            "approach": "The key was misspelled when the dict was created; spell it is_married in both places.",
+            "approach_tr": "Anahtar dict oluşturulurken yanlış yazılmış; iki yerde de is_married olarak yaz.",
+            "code": "person = {'name': 'Asabeneh', 'country': 'Finland', 'is_married': True}\ndel person['is_married']\nprint(person)"
           },
-          "twin": "d08-b3-e4",
-          "hints_tr": [
-            "Önce inventory'yi tanımla.",
-            "Dictionary'nin anahtarlar, değerler ve (anahtar, değer) çiftleri için birer metodu var; list() her sonucu listeye çevirir, sum da sayıları toplar.",
-            "keys, values ve items metotlarını çağır (her birini list() ile sar), counts üzerinde sum kullan ve total'ı yazdır."
-          ]
+          "tests": [
+            {
+              "code": "assert person == {'name': 'Asabeneh', 'country': 'Finland'}",
+              "visible": true,
+              "label": "Marriage key removed",
+              "label_tr": "Evlilik anahtarı silindi",
+              "failure_message": "Only the marriage key should be gone.",
+              "failure_message_tr": "Yalnızca evlilik anahtarı silinmiş olmalı."
+            }
+          ],
+          "expected_output": "{'name': 'Asabeneh', 'country': 'Finland'}"
         },
         {
           "id": "d08-b3-e4",
-          "type": "write",
-          "prompt": "Create ages = {'Ada': 36, 'Bo': 25, 'Cem': 41}. Then create people (a list of its keys), years (a list of its values), oldest (the largest age) and pairs (a list of its (key, value) tuples). Print oldest.",
-          "prompt_tr": "ages = {'Ada': 36, 'Bo': 25, 'Cem': 41} oluştur. Sonra people (anahtarların listesi), years (değerlerin listesi), oldest (en büyük yaş) ve pairs ((anahtar, değer) tuple'larının listesi) değişkenlerini oluştur. oldest'i yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert people == ['Ada', 'Bo', 'Cem']",
-              "visible": true,
-              "failure_message": "people should be the list of keys.",
-              "failure_message_tr": "people, anahtarların listesi olmalı.",
-              "label_tr": "people doğru"
-            },
-            {
-              "code": "assert years == [36, 25, 41] and oldest == 41",
-              "visible": true,
-              "failure_message": "years is [36, 25, 41] and oldest 41.",
-              "failure_message_tr": "years [36, 25, 41], oldest 41 olmalı.",
-              "label_tr": "years ve oldest doğru"
-            },
-            {
-              "code": "assert pairs == [('Ada', 36), ('Bo', 25), ('Cem', 41)]",
-              "visible": false,
-              "failure_message": "pairs: use list(ages.items()).",
-              "failure_message_tr": "pairs için list(ages.items()) kullan."
-            },
-            {
-              "code": "assert type(people) is list and type(years) is list",
-              "visible": false,
-              "failure_message": "Wrap keys() and values() in list().",
-              "failure_message_tr": "keys() ve values() sonuçlarını list() ile sar."
-            },
-            {
-              "code": "assert __stdout__.strip() == '41'",
-              "visible": false,
-              "failure_message": "Print oldest.",
-              "failure_message_tr": "oldest'i yazdır."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert 'values' in attrs and 'items' in attrs, 'use dict methods'\ncalls = {n.func.id for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert 'max' in calls, 'max'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The lists and the maximum look typed in by hand. Get them from the dictionary with its methods and max().",
-              "failure_message_tr": "Listeleri ve en büyük değeri elle yazmışsın gibi görünüyor. Bunları dictionary'nin metotlarıyla ve max() ile elde et."
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "d = {'a': 1, 'b': 2}\nd['c'] = 3\nprint(d.popitem(), d.pop('x', 'none'))",
+          "choices": [
+            "('c', 3) none",
+            "('a', 1) none",
+            "('c', 3) Error",
+            "3 none"
           ],
-          "hints": [
-            "Declare ages first.",
-            "A dictionary has one method for its keys, one for its values and one for its (key, value) pairs; list() makes lists of them, and one built-in function finds the largest number.",
-            "Call the keys, values and items methods (each wrapped in list()), use max on the years, and print oldest."
-          ],
-          "solution": {
-            "approach": "keys, values, max, items.",
-            "code": "ages = {'Ada': 36, 'Bo': 25, 'Cem': 41}\npeople = list(ages.keys())\nyears = list(ages.values())\noldest = max(years)\npairs = list(ages.items())\nprint(oldest)",
-            "approach_tr": "keys, values, max ve items kullan."
+          "expected_output": "('c', 3) none",
+          "explanation": "popitem() takes out the last inserted pair as the tuple ('c', 3); pop('x', 'none') finds no 'x' and returns its default.",
+          "explanation_tr": "popitem() en son eklenen çifti ('c', 3) tuple'ı olarak çıkarır; pop('x', 'none') 'x' bulamaz ve varsayılanını döndürür.",
+          "misconceptions": {
+            "('a', 1) none": "popitem() removes the pair inserted LAST, which is ('c', 3).",
+            "('c', 3) Error": "pop with a default does not raise KeyError for a missing key.",
+            "3 none": "popitem() returns the whole pair as a (key, value) tuple."
           },
-          "twin": "d08-b3-e3",
-          "hints_tr": [
-            "Önce ages'i tanımla.",
-            "Dictionary'nin anahtarlar, değerler ve (anahtar, değer) çiftleri için birer metodu var; list() bunları listeye çevirir, en büyük sayıyı da hazır bir fonksiyon bulur.",
-            "keys, values ve items metotlarını çağır (her birini list() ile sar), years üzerinde max kullan ve oldest'i yazdır."
-          ]
+          "misconceptions_tr": {
+            "('a', 1) none": "popitem() EN SON eklenen çifti siler; o da ('c', 3)'tür.",
+            "('c', 3) Error": "Varsayılanlı pop eksik anahtar için KeyError vermez.",
+            "3 none": "popitem() çiftin tamamını (anahtar, değer) tuple'ı olarak döndürür."
+          }
         },
         {
           "id": "d08-b3-e5",
-          "type": "explain",
-          "prompt": "In your own words: what is the difference between person['city'] and person.get('city') when the key 'city' does not exist?",
-          "prompt_tr": "Kendi cümlelerinle: 'city' anahtarı yokken person['city'] ile person.get('city') arasındaki fark nedir?",
-          "model_answer": "person['city'] raises a KeyError and stops the program, while person.get('city') quietly returns None. Use get() when a key might be missing.",
-          "keywords": [
-            "KeyError",
-            "None",
-            "error",
-            "missing",
-            "get"
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program removes the coupon safely (even if it is missing) and prints: 0 {'total': 100}",
+          "prompt_tr": "Satırları sıraya koy: program kuponu güvenle (eksik olsa bile) silsin ve şunu yazdırsın: 0 {'total': 100}",
+          "lines": [
+            "discount = order.pop('coupon', 0)",
+            "print(discount, order)",
+            "order = {'total': 100}"
           ],
-          "model_answer_tr": "person['city'] KeyError verir ve programı durdurur; person.get('city') ise sessizce None döndürür. Bir anahtar eksik olabilirse get() kullan.",
-          "keywords_tr": [
-            "KeyError",
-            "None",
-            "hata",
-            "eksik",
-            "get"
+          "correct_order": [
+            2,
+            0,
+            1
           ],
-          "min_words": 6
+          "distractors": [
+            "discount = order.pop('coupon')"
+          ],
+          "expected_output": "0 {'total': 100}"
+        },
+        {
+          "id": "d08-b3-e6",
+          "type": "modify",
+          "prompt": "The program crashes with KeyError when 'jam' is not in the cart. Change it so it removes 'jam' safely and stores 0 in removed when 'jam' is missing. Then print removed and cart. Keep the first line. For the given data: 0 {'milk': 2}.",
+          "prompt_tr": "'jam' sepette yoksa program KeyError ile çöküyor. 'jam'i güvenle silecek ve 'jam' yoksa removed'a 0 koyacak şekilde değiştir. Sonra removed ve cart'ı yazdır. İlk satırı koru. Verilen veri için: 0 {'milk': 2}.",
+          "starter_code": "cart = {'milk': 2}\nremoved = cart.pop('jam')\nprint(removed, cart)",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"0 {'milk': 2}\"",
+              "visible": true,
+              "label": "Safe removal",
+              "label_tr": "Güvenli silme",
+              "failure_message": "Expected 0 {'milk': 2}.",
+              "failure_message_tr": "0 {'milk': 2} beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('cart=')][0]\n_src[_i] = \"cart = {'jam': 3, 'tea': 1}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['removed'] == 3 and _ns['cart'] == {'tea': 1}",
+              "visible": false,
+              "failure_message": "When 'jam' is there it must be removed and its quantity returned.",
+              "failure_message_tr": "'jam' varsa silinmeli ve miktarı döndürülmeli.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "pop() accepts an optional second argument.",
+            "That argument is returned when the key does not exist.",
+            "Add 0 as the second argument of the pop call."
+          ],
+          "hints_tr": [
+            "pop() isteğe bağlı ikinci bir argüman alır.",
+            "Anahtar yoksa o argüman döndürülür.",
+            "pop çağrısına ikinci argüman olarak 0 ekle."
+          ],
+          "solution": {
+            "approach": "pop with a second argument returns that default for a missing key.",
+            "approach_tr": "İkinci argümanlı pop eksik anahtar için o varsayılanı döndürür.",
+            "code": "cart = {'milk': 2}\nremoved = cart.pop('jam', 0)\nprint(removed, cart)"
+          }
+        },
+        {
+          "id": "d08-b3-e7",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: stock = {'apple': 5, 'pear': 0, 'plum': 7} and then item = 'pear'. Print two lines: whether item is a key of stock, then whether 0 is one of the values. For the given lines: True, then True.",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: stock = {'apple': 5, 'pear': 0, 'plum': 7} ve ardından item = 'pear'. İki satır yazdır: item stock'un bir anahtarı mı, sonra 0 değerlerden biri mi. Verilen satırlar için: True, sonra True.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['True', 'True']",
+              "visible": true,
+              "label": "Two checks",
+              "label_tr": "İki kontrol",
+              "failure_message": "Expected True, then True.",
+              "failure_message_tr": "Önce True, sonra True beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('item=')][0]\n_src[_i] = \"item = 'kiwi'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['False', 'True']",
+              "visible": false,
+              "failure_message": "Check item with the in operator, so a missing item prints False.",
+              "failure_message_tr": "item'ı in operatörüyle kontrol et ki eksik ürün False yazdırsın.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('stock=')][0]\n_src[_i] = \"stock = {'pear': 3}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['True', 'False']",
+              "visible": false,
+              "failure_message": "Search the values with stock.values(); 0 is not a value here.",
+              "failure_message_tr": "Değerleri stock.values() ile ara; burada 0 bir değer değil."
+            }
+          ],
+          "hints": [
+            "The two questions look at different parts of the dict.",
+            "in on the dict itself checks keys.",
+            "For the second line, put 0 in front of in and the values view of stock after it."
+          ],
+          "hints_tr": [
+            "İki soru dict'in farklı kısımlarına bakar.",
+            "Dict'in kendisinde in anahtarlara bakar.",
+            "İkinci satır için in'in önüne 0, arkasına stock'un değerler görünümünü koy."
+          ],
+          "solution": {
+            "approach": "in for keys, in on values() for values.",
+            "approach_tr": "Anahtarlar için in, değerler için values() üzerinde in.",
+            "code": "stock = {'apple': 5, 'pear': 0, 'plum': 7}\nitem = 'pear'\nprint(item in stock)\nprint(0 in stock.values())"
+          },
+          "twin": "d08-b3-e8"
+        },
+        {
+          "id": "d08-b3-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: person = {'name': 'Elif', 'age': 20, 'city': 'İzmir', 'job': 'dev'}. Remove the last inserted pair with popitem() and keep it in last, remove 'age' with pop() and keep the value in age, then print last, age and person on one line separated by spaces. For the given line: ('job', 'dev') 20 {'name': 'Elif', 'city': 'İzmir'}",
+          "prompt_tr": "Programına tam olarak şu satırla başla: person = {'name': 'Elif', 'age': 20, 'city': 'İzmir', 'job': 'dev'}. En son eklenen çifti popitem() ile silip last'ta tut, 'age'i pop() ile silip değerini age'de tut, sonra last, age ve person'ı boşluklarla ayrılmış tek satırda yazdır. Verilen satır için: ('job', 'dev') 20 {'name': 'Elif', 'city': 'İzmir'}",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert last == ('job', 'dev') and age == 20",
+              "visible": true,
+              "label": "Removed values",
+              "label_tr": "Silinen değerler",
+              "failure_message": "last should be ('job', 'dev') and age 20.",
+              "failure_message_tr": "last ('job', 'dev'), age 20 olmalı."
+            },
+            {
+              "code": "assert person == {'name': 'Elif', 'city': 'İzmir'}",
+              "visible": true,
+              "label": "Remaining pairs",
+              "label_tr": "Kalan çiftler",
+              "failure_message": "Only name and city should remain.",
+              "failure_message_tr": "Yalnızca name ve city kalmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"('job', 'dev') 20 {'name': 'Elif', 'city': 'İzmir'}\"",
+              "visible": false,
+              "failure_message": "Print last, age and person on one line.",
+              "failure_message_tr": "last, age ve person'ı tek satırda yazdır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('person=')][0]\n_src[_i] = \"person = {'age': 9, 'x': 1}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['last'] == ('x', 1) and _ns['age'] == 9 and _ns['person'] == {}",
+              "visible": false,
+              "failure_message": "Use popitem() and pop('age') on person, so other data gives other results.",
+              "failure_message_tr": "person üzerinde popitem() ve pop('age') kullan ki başka veri başka sonuç versin.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Two removals, each keeping what it removed.",
+            "popitem() returns a (key, value) tuple; pop(key) returns only the value.",
+            "last = person.popitem(), then the age removal, then one print with three arguments."
+          ],
+          "hints_tr": [
+            "İki silme; her biri sildiğini tutuyor.",
+            "popitem() (anahtar, değer) tuple'ı döndürür; pop(key) yalnızca değeri.",
+            "last = person.popitem(), sonra yaş silme, sonra üç argümanlı bir print."
+          ],
+          "solution": {
+            "approach": "popitem() for the last pair, pop('age') for the age.",
+            "approach_tr": "Son çift için popitem(), yaş için pop('age').",
+            "code": "person = {'name': 'Elif', 'age': 20, 'city': 'İzmir', 'job': 'dev'}\nlast = person.popitem()\nage = person.pop('age')\nprint(last, age, person)"
+          },
+          "twin": "d08-b3-e7"
         }
+      ]
+    },
+    {
+      "id": "d08-b4",
+      "concept": "dict-views",
+      "concept_tr": "keys(), values(), items() ve list'e çevirmek",
+      "tags": [
+        "dicts",
+        "views",
+        "builtins"
       ],
-      "concept_tr": "keys(), values() ve items(): dictionary'nin parçalarını listelemek."
+      "worked_example": {
+        "code": "grades = {'Ali': 85, 'Ece': 92, 'Can': 78}\nprint(list(grades.keys()))\nprint(sum(grades.values()) / len(grades))\npairs = list(grades.items())\nname, grade = pairs[0]\nprint(name, grade)",
+        "notes": [
+          "keys(), values() and items() return live views, not lists; list(...) makes a real list you can index.",
+          "Built-ins such as sum(), max(), min(), len() and sorted() accept a view directly.",
+          "items() gives (key, value) tuples, so a pair can be unpacked into two names."
+        ],
+        "notes_tr": [
+          "keys(), values() ve items() list değil canlı görünümler döndürür; list(...) indeksleyebileceğin gerçek bir list yapar.",
+          "sum(), max(), min(), len() ve sorted() gibi yerleşik fonksiyonlar görünümü doğrudan kabul eder.",
+          "items() (anahtar, değer) tuple'ları verir; bu yüzden bir çift iki isme açılabilir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d08-b4-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "stock = {'apple': 5, 'pear': 2}\nview = stock.keys()\nstock['plum'] = 7\nprint(len(view), sum(stock.values()))",
+          "choices": [
+            "3 14",
+            "2 14",
+            "3 7",
+            "Error"
+          ],
+          "expected_output": "3 14",
+          "explanation": "view follows the dict, so after adding 'plum' it has 3 keys; the values add up to 14.",
+          "explanation_tr": "view dict'i izler; 'plum' eklendikten sonra 3 anahtarı vardır; değerlerin toplamı 14'tür.",
+          "misconceptions": {
+            "2 14": "A view is live: it shows the key added after it was created.",
+            "3 7": "sum() adds all values: 5 + 2 + 7.",
+            "Error": "len() works on a keys view."
+          },
+          "misconceptions_tr": {
+            "2 14": "Görünüm canlıdır: oluşturulduktan sonra eklenen anahtarı gösterir.",
+            "3 7": "sum() bütün değerleri toplar: 5 + 2 + 7.",
+            "Error": "len() bir anahtar görünümünde çalışır."
+          }
+        },
+        {
+          "id": "d08-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so best holds the highest grade in the dict.",
+          "prompt_tr": "Boşluğu doldur: best, dict'teki en yüksek notu tutsun.",
+          "starter_code": "grades = {'Ali': 85, 'Ece': 92, 'Can': 78}\nbest = max(___)\nprint(best)",
+          "blanks": [
+            {
+              "answer": [
+                "grades.values()"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert best == 92",
+              "visible": true,
+              "label": "best is 92",
+              "label_tr": "best 92",
+              "failure_message": "best should be 92.",
+              "failure_message_tr": "best 92 olmalı."
+            }
+          ],
+          "hints": [
+            "max() of the dict itself would compare the names.",
+            "You want max() to look at the grades.",
+            "Pass the values view of grades."
+          ],
+          "hints_tr": [
+            "Dict'in kendisinin max()'ı isimleri karşılaştırırdı.",
+            "max()'ın notlara bakmasını istiyorsun.",
+            "grades'in değerler görünümünü ver."
+          ]
+        },
+        {
+          "id": "d08-b4-e3",
+          "type": "debug",
+          "prompt": "The program should print the first product name in the dict (apple). It crashes with TypeError: 'dict_keys' object is not subscriptable. Fix it.",
+          "prompt_tr": "Program dict'teki ilk ürün adını (apple) yazdırmalı. TypeError: 'dict_keys' object is not subscriptable ile çöküyor. Düzelt.",
+          "starter_code": "stock = {'apple': 5, 'pear': 2}\nfirst = stock.keys()[0]\nprint(first)",
+          "hints": [
+            "'Not subscriptable' means [0] cannot be used on this object.",
+            "Which conversion gives you an indexable list?",
+            "Wrap the keys view in list() before taking index 0."
+          ],
+          "hints_tr": [
+            "'Not subscriptable', bu nesnede [0] kullanılamayacağı anlamına gelir.",
+            "Hangi dönüşüm sana indekslenebilir bir list verir?",
+            "0. indeksi almadan önce anahtar görünümünü list() ile sar."
+          ],
+          "solution": {
+            "approach": "A keys view cannot be indexed; convert it to a list first.",
+            "approach_tr": "Anahtar görünümü indekslenemez; önce list'e çevir.",
+            "code": "stock = {'apple': 5, 'pear': 2}\nfirst = list(stock.keys())[0]\nprint(first)"
+          },
+          "tests": [
+            {
+              "code": "assert first == 'apple'",
+              "visible": true,
+              "label": "first is apple",
+              "label_tr": "first apple",
+              "failure_message": "first should be 'apple'.",
+              "failure_message_tr": "first 'apple' olmalı."
+            }
+          ],
+          "expected_output": "apple"
+        },
+        {
+          "id": "d08-b4-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "d = {'x': 3, 'y': 1}\npairs = list(d.items())\nkey, value = pairs[-1]\nprint(key, value, sorted(d.values()))",
+          "choices": [
+            "x 3 [1, 3]",
+            "y 1 [3, 1]",
+            "('y', 1) [1, 3]",
+            "y 1 [1, 3]"
+          ],
+          "expected_output": "y 1 [1, 3]",
+          "explanation": "The last pair is ('y', 1), unpacked into key 'y' and value 1; sorted values are [1, 3].",
+          "explanation_tr": "Son çift ('y', 1)'dir; key 'y' ve value 1 olarak açılır; sıralı değerler [1, 3]'tür.",
+          "misconceptions": {
+            "x 3 [1, 3]": "pairs[-1] is the last pair, ('y', 1).",
+            "y 1 [3, 1]": "sorted() returns the values in ascending order.",
+            "('y', 1) [1, 3]": "The pair is unpacked into two names, so key and value print separately."
+          },
+          "misconceptions_tr": {
+            "x 3 [1, 3]": "pairs[-1] son çifttir: ('y', 1).",
+            "y 1 [3, 1]": "sorted() değerleri artan sırada döndürür.",
+            "('y', 1) [1, 3]": "Çift iki isme açılır; key ve value ayrı yazdırılır."
+          }
+        },
+        {
+          "id": "d08-b4-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints the average of the expenses rounded to 1 decimal: 41.7",
+          "prompt_tr": "Satırları sıraya koy: program giderlerin 1 ondalığa yuvarlanmış ortalamasını yazdırsın: 41.7",
+          "lines": [
+            "print(round(average, 1))",
+            "expenses = {'food': 60, 'bus': 15, 'books': 50}",
+            "average = total / len(expenses)",
+            "total = sum(expenses.values())"
+          ],
+          "correct_order": [
+            1,
+            3,
+            2,
+            0
+          ],
+          "distractors": [
+            "total = sum(expenses)"
+          ],
+          "expected_output": "41.7"
+        },
+        {
+          "id": "d08-b4-e6",
+          "type": "modify",
+          "prompt": "The program prints the sum of the scores. Change it so it prints two lines: the sorted list of player names, then the lowest score. Keep the first line. For the given data: ['Can', 'Deniz', 'Ece'] and 12.",
+          "prompt_tr": "Program puanların toplamını yazdırıyor. İki satır yazdıracak şekilde değiştir: oyuncu adlarının sıralı list'i, sonra en düşük puan. İlk satırı koru. Verilen veri için: ['Can', 'Deniz', 'Ece'] ve 12.",
+          "starter_code": "scores = {'Ece': 40, 'Can': 12, 'Deniz': 33}\nprint(sum(scores.values()))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == [\"['Can', 'Deniz', 'Ece']\", '12']",
+              "visible": true,
+              "label": "Names and lowest score",
+              "label_tr": "İsimler ve en düşük puan",
+              "failure_message": "Expected the sorted names, then 12.",
+              "failure_message_tr": "Önce sıralı isimler, sonra 12 beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('scores=')][0]\n_src[_i] = \"scores = {'Zeki': 5, 'Ada': 9}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == [\"['Ada', 'Zeki']\", '5']",
+              "visible": false,
+              "failure_message": "Compute both lines from scores.",
+              "failure_message_tr": "İki satırı da scores'tan hesapla.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "The names are the keys, the scores are the values.",
+            "sorted() on a dict gives its keys in order; min() on the values gives the lowest.",
+            "Replace the print with two prints: one sorting the dict, one taking min of its values view."
+          ],
+          "hints_tr": [
+            "İsimler anahtarlar, puanlar değerlerdir.",
+            "Dict üzerinde sorted() anahtarlarını sıralı verir; değerler üzerinde min() en düşüğü verir.",
+            "print'i iki print ile değiştir: biri dict'i sıralasın, biri değerler görünümünün min'ini alsın."
+          ],
+          "solution": {
+            "approach": "sorted(dict) sorts the keys; min(values) finds the lowest score.",
+            "approach_tr": "sorted(dict) anahtarları sıralar; min(values) en düşük puanı bulur.",
+            "code": "scores = {'Ece': 40, 'Can': 12, 'Deniz': 33}\nprint(sorted(scores))\nprint(min(scores.values()))"
+          }
+        },
+        {
+          "id": "d08-b4-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: student = {'name': 'Elif', 'age': 20, 'city': 'İzmir'}. Build keys_list (the keys as a list), values_list (the values as a list) and pairs (the pairs as a list of tuples). Print the three lists on three lines.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: student = {'name': 'Elif', 'age': 20, 'city': 'İzmir'}. keys_list (anahtarlar list olarak), values_list (değerler list olarak) ve pairs (çiftler tuple list'i olarak) kur. Üç list'i üç satırda yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert keys_list == ['name', 'age', 'city'] and type(keys_list) is list",
+              "visible": true,
+              "label": "keys_list",
+              "label_tr": "keys_list",
+              "failure_message": "keys_list should be ['name', 'age', 'city'] as a real list.",
+              "failure_message_tr": "keys_list gerçek bir list olarak ['name', 'age', 'city'] olmalı."
+            },
+            {
+              "code": "assert values_list == ['Elif', 20, 'İzmir'] and type(values_list) is list",
+              "visible": true,
+              "label": "values_list",
+              "label_tr": "values_list",
+              "failure_message": "values_list should be ['Elif', 20, 'İzmir'].",
+              "failure_message_tr": "values_list ['Elif', 20, 'İzmir'] olmalı."
+            },
+            {
+              "code": "assert pairs == [('name', 'Elif'), ('age', 20), ('city', 'İzmir')]",
+              "visible": false,
+              "failure_message": "pairs should be a list of (key, value) tuples.",
+              "failure_message_tr": "pairs (anahtar, değer) tuple'larından oluşan bir list olmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('student=')][0]\n_src[_i] = \"student = {'a': 1}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['keys_list'] == ['a'] and _ns['values_list'] == [1] and _ns['pairs'] == [('a', 1)]",
+              "visible": false,
+              "failure_message": "Build the lists from student's views, not by typing them.",
+              "failure_message_tr": "List'leri elle yazarak değil, student'ın görünümlerinden kur.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('student=')][0]\n_src[_i] = 'student = {}'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['pairs'] == [] and _o.split() == ['[]', '[]', '[]']",
+              "visible": false,
+              "failure_message": "Edge case: an empty dict gives three empty lists.",
+              "failure_message_tr": "Kenar durum: boş dict üç boş list verir."
+            }
+          ],
+          "hints": [
+            "There is one view method for each list.",
+            "Views are not lists; one built-in turns any view into a list.",
+            "keys_list = list(student.keys()), and the same pattern with the other two methods."
+          ],
+          "hints_tr": [
+            "Her list için bir görünüm metodu var.",
+            "Görünümler list değildir; bir yerleşik fonksiyon her görünümü list'e çevirir.",
+            "keys_list = list(student.keys()); diğer iki metotla da aynı kalıp."
+          ],
+          "solution": {
+            "approach": "Wrap each view in list().",
+            "approach_tr": "Her görünümü list() ile sar.",
+            "code": "student = {'name': 'Elif', 'age': 20, 'city': 'İzmir'}\nkeys_list = list(student.keys())\nvalues_list = list(student.values())\npairs = list(student.items())\nprint(keys_list)\nprint(values_list)\nprint(pairs)"
+          },
+          "twin": "d08-b4-e8"
+        },
+        {
+          "id": "d08-b4-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: expenses = {'food': 60, 'bus': 15, 'books': 50}. Print exactly: total 125, max 60, items 3 (the total of the values, the largest value and the number of pairs).",
+          "prompt_tr": "Programına tam olarak şu satırla başla: expenses = {'food': 60, 'bus': 15, 'books': 50}. Tam olarak şunu yazdır: total 125, max 60, items 3 (değerlerin toplamı, en büyük değer ve çift sayısı).",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'total 125, max 60, items 3'",
+              "visible": true,
+              "label": "Summary line",
+              "label_tr": "Özet satırı",
+              "failure_message": "Expected exactly: total 125, max 60, items 3",
+              "failure_message_tr": "Tam olarak beklenen: total 125, max 60, items 3"
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('expenses=')][0]\n_src[_i] = \"expenses = {'rent': 500, 'tea': 5}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'total 505, max 500, items 2'",
+              "visible": false,
+              "failure_message": "Compute the three numbers from expenses.",
+              "failure_message_tr": "Üç sayıyı expenses'tan hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('expenses=')][0]\n_src[_i] = \"expenses = {'only': 7}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'total 7, max 7, items 1'",
+              "visible": false,
+              "failure_message": "Edge case: one expense is the total and the max.",
+              "failure_message_tr": "Kenar durum: tek gider hem toplam hem en büyüktür."
+            }
+          ],
+          "hints": [
+            "Two numbers come from the values, one from the dict itself.",
+            "sum() and max() need expenses.values(); len() works on the dict.",
+            "Put the three calls inside one f-string with the exact words and commas."
+          ],
+          "hints_tr": [
+            "İki sayı değerlerden, biri dict'in kendisinden gelir.",
+            "sum() ve max() expenses.values() ister; len() dict'te çalışır.",
+            "Üç çağrıyı tam kelimeler ve virgüllerle tek bir f-string'in içine koy."
+          ],
+          "solution": {
+            "approach": "sum, max and len on the dict and its values.",
+            "approach_tr": "Dict ve değerleri üzerinde sum, max ve len.",
+            "code": "expenses = {'food': 60, 'bus': 15, 'books': 50}\nprint(f'total {sum(expenses.values())}, max {max(expenses.values())}, items {len(expenses)}')"
+          },
+          "twin": "d08-b4-e7"
+        }
+      ]
+    },
+    {
+      "id": "d08-b5",
+      "concept": "dict-copy",
+      "concept_tr": "Takma ad ve kopya: b = a, copy(), yüzeysel kopya",
+      "tags": [
+        "dicts",
+        "aliasing",
+        "copy",
+        "mutation"
+      ],
+      "worked_example": {
+        "code": "defaults = {'theme': 'light', 'size': 12}\nalias = defaults\nmine = defaults.copy()\nmine['theme'] = 'dark'\nalias['size'] = 14\nprint(defaults)\nprint(mine)",
+        "notes": [
+          "b = a puts a second name tag on the same dict, so a change through either name is visible through both.",
+          "a.copy() builds a new dict with the same pairs, so changing the copy's pairs leaves the original alone.",
+          "The copy is shallow: a list stored as a value is shared, so appending to it shows in both dicts."
+        ],
+        "notes_tr": [
+          "b = a aynı dict'e ikinci bir isim etiketi takar; isimlerden biriyle yapılan değişiklik ikisinden de görünür.",
+          "a.copy() aynı çiftlerle yeni bir dict kurar; kopyanın çiftlerini değiştirmek aslına dokunmaz.",
+          "Kopya yüzeyseldir: değer olarak saklanan bir list paylaşılır; ona ekleme yapmak iki dict'te de görünür."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d08-b5-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = {'x': 1}\nb = a\nc = a.copy()\nb['x'] = 2\nprint(a['x'], c['x'])",
+          "choices": [
+            "2 2",
+            "1 2",
+            "2 1",
+            "1 1"
+          ],
+          "expected_output": "2 1",
+          "explanation": "a and b are one dict, so a['x'] is 2. c is a separate copy made earlier and still holds 1.",
+          "explanation_tr": "a ve b tek bir dict'tir, a['x'] 2 olur. c daha önce yapılmış ayrı bir kopyadır ve hâlâ 1 tutar.",
+          "misconceptions": {
+            "1 1": "b is not a copy; it is another name for the same dict as a.",
+            "2 2": "c was copied before the change, and it is a separate dict.",
+            "1 2": "The change went through b, which shares the dict with a, not with c."
+          },
+          "misconceptions_tr": {
+            "1 1": "b bir kopya değil; a ile aynı dict'in başka bir adıdır.",
+            "2 2": "c değişiklikten önce kopyalandı ve ayrı bir dict'tir.",
+            "1 2": "Değişiklik a ile dict'i paylaşan b üzerinden yapıldı, c ile değil."
+          }
+        },
+        {
+          "id": "d08-b5-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so draft is an independent copy and changing it does not change template.",
+          "prompt_tr": "Boşluğu doldur: draft bağımsız bir kopya olsun ve onu değiştirmek template'i değiştirmesin.",
+          "starter_code": "template = {'subject': 'Hello', 'sign': 'Ece'}\ndraft = ___\ndraft['subject'] = 'Meeting'\nprint(template['subject'], draft['subject'])",
+          "blanks": [
+            {
+              "answer": [
+                "template.copy()",
+                "dict(template)"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert template == {'subject': 'Hello', 'sign': 'Ece'}",
+              "visible": true,
+              "label": "template unchanged",
+              "label_tr": "template değişmemiş",
+              "failure_message": "template must stay unchanged.",
+              "failure_message_tr": "template değişmeden kalmalı."
+            },
+            {
+              "code": "assert draft == {'subject': 'Meeting', 'sign': 'Ece'}",
+              "visible": true,
+              "label": "draft changed",
+              "label_tr": "draft değişti",
+              "failure_message": "draft should hold the changed subject.",
+              "failure_message_tr": "draft değişen konuyu tutmalı."
+            }
+          ],
+          "hints": [
+            "draft = template would only add a second name to the same dict.",
+            "You need a new dict with the same pairs.",
+            "Call the dict method whose name means 'duplicate' on template."
+          ],
+          "hints_tr": [
+            "draft = template yalnızca aynı dict'e ikinci bir isim eklerdi.",
+            "Aynı çiftlere sahip yeni bir dict gerekiyor.",
+            "template üzerinde adı 'kopyala' anlamına gelen dict metodunu çağır."
+          ]
+        },
+        {
+          "id": "d08-b5-e3",
+          "type": "debug",
+          "prompt": "The program should keep the default settings unchanged and print {'theme': 'light', 'size': 12}. But changing the user's settings also changes the defaults. Fix the line that creates user.",
+          "prompt_tr": "Program varsayılan ayarları değiştirmeden tutmalı ve {'theme': 'light', 'size': 12} yazdırmalı. Ama kullanıcının ayarlarını değiştirmek varsayılanları da değiştiriyor. user'ı oluşturan satırı düzelt.",
+          "starter_code": "defaults = {'theme': 'light', 'size': 12}\nuser = defaults\nuser['theme'] = 'dark'\nprint(defaults)",
+          "hints": [
+            "How many dict objects exist after line 2?",
+            "Assignment never copies; it attaches another name.",
+            "Make user a new dict built from defaults with the copy method."
+          ],
+          "hints_tr": [
+            "2. satırdan sonra kaç dict nesnesi var?",
+            "Atama asla kopyalamaz; başka bir isim bağlar.",
+            "user'ı copy metoduyla defaults'tan kurulan yeni bir dict yap."
+          ],
+          "solution": {
+            "approach": "user = defaults made an alias; defaults.copy() makes a separate dict.",
+            "approach_tr": "user = defaults bir takma ad yaptı; defaults.copy() ayrı bir dict yapar.",
+            "code": "defaults = {'theme': 'light', 'size': 12}\nuser = defaults.copy()\nuser['theme'] = 'dark'\nprint(defaults)"
+          },
+          "tests": [
+            {
+              "code": "assert user == {'theme': 'dark', 'size': 12}",
+              "visible": true,
+              "label": "user changed",
+              "label_tr": "user değişti",
+              "failure_message": "user should still get the dark theme.",
+              "failure_message_tr": "user yine de koyu temayı almalı."
+            }
+          ],
+          "expected_output": "{'theme': 'light', 'size': 12}"
+        },
+        {
+          "id": "d08-b5-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "user = {'name': 'Elif', 'tags': ['new']}\nclone = user.copy()\nclone['name'] = 'Ece'\nclone['tags'].append('vip')\nprint(user['name'], user['tags'])",
+          "choices": [
+            "Elif ['new', 'vip']",
+            "Ece ['new', 'vip']",
+            "Elif ['new']",
+            "Ece ['new']"
+          ],
+          "expected_output": "Elif ['new', 'vip']",
+          "explanation": "The name is replaced only in clone, but both dicts point to the same tags list, so the append is visible through user.",
+          "explanation_tr": "İsim yalnızca clone'da değişir; ama iki dict aynı tags list'ini gösterir, bu yüzden append user üzerinden de görünür.",
+          "misconceptions": {
+            "Ece ['new', 'vip']": "Assigning clone['name'] replaces the value in the copy only.",
+            "Elif ['new']": "copy() is shallow: the list is shared, so append shows in user too.",
+            "Ece ['new']": "Both parts are wrong: name stays 'Elif' and the shared list gets 'vip'."
+          },
+          "misconceptions_tr": {
+            "Ece ['new', 'vip']": "clone['name']'e atama yalnızca kopyadaki değeri değiştirir.",
+            "Elif ['new']": "copy() yüzeyseldir: list paylaşılır, append user'da da görünür.",
+            "Ece ['new']": "İki kısım da yanlış: name 'Elif' kalır ve ortak list 'vip' alır."
+          }
+        },
+        {
+          "id": "d08-b5-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program makes an independent copy of the skills list too and prints: ['Python'] ['Python', 'Git']",
+          "prompt_tr": "Satırları sıraya koy: program skills list'inin de bağımsız bir kopyasını yapsın ve şunu yazdırsın: ['Python'] ['Python', 'Git']",
+          "lines": [
+            "clone = {'skills': user['skills'].copy()}",
+            "print(user['skills'], clone['skills'])",
+            "user = {'skills': ['Python']}",
+            "clone['skills'].append('Git')"
+          ],
+          "correct_order": [
+            2,
+            0,
+            3,
+            1
+          ],
+          "distractors": [
+            "clone = user"
+          ],
+          "expected_output": "['Python'] ['Python', 'Git']"
+        },
+        {
+          "id": "d08-b5-e6",
+          "type": "modify",
+          "prompt": "The program changes the original prices. Change it so the discounted prices are stored in a copy called sale, the original prices stay unchanged, and both are printed on two lines (prices first). Keep the first line. For the given data: {'tea': 10, 'cake': 40} and {'tea': 10, 'cake': 30}.",
+          "prompt_tr": "Program asıl fiyatları değiştiriyor. İndirimli fiyatlar sale adında bir kopyada saklansın, asıl fiyatlar değişmesin ve ikisi iki satırda yazdırılsın (önce prices) diye değiştir. İlk satırı koru. Verilen veri için: {'tea': 10, 'cake': 40} ve {'tea': 10, 'cake': 30}.",
+          "starter_code": "prices = {'tea': 10, 'cake': 40}\nprices['cake'] = prices['cake'] - 10\nprint(prices)",
+          "tests": [
+            {
+              "code": "assert prices == {'tea': 10, 'cake': 40} and sale == {'tea': 10, 'cake': 30}",
+              "visible": true,
+              "label": "Original kept, copy discounted",
+              "label_tr": "Asıl korundu, kopya indirimli",
+              "failure_message": "prices must stay the same and sale must have cake at 30.",
+              "failure_message_tr": "prices aynı kalmalı, sale'de cake 30 olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip().split('\\n') == [\"{'tea': 10, 'cake': 40}\", \"{'tea': 10, 'cake': 30}\"]",
+              "visible": true,
+              "label": "Two lines",
+              "label_tr": "İki satır",
+              "failure_message": "Print prices, then sale.",
+              "failure_message_tr": "Önce prices, sonra sale yazdır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('prices=')][0]\n_src[_i] = \"prices = {'cake': 25, 'pie': 8}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['prices'] == {'cake': 25, 'pie': 8} and _ns['sale'] == {'cake': 15, 'pie': 8}",
+              "visible": false,
+              "failure_message": "Build sale with copy() and subtract 10 from its cake, so other prices work too.",
+              "failure_message_tr": "sale'i copy() ile kur ve onun cake değerinden 10 çıkar ki başka fiyatlar da çalışsın.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "You need a second dict before changing anything.",
+            "Make it with the copy method, then change the cake price in sale only.",
+            "sale = prices.copy(), then the subtraction on sale's cake, then two prints."
+          ],
+          "hints_tr": [
+            "Bir şeyi değiştirmeden önce ikinci bir dict gerekiyor.",
+            "Onu copy metoduyla yap, sonra cake fiyatını yalnızca sale'de değiştir.",
+            "sale = prices.copy(), sonra sale'in cake'i üzerinde çıkarma, sonra iki print."
+          ],
+          "solution": {
+            "approach": "Copy first, then change only the copy.",
+            "approach_tr": "Önce kopyala, sonra yalnızca kopyayı değiştir.",
+            "code": "prices = {'tea': 10, 'cake': 40}\nsale = prices.copy()\nsale['cake'] = sale['cake'] - 10\nprint(prices)\nprint(sale)"
+          }
+        },
+        {
+          "id": "d08-b5-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: base = {'name': 'Report', 'pages': 10}. Make an independent copy called v2, set its 'pages' to the old value plus 5 and add the key 'version' with the value 2. Print base and v2 on two lines.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: base = {'name': 'Report', 'pages': 10}. v2 adında bağımsız bir kopya yap, 'pages' değerini eski değer artı 5 yap ve 2 değerli 'version' anahtarını ekle. base ve v2'yi iki satırda yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert base == {'name': 'Report', 'pages': 10}",
+              "visible": true,
+              "label": "base unchanged",
+              "label_tr": "base değişmemiş",
+              "failure_message": "base must stay unchanged.",
+              "failure_message_tr": "base değişmeden kalmalı."
+            },
+            {
+              "code": "assert v2 == {'name': 'Report', 'pages': 15, 'version': 2}",
+              "visible": true,
+              "label": "v2 built",
+              "label_tr": "v2 kuruldu",
+              "failure_message": "v2 should have 15 pages and version 2.",
+              "failure_message_tr": "v2'de 15 sayfa ve version 2 olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip().split('\\n') == [str(base), str(v2)]",
+              "visible": false,
+              "failure_message": "Print base, then v2.",
+              "failure_message_tr": "Önce base, sonra v2 yazdır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('base=')][0]\n_src[_i] = \"base = {'name': 'Memo', 'pages': 1}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['v2'] == {'name': 'Memo', 'pages': 6, 'version': 2} and _ns['base'] == {'name': 'Memo', 'pages': 1}",
+              "visible": false,
+              "failure_message": "Copy base and compute the pages from the old value.",
+              "failure_message_tr": "base'i kopyala ve sayfaları eski değerden hesapla.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Copy first so base is protected.",
+            "Read v2['pages'], add 5 and store it back; then add a new key.",
+            "Three lines on v2: the copy, the pages update and the new version key."
+          ],
+          "hints_tr": [
+            "base korunsun diye önce kopyala.",
+            "v2['pages']'i oku, 5 ekle ve geri sakla; sonra yeni bir anahtar ekle.",
+            "v2 üzerinde üç satır: kopya, sayfa güncellemesi ve yeni version anahtarı."
+          ],
+          "solution": {
+            "approach": "copy(), then change and add on the copy.",
+            "approach_tr": "copy(), sonra kopyada değiştir ve ekle.",
+            "code": "base = {'name': 'Report', 'pages': 10}\nv2 = base.copy()\nv2['pages'] = v2['pages'] + 5\nv2['version'] = 2\nprint(base)\nprint(v2)"
+          },
+          "twin": "d08-b5-e8"
+        },
+        {
+          "id": "d08-b5-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: team = {'lead': 'Ece', 'members': ['Can', 'Su']}. Build backup as a copy whose members list is ALSO a separate copy. Then append 'Kaan' to team['members'] and print backup['members'] and team['members'] on one line. For the given line: ['Can', 'Su'] ['Can', 'Su', 'Kaan']",
+          "prompt_tr": "Programına tam olarak şu satırla başla: team = {'lead': 'Ece', 'members': ['Can', 'Su']}. members list'i DE ayrı bir kopya olan bir backup kur. Sonra team['members']'a 'Kaan' ekle ve backup['members'] ile team['members']'ı tek satırda yazdır. Verilen satır için: ['Can', 'Su'] ['Can', 'Su', 'Kaan']",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert backup == {'lead': 'Ece', 'members': ['Can', 'Su']}",
+              "visible": true,
+              "label": "backup unchanged",
+              "label_tr": "backup değişmemiş",
+              "failure_message": "backup must keep the old members.",
+              "failure_message_tr": "backup eski üyeleri tutmalı."
+            },
+            {
+              "code": "assert team['members'] == ['Can', 'Su', 'Kaan']",
+              "visible": true,
+              "label": "team updated",
+              "label_tr": "team güncellendi",
+              "failure_message": "team should get the new member.",
+              "failure_message_tr": "team yeni üyeyi almalı."
+            },
+            {
+              "code": "assert backup['members'] is not team['members']",
+              "visible": false,
+              "failure_message": "The two members lists must be different objects.",
+              "failure_message_tr": "İki members list'i farklı nesneler olmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('team=')][0]\n_src[_i] = \"team = {'lead': 'A', 'members': []}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['backup']['members'] == [] and _o.strip() == \"[] ['Kaan']\"",
+              "visible": false,
+              "failure_message": "Copy the members list from team, so it works for any team.",
+              "failure_message_tr": "members list'ini team'den kopyala ki her takım için çalışsın.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "team.copy() alone would share the members list.",
+            "After copying the dict, replace backup's members with a copy of the list.",
+            "The list method with the same name as the dict method makes the separate list."
+          ],
+          "hints_tr": [
+            "Tek başına team.copy() members list'ini paylaşırdı.",
+            "Dict'i kopyaladıktan sonra backup'ın members'ını list'in bir kopyasıyla değiştir.",
+            "Dict metoduyla aynı isimli list metodu ayrı list'i yapar."
+          ],
+          "solution": {
+            "approach": "A shallow copy shares the list, so copy the list too.",
+            "approach_tr": "Yüzeysel kopya list'i paylaşır; list'i de kopyala.",
+            "code": "team = {'lead': 'Ece', 'members': ['Can', 'Su']}\nbackup = team.copy()\nbackup['members'] = team['members'].copy()\nteam['members'].append('Kaan')\nprint(backup['members'], team['members'])"
+          },
+          "twin": "d08-b5-e7"
+        },
+        {
+          "id": "d08-b5-e9",
+          "type": "explain",
+          "prompt": "In your own words: what is the difference between b = a and b = a.copy() for a dict?",
+          "prompt_tr": "Kendi cümlelerinle: bir dict için b = a ile b = a.copy() arasındaki fark nedir?",
+          "model_answer": "b = a creates no new dict; it attaches a second name to the same object, so a change through b is visible through a. b = a.copy() builds a new dict with the same pairs, so changing b's pairs does not change a; only mutable values inside, such as lists, are still shared.",
+          "model_answer_tr": "b = a yeni bir dict oluşturmaz; aynı nesneye ikinci bir isim bağlar, bu yüzden b üzerinden yapılan değişiklik a'dan da görünür. b = a.copy() aynı çiftlerle yeni bir dict kurar; b'nin çiftlerini değiştirmek a'yı değiştirmez, yalnızca içteki list gibi değiştirilebilir değerler hâlâ paylaşılır.",
+          "keywords": [
+            "same object",
+            "new dict",
+            "shared"
+          ],
+          "keywords_tr": [
+            "aynı nesne",
+            "yeni dict",
+            "paylaş"
+          ],
+          "min_words": 12
+        }
+      ]
     }
   ],
   "review_pool": [
     "d08-b1-e1",
+    "d08-b1-e7",
     "d08-b2-e1",
-    "d08-b2-e3",
+    "d08-b2-e8",
     "d08-b3-e1",
-    "d08-b3-e3"
-  ],
-  "title_tr": "Dictionary'ler (Sözlükler)"
+    "d08-b4-e1",
+    "d08-b4-e8",
+    "d08-b5-e1"
+  ]
 }

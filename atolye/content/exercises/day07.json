@@ -1,599 +1,1529 @@
 {
   "day": 7,
   "title": "Sets",
-  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "title_tr": "Set'ler (kümeler)",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__. Script-style tasks (Days 6-10 come before functions) are re-run by hidden tests with a different first line: the test finds the line that starts with the given variable name, replaces it with new data, executes the program again and checks the new result.",
   "blocks": [
     {
       "id": "d07-b1",
-      "concept": "set-basics",
+      "concept": "set-methods",
+      "concept_tr": "Set oluşturmak ve değiştirmek: add, update, remove, discard",
       "tags": [
         "sets",
-        "uniqueness",
-        "add",
-        "discard"
+        "mutation",
+        "methods"
       ],
       "worked_example": {
-        "code": "fruits = {'banana', 'orange', 'mango'}\nfruits.add('lime')\nfruits.add('banana')\nprint(len(fruits))",
+        "code": "fruits = set()\nfruits.add('mango')\nfruits.add('mango')\nfruits.update(['lime', 'kiwi'])\nfruits.discard('pear')\nfruits.remove('lime')\nprint(sorted(fruits), len(fruits))",
         "notes": [
-          "A set keeps each item only once.",
-          "Adding an item that is already there changes nothing."
+          "set() makes an empty set; {} would make an empty dict.",
+          "add() inserts one item and does nothing if it is already there, while update() inserts every item of a collection.",
+          "discard() ignores a missing item, but remove() raises KeyError, so use remove() only when the item must be there."
         ],
         "notes_tr": [
-          "Set her elemanı yalnızca bir kez tutar.",
-          "Zaten olan bir elemanı eklemek hiçbir şeyi değiştirmez."
+          "set() boş bir set yapar; {} ise boş bir dict yapardı.",
+          "add() tek öğe ekler ve öğe zaten varsa hiçbir şey yapmaz; update() bir koleksiyonun her öğesini ekler.",
+          "discard() eksik öğeyi yok sayar, remove() ise KeyError verir; bu yüzden remove()'u yalnızca öğe kesin oradaysa kullan."
         ]
       },
       "exercises": [
         {
           "id": "d07-b1-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "s = {1, 2, 2, 3, 3, 3}\ns.add(4)\ns.add(2)\nprint(len(s))\nprint(2 in s)",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "s = {'a', 'b'}\ns.add('a')\ns.update(['c', 'a'])\nprint(len(s))",
           "choices": [
-            "4\nTrue",
-            "6\nTrue",
-            "5\nTrue",
-            "4\nFalse"
+            "2",
+            "3",
+            "5",
+            "4"
           ],
-          "expected_output": "4\nTrue",
-          "explanation": "The duplicates collapse, so the set starts with 3 items. 4 is new (4 items); 2 is already there, so nothing changes.",
+          "expected_output": "3",
+          "explanation": "The set ends as {'a', 'b', 'c'}: every repeated 'a' is ignored, so its length is 3.",
+          "explanation_tr": "Set sonunda {'a', 'b', 'c'} olur: tekrarlanan her 'a' yok sayılır, bu yüzden uzunluğu 3'tür.",
           "misconceptions": {
-            "6\nTrue": "A set never stores duplicates, so the first line has only 1, 2 and 3.",
-            "5\nTrue": "Adding 2 again does nothing: it is already in the set.",
-            "4\nFalse": "2 is in the set, so the membership test is True."
+            "5": "A set never stores a duplicate: adding 'a' again changes nothing.",
+            "4": "update() adds 'c' but the second 'a' is already there.",
+            "2": "update() does add the new item 'c'."
           },
-          "explanation_tr": "Tekrarlar teke iner, yani set baştan 3 elemanlı (1, 2, 3). 4 yeni olduğu için eklenir (4 eleman); 2 zaten var, bu yüzden hiçbir şey değişmez.",
           "misconceptions_tr": {
-            "6\nTrue": "Set aynı elemanı iki kez tutmaz; ilk satırda sadece 1, 2 ve 3 vardır.",
-            "5\nTrue": "2'yi tekrar eklemek bir şey değiştirmez: 2 zaten sette.",
-            "4\nFalse": "2 sette olduğu için üyelik testi True verir."
+            "5": "Set asla tekrar saklamaz: 'a'yı yeniden eklemek hiçbir şey değiştirmez.",
+            "4": "update() 'c'yi ekler ama ikinci 'a' zaten vardır.",
+            "2": "update() yeni öğe 'c'yi gerçekten ekler."
           }
         },
         {
           "id": "d07-b1-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank to create an empty set (not an empty dictionary).",
-          "prompt_tr": "Boş bir set (boş sözlük değil) oluşturmak için boşluğu doldur.",
-          "starter_code": "empty = ___()\nempty.add(1)\nprint(len(empty))",
+          "prompt": "Fill the two blanks so tags starts as an EMPTY SET and then receives the word 'python'.",
+          "prompt_tr": "İki boşluğu doldur: tags BOŞ BİR SET olarak başlasın ve sonra 'python' kelimesini alsın.",
+          "starter_code": "tags = ___\ntags.___('python')\nprint(tags)",
           "blanks": [
             {
               "answer": [
-                "set"
+                "set()"
+              ]
+            },
+            {
+              "answer": [
+                "add"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == '1'",
+              "code": "assert tags == {'python'} and type(tags) is set",
               "visible": true,
-              "failure_message": "The program must print 1.",
-              "failure_message_tr": "Program 1 yazdırmalı.",
-              "label_tr": "Program 1 yazdırıyor"
+              "label": "tags is {'python'}",
+              "label_tr": "tags {'python'}",
+              "failure_message": "tags must be the set {'python'}.",
+              "failure_message_tr": "tags, {'python'} set'i olmalı."
             }
           ],
           "hints": [
-            "Empty curly brackets {} make a dictionary, not a set.",
-            "Python has a built-in function whose name is the word for this data type; calling it with empty parentheses gives an empty one.",
-            "Put the name of that function, three letters long, in the blank. The parentheses are already there."
+            "Curly brackets alone make something else. How is an empty set written?",
+            "To insert one whole word use the method that adds a single item.",
+            "First blank: the set constructor with nothing inside. Second blank: the single-item method."
           ],
           "hints_tr": [
-            "Boş süslü parantez {} set değil, dictionary oluşturur.",
-            "Python'da bu veri tipinin adını taşıyan hazır bir fonksiyon var; boş parantezle çağırınca boş bir set elde edersin.",
-            "Boşluğa bu fonksiyonun üç harfli adını yaz. Parantezler zaten orada."
+            "Tek başına süslü parantez başka bir şey yapar. Boş set nasıl yazılır?",
+            "Tek bir kelimeyi bütün olarak eklemek için tek öğe ekleyen metodu kullan.",
+            "İlk boşluk: içi boş set kurucusu. İkinci boşluk: tek öğe ekleyen metot."
           ]
         },
         {
           "id": "d07-b1-e3",
-          "type": "modify",
-          "prompt": "Change the program so it adds 'lime', discards 'banana', and then prints the fruits as a sorted list.",
-          "prompt_tr": "Programı 'lime' ekleyecek, 'banana'yı silecek ve meyveleri sıralı bir liste olarak yazdıracak şekilde değiştir.",
-          "starter_code": "fruits = {'banana', 'orange', 'mango', 'lemon'}\nprint(len(fruits))",
-          "tests": [
-            {
-              "code": "assert __stdout__.strip() == \"['lemon', 'lime', 'mango', 'orange']\"",
-              "visible": true,
-              "failure_message": "Expected ['lemon', 'lime', 'mango', 'orange'].",
-              "failure_message_tr": "Beklenen çıktı sıralı bir liste: dört meyve, alfabetik sırada.",
-              "label_tr": "Meyveler sıralı liste olarak yazdırılıyor"
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert 'add' in attrs and ('discard' in attrs or 'remove' in attrs), 'edit the set'\nassert 'sorted(' in __source__, 'sort'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The set must be changed with add() and discard() and printed with sorted(); do not type the final list.",
-              "failure_message_tr": "Seti add() ve discard() ile değiştirmeli, sorted() ile yazdırmalısın; son listeyi elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "This program should start with an empty set, add two cities and print ['Ankara', 'Bursa']. It crashes with AttributeError: 'dict' object has no attribute 'add'. Fix it.",
+          "prompt_tr": "Bu program boş bir set ile başlamalı, iki şehir eklemeli ve ['Ankara', 'Bursa'] yazdırmalı. AttributeError: 'dict' object has no attribute 'add' ile çöküyor. Düzelt.",
+          "starter_code": "cities = {}\ncities.add('Bursa')\ncities.add('Ankara')\nprint(sorted(cities))",
           "hints": [
-            "Two changes to the set, then one print.",
-            "Use add() to put an item in and discard() to take one out; sorted() turns the set into a list in order.",
-            "Add one line with .add('lime'), one line with .discard('banana'), and change the print so it shows sorted(fruits)."
+            "The error says the object is a dict. Which line created it?",
+            "Empty curly brackets belong to dictionaries.",
+            "Replace the first line's value with the constructor that makes an empty set."
+          ],
+          "hints_tr": [
+            "Hata nesnenin dict olduğunu söylüyor. Onu hangi satır oluşturdu?",
+            "Boş süslü parantez sözlüklere aittir.",
+            "İlk satırdaki değeri boş set yapan kurucuyla değiştir."
           ],
           "solution": {
-            "approach": "Use add, discard and sorted.",
-            "code": "fruits = {'banana', 'orange', 'mango', 'lemon'}\nfruits.add('lime')\nfruits.discard('banana')\nprint(sorted(fruits))",
-            "approach_tr": "add, discard ve sorted kullan."
+            "approach": "{} is an empty dict; an empty set is written set().",
+            "approach_tr": "{} boş bir dict'tir; boş set set() olarak yazılır.",
+            "code": "cities = set()\ncities.add('Bursa')\ncities.add('Ankara')\nprint(sorted(cities))"
           },
-          "hints_tr": [
-            "Sette iki değişiklik yap, sonra bir kez yazdır.",
-            "Eleman eklemek için add(), çıkarmak için discard() kullan; sorted() seti sıralı bir listeye çevirir.",
-            "Bir satıra .add('lime'), bir satıra .discard('banana') yaz ve print'i sorted(fruits) gösterecek şekilde değiştir."
-          ]
+          "tests": [
+            {
+              "code": "assert type(cities) is set",
+              "visible": true,
+              "label": "cities is a set",
+              "label_tr": "cities bir set",
+              "failure_message": "cities must be a set.",
+              "failure_message_tr": "cities bir set olmalı."
+            }
+          ],
+          "expected_output": "['Ankara', 'Bursa']"
         },
         {
           "id": "d07-b1-e4",
-          "type": "debug",
-          "prompt": "This should print {1} but crashes with an AttributeError. Fix it.",
-          "prompt_tr": "Bu {1} yazdırmalı ama AttributeError ile çöküyor. Düzelt.",
-          "starter_code": "empty = {}\nempty.add(1)\nprint(empty)",
-          "expected_output": "{1}",
-          "hints": [
-            "Check what type empty really is: add print(type(empty)).",
-            "Empty curly brackets create a dictionary, and dictionaries have no add() method.",
-            "Replace only the first line: the empty set must come from the built-in set function, not from {}."
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "letters = {'x'}\nletters.update('yes')\nletters.discard('q')\nprint(sorted(letters))",
+          "choices": [
+            "Error",
+            "['x', 'y', 'e', 's']",
+            "['e', 's', 'x', 'y']",
+            "['x', 'yes']"
           ],
-          "solution": {
-            "approach": "Use set() for an empty set.",
-            "code": "empty = set()\nempty.add(1)\nprint(empty)",
-            "approach_tr": "Boş set için set() kullan."
+          "expected_output": "['e', 's', 'x', 'y']",
+          "explanation": "update('yes') adds the three letters y, e and s; discard('q') does nothing. sorted() lists them alphabetically: ['e', 's', 'x', 'y'].",
+          "explanation_tr": "update('yes') y, e ve s harflerini ekler; discard('q') hiçbir şey yapmaz. sorted() onları alfabetik sıralar: ['e', 's', 'x', 'y'].",
+          "misconceptions": {
+            "['x', 'yes']": "update() treats a string as a collection of characters, so it adds y, e and s.",
+            "Error": "discard() of a missing item is silently ignored; only remove() would fail.",
+            "['x', 'y', 'e', 's']": "sorted() returns the items in alphabetical order, not in the order they were added."
           },
-          "hints_tr": [
-            "empty'nin gerçekte hangi tip olduğuna bak: print(type(empty)) ekle.",
-            "Boş süslü parantez dictionary oluşturur ve dictionary'lerde add() metodu yoktur.",
-            "Yalnızca ilk satırı değiştir: boş set, {} ile değil, hazır set fonksiyonuyla oluşturulmalı."
-          ]
+          "misconceptions_tr": {
+            "['x', 'yes']": "update() string'i karakterlerden oluşan bir koleksiyon olarak görür; y, e ve s'yi ekler.",
+            "Error": "Eksik öğenin discard()'ı sessizce yok sayılır; yalnızca remove() hata verirdi.",
+            "['x', 'y', 'e', 's']": "sorted() öğeleri eklenme sırasına göre değil, alfabetik sırayla döndürür."
+          }
         },
         {
           "id": "d07-b1-e5",
           "type": "type_it",
-          "prompt": "Study the snippet, then retype it from memory.",
-          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz.",
-          "code": "fruits = {'banana', 'orange'}\nfruits.add('lime')\nprint(len(fruits))\nprint('lime' in fruits)",
-          "expected_output": "3\nTrue"
+          "prompt": "Study this snippet for ten seconds, hide it, then type it from memory and run it.",
+          "prompt_tr": "Bu parçayı on saniye incele, gizle, sonra aklından yaz ve çalıştır.",
+          "code": "seen = set()\nseen.add('ali')\nseen.add('ali')\nseen.update(['ece', 'can'])\nprint(len(seen))",
+          "expected_output": "3"
+        },
+        {
+          "id": "d07-b1-e6",
+          "type": "modify",
+          "prompt": "The program removes 'mert' with remove(), which crashes when 'mert' is missing. Change it so it never crashes: removing a missing user is simply ignored. Keep the first line. Then print the users sorted. For the given data: ['ali', 'ece'].",
+          "prompt_tr": "Program 'mert'i remove() ile siliyor; 'mert' yoksa çöküyor. Asla çökmeyecek şekilde değiştir: olmayan bir kullanıcıyı silmek basitçe yok sayılsın. İlk satırı koru. Sonra kullanıcıları sıralı yazdır. Verilen veri için: ['ali', 'ece'].",
+          "starter_code": "users = {'ali', 'ece'}\nusers.remove('mert')\nprint(sorted(users))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"['ali', 'ece']\"",
+              "visible": true,
+              "label": "No crash, users printed",
+              "label_tr": "Çökme yok, kullanıcılar yazdırıldı",
+              "failure_message": "Expected ['ali', 'ece'].",
+              "failure_message_tr": "['ali', 'ece'] beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('users=')][0]\n_src[_i] = \"users = {'mert', 'su'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['users'] == {'su'} and _o.strip() == \"['su']\"",
+              "visible": false,
+              "failure_message": "When 'mert' is there it must still be removed: use the method that removes quietly.",
+              "failure_message_tr": "'mert' varsa yine silinmeli: sessizce silen metodu kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Which removing method does not mind a missing item?",
+            "remove() and discard() take the same argument.",
+            "Change only the method name on line 2."
+          ],
+          "hints_tr": [
+            "Hangi silme metodu eksik öğeyi dert etmez?",
+            "remove() ve discard() aynı argümanı alır.",
+            "Yalnızca 2. satırdaki metot adını değiştir."
+          ],
+          "solution": {
+            "approach": "discard() deletes the item if it is there and ignores it otherwise.",
+            "approach_tr": "discard() öğe varsa siler, yoksa yok sayar.",
+            "code": "users = {'ali', 'ece'}\nusers.discard('mert')\nprint(sorted(users))"
+          }
+        },
+        {
+          "id": "d07-b1-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: cart = {'milk', 'bread'}. Then, in this order and with one set method per step: add 'eggs' with add(), add every item of the list ['tea', 'milk'] with update(), and remove 'bread' with discard() so that it never crashes even if 'bread' is missing. Print the cart sorted. For the given line: ['eggs', 'milk', 'tea'].",
+          "prompt_tr": "Programına tam olarak şu satırla başla: cart = {'milk', 'bread'}. Sonra sırasıyla ve her adımda bir set metodu kullanarak: add() ile 'eggs' ekle, update() ile ['tea', 'milk'] list'inin her öğesini ekle ve 'bread' eksik olsa bile asla çökmeyecek biçimde discard() ile 'bread'i sil. Sepeti sıralı yazdır. Verilen satır için: ['eggs', 'milk', 'tea'].",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert cart == {'eggs', 'milk', 'tea'}",
+              "visible": true,
+              "label": "cart contents",
+              "label_tr": "cart içeriği",
+              "failure_message": "cart should end as {'eggs', 'milk', 'tea'}.",
+              "failure_message_tr": "cart sonunda {'eggs', 'milk', 'tea'} olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"['eggs', 'milk', 'tea']\"",
+              "visible": true,
+              "label": "Sorted output",
+              "label_tr": "Sıralı çıktı",
+              "failure_message": "Print sorted(cart).",
+              "failure_message_tr": "sorted(cart) yazdır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('cart=')][0]\n_src[_i] = \"cart = {'jam'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['cart'] == {'jam', 'eggs', 'tea', 'milk'}",
+              "visible": false,
+              "failure_message": "Your steps must work for another starting cart, including one without 'bread' (no crash).",
+              "failure_message_tr": "Adımların 'bread' içermeyen bir başlangıç sepetiyle de çalışmalı (çökme olmadan).",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_m = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert {'add', 'update', 'discard'} <= _m",
+              "visible": false,
+              "failure_message": "Use add(), update() and discard(), one for each step.",
+              "failure_message_tr": "Her adım için bir tane olmak üzere add(), update() ve discard() kullan."
+            }
+          ],
+          "hints": [
+            "Three changes, three different methods, then one print.",
+            "One method inserts a single item, one inserts a whole list, one removes without complaining.",
+            "The order is: the single-item method with 'eggs', the many-items method with the list, the quiet removal with 'bread', then print sorted."
+          ],
+          "hints_tr": [
+            "Üç değişiklik, üç farklı metot, sonra bir print.",
+            "Bir metot tek öğe ekler, biri bütün bir list'i ekler, biri şikâyet etmeden siler.",
+            "Sıra: 'eggs' ile tek öğe metodu, list ile çok öğe metodu, 'bread' ile sessiz silme, sonra sıralı print."
+          ],
+          "solution": {
+            "approach": "add for one item, update for a list, discard for a safe removal.",
+            "approach_tr": "Tek öğe için add, list için update, güvenli silme için discard.",
+            "code": "cart = {'milk', 'bread'}\ncart.add('eggs')\ncart.update(['tea', 'milk'])\ncart.discard('bread')\nprint(sorted(cart))"
+          },
+          "twin": "d07-b1-e8"
+        },
+        {
+          "id": "d07-b1-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: words = ['Tea', 'tea', 'TEA', 'coffee']. Build a set called flavors that holds every word in lower case (use set() on the list after lowercasing: the joined text trick ' '.join(words).lower().split() helps). Print the number of flavors. For the given line: 2.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: words = ['Tea', 'tea', 'TEA', 'coffee']. Her kelimeyi küçük harfle tutan flavors adında bir set kur (küçük harfe çevirdikten sonra list üzerinde set() kullan: birleştirme hilesi ' '.join(words).lower().split() işine yarar). Lezzet sayısını yazdır. Verilen satır için: 2.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert flavors == {'tea', 'coffee'}",
+              "visible": true,
+              "label": "flavors in lower case",
+              "label_tr": "flavors küçük harfli",
+              "failure_message": "flavors should be {'tea', 'coffee'}.",
+              "failure_message_tr": "flavors {'tea', 'coffee'} olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == '2'",
+              "visible": true,
+              "label": "Prints 2",
+              "label_tr": "2 yazdırıyor",
+              "failure_message": "Print the number of flavors.",
+              "failure_message_tr": "Lezzet sayısını yazdır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('words=')][0]\n_src[_i] = \"words = ['Ayran', 'ayran', 'Su', 'Çay', 'su']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['flavors'] == {'ayran', 'su', 'çay'} and _o.strip() == '3'",
+              "visible": false,
+              "failure_message": "Compute the set from words, so different words give a different count.",
+              "failure_message_tr": "Set'i words'ten hesapla ki farklı kelimeler farklı sayı versin.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('words=')][0]\n_src[_i] = 'words = []'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['flavors'] == set() and _o.strip() == '0'",
+              "visible": false,
+              "failure_message": "Edge case: no words gives an empty set and 0.",
+              "failure_message_tr": "Kenar durum: hiç kelime yoksa boş set ve 0 çıkar."
+            }
+          ],
+          "hints": [
+            "Lowercasing works on one string, so first make one string out of the list.",
+            "join() glues the words with spaces, lower() fixes the case, split() makes a list again.",
+            "Wrap that whole chain in set() and print the len() of the result."
+          ],
+          "hints_tr": [
+            "Küçük harfe çevirme tek bir string'de çalışır; önce list'ten tek bir string yap.",
+            "join() kelimeleri boşlukla yapıştırır, lower() harfleri düzeltir, split() yeniden list yapar.",
+            "Bütün zinciri set() ile sar ve sonucun len()'ini yazdır."
+          ],
+          "solution": {
+            "approach": "Join, lowercase, split back into words, then set() removes the repeats.",
+            "approach_tr": "Birleştir, küçük harfe çevir, tekrar kelimelere böl; sonra set() tekrarları atar.",
+            "code": "words = ['Tea', 'tea', 'TEA', 'coffee']\nflavors = set(' '.join(words).lower().split())\nprint(len(flavors))"
+          },
+          "twin": "d07-b1-e7"
         }
-      ],
-      "concept_tr": "Set temelleri: bir set her elemanı yalnızca bir kez tutar."
+      ]
     },
     {
       "id": "d07-b2",
-      "concept": "set-operations",
+      "concept": "set-dedupe-membership",
+      "concept_tr": "Tekrarları atmak, saymak ve in ile kontrol",
       "tags": [
         "sets",
-        "union",
-        "intersection",
-        "difference"
+        "dedupe",
+        "membership",
+        "lists"
       ],
       "worked_example": {
-        "code": "a = {1, 2, 3}\nb = {2, 3, 4}\nprint(sorted(a & b))\nprint(sorted(a | b))",
+        "code": "visits = ['home', 'cart', 'home', 'pay', 'cart']\npages = set(visits)\nprint(len(visits), len(pages))\nprint(sorted(pages))\nprint('pay' in pages, 'login' in pages)",
         "notes": [
-          "& keeps what both sets share (intersection); | merges them (union).",
-          "a - b keeps what is only in a (difference)."
+          "set(list) keeps one copy of each item, so len() of it counts distinct values.",
+          "A set has no order; sorted() returns a list in a predictable order for printing.",
+          "in on a set answers immediately by looking up the item's hash instead of scanning every item."
         ],
         "notes_tr": [
-          "& iki sette de olanları tutar (kesişim); | ikisini birleştirir (birleşim).",
-          "a - b yalnızca a'da olanları tutar (fark)."
+          "set(list) her öğeden bir kopya tutar; bu yüzden onun len()'i farklı değerleri sayar.",
+          "Set'in sırası yoktur; sorted() yazdırmak için öngörülebilir sırada bir list döndürür.",
+          "Set'te in, her öğeyi taramak yerine öğenin hash değerine bakarak anında yanıt verir."
         ]
       },
       "exercises": [
         {
           "id": "d07-b2-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "python = {'p', 'y', 't', 'h', 'o', 'n'}\ndragon = {'d', 'r', 'a', 'g', 'o', 'n'}\nprint(sorted(python & dragon))\nprint(len(python | dragon))\nprint(sorted(python - dragon))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "ages = [22, 25, 22, 26, 25, 22]\nunique = sorted(set(ages))\nprint(unique, len(ages))",
           "choices": [
-            "['n', 'o']\n10\n['h', 'p', 't', 'y']",
-            "['n', 'o']\n12\n['h', 'p', 't', 'y']",
-            "['n', 'o']\n10\n['a', 'd', 'g', 'r']",
-            "['h', 'p', 't', 'y']\n10\n['n', 'o']"
+            "[22, 25, 26] 6",
+            "[22, 25, 26] 3",
+            "{22, 25, 26} 6",
+            "[22, 22, 22, 25, 25, 26] 6"
           ],
-          "expected_output": "['n', 'o']\n10\n['h', 'p', 't', 'y']",
-          "explanation": "The shared letters are n and o. The union has 6 + 6 - 2 = 10 letters. python - dragon keeps h, p, t and y.",
+          "expected_output": "[22, 25, 26] 6",
+          "explanation": "set(ages) keeps 22, 25 and 26 once each; sorted() turns that into the list [22, 25, 26]. ages itself still has 6 values.",
+          "explanation_tr": "set(ages) 22, 25 ve 26'yı birer kez tutar; sorted() bunu [22, 25, 26] list'ine çevirir. ages'in kendisinde hâlâ 6 değer var.",
           "misconceptions": {
-            "['n', 'o']\n12\n['h', 'p', 't', 'y']": "The shared letters n and o are counted once in a union: 6 + 6 - 2 = 10.",
-            "['n', 'o']\n10\n['a', 'd', 'g', 'r']": "python - dragon keeps what is only in python (h, p, t, y), not what is only in dragon.",
-            "['h', 'p', 't', 'y']\n10\n['n', 'o']": "& is intersection (shared letters), - is difference."
+            "[22, 25, 26] 3": "set() builds a new object; the list ages keeps all six values.",
+            "{22, 25, 26} 6": "sorted() returns a list, written with square brackets.",
+            "[22, 22, 22, 25, 25, 26] 6": "The set removed the duplicates before sorting."
           },
-          "explanation_tr": "Ortak harfler n ve o. Birleşimde 6 + 6 - 2 = 10 harf var. python - dragon yalnızca python'da olan h, p, t ve y harflerini bırakır.",
           "misconceptions_tr": {
-            "['n', 'o']\n12\n['h', 'p', 't', 'y']": "Birleşimde ortak harfler (n ve o) bir kez sayılır: 6 + 6 - 2 = 10.",
-            "['n', 'o']\n10\n['a', 'd', 'g', 'r']": "python - dragon yalnızca python'da olanları bırakır (h, p, t, y); sadece dragon'da olanları değil.",
-            "['h', 'p', 't', 'y']\n10\n['n', 'o']": "& kesişimdir (ortak harfler), - ise farktır."
+            "[22, 25, 26] 3": "set() yeni bir nesne kurar; ages list'i altı değerin hepsini tutar.",
+            "{22, 25, 26} 6": "sorted() köşeli parantezle yazılan bir list döndürür.",
+            "[22, 22, 22, 25, 25, 26] 6": "Set, sıralamadan önce tekrarları attı."
           }
         },
         {
           "id": "d07-b2-e2",
           "type": "parsons",
-          "prompt": "Put the lines in order so the program prints the distinct ages in sorted order.",
-          "prompt_tr": "Satırları, program benzersiz yaşları sıralı yazdıracak şekilde sırala.",
+          "prompt": "Put the lines in order so the program prints how many different words the sentence has (4).",
+          "prompt_tr": "Satırları sıraya koy: program cümlede kaç farklı kelime olduğunu yazdırsın (4).",
           "lines": [
-            "unique_ages = set(ages)",
-            "print(sorted(unique_ages))",
-            "ages = [22, 19, 24, 25, 26, 24, 25, 24]"
+            "words = text.split()",
+            "print(len(distinct))",
+            "text = 'to be or not to be'",
+            "distinct = set(words)"
           ],
           "correct_order": [
             2,
             0,
+            3,
             1
           ],
           "distractors": [
-            "unique_ages = list(ages)"
+            "print(len(words))"
           ],
-          "expected_output": "[19, 22, 24, 25, 26]"
+          "expected_output": "4"
         },
         {
           "id": "d07-b2-e3",
-          "type": "write",
-          "prompt": "Create A = {2, 4, 6, 8} and B = {4, 8, 12}. Then create common (items in both), everything (items in either) and only_a (items in A but not in B). Print sorted(only_a).",
-          "prompt_tr": "A = {2, 4, 6, 8} ve B = {4, 8, 12} oluştur. Sonra common (ikisinde de olanlar), everything (herhangi birinde olanlar) ve only_a (A'da olup B'de olmayanlar) değişkenlerini oluştur. sorted(only_a)'yı yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert common == {4, 8}",
-              "visible": true,
-              "failure_message": "common should be {4, 8}.",
-              "failure_message_tr": "common {4, 8} olmalı.",
-              "label_tr": "common doğru hesaplanıyor"
-            },
-            {
-              "code": "assert everything == {2, 4, 6, 8, 12}",
-              "visible": true,
-              "failure_message": "everything should be {2, 4, 6, 8, 12}.",
-              "failure_message_tr": "everything {2, 4, 6, 8, 12} olmalı.",
-              "label_tr": "everything doğru hesaplanıyor"
-            },
-            {
-              "code": "assert only_a == {2, 6}",
-              "visible": false,
-              "failure_message": "only_a is A - B = {2, 6}.",
-              "failure_message_tr": "only_a, A - B yani {2, 6} olmalı."
-            },
-            {
-              "code": "assert type(common) is set and type(only_a) is set",
-              "visible": false,
-              "failure_message": "Results must be sets: use &, | and - (or the matching methods).",
-              "failure_message_tr": "Sonuçlar set olmalı: &, | ve - kullan (ya da eşdeğer metotlar)."
-            },
-            {
-              "code": "assert __stdout__.strip() == '[2, 6]'",
-              "visible": false,
-              "failure_message": "Print sorted(only_a) to get a predictable order.",
-              "failure_message_tr": "sorted(only_a) yazdır; sıra öngörülebilir olur."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nops = {type(n.op).__name__ for n in ast.walk(t) if isinstance(n, ast.BinOp)}\nassert ('BitAnd' in ops or 'intersection' in attrs) and ('BitOr' in ops or 'union' in attrs) and ('Sub' in ops or 'difference' in attrs), 'use set operations'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The results look typed in by hand. Compute them with set operations (&, |, - or the matching methods).",
-              "failure_message_tr": "Sonuçları elle yazmışsın gibi görünüyor. Set işlemleriyle (&, |, - ya da eşdeğer metotlar) hesaplat."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print the first city in alphabetical order (Ankara). It crashes with TypeError: 'set' object is not subscriptable. Fix it.",
+          "prompt_tr": "Program alfabetik sırada ilk şehri (Ankara) yazdırmalı. TypeError: 'set' object is not subscriptable ile çöküyor. Düzelt.",
+          "starter_code": "cities = {'İzmir', 'Bursa', 'Ankara'}\nprint(cities[0])",
           "hints": [
-            "Declare A and B first.",
-            "There is one operator for each question: items in both, items in either, items only in the first set.",
-            "Use the three set operators &, | and - (or their method forms), one per variable, and print sorted(only_a)."
+            "'Not subscriptable' means square brackets cannot be used on this object.",
+            "Turn the set into something ordered first.",
+            "Index the result of sorting the set, not the set itself."
+          ],
+          "hints_tr": [
+            "'Not subscriptable', bu nesnede köşeli parantez kullanılamayacağı anlamına gelir.",
+            "Önce set'i sıralı bir şeye çevir.",
+            "Set'in kendisini değil, set'i sıralamanın sonucunu indeksle."
           ],
           "solution": {
-            "approach": "Intersection, union, difference.",
-            "code": "A = {2, 4, 6, 8}\nB = {4, 8, 12}\ncommon = A & B\neverything = A | B\nonly_a = A - B\nprint(sorted(only_a))",
-            "approach_tr": "Kesişim, birleşim ve fark işlemlerini kullan."
+            "approach": "A set has no indexes; sorted() gives a list, and a list can be indexed.",
+            "approach_tr": "Set'in indeksi yoktur; sorted() bir list verir ve list indekslenebilir.",
+            "code": "cities = {'İzmir', 'Bursa', 'Ankara'}\nprint(sorted(cities)[0])"
           },
-          "twin": "d07-b2-e4",
-          "hints_tr": [
-            "Önce A ve B'yi tanımla.",
-            "Her soru için bir operatör var: ikisinde de olanlar, herhangi birinde olanlar, yalnızca ilk sette olanlar.",
-            "Her değişken için bir set operatörü kullan: &, | ve - (ya da metot karşılıkları); sonra sorted(only_a) yazdır."
-          ]
+          "expected_output": "Ankara"
         },
         {
           "id": "d07-b2-e4",
-          "type": "write",
-          "prompt": "Create py = {'p', 'y', 't', 'h', 'o', 'n'} and dr = {'d', 'r', 'a', 'g', 'o', 'n'}. Then create shared (letters in both), all_letters (letters in either) and only_py (letters only in py). Print sorted(shared).",
-          "prompt_tr": "py = {'p', 'y', 't', 'h', 'o', 'n'} ve dr = {'d', 'r', 'a', 'g', 'o', 'n'} oluştur. Sonra shared (ikisinde de olan harfler), all_letters (herhangi birinde olan harfler) ve only_py (yalnızca py'de olan harfler) değişkenlerini oluştur. sorted(shared)'ı yazdır.",
-          "starter_code": "",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "banned = {'spam', 'ads'}\nword = 'Spam'\nprint(word in banned, word.lower() in banned)",
+          "choices": [
+            "False True",
+            "True True",
+            "False False",
+            "True False"
+          ],
+          "expected_output": "False True",
+          "explanation": "'Spam' differs from 'spam' by one capital letter, so the first check is False; after lower() the value is 'spam', so the second is True.",
+          "explanation_tr": "'Spam', 'spam'den bir büyük harfle ayrılır; ilk kontrol False'tur. lower() sonrası değer 'spam' olur, ikincisi True'dur.",
+          "misconceptions": {
+            "True True": "Membership compares exact values; 'Spam' with a capital S is not equal to 'spam'.",
+            "False False": "word.lower() is 'spam', which is in the set.",
+            "True False": "The first check has the capital letter, so it is the one that fails."
+          },
+          "misconceptions_tr": {
+            "True True": "Üyelik değerleri tam karşılaştırır; büyük S'li 'Spam', 'spam'e eşit değildir.",
+            "False False": "word.lower() 'spam' olur ve set'te vardır.",
+            "True False": "Büyük harf ilk kontrolde, başarısız olan odur."
+          }
+        },
+        {
+          "id": "d07-b2-e5",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so has_dupes is True when the list contains at least one repeated value. Compare the two lengths.",
+          "prompt_tr": "Boşluğu doldur: list en az bir tekrarlanan değer içeriyorsa has_dupes True olsun. İki uzunluğu karşılaştır.",
+          "starter_code": "ids = [101, 102, 103, 102]\nhas_dupes = len(ids) ___ len(set(ids))\nprint(has_dupes)",
+          "blanks": [
+            {
+              "answer": [
+                "!=",
+                ">"
+              ]
+            }
+          ],
           "tests": [
             {
-              "code": "assert shared == {'o', 'n'}",
+              "code": "assert has_dupes is True",
               "visible": true,
-              "failure_message": "shared should be {'o', 'n'}.",
-              "failure_message_tr": "shared {'o', 'n'} olmalı.",
-              "label_tr": "shared doğru hesaplanıyor"
-            },
-            {
-              "code": "assert len(all_letters) == 10",
-              "visible": true,
-              "failure_message": "all_letters should have 10 letters.",
-              "failure_message_tr": "all_letters 10 harf içermeli.",
-              "label_tr": "all_letters 10 harf içeriyor"
-            },
-            {
-              "code": "assert only_py == {'p', 'y', 't', 'h'}",
-              "visible": false,
-              "failure_message": "only_py is py - dr.",
-              "failure_message_tr": "only_py, py - dr olmalı."
-            },
-            {
-              "code": "assert type(shared) is set and type(all_letters) is set",
-              "visible": false,
-              "failure_message": "Results must be sets.",
-              "failure_message_tr": "Sonuçlar set olmalı."
-            },
-            {
-              "code": "assert __stdout__.strip() == \"['n', 'o']\"",
-              "visible": false,
-              "failure_message": "Print sorted(shared).",
-              "failure_message_tr": "sorted(shared) yazdır."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nops = {type(n.op).__name__ for n in ast.walk(t) if isinstance(n, ast.BinOp)}\nassert ('BitAnd' in ops or 'intersection' in attrs) and ('BitOr' in ops or 'union' in attrs) and ('Sub' in ops or 'difference' in attrs), 'use set operations'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The results look typed in by hand. Compute them with set operations (&, |, - or the matching methods).",
-              "failure_message_tr": "Sonuçları elle yazmışsın gibi görünüyor. Set işlemleriyle (&, |, - ya da eşdeğer metotlar) hesaplat."
+              "label": "Duplicates detected",
+              "label_tr": "Tekrar bulundu",
+              "failure_message": "With a repeated 102, has_dupes should be True.",
+              "failure_message_tr": "102 tekrarlandığı için has_dupes True olmalı."
             }
           ],
           "hints": [
-            "Declare both sets first.",
-            "One operator per question: letters in both, letters in either, letters only in py.",
-            "Use the set operators &, | and - once each, then print sorted(shared)."
+            "If there are no duplicates, both lengths are equal.",
+            "A set can only be shorter than the list, never longer.",
+            "Use the comparison that is True when the two numbers differ."
+          ],
+          "hints_tr": [
+            "Tekrar yoksa iki uzunluk eşittir.",
+            "Set list'ten yalnızca kısa olabilir, asla uzun değil.",
+            "İki sayı farklıyken True olan karşılaştırmayı kullan."
+          ]
+        },
+        {
+          "id": "d07-b2-e6",
+          "type": "modify",
+          "prompt": "The program prints the number of requests. Change it so it prints the number of UNIQUE visitors instead. Keep the first line. For the given data: 3.",
+          "prompt_tr": "Program istek sayısını yazdırıyor. Bunun yerine BENZERSİZ ziyaretçi sayısını yazdıracak şekilde değiştir. İlk satırı koru. Verilen veri için: 3.",
+          "starter_code": "ips = ['10.0.0.1', '10.0.0.2', '10.0.0.1', '10.0.0.3', '10.0.0.2']\nprint(len(ips))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '3'",
+              "visible": true,
+              "label": "Prints 3",
+              "label_tr": "3 yazdırıyor",
+              "failure_message": "Expected 3 unique visitors.",
+              "failure_message_tr": "3 benzersiz ziyaretçi beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('ips=')][0]\n_src[_i] = \"ips = ['a', 'a', 'a']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '1'",
+              "visible": false,
+              "failure_message": "Count the distinct addresses with set(), so the number changes with the data.",
+              "failure_message_tr": "Farklı adresleri set() ile say ki sayı veriyle değişsin.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Duplicates must not be counted.",
+            "Which collection keeps each value once?",
+            "Wrap ips in that constructor before taking the length."
+          ],
+          "hints_tr": [
+            "Tekrarlar sayılmamalı.",
+            "Hangi koleksiyon her değeri bir kez tutar?",
+            "Uzunluğu almadan önce ips'i o kurucuyla sar."
           ],
           "solution": {
-            "approach": "Same three operators on letters.",
-            "code": "py = {'p', 'y', 't', 'h', 'o', 'n'}\ndr = {'d', 'r', 'a', 'g', 'o', 'n'}\nshared = py & dr\nall_letters = py | dr\nonly_py = py - dr\nprint(sorted(shared))",
-            "approach_tr": "Aynı üç operatörü harflere uygula."
-          },
-          "twin": "d07-b2-e3",
+            "approach": "len(set(ips)) counts each address once.",
+            "approach_tr": "len(set(ips)) her adresi bir kez sayar.",
+            "code": "ips = ['10.0.0.1', '10.0.0.2', '10.0.0.1', '10.0.0.3', '10.0.0.2']\nprint(len(set(ips)))"
+          }
+        },
+        {
+          "id": "d07-b2-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: signups = ['ayse', 'can', 'ayse', 'deniz', 'can', 'ece']. Print two lines: the number of distinct people, then the sorted list of distinct people. For the given line: 4, then ['ayse', 'can', 'deniz', 'ece'].",
+          "prompt_tr": "Programına tam olarak şu satırla başla: signups = ['ayse', 'can', 'ayse', 'deniz', 'can', 'ece']. İki satır yazdır: farklı kişi sayısı, sonra farklı kişilerin sıralı list'i. Verilen satır için: 4, sonra ['ayse', 'can', 'deniz', 'ece'].",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['4', \"['ayse', 'can', 'deniz', 'ece']\"]",
+              "visible": true,
+              "label": "Count and sorted list",
+              "label_tr": "Sayı ve sıralı list",
+              "failure_message": "Expected 4, then ['ayse', 'can', 'deniz', 'ece'].",
+              "failure_message_tr": "Önce 4, sonra ['ayse', 'can', 'deniz', 'ece'] beklenir."
+            },
+            {
+              "code": "assert signups == ['ayse', 'can', 'ayse', 'deniz', 'can', 'ece']",
+              "visible": true,
+              "label": "signups unchanged",
+              "label_tr": "signups değişmemiş",
+              "failure_message": "Do not change signups; build a new set from it.",
+              "failure_message_tr": "signups'ı değiştirme; ondan yeni bir set kur."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('signups=')][0]\n_src[_i] = \"signups = ['zeki', 'ali', 'zeki']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['2', \"['ali', 'zeki']\"]",
+              "visible": false,
+              "failure_message": "Compute both lines from signups with set().",
+              "failure_message_tr": "İki satırı da signups'tan set() ile hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('signups=')][0]\n_src[_i] = 'signups = []'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['0', '[]']",
+              "visible": false,
+              "failure_message": "Edge case: no signups gives 0 and [].",
+              "failure_message_tr": "Kenar durum: kayıt yoksa 0 ve [] çıkar."
+            }
+          ],
+          "hints": [
+            "You need the distinct people first.",
+            "set() drops duplicates; len() counts them; sorted() lists them in order.",
+            "Store set(signups) in a name, then print its length and its sorted version on two lines."
+          ],
           "hints_tr": [
-            "Önce iki seti de tanımla.",
-            "Her soru için bir operatör: ikisinde de olan harfler, herhangi birinde olan harfler, yalnızca py'de olan harfler.",
-            "&, | ve - set operatörlerini birer kez kullan, sonra sorted(shared) yazdır."
-          ]
+            "Önce farklı kişiler gerekiyor.",
+            "set() tekrarları atar; len() sayar; sorted() sıralı listeler.",
+            "set(signups)'ı bir isimde sakla, sonra uzunluğunu ve sıralı hâlini iki satırda yazdır."
+          ],
+          "solution": {
+            "approach": "Build the set once, then use len() and sorted() on it.",
+            "approach_tr": "Set'i bir kez kur, sonra üzerinde len() ve sorted() kullan.",
+            "code": "signups = ['ayse', 'can', 'ayse', 'deniz', 'can', 'ece']\npeople = set(signups)\nprint(len(people))\nprint(sorted(people))"
+          },
+          "twin": "d07-b2-e8"
+        },
+        {
+          "id": "d07-b2-e8",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: taken = {'ayse', 'can42', 'deniz'} and then name = 'Can42'. Usernames are not case sensitive. Print exactly: Can42 available: False (True when the lower-case name is not in taken).",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: taken = {'ayse', 'can42', 'deniz'} ve ardından name = 'Can42'. Kullanıcı adları büyük/küçük harfe duyarlı değil. Tam olarak şunu yazdır: Can42 available: False (küçük harfli isim taken içinde değilse True).",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Can42 available: False'",
+              "visible": true,
+              "label": "Taken name detected",
+              "label_tr": "Alınmış isim yakalandı",
+              "failure_message": "Expected exactly: Can42 available: False",
+              "failure_message_tr": "Tam olarak beklenen: Can42 available: False"
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('name=')][0]\n_src[_i] = \"name = 'Mert'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Mert available: True'",
+              "visible": false,
+              "failure_message": "A name that is not taken must print True; compute it with not in.",
+              "failure_message_tr": "Alınmamış bir isim True yazdırmalı; bunu not in ile hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('name=')][0]\n_src[_i] = \"name = 'DENIZ'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'DENIZ available: False'",
+              "visible": false,
+              "failure_message": "Compare in lower case: 'DENIZ' is the taken name 'deniz'.",
+              "failure_message_tr": "Küçük harfle karşılaştır: 'DENIZ' alınmış 'deniz' ismidir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('taken=')][0]\n_src[_i] = 'taken = set()'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Can42 available: True'",
+              "visible": false,
+              "failure_message": "Edge case: with nothing taken every name is available.",
+              "failure_message_tr": "Kenar durum: hiçbir isim alınmamışsa her isim uygundur."
+            }
+          ],
+          "hints": [
+            "The printed name keeps its original case; only the check uses lower case.",
+            "Available means 'not in taken'.",
+            "In the f-string put {name} first and, in the second braces, name.lower() followed by the negative membership operator and taken."
+          ],
+          "hints_tr": [
+            "Yazdırılan isim orijinal harflerini korur; yalnızca kontrol küçük harf kullanır.",
+            "Uygun olmak 'taken içinde değil' demektir.",
+            "f-string'de önce {name}, ikinci süslü parantezde name.lower() ardından olumsuz üyelik operatörü ve taken gelsin."
+          ],
+          "solution": {
+            "approach": "Lowercase the name and test it with not in.",
+            "approach_tr": "İsmi küçük harfe çevir ve not in ile kontrol et.",
+            "code": "taken = {'ayse', 'can42', 'deniz'}\nname = 'Can42'\nprint(f'{name} available: {name.lower() not in taken}')"
+          },
+          "twin": "d07-b2-e7"
         }
-      ],
-      "concept_tr": "Set işlemleri: kesişim, birleşim ve fark."
+      ]
     },
     {
       "id": "d07-b3",
-      "concept": "subset-disjoint",
+      "concept": "set-union-intersection",
+      "concept_tr": "Birleşim (|) ve kesişim (&)",
       "tags": [
         "sets",
-        "issubset",
-        "isdisjoint",
-        "symmetric difference"
+        "union",
+        "intersection"
       ],
       "worked_example": {
-        "code": "a = {1, 2}\nb = {1, 2, 3}\nprint(a.issubset(b))\nprint(a.isdisjoint({5}))",
+        "code": "python = {'Ayşe', 'Can', 'Deniz'}\nstats = {'Can', 'Ece'}\nprint(sorted(python | stats))\nprint(sorted(python & stats))\npython.update(stats)\nprint(len(python))",
         "notes": [
-          "issubset: every item of one set is inside the other.",
-          "isdisjoint: the two sets share nothing."
+          "a | b and a.union(b) return a NEW set with the items of both; the originals stay as they are.",
+          "a & b and a.intersection(b) return a new set with only the items that both sets share.",
+          "a.update(b) merges in place, so a itself grows; choose it only when changing a is what you want."
         ],
         "notes_tr": [
-          "issubset: bir setin bütün elemanları diğerinin içindedir.",
-          "isdisjoint: iki setin ortak elemanı yoktur."
+          "a | b ve a.union(b) iki set'in öğeleriyle YENİ bir set döndürür; asıllar olduğu gibi kalır.",
+          "a & b ve a.intersection(b) yalnızca iki set'in paylaştığı öğelerle yeni bir set döndürür.",
+          "a.update(b) yerinde birleştirir, yani a'nın kendisi büyür; bunu yalnızca a'yı değiştirmek istediğinde seç."
         ]
       },
       "exercises": [
         {
           "id": "d07-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "whole = {0, 1, 2, 3, 4, 5}\neven = {0, 2, 4}\nprint(even.issubset(whole))\nprint(whole.issuperset(even))\nprint(sorted(whole ^ even))\nprint(even.isdisjoint({1, 3}))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = {1, 2, 3}\nb = {3, 4}\nprint(len(a | b), len(a & b), len(a))",
           "choices": [
-            "True\nTrue\n[1, 3, 5]\nTrue",
-            "True\nFalse\n[1, 3, 5]\nTrue",
-            "True\nTrue\n[0, 1, 2, 3, 4, 5]\nTrue",
-            "True\nTrue\n[1, 3, 5]\nFalse"
+            "4 1 3",
+            "5 1 3",
+            "4 1 4",
+            "4 2 3"
           ],
-          "expected_output": "True\nTrue\n[1, 3, 5]\nTrue",
-          "explanation": "even sits fully inside whole, so it is a subset and whole is a superset. ^ keeps items that are in only one set: 1, 3, 5. even and {1, 3} share nothing.",
+          "expected_output": "4 1 3",
+          "explanation": "a | b is {1, 2, 3, 4} (4 items), a & b is {3} (1 item), and a itself is unchanged with 3 items.",
+          "explanation_tr": "a | b {1, 2, 3, 4} olur (4 öğe), a & b {3} olur (1 öğe), a'nın kendisi de değişmeden 3 öğede kalır.",
           "misconceptions": {
-            "True\nFalse\n[1, 3, 5]\nTrue": "issuperset is the mirror of issubset: if even is a subset of whole, whole is a superset of even.",
-            "True\nTrue\n[0, 1, 2, 3, 4, 5]\nTrue": "The symmetric difference leaves out items found in BOTH sets (0, 2, 4).",
-            "True\nTrue\n[1, 3, 5]\nFalse": "even has 0, 2, 4 and the other set has 1, 3: they share nothing, so isdisjoint is True."
+            "5 1 3": "The union keeps the shared 3 only once: 1, 2, 3, 4.",
+            "4 1 4": "| returns a new set; a is not changed and still has 3 items.",
+            "4 2 3": "Only 3 is in both sets, so the intersection has one item."
           },
-          "explanation_tr": "even tamamen whole'un içinde; yani subset, whole da superset. ^ yalnızca tek sette olanları tutar: 1, 3, 5. even ile {1, 3} hiçbir şey paylaşmaz.",
           "misconceptions_tr": {
-            "True\nFalse\n[1, 3, 5]\nTrue": "issuperset, issubset'in aynadaki halidir: even whole'un alt kümesiyse whole da even'ın üst kümesidir.",
-            "True\nTrue\n[0, 1, 2, 3, 4, 5]\nTrue": "Simetrik fark, İKİ sette de olan elemanları (0, 2, 4) dışarıda bırakır.",
-            "True\nTrue\n[1, 3, 5]\nFalse": "even'da 0, 2, 4; diğer sette 1, 3 var: ortak eleman yok, yani isdisjoint True olur."
+            "5 1 3": "Birleşim ortak 3'ü yalnızca bir kez tutar: 1, 2, 3, 4.",
+            "4 1 4": "| yeni bir set döndürür; a değişmez, hâlâ 3 öğesi var.",
+            "4 2 3": "Yalnızca 3 iki set'te de var, kesişimin bir öğesi var."
           }
         },
         {
           "id": "d07-b3-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so the program prints True.",
-          "prompt_tr": "Programın True yazdırması için boşluğu doldur.",
-          "starter_code": "print({1, 2}.___({1, 2, 3}))",
+          "prompt": "Fill the blank with an operator so both holds the students who take BOTH courses.",
+          "prompt_tr": "Boşluğu bir operatörle doldur: both, İKİ dersi de alan öğrencileri tutsun.",
+          "starter_code": "python = {'Ayşe', 'Can', 'Deniz', 'Ece'}\nstats = {'Can', 'Ece', 'Mert'}\nboth = python ___ stats\nprint(sorted(both))",
           "blanks": [
             {
               "answer": [
-                "issubset"
+                "&"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == 'True'",
+              "code": "assert both == {'Can', 'Ece'}",
               "visible": true,
-              "failure_message": "{1, 2} is inside {1, 2, 3}.",
-              "failure_message_tr": "{1, 2}, {1, 2, 3} içinde olduğu için True çıkmalı.",
-              "label_tr": "Program True yazdırıyor"
+              "label": "Students in both",
+              "label_tr": "İkisinde de olanlar",
+              "failure_message": "both should be {'Can', 'Ece'}.",
+              "failure_message_tr": "both {'Can', 'Ece'} olmalı."
             }
           ],
           "hints": [
-            "Is the first set inside the second one?",
-            "Set methods that answer yes/no questions start with 'is'. This one asks whether a set is a part of another.",
-            "The blank is a method name made of three pieces: is, sub, set, written together in lowercase."
+            "'Both' means the items the two sets share.",
+            "That operation is called intersection.",
+            "Its operator is the ampersand symbol."
           ],
           "hints_tr": [
-            "Birinci set ikincinin içinde mi?",
-            "Evet/hayır sorusu soran set metotları 'is' ile başlar. Bu, bir setin başka bir setin parçası olup olmadığını sorar.",
-            "Boşluk üç parçadan oluşan bir metot adı: is, sub, set; küçük harfle ve bitişik yazılır."
+            "'İkisinde de' iki set'in paylaştığı öğeler demektir.",
+            "Bu işlemin adı kesişimdir.",
+            "Operatörü ampersand (ve) işaretidir."
           ]
         },
         {
           "id": "d07-b3-e3",
-          "type": "write",
-          "prompt": "Create even = {0, 2, 4, 6, 8} and odd = {1, 3, 5, 7, 9}. Then create no_overlap (True if they share nothing), digits (all items of both) and is_part (True if even is a subset of digits). Print no_overlap.",
-          "prompt_tr": "even = {0, 2, 4, 6, 8} ve odd = {1, 3, 5, 7, 9} oluştur. Sonra no_overlap (hiçbir ortak elemanları yoksa True), digits (ikisinin tüm elemanları) ve is_part (even, digits'in alt kümesiyse True) değişkenlerini oluştur. no_overlap'ı yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert no_overlap is True",
-              "visible": true,
-              "failure_message": "even and odd have no item in common.",
-              "failure_message_tr": "even ve odd'un ortak elemanı yok.",
-              "label_tr": "no_overlap doğru"
-            },
-            {
-              "code": "assert digits == set(range(10))",
-              "visible": true,
-              "failure_message": "digits should be {0, 1, ..., 9}.",
-              "failure_message_tr": "digits, 0'dan 9'a kadar tüm rakamlar olmalı.",
-              "label_tr": "digits tüm rakamları içeriyor"
-            },
-            {
-              "code": "assert is_part is True",
-              "visible": false,
-              "failure_message": "even is a subset of digits: use even.issubset(digits).",
-              "failure_message_tr": "even, digits'in alt kümesidir: issubset kullan."
-            },
-            {
-              "code": "assert no_overlap == even.isdisjoint(odd)",
-              "visible": false,
-              "failure_message": "Use even.isdisjoint(odd).",
-              "failure_message_tr": "isdisjoint kullan."
-            },
-            {
-              "code": "assert __stdout__.strip() == 'True'",
-              "visible": false,
-              "failure_message": "Print no_overlap.",
-              "failure_message_tr": "no_overlap'ı yazdır."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nops = {type(n.op).__name__ for n in ast.walk(t) if isinstance(n, ast.BinOp)}\nassert 'isdisjoint' in attrs and 'issubset' in attrs and ('BitOr' in ops or 'union' in attrs), 'use set methods'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The booleans look typed in by hand. Ask Python with isdisjoint() and issubset(), and build digits with a union.",
-              "failure_message_tr": "True/False değerlerini elle yazmışsın gibi görünüyor. isdisjoint() ve issubset() ile Python'a sor, digits'i birleşimle oluştur."
-            }
-          ],
+          "type": "debug",
+          "prompt": "This program should print every tag from both posts, sorted: ['css', 'html', 'js']. It crashes with TypeError: unsupported operand type(s) for +: 'set' and 'set'. Fix it.",
+          "prompt_tr": "Bu program iki gönderideki bütün etiketleri sıralı yazdırmalı: ['css', 'html', 'js']. TypeError: unsupported operand type(s) for +: 'set' and 'set' ile çöküyor. Düzelt.",
+          "starter_code": "post1 = {'html', 'css'}\npost2 = {'css', 'js'}\nall_tags = post1 + post2\nprint(sorted(all_tags))",
           "hints": [
-            "Declare even and odd first.",
-            "You need a method that asks whether two sets share nothing, the union operator, and a method that asks whether a set is a part of another.",
-            "Use isdisjoint, the | operator and issubset, one per variable, and print no_overlap."
+            "The message says + is not defined between two sets.",
+            "Joining sets is a union.",
+            "Replace the + with the vertical bar operator."
+          ],
+          "hints_tr": [
+            "Mesaj iki set arasında +'nın tanımlı olmadığını söylüyor.",
+            "Set'leri birleştirmek bir birleşimdir.",
+            "+ işaretini dikey çizgi operatörüyle değiştir."
           ],
           "solution": {
-            "approach": "isdisjoint, union, issubset.",
-            "code": "even = {0, 2, 4, 6, 8}\nodd = {1, 3, 5, 7, 9}\nno_overlap = even.isdisjoint(odd)\ndigits = even | odd\nis_part = even.issubset(digits)\nprint(no_overlap)",
-            "approach_tr": "isdisjoint, birleşim ve issubset kullan."
+            "approach": "Sets join with the union operator |, not with +.",
+            "approach_tr": "Set'ler + ile değil, birleşim operatörü | ile birleşir.",
+            "code": "post1 = {'html', 'css'}\npost2 = {'css', 'js'}\nall_tags = post1 | post2\nprint(sorted(all_tags))"
           },
-          "twin": "d07-b3-e4",
-          "hints_tr": [
-            "Önce even ve odd'u tanımla.",
-            "İki setin ortak elemanı olup olmadığını soran bir metot, birleşim operatörü ve bir setin diğerinin parçası olup olmadığını soran bir metot lazım.",
-            "Her değişken için sırayla isdisjoint, | operatörü ve issubset kullan; sonra no_overlap'ı yazdır."
-          ]
+          "expected_output": "['css', 'html', 'js']"
         },
         {
           "id": "d07-b3-e4",
-          "type": "write",
-          "prompt": "Create left = {1, 2, 3} and right = {3, 4}. Then create overlap_free (True if they share nothing), everything (union), contains_left (True if everything is a superset of left) and exclusive (items in exactly one of the sets). Print sorted(exclusive).",
-          "prompt_tr": "left = {1, 2, 3} ve right = {3, 4} oluştur. Sonra overlap_free (ortak eleman yoksa True), everything (birleşim), contains_left (everything, left'in üst kümesiyse True) ve exclusive (yalnızca birinde olan elemanlar) değişkenlerini oluştur. sorted(exclusive)'ı yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert overlap_free is False",
-              "visible": true,
-              "failure_message": "left and right share 3, so overlap_free is False.",
-              "failure_message_tr": "left ve right 3'ü paylaşıyor, bu yüzden overlap_free False olmalı.",
-              "label_tr": "overlap_free doğru"
-            },
-            {
-              "code": "assert everything == {1, 2, 3, 4}",
-              "visible": true,
-              "failure_message": "everything should be {1, 2, 3, 4}.",
-              "failure_message_tr": "everything {1, 2, 3, 4} olmalı.",
-              "label_tr": "everything doğru hesaplanıyor"
-            },
-            {
-              "code": "assert contains_left is True",
-              "visible": false,
-              "failure_message": "everything contains all of left: use everything.issuperset(left).",
-              "failure_message_tr": "everything, left'in hepsini kapsar: issuperset kullan."
-            },
-            {
-              "code": "assert exclusive == {1, 2, 4}",
-              "visible": false,
-              "failure_message": "exclusive is the symmetric difference: left ^ right.",
-              "failure_message_tr": "exclusive simetrik farktır: left ^ right."
-            },
-            {
-              "code": "assert __stdout__.strip() == '[1, 2, 4]'",
-              "visible": false,
-              "failure_message": "Print sorted(exclusive).",
-              "failure_message_tr": "sorted(exclusive) yazdır."
-            },
-            {
-              "code": "import ast\nt = ast.parse(__source__)\nattrs = {n.func.attr for n in ast.walk(t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nops = {type(n.op).__name__ for n in ast.walk(t) if isinstance(n, ast.BinOp)}\nassert 'isdisjoint' in attrs and 'issuperset' in attrs and ('BitXor' in ops or 'symmetric_difference' in attrs) and ('BitOr' in ops or 'union' in attrs), 'use set operations'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "The results look typed in by hand. Compute them with isdisjoint(), a union, issuperset() and ^.",
-              "failure_message_tr": "Sonuçları elle yazmışsın gibi görünüyor. isdisjoint(), birleşim, issuperset() ve ^ ile hesaplat."
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "x = {'a', 'b'}\ny = x\nz = x | {'c'}\nx.update({'d'})\nprint(len(x), len(y), len(z))",
+          "choices": [
+            "3 2 4",
+            "3 3 3",
+            "3 2 3",
+            "3 3 4"
           ],
-          "hints": [
-            "Declare left and right first.",
-            "You need isdisjoint, the union operator, a method that checks if a set contains all of another, and the operator for items in exactly one set.",
-            "Use isdisjoint, the | operator, issuperset and the ^ operator, one per variable, and print sorted(exclusive)."
-          ],
-          "solution": {
-            "approach": "isdisjoint, union, issuperset, symmetric difference.",
-            "code": "left = {1, 2, 3}\nright = {3, 4}\noverlap_free = left.isdisjoint(right)\neverything = left | right\ncontains_left = everything.issuperset(left)\nexclusive = left ^ right\nprint(sorted(exclusive))",
-            "approach_tr": "isdisjoint, birleşim, issuperset ve simetrik fark kullan."
+          "expected_output": "3 3 3",
+          "explanation": "z is a new set {a, b, c} built before the update. update() then adds 'd' to the one set that both x and y name, so x and y have 3 items.",
+          "explanation_tr": "z, güncellemeden önce kurulmuş yeni bir {a, b, c} set'idir. update() sonra 'd'yi hem x'in hem y'nin gösterdiği tek set'e ekler; x ve y'de 3 öğe olur.",
+          "misconceptions": {
+            "3 2 3": "update() changes x in place, so x has a, b and d.",
+            "3 3 4": "z was built before update() ran, so it does not contain 'd'.",
+            "3 2 4": "y is a second name for the same set as x, so it sees the update too."
           },
-          "twin": "d07-b3-e3",
-          "hints_tr": [
-            "Önce left ve right'ı tanımla.",
-            "isdisjoint, birleşim operatörü, bir setin diğerini tamamen kapsayıp kapsamadığını soran metot ve yalnızca tek sette olanları veren operatör lazım.",
-            "Her değişken için sırayla isdisjoint, | operatörü, issuperset ve ^ operatörünü kullan; sonra sorted(exclusive) yazdır."
-          ]
+          "misconceptions_tr": {
+            "3 2 3": "update() x'i yerinde değiştirir, x'te a, b ve d var.",
+            "3 3 4": "z, update() çalışmadan önce kuruldu; 'd'yi içermez.",
+            "3 2 4": "y, x ile aynı set için ikinci bir isimdir; güncellemeyi o da görür."
+          }
         },
         {
           "id": "d07-b3-e5",
-          "type": "explain",
-          "prompt": "In your own words: why can you not use an index like my_set[0] on a set, and what is a set good for?",
-          "prompt_tr": "Kendi cümlelerinle: bir set üzerinde neden my_set[0] gibi indeks kullanamazsın ve set ne işe yarar?",
-          "model_answer": "A set is unordered, so its items have no position and no index. It is good for storing unique items, removing duplicates from a list, fast membership checks and set maths like union and intersection.",
-          "keywords": [
-            "unordered",
-            "index",
-            "unique",
-            "duplicate",
-            "position"
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program merges the new skills into skills IN PLACE and prints 4.",
+          "prompt_tr": "Satırları sıraya koy: program yeni becerileri skills'e YERİNDE katsın ve 4 yazdırsın.",
+          "lines": [
+            "skills.update(new)",
+            "skills = {'python', 'git'}",
+            "print(len(skills))",
+            "new = {'git', 'sql', 'docker'}"
           ],
-          "model_answer_tr": "Set sırasızdır; elemanlarının bir konumu ve indeksi yoktur. Benzersiz elemanları saklamak, bir listedeki tekrarları temizlemek, hızlı üyelik kontrolü yapmak ve birleşim/kesişim gibi küme işlemleri için kullanışlıdır.",
-          "keywords_tr": [
-            "sırasız",
-            "indeks",
-            "benzersiz",
-            "tekrar",
-            "konum"
+          "correct_order": [
+            1,
+            3,
+            0,
+            2
           ],
-          "min_words": 6
+          "distractors": [
+            "skills = skills.update(new)"
+          ],
+          "expected_output": "4"
+        },
+        {
+          "id": "d07-b3-e6",
+          "type": "modify",
+          "prompt": "The program prints the products of both shops (the union). Change it so it prints only the products BOTH shops sell, sorted. Keep the first two lines. For the given data: ['bread', 'milk'].",
+          "prompt_tr": "Program iki dükkânın ürünlerini (birleşim) yazdırıyor. Yalnızca İKİ dükkânın da sattığı ürünleri sıralı yazdıracak şekilde değiştir. İlk iki satırı koru. Verilen veri için: ['bread', 'milk'].",
+          "starter_code": "shop_a = {'bread', 'milk', 'eggs'}\nshop_b = {'milk', 'bread', 'jam'}\nprint(sorted(shop_a | shop_b))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"['bread', 'milk']\"",
+              "visible": true,
+              "label": "Common products",
+              "label_tr": "Ortak ürünler",
+              "failure_message": "Expected ['bread', 'milk'].",
+              "failure_message_tr": "['bread', 'milk'] beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('shop_a=')][0]\n_src[_i] = \"shop_a = {'jam', 'tea'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == \"['jam']\"",
+              "visible": false,
+              "failure_message": "Compute the common products with an operator, so other shops give other results.",
+              "failure_message_tr": "Ortak ürünleri bir operatörle hesapla ki başka dükkânlar başka sonuç versin.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "'Both shops sell it' is a different question from 'either shop sells it'.",
+            "Union collects everything; another operator keeps only what is shared.",
+            "Change one symbol on the last line."
+          ],
+          "hints_tr": [
+            "'İki dükkân da satıyor' sorusu 'dükkânlardan biri satıyor' sorusundan farklıdır.",
+            "Birleşim her şeyi toplar; başka bir operatör yalnızca ortak olanı tutar.",
+            "Son satırda tek bir işareti değiştir."
+          ],
+          "solution": {
+            "approach": "Intersection instead of union: & instead of |.",
+            "approach_tr": "Birleşim yerine kesişim: | yerine &.",
+            "code": "shop_a = {'bread', 'milk', 'eggs'}\nshop_b = {'milk', 'bread', 'jam'}\nprint(sorted(shop_a & shop_b))"
+          }
+        },
+        {
+          "id": "d07-b3-e7",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: monday = {'Ali', 'Ece', 'Can'} and then tuesday = {'Ece', 'Mert'}. Print two lines: the number of people who came on at least one day, then the sorted list of people who came on both days. For the given lines: 4, then ['Ece'].",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: monday = {'Ali', 'Ece', 'Can'} ve ardından tuesday = {'Ece', 'Mert'}. İki satır yazdır: en az bir gün gelen kişi sayısı, sonra iki gün de gelenlerin sıralı list'i. Verilen satırlar için: 4, sonra ['Ece'].",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['4', \"['Ece']\"]",
+              "visible": true,
+              "label": "Union count and intersection",
+              "label_tr": "Birleşim sayısı ve kesişim",
+              "failure_message": "Expected 4, then ['Ece'].",
+              "failure_message_tr": "Önce 4, sonra ['Ece'] beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('tuesday=')][0]\n_src[_i] = \"tuesday = {'Ali', 'Can', 'Su'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['4', \"['Ali', 'Can']\"]",
+              "visible": false,
+              "failure_message": "Compute both answers with set operators on the two sets.",
+              "failure_message_tr": "İki cevabı da iki set üzerinde set operatörleriyle hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('tuesday=')][0]\n_src[_i] = 'tuesday = set()'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['3', '[]']",
+              "visible": false,
+              "failure_message": "Edge case: nobody on Tuesday gives 3 and [].",
+              "failure_message_tr": "Kenar durum: salı kimse gelmezse 3 ve [] çıkar."
+            }
+          ],
+          "hints": [
+            "Two questions: 'at least one day' and 'both days'.",
+            "One is answered by | and the other by &.",
+            "Print the len() of the first operation, then sorted() of the second."
+          ],
+          "hints_tr": [
+            "İki soru: 'en az bir gün' ve 'iki gün de'.",
+            "Biri | ile, diğeri & ile yanıtlanır.",
+            "İlk işlemin len()'ini, sonra ikincinin sorted()'ını yazdır."
+          ],
+          "solution": {
+            "approach": "At least one day is the union; both days is the intersection.",
+            "approach_tr": "En az bir gün birleşimdir; iki gün de kesişimdir.",
+            "code": "monday = {'Ali', 'Ece', 'Can'}\ntuesday = {'Ece', 'Mert'}\nprint(len(monday | tuesday))\nprint(sorted(monday & tuesday))"
+          },
+          "twin": "d07-b3-e8"
+        },
+        {
+          "id": "d07-b3-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: playlists = [['rock', 'jazz'], ['jazz', 'pop'], ['pop', 'rock', 'folk']]. Build a set genres with every genre from the three playlists, using set() and update() (or |). Print sorted(genres). For the given line: ['folk', 'jazz', 'pop', 'rock'].",
+          "prompt_tr": "Programına tam olarak şu satırla başla: playlists = [['rock', 'jazz'], ['jazz', 'pop'], ['pop', 'rock', 'folk']]. set() ve update() (ya da |) ile üç çalma listesindeki her türü tutan genres set'ini kur. sorted(genres) yazdır. Verilen satır için: ['folk', 'jazz', 'pop', 'rock'].",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert genres == {'rock', 'jazz', 'pop', 'folk'}",
+              "visible": true,
+              "label": "All genres",
+              "label_tr": "Bütün türler",
+              "failure_message": "genres should hold the four genres.",
+              "failure_message_tr": "genres dört türü tutmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"['folk', 'jazz', 'pop', 'rock']\"",
+              "visible": true,
+              "label": "Sorted output",
+              "label_tr": "Sıralı çıktı",
+              "failure_message": "Print sorted(genres).",
+              "failure_message_tr": "sorted(genres) yazdır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('playlists=')][0]\n_src[_i] = \"playlists = [['a'], ['b', 'a'], ['c']]\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['genres'] == {'a', 'b', 'c'}",
+              "visible": false,
+              "failure_message": "Build genres from the playlists, not by typing the genres.",
+              "failure_message_tr": "genres'i türleri yazarak değil, çalma listelerinden kur.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('playlists=')][0]\n_src[_i] = 'playlists = [[], [], []]'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['genres'] == set() and _o.strip() == '[]'",
+              "visible": false,
+              "failure_message": "Edge case: three empty playlists give an empty set.",
+              "failure_message_tr": "Kenar durum: üç boş çalma listesi boş bir set verir."
+            }
+          ],
+          "hints": [
+            "The three inner lists are playlists[0], playlists[1] and playlists[2].",
+            "Start from an empty set and add every item of each inner list.",
+            "genres = set(), then call the many-items method three times, once per inner list."
+          ],
+          "hints_tr": [
+            "Üç iç list playlists[0], playlists[1] ve playlists[2]'dir.",
+            "Boş bir set'ten başla ve her iç list'in bütün öğelerini ekle.",
+            "genres = set(), sonra çok öğe ekleyen metodu her iç list için bir kez, üç kez çağır."
+          ],
+          "solution": {
+            "approach": "Start empty and update() with each inner list (loops come on Day 10).",
+            "approach_tr": "Boş başla ve her iç list ile update() yap (döngüler 10. günde gelecek).",
+            "code": "playlists = [['rock', 'jazz'], ['jazz', 'pop'], ['pop', 'rock', 'folk']]\ngenres = set()\ngenres.update(playlists[0])\ngenres.update(playlists[1])\ngenres.update(playlists[2])\nprint(sorted(genres))"
+          },
+          "twin": "d07-b3-e7"
         }
+      ]
+    },
+    {
+      "id": "d07-b4",
+      "concept": "set-difference",
+      "concept_tr": "Fark (-) ve simetrik fark (^)",
+      "tags": [
+        "sets",
+        "difference",
+        "symmetric-difference"
       ],
-      "concept_tr": "Alt küme ve ayrık küme: setleri birbiriyle karşılaştırmak."
+      "worked_example": {
+        "code": "signed = {'Ali', 'Ece', 'Mert', 'Su'}\nattended = {'Ece', 'Su', 'Kaan'}\nprint(sorted(signed - attended))\nprint(sorted(attended - signed))\nprint(sorted(signed ^ attended))",
+        "notes": [
+          "a - b keeps the items of a that are not in b; the direction matters, so b - a is a different set.",
+          "a ^ b keeps the items that are in exactly one of the two sets, the same as (a - b) | (b - a).",
+          "Like union and intersection, both operators return new sets and leave the originals alone."
+        ],
+        "notes_tr": [
+          "a - b, a'nın b'de olmayan öğelerini tutar; yön önemlidir, b - a farklı bir set'tir.",
+          "a ^ b iki set'ten yalnızca birinde olan öğeleri tutar; (a - b) | (b - a) ile aynıdır.",
+          "Birleşim ve kesişim gibi iki operatör de yeni set döndürür ve asıllara dokunmaz."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d07-b4-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = {1, 2, 3, 4}\nb = {3, 4, 5}\nprint(sorted(a - b), sorted(b - a))",
+          "choices": [
+            "[1, 2, 5] [1, 2, 5]",
+            "[3, 4] [3, 4]",
+            "[1, 2] [5]",
+            "[1, 2] [1, 2]"
+          ],
+          "expected_output": "[1, 2] [5]",
+          "explanation": "a - b keeps 1 and 2 (a's items missing from b); b - a keeps 5 (b's item missing from a).",
+          "explanation_tr": "a - b 1 ve 2'yi tutar (a'nın b'de olmayan öğeleri); b - a 5'i tutar (b'nin a'da olmayan öğesi).",
+          "misconceptions": {
+            "[1, 2] [1, 2]": "Difference is not symmetric: b - a keeps what is in b but not in a.",
+            "[1, 2, 5] [1, 2, 5]": "That is the symmetric difference ^; - only looks at the left set's items.",
+            "[3, 4] [3, 4]": "3 and 4 are the shared items, which - removes."
+          },
+          "misconceptions_tr": {
+            "[1, 2] [1, 2]": "Fark simetrik değildir: b - a, b'de olup a'da olmayanı tutar.",
+            "[1, 2, 5] [1, 2, 5]": "Bu simetrik fark ^'dir; - yalnızca soldaki set'in öğelerine bakar.",
+            "[3, 4] [3, 4]": "3 ve 4 ortak öğelerdir ve - onları çıkarır."
+          }
+        },
+        {
+          "id": "d07-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so no_show holds the people who signed up but did NOT attend.",
+          "prompt_tr": "Boşluğu doldur: no_show kayıt olan ama GELMEYEN kişileri tutsun.",
+          "starter_code": "signed = {'Ali', 'Ece', 'Mert'}\nattended = {'Ece', 'Kaan'}\nno_show = ___\nprint(sorted(no_show))",
+          "blanks": [
+            {
+              "answer": [
+                "signed - attended",
+                "signed.difference(attended)"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert no_show == {'Ali', 'Mert'}",
+              "visible": true,
+              "label": "No-shows",
+              "label_tr": "Gelmeyenler",
+              "failure_message": "no_show should be {'Ali', 'Mert'}.",
+              "failure_message_tr": "no_show {'Ali', 'Mert'} olmalı."
+            }
+          ],
+          "hints": [
+            "Start from the people who signed up.",
+            "Take away everyone who attended.",
+            "Write the signed set, the minus operator, then the attended set."
+          ],
+          "hints_tr": [
+            "Kayıt olanlardan başla.",
+            "Gelen herkesi çıkar.",
+            "signed set'ini, eksi operatörünü, sonra attended set'ini yaz."
+          ]
+        },
+        {
+          "id": "d07-b4-e3",
+          "type": "debug",
+          "prompt": "The program should print the tasks that are still open: the tasks in all_tasks that are not in done. It prints [] instead of ['deploy', 'test']. Fix the expression.",
+          "prompt_tr": "Program hâlâ açık olan görevleri yazdırmalı: all_tasks içinde olup done içinde olmayanlar. ['deploy', 'test'] yerine [] yazdırıyor. İfadeyi düzelt.",
+          "starter_code": "all_tasks = {'write', 'test', 'deploy'}\ndone = {'write'}\nopen_tasks = done - all_tasks\nprint(sorted(open_tasks))",
+          "hints": [
+            "done - all_tasks asks which finished tasks are not tasks at all.",
+            "Difference keeps items of the LEFT set.",
+            "Swap the two sets around the minus sign."
+          ],
+          "hints_tr": [
+            "done - all_tasks, hangi biten görevlerin hiç görev olmadığını sorar.",
+            "Fark SOLDAKİ set'in öğelerini tutar.",
+            "Eksi işaretinin iki yanındaki set'lerin yerini değiştir."
+          ],
+          "solution": {
+            "approach": "The direction was reversed: start from all tasks and subtract the finished ones.",
+            "approach_tr": "Yön ters çevrilmişti: bütün görevlerden başla ve bitenleri çıkar.",
+            "code": "all_tasks = {'write', 'test', 'deploy'}\ndone = {'write'}\nopen_tasks = all_tasks - done\nprint(sorted(open_tasks))"
+          },
+          "expected_output": "['deploy', 'test']"
+        },
+        {
+          "id": "d07-b4-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "old = {101, 102, 103}\nnew = {102, 103, 104}\nchanged = old ^ new\nprint(sorted(changed), changed == new ^ old)",
+          "choices": [
+            "[102, 103] True",
+            "[101, 104] False",
+            "[101] True",
+            "[101, 104] True"
+          ],
+          "expected_output": "[101, 104] True",
+          "explanation": "101 is only in old and 104 only in new, so changed is {101, 104}; swapping the sets gives the same result.",
+          "explanation_tr": "101 yalnızca old'da, 104 yalnızca new'de; changed {101, 104} olur, set'lerin yerini değiştirmek aynı sonucu verir.",
+          "misconceptions": {
+            "[102, 103] True": "Those are the items in both sets; ^ keeps the items in exactly one.",
+            "[101, 104] False": "Symmetric difference does not depend on the order of the sets.",
+            "[101] True": "104 is in exactly one set too (new), so it is also kept."
+          },
+          "misconceptions_tr": {
+            "[102, 103] True": "Bunlar iki set'te de olan öğeler; ^ yalnızca birinde olanları tutar.",
+            "[101, 104] False": "Simetrik fark set'lerin sırasına bağlı değildir.",
+            "[101] True": "104 de yalnızca bir set'te (new) var, o da tutulur."
+          }
+        },
+        {
+          "id": "d07-b4-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints the letters that appear in exactly one of the two words: ['a', 'd', 'g', 'h', 'p', 'r', 't', 'y'].",
+          "prompt_tr": "Satırları sıraya koy: program iki kelimeden yalnızca birinde geçen harfleri yazdırsın: ['a', 'd', 'g', 'h', 'p', 'r', 't', 'y'].",
+          "lines": [
+            "print(sorted(only_one))",
+            "dragon = set('dragon')",
+            "only_one = python ^ dragon",
+            "python = set('python')"
+          ],
+          "correct_order": [
+            3,
+            1,
+            2,
+            0
+          ],
+          "distractors": [
+            "only_one = python & dragon"
+          ],
+          "expected_output": "['a', 'd', 'g', 'h', 'p', 'r', 't', 'y']"
+        },
+        {
+          "id": "d07-b4-e6",
+          "type": "modify",
+          "prompt": "The program prints the items that are in both lists. Change it so it prints, sorted, the items that are in exactly one of the two lists. Keep the first two lines. For the given data: ['eggs', 'jam'].",
+          "prompt_tr": "Program iki list'te de olan öğeleri yazdırıyor. İki list'ten yalnızca birinde olan öğeleri sıralı yazdıracak şekilde değiştir. İlk iki satırı koru. Verilen veri için: ['eggs', 'jam'].",
+          "starter_code": "list_a = ['bread', 'milk', 'eggs']\nlist_b = ['milk', 'bread', 'jam']\nprint(sorted(set(list_a) & set(list_b)))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"['eggs', 'jam']\"",
+              "visible": true,
+              "label": "Items in exactly one list",
+              "label_tr": "Yalnızca bir list'te olanlar",
+              "failure_message": "Expected ['eggs', 'jam'].",
+              "failure_message_tr": "['eggs', 'jam'] beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('list_a=')][0]\n_src[_i] = \"list_a = ['tea']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == \"['bread', 'jam', 'milk', 'tea']\"",
+              "visible": false,
+              "failure_message": "Compute the result with a set operator so it changes with the lists.",
+              "failure_message_tr": "Sonucu bir set operatörüyle hesapla ki list'lerle değişsin.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "'In exactly one' is neither union nor intersection.",
+            "The operator for 'one or the other but not both' is the caret.",
+            "Change only the operator between the two set() calls."
+          ],
+          "hints_tr": [
+            "'Yalnızca birinde' ne birleşim ne kesişimdir.",
+            "'Biri ya da diğeri ama ikisi değil' operatörü şapka işaretidir.",
+            "Yalnızca iki set() çağrısı arasındaki operatörü değiştir."
+          ],
+          "solution": {
+            "approach": "Symmetric difference ^ instead of intersection &.",
+            "approach_tr": "Kesişim & yerine simetrik fark ^.",
+            "code": "list_a = ['bread', 'milk', 'eggs']\nlist_b = ['milk', 'bread', 'jam']\nprint(sorted(set(list_a) ^ set(list_b)))"
+          }
+        },
+        {
+          "id": "d07-b4-e7",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: before = {'ali', 'ece', 'can'} and then after = {'ece', 'can', 'su'} (followers of an account). Print two lines: 'lost:' followed by the sorted list of people in before but not after, then 'new:' followed by the sorted list of people in after but not before. For the given lines the output is: lost: ['ali'] and new: ['su'].",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: before = {'ali', 'ece', 'can'} ve ardından after = {'ece', 'can', 'su'} (bir hesabın takipçileri). İki satır yazdır: 'lost:' ardından before'da olup after'da olmayanların sıralı list'i, sonra 'new:' ardından after'da olup before'da olmayanların sıralı list'i. Verilen satırlar için çıktı: lost: ['ali'] ve new: ['su'].",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == [\"lost: ['ali']\", \"new: ['su']\"]",
+              "visible": true,
+              "label": "Both lines correct",
+              "label_tr": "İki satır da doğru",
+              "failure_message": "Expected lost: ['ali'] then new: ['su'].",
+              "failure_message_tr": "Önce lost: ['ali'], sonra new: ['su'] beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('after=')][0]\n_src[_i] = \"after = {'zeki'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == [\"lost: ['ali', 'can', 'ece']\", \"new: ['zeki']\"]",
+              "visible": false,
+              "failure_message": "Compute both lists with set difference.",
+              "failure_message_tr": "İki list'i de set farkıyla hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('after=')][0]\n_src[_i] = \"after = {'ali', 'ece', 'can'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['lost: []', 'new: []']",
+              "visible": false,
+              "failure_message": "Edge case: when nothing changed both lists are empty.",
+              "failure_message_tr": "Kenar durum: hiçbir şey değişmediyse iki list de boştur."
+            }
+          ],
+          "hints": [
+            "Lost followers were in before; new followers are in after.",
+            "Each question is a difference; the left set is where the people were.",
+            "print('lost:', sorted(...)) with before minus after, then the same pattern the other way round."
+          ],
+          "hints_tr": [
+            "Kaybedilen takipçiler before'daydı; yeni takipçiler after'da.",
+            "Her soru bir farktır; soldaki set kişilerin bulunduğu yerdir.",
+            "before eksi after ile print('lost:', sorted(...)), sonra aynı kalıbı ters yönde yaz."
+          ],
+          "solution": {
+            "approach": "Two differences in opposite directions.",
+            "approach_tr": "Zıt yönlerde iki fark.",
+            "code": "before = {'ali', 'ece', 'can'}\nafter = {'ece', 'can', 'su'}\nprint('lost:', sorted(before - after))\nprint('new:', sorted(after - before))"
+          },
+          "twin": "d07-b4-e8"
+        },
+        {
+          "id": "d07-b4-e8",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: team_a = ['python', 'sql', 'git'] and then team_b = ['git', 'docker', 'python']. Print the number of skills that only one of the two teams has. For the given lines: 2.",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: team_a = ['python', 'sql', 'git'] ve ardından team_b = ['git', 'docker', 'python']. İki takımdan yalnızca birinin sahip olduğu beceri sayısını yazdır. Verilen satırlar için: 2.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '2'",
+              "visible": true,
+              "label": "Prints 2",
+              "label_tr": "2 yazdırıyor",
+              "failure_message": "Expected 2 (sql and docker).",
+              "failure_message_tr": "2 beklenir (sql ve docker)."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('team_b=')][0]\n_src[_i] = \"team_b = ['go']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '4'",
+              "visible": false,
+              "failure_message": "Compute the count from the two lists.",
+              "failure_message_tr": "Sayıyı iki list'ten hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('team_b=')][0]\n_src[_i] = \"team_b = ['git', 'sql', 'python', 'git']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '0'",
+              "visible": false,
+              "failure_message": "Edge case: the same skills (even with a repeat) give 0.",
+              "failure_message_tr": "Kenar durum: aynı beceriler (tekrarla bile) 0 verir."
+            }
+          ],
+          "hints": [
+            "Set operators work on sets, so convert the lists first.",
+            "'Only one of the two' is the symmetric difference.",
+            "Take len() of set(team_a) combined with set(team_b) by the caret operator."
+          ],
+          "hints_tr": [
+            "Set operatörleri set'lerde çalışır, önce list'leri çevir.",
+            "'İkisinden yalnızca biri' simetrik farktır.",
+            "set(team_a) ile set(team_b)'yi şapka operatörüyle birleştirip len() al."
+          ],
+          "solution": {
+            "approach": "Convert both lists to sets, take ^ and count.",
+            "approach_tr": "İki list'i set'e çevir, ^ al ve say.",
+            "code": "team_a = ['python', 'sql', 'git']\nteam_b = ['git', 'docker', 'python']\nprint(len(set(team_a) ^ set(team_b)))"
+          },
+          "twin": "d07-b4-e7"
+        }
+      ]
+    },
+    {
+      "id": "d07-b5",
+      "concept": "set-relations",
+      "concept_tr": "Alt küme, üst küme, ayrık set'ler ve hash",
+      "tags": [
+        "sets",
+        "subset",
+        "disjoint",
+        "hashable"
+      ],
+      "worked_example": {
+        "code": "required = {'python', 'git'}\nskills = {'python', 'git', 'sql'}\nprint(required <= skills, skills >= required)\nprint({'go'}.isdisjoint(skills))\nvisited = {(39.9, 32.8), (41.0, 28.9)}\nprint((39.9, 32.8) in visited)",
+        "notes": [
+          "a <= b (issubset) is True when every item of a is also in b; b >= a (issuperset) says the same from b's side.",
+          "a.isdisjoint(b) is True when the two sets share no item, which means a & b is empty.",
+          "Set items must be immutable, so tuples can go in a set but lists cannot (TypeError: ... unhashable type: 'list')."
+        ],
+        "notes_tr": [
+          "a <= b (issubset), a'nın her öğesi b'de de varsa True'dur; b >= a (issuperset) aynı şeyi b tarafından söyler.",
+          "a.isdisjoint(b), iki set hiç öğe paylaşmıyorsa, yani a & b boşsa True'dur.",
+          "Set öğeleri değiştirilemez olmalıdır; tuple set'e girebilir ama list giremez (TypeError: ... unhashable type: 'list')."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d07-b5-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "whole = {0, 1, 2, 3, 4, 5}\neven = {0, 2, 4}\nprint(whole.issubset(even), whole.issuperset(even), even <= even)",
+          "choices": [
+            "True False True",
+            "False True False",
+            "True True True",
+            "False True True"
+          ],
+          "expected_output": "False True True",
+          "explanation": "whole contains numbers even does not, so it is not a subset of even, but it is a superset. even <= even is True because a set is always a subset of itself.",
+          "explanation_tr": "whole even'da olmayan sayılar içerir; even'ın alt kümesi değil, üst kümesidir. even <= even True'dur, çünkü set her zaman kendisinin alt kümesidir.",
+          "misconceptions": {
+            "True False True": "whole is the bigger set; not all of its items are in even, so it is not a subset.",
+            "False True False": "Every set is a subset of itself: all items of even are in even.",
+            "True True True": "1, 3 and 5 are in whole but not in even, so whole cannot be a subset of even."
+          },
+          "misconceptions_tr": {
+            "True False True": "whole daha büyük set'tir; bütün öğeleri even'da olmadığı için alt küme değildir.",
+            "False True False": "Her set kendisinin alt kümesidir: even'ın bütün öğeleri even'da vardır.",
+            "True True True": "1, 3 ve 5 whole'da var ama even'da yok, bu yüzden whole even'ın alt kümesi olamaz."
+          }
+        },
+        {
+          "id": "d07-b5-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank with an operator so qualified is True when the candidate has ALL required skills.",
+          "prompt_tr": "Boşluğu bir operatörle doldur: aday gerekli bütün becerilere sahipse qualified True olsun.",
+          "starter_code": "required = {'python', 'git'}\ncandidate = {'git', 'sql', 'python'}\nqualified = required ___ candidate\nprint(qualified)",
+          "blanks": [
+            {
+              "answer": [
+                "<="
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert qualified is True",
+              "visible": true,
+              "label": "qualified is True",
+              "label_tr": "qualified True",
+              "failure_message": "The candidate has python and git, so qualified should be True.",
+              "failure_message_tr": "Aday python ve git'e sahip, qualified True olmalı."
+            },
+            {
+              "code": "assert '<=' in __source__",
+              "visible": true,
+              "label": "Uses the subset operator",
+              "label_tr": "Alt küme operatörü kullanılıyor",
+              "failure_message": "Use the subset operator between required and candidate.",
+              "failure_message_tr": "required ile candidate arasında alt küme operatörünü kullan."
+            }
+          ],
+          "hints": [
+            "'All required skills are in candidate' means required is a subset.",
+            "The subset operator looks like 'less than or equal'.",
+            "It is two characters: the left angle bracket, then the equals sign."
+          ],
+          "hints_tr": [
+            "'Gerekli bütün beceriler adayda var', required'ın alt küme olduğu anlamına gelir.",
+            "Alt küme operatörü 'küçük ya da eşit' gibi görünür.",
+            "İki karakterdir: sol açılı parantez, sonra eşittir işareti."
+          ]
+        },
+        {
+          "id": "d07-b5-e3",
+          "type": "debug",
+          "prompt": "The program should store visited map points in a set and print 2. It crashes with TypeError: cannot use 'list' as a set element (unhashable type: 'list'). Fix the points so they can live in a set.",
+          "prompt_tr": "Program ziyaret edilen harita noktalarını bir set'te tutmalı ve 2 yazdırmalı. TypeError: cannot use 'list' as a set element (unhashable type: 'list') ile çöküyor. Noktaları set'te durabilecek şekilde düzelt.",
+          "starter_code": "visited = {[39.9, 32.8], [41.0, 28.9]}\nprint(len(visited))",
+          "hints": [
+            "'Unhashable' means this kind of value cannot be a set item.",
+            "Which Day 6 collection is like a list but immutable?",
+            "Change the square brackets of each point into round brackets."
+          ],
+          "hints_tr": [
+            "'Unhashable', bu tür bir değerin set öğesi olamayacağı anlamına gelir.",
+            "6. günün hangi koleksiyonu list gibidir ama değiştirilemez?",
+            "Her noktanın köşeli parantezlerini yuvarlak parantezle değiştir."
+          ],
+          "solution": {
+            "approach": "Lists are mutable and unhashable; tuples of numbers are immutable and can be set items.",
+            "approach_tr": "List'ler değiştirilebilir ve unhashable'dır; sayılardan oluşan tuple'lar değiştirilemez ve set öğesi olabilir.",
+            "code": "visited = {(39.9, 32.8), (41.0, 28.9)}\nprint(len(visited))"
+          },
+          "expected_output": "2"
+        },
+        {
+          "id": "d07-b5-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "busy_ali = {9, 10, 14}\nbusy_ece = {11, 15}\nprint(busy_ali.isdisjoint(busy_ece), len(busy_ali & busy_ece))",
+          "choices": [
+            "False 5",
+            "True 0",
+            "False 0",
+            "True 2"
+          ],
+          "expected_output": "True 0",
+          "explanation": "The two sets share no hour, so isdisjoint() is True and their intersection is the empty set with length 0.",
+          "explanation_tr": "İki set hiçbir saati paylaşmaz; isdisjoint() True'dur ve kesişimleri uzunluğu 0 olan boş set'tir.",
+          "misconceptions": {
+            "False 0": "No hour appears in both sets, so they are disjoint: isdisjoint() is True.",
+            "True 2": "The intersection is empty when the sets are disjoint.",
+            "False 5": "& keeps shared items only; there are none here."
+          },
+          "misconceptions_tr": {
+            "False 0": "Hiçbir saat iki set'te birden geçmiyor, yani ayrıklar: isdisjoint() True'dur.",
+            "True 2": "Set'ler ayrıkken kesişim boştur.",
+            "False 5": "& yalnızca ortak öğeleri tutar; burada hiç yok."
+          }
+        },
+        {
+          "id": "d07-b5-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints True: a meeting can be booked because the busy hours do not overlap.",
+          "prompt_tr": "Satırları sıraya koy: program True yazdırsın; dolu saatler çakışmadığı için toplantı ayarlanabilir.",
+          "lines": [
+            "busy_ece = {13, 14}",
+            "print(can_meet)",
+            "can_meet = busy_ali.isdisjoint(busy_ece)",
+            "busy_ali = {9, 10}"
+          ],
+          "correct_order": [
+            3,
+            0,
+            2,
+            1
+          ],
+          "distractors": [
+            "can_meet = busy_ali & busy_ece"
+          ],
+          "expected_output": "True"
+        },
+        {
+          "id": "d07-b5-e6",
+          "type": "modify",
+          "prompt": "The program prints whether the candidate has every required skill. Change it so it prints two lines: that answer, then the sorted list of required skills the candidate is missing. Keep the first two lines. For the given data: False, then ['docker'].",
+          "prompt_tr": "Program adayın gerekli her beceriye sahip olup olmadığını yazdırıyor. İki satır yazdıracak şekilde değiştir: o cevap, sonra adayın eksik olduğu gerekli becerilerin sıralı list'i. İlk iki satırı koru. Verilen veri için: False, sonra ['docker'].",
+          "starter_code": "required = {'python', 'git', 'docker'}\ncandidate = {'python', 'git', 'sql'}\nprint(required <= candidate)",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['False', \"['docker']\"]",
+              "visible": true,
+              "label": "Answer and missing skills",
+              "label_tr": "Cevap ve eksik beceriler",
+              "failure_message": "Expected False, then ['docker'].",
+              "failure_message_tr": "Önce False, sonra ['docker'] beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('candidate=')][0]\n_src[_i] = \"candidate = {'git'}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['False', \"['docker', 'python']\"]",
+              "visible": false,
+              "failure_message": "Compute the missing skills with a set difference.",
+              "failure_message_tr": "Eksik becerileri bir set farkıyla hesapla.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Keep the first print and add a second line.",
+            "Missing skills are required ones that the candidate does not have.",
+            "Print the sorted result of required minus candidate."
+          ],
+          "hints_tr": [
+            "İlk print'i bırak ve ikinci bir satır ekle.",
+            "Eksik beceriler, adayın sahip olmadığı gerekli becerilerdir.",
+            "required eksi candidate sonucunu sıralı yazdır."
+          ],
+          "solution": {
+            "approach": "The missing skills are required - candidate.",
+            "approach_tr": "Eksik beceriler required - candidate'tir.",
+            "code": "required = {'python', 'git', 'docker'}\ncandidate = {'python', 'git', 'sql'}\nprint(required <= candidate)\nprint(sorted(required - candidate))"
+          }
+        },
+        {
+          "id": "d07-b5-e7",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: allergens = {'nuts', 'milk'} and then dish = ['rice', 'milk', 'salt']. Print exactly: safe: False (True when the dish shares no ingredient with allergens). Use isdisjoint().",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: allergens = {'nuts', 'milk'} ve ardından dish = ['rice', 'milk', 'salt']. Tam olarak şunu yazdır: safe: False (yemek allergens ile hiç malzeme paylaşmıyorsa True). isdisjoint() kullan.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'safe: False'",
+              "visible": true,
+              "label": "Unsafe dish detected",
+              "label_tr": "Güvensiz yemek yakalandı",
+              "failure_message": "Expected safe: False because of milk.",
+              "failure_message_tr": "milk yüzünden safe: False beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('dish=')][0]\n_src[_i] = \"dish = ['rice', 'salt']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'safe: True'",
+              "visible": false,
+              "failure_message": "Compute safe with isdisjoint(), so a safe dish prints True.",
+              "failure_message_tr": "safe'i isdisjoint() ile hesapla ki güvenli yemek True yazdırsın.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('dish=')][0]\n_src[_i] = 'dish = []'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'safe: True'",
+              "visible": false,
+              "failure_message": "Edge case: an empty dish is safe.",
+              "failure_message_tr": "Kenar durum: boş bir yemek güvenlidir."
+            },
+            {
+              "code": "assert 'isdisjoint' in __source__",
+              "visible": false,
+              "failure_message": "Use the isdisjoint() method.",
+              "failure_message_tr": "isdisjoint() metodunu kullan."
+            }
+          ],
+          "hints": [
+            "Safe means 'nothing in common with allergens'.",
+            "There is a method that answers exactly that question.",
+            "Print the label 'safe:' and the result of calling that method on allergens with dish."
+          ],
+          "hints_tr": [
+            "Güvenli, 'allergens ile hiç ortak yok' demektir.",
+            "Tam olarak bu soruyu yanıtlayan bir metot var.",
+            "'safe:' etiketini ve allergens üzerinde dish ile o metodu çağırmanın sonucunu yazdır."
+          ],
+          "solution": {
+            "approach": "isdisjoint() accepts any collection, so the list can be passed directly.",
+            "approach_tr": "isdisjoint() her koleksiyonu kabul eder, list doğrudan verilebilir.",
+            "code": "allergens = {'nuts', 'milk'}\ndish = ['rice', 'milk', 'salt']\nprint('safe:', allergens.isdisjoint(dish))"
+          },
+          "twin": "d07-b5-e8"
+        },
+        {
+          "id": "d07-b5-e8",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: course = {'loops', 'lists', 'sets'} and then done = ['lists', 'sets', 'lists', 'loops']. Print two lines: whether every topic of the course is done (True/False), then how many different topics are done. For the given lines: True, then 3.",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: course = {'loops', 'lists', 'sets'} ve ardından done = ['lists', 'sets', 'lists', 'loops']. İki satır yazdır: kursun her konusu bitti mi (True/False), sonra kaç farklı konu bitti. Verilen satırlar için: True, sonra 3.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['True', '3']",
+              "visible": true,
+              "label": "Both lines",
+              "label_tr": "İki satır",
+              "failure_message": "Expected True, then 3.",
+              "failure_message_tr": "Önce True, sonra 3 beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('done=')][0]\n_src[_i] = \"done = ['lists', 'lists']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['False', '1']",
+              "visible": false,
+              "failure_message": "Compute both answers from done.",
+              "failure_message_tr": "İki cevabı da done'dan hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('done=')][0]\n_src[_i] = 'done = []'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['False', '0']",
+              "visible": false,
+              "failure_message": "Edge case: nothing done gives False and 0.",
+              "failure_message_tr": "Kenar durum: hiçbir şey bitmediyse False ve 0 çıkar."
+            }
+          ],
+          "hints": [
+            "done has a repeat, so make it a set first.",
+            "Every course topic is done when course is a subset of the finished topics.",
+            "Store set(done), print course <= that set, then print its length."
+          ],
+          "hints_tr": [
+            "done'da tekrar var; önce onu set yap.",
+            "course bitmiş konuların alt kümesiyse kursun her konusu bitmiştir.",
+            "set(done)'ı sakla, course <= o set'i yazdır, sonra uzunluğunu yazdır."
+          ],
+          "solution": {
+            "approach": "Convert done to a set, then use <= and len().",
+            "approach_tr": "done'ı set'e çevir, sonra <= ve len() kullan.",
+            "code": "course = {'loops', 'lists', 'sets'}\ndone = ['lists', 'sets', 'lists', 'loops']\nfinished = set(done)\nprint(course <= finished)\nprint(len(finished))"
+          },
+          "twin": "d07-b5-e7"
+        },
+        {
+          "id": "d07-b5-e9",
+          "type": "explain",
+          "prompt": "In your own words: why can a tuple be an item of a set, but a list cannot?",
+          "prompt_tr": "Kendi cümlelerinle: neden bir tuple set'in öğesi olabilir de list olamaz?",
+          "model_answer": "A set finds items by their hash, a number computed from the value. A list can change after it is added, so its hash could change and the set would lose it; therefore lists are unhashable. A tuple of immutable values never changes, so its hash stays the same.",
+          "model_answer_tr": "Set öğeleri, değerden hesaplanan bir sayı olan hash ile bulur. List eklendikten sonra değişebilir, hash'i de değişir ve set onu kaybederdi; bu yüzden list'ler unhashable'dır. Değiştirilemez değerlerden oluşan tuple hiç değişmez, hash'i aynı kalır.",
+          "keywords": [
+            "hash",
+            "change",
+            "immutable"
+          ],
+          "keywords_tr": [
+            "hash",
+            "değiş",
+            "değiştirilemez"
+          ],
+          "min_words": 12
+        }
+      ]
     }
   ],
   "review_pool": [
     "d07-b1-e1",
+    "d07-b1-e7",
     "d07-b2-e1",
-    "d07-b2-e3",
+    "d07-b2-e8",
     "d07-b3-e1",
-    "d07-b3-e4"
-  ],
-  "title_tr": "Set'ler (Kümeler)"
+    "d07-b4-e1",
+    "d07-b4-e7",
+    "d07-b5-e1"
+  ]
 }
