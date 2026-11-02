@@ -147,5 +147,5 @@ SUMMARY: files=5 exercises=193 failures=0
 - Hidden anti-hard-code tests re-run the learner's source with a replaced `name = ...` line or literal. The prompts
   therefore ask for those assignments on their own line; a learner who writes a correct but differently shaped program
   (e.g. the value only inside an expression) gets a failure message that says which line is expected.
-- The Day 5 hint ladder for one fill_blank describes `count`/`index` in words because the validator rejects hints that
-  form runnable solutions.
+- Turkish case conversion: the Day 4 card states Python's language-independent behaviour (`'istanbul'.upper()` gives
+  `ISTANBUL`); a Turkish-aware conversion needs extra code that is out of scope for Day 4.
