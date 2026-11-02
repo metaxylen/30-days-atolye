@@ -1,680 +1,1477 @@
 {
- "day": 28,
- "title": "API (HTTP basics)",
- "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
- "blocks": [
-  {
-   "id": "d28-b1",
-   "concept": "request-and-status-line",
-   "tags": [
-    "http",
-    "api",
-    "strings"
-   ],
-   "worked_example": {
-    "code": "request_line = 'GET / HTTP/1.1'\nmethod, path, version = request_line.split(' ')\nprint(method, path, version)",
-    "notes": [
-     "A request line has three parts: method, path of the resource, HTTP version.",
-     "A response starts with a status line: version, status code, reason."
-    ],
-    "notes_tr": [
-     "İstek satırının üç parçası vardır: yöntem (method), kaynağın yolu ve HTTP sürümü.",
-     "Yanıt bir durum satırıyla başlar: sürüm, durum kodu ve açıklama."
-    ]
-   },
-   "exercises": [
+  "day": 28,
+  "title": "APIs and HTTP",
+  "title_tr": "API'ler ve HTTP",
+  "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+  "blocks": [
     {
-     "id": "d28-b1-e1",
-     "type": "predict",
-     "concept": "request-and-status-line",
-     "tags": [
-      "http",
-      "api",
-      "strings"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "status_line = 'HTTP/1.1 404 Not Found'\nversion, code, reason = status_line.split(' ', 2)\nprint(code, reason, int(code) >= 400)",
-     "choices": [
-      "404 Not Found True",
-      "404 Not Found False",
-      "HTTP/1.1 404 True",
-      "Error"
-     ],
-     "expected_output": "404 Not Found True",
-     "explanation": "split(' ', 2) cuts at most twice, so the reason keeps its space: 'Not Found'. The code 404 is at least 400, so the comparison is True.",
-     "misconceptions": {
-      "404 Not Found False": "int('404') is 404, which is greater than 400.",
-      "HTTP/1.1 404 True": "The variables are version, code, reason; code is '404' and reason is 'Not Found'.",
-      "Error": "split(' ', 2) returns exactly three parts here, so the unpacking works."
-     },
-     "explanation_tr": "split(' ', 2) en fazla iki kez keser, bu yüzden açıklama boşluğunu korur: 'Not Found'. 404 kodu 400'e eşit ya da büyük olduğundan karşılaştırma True olur.",
-     "misconceptions_tr": {
-      "404 Not Found False": "int('404') 404'tür ve bu 400'den büyüktür.",
-      "HTTP/1.1 404 True": "Değişkenler version, code, reason'dır; code '404', reason 'Not Found' olur.",
-      "Error": "split(' ', 2) burada tam olarak üç parça verir, bu yüzden açma (unpacking) çalışır."
-     }
+      "id": "d28-b1",
+      "concept": "request-line-and-urls",
+      "concept_tr": "İstek satırı ve URL'ler",
+      "tags": [
+        "http",
+        "strings",
+        "urllib",
+        "parsing"
+      ],
+      "worked_example": {
+        "code": "from urllib.parse import urlsplit, parse_qs\nline = 'GET /api/v1/students?country=Finland&page=2 HTTP/1.1'\nmethod, target, version = line.split(' ')\nparts = urlsplit(target)\nparams = {k: v[0] for k, v in parse_qs(parts.query).items()}\nprint(method, parts.path, params)",
+        "notes": [
+          "The request line always has three space-separated parts: method, target, version.",
+          "`urlsplit` separates the path from the query; `parse_qs` decodes the query into lists of values.",
+          "Taking `v[0]` keeps the first value of each key, which is what you want when every key appears once."
+        ],
+        "notes_tr": [
+          "İstek satırında her zaman boşlukla ayrılmış üç parça vardır: metot, hedef, sürüm.",
+          "`urlsplit` yolu sorgudan ayırır; `parse_qs` sorguyu değer list'lerine çözer.",
+          "`v[0]` almak her anahtarın ilk değerini tutar; her anahtar bir kez geçiyorsa istediğin budur."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d28-b1-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "line = 'GET /api/v1/students?country=Finland HTTP/1.1'\nmethod, path, version = line.split()\nprint(method, path)",
+          "choices": [
+            "GET /api/v1/students?country=Finland",
+            "GET /api/v1/students",
+            "GET country=Finland",
+            "ValueError"
+          ],
+          "expected_output": "GET /api/v1/students?country=Finland",
+          "explanation": "Splitting at spaces gives three parts; the query string has no space, so it stays part of the path. Separating it needs `partition('?')` or `urlsplit`.",
+          "explanation_tr": "Boşluklardan bölmek üç parça verir; sorgu dizgesinde boşluk olmadığı için yolun parçası olarak kalır. Onu ayırmak için `partition('?')` ya da `urlsplit` gerekir.",
+          "misconceptions": {
+            "GET /api/v1/students": "`split()` knows nothing about `?`; the query stays glued to the path.",
+            "GET country=Finland": "The second space-separated part is the whole target, path and query together.",
+            "ValueError": "There are exactly three parts, so unpacking into three names works."
+          },
+          "misconceptions_tr": {
+            "GET /api/v1/students": "`split()` `?` hakkında bir şey bilmez; sorgu yola yapışık kalır.",
+            "GET country=Finland": "Boşlukla ayrılan ikinci parça hedefin tamamıdır: yol ve sorgu birlikte.",
+            "ValueError": "Tam üç parça var; üç isme açmak sorunsuz çalışır."
+          },
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        },
+        {
+          "id": "d28-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the code so it prints the path without the query and the value of `country`.",
+          "prompt_tr": "Kodu tamamla: sorgusuz yolu ve `country` değerini yazdırsın.",
+          "starter_code": "from urllib.parse import urlsplit, parse_qs\n\ntarget = '/api/v1/students?country=Finland'\nparts = urlsplit(target)\nparams = parse_qs(parts.___)\ncountry = params['country'][___]\nprint(parts.path, country)",
+          "blanks": [
+            {
+              "answer": [
+                "query"
+              ]
+            },
+            {
+              "answer": [
+                "0"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert country == 'Finland' and parts.path == '/api/v1/students'",
+              "visible": true,
+              "label": "Path and country are separated",
+              "label_tr": "Yol ve ülke ayrıldı"
+            }
+          ],
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        },
+        {
+          "id": "d28-b1-e3",
+          "type": "modify",
+          "prompt": "`parse_target(target)` returns only the path. Change it to return a tuple `(path, params)` where `params` is a dict holding the first value of each query key. A target without a query gives an empty dict.",
+          "prompt_tr": "`parse_target(target)` yalnızca yolu döndürüyor. Onu değiştir: `(path, params)` tuple'ını döndürsün; `params` her sorgu anahtarının ilk değerini tutan bir dict olsun. Sorgusuz bir hedef boş bir dict verir.",
+          "starter_code": "from urllib.parse import urlsplit\n\ndef parse_target(target):\n    return urlsplit(target).path",
+          "tests": [
+            {
+              "code": "assert parse_target('/students?country=Finland') == ('/students', {'country': 'Finland'})",
+              "visible": true,
+              "label": "Path and one parameter",
+              "label_tr": "Yol ve bir parametre"
+            },
+            {
+              "code": "assert parse_target('/about') == ('/about', {})",
+              "visible": true,
+              "label": "No query, empty dict",
+              "label_tr": "Sorgu yoksa boş dict"
+            },
+            {
+              "code": "assert parse_target('/s?tag=a&tag=b&city=%C4%B0zmir') == ('/s', {'tag': 'a', 'city': 'İzmir'})",
+              "visible": false,
+              "failure_message": "Use parse_qs: it decodes %C4%B0 to İ; keep only the first value of a repeated key.",
+              "failure_message_tr": "parse_qs kullan: %C4%B0'ı İ'ye çevirir; tekrar eden bir anahtarın yalnızca ilk değerini tut."
+            },
+            {
+              "code": "assert parse_target('/x?q=a+b') == ('/x', {'q': 'a b'})",
+              "visible": false,
+              "failure_message": "A + in a query means a space; parse_qs already knows that.",
+              "failure_message_tr": "Sorgudaki + bir boşluk demektir; parse_qs bunu zaten bilir."
+            }
+          ],
+          "hints": [
+            "`urlsplit(target)` already gives you both `.path` and `.query`.",
+            "Import `parse_qs` too; it returns lists, so pick `[0]` of each in a dict comprehension.",
+            "Store the `urlsplit` result in a variable, build the params dict from `parse_qs(parts.query).items()`, and return the path and the dict together."
+          ],
+          "hints_tr": [
+            "`urlsplit(target)` sana zaten hem `.path` hem `.query` verir.",
+            "`parse_qs`'i de içe aktar; list döndürür, bu yüzden bir dict comprehension içinde her birinin `[0]`'ını al.",
+            "`urlsplit` sonucunu bir değişkende tut, params dict'ini `parse_qs(parts.query).items()` üzerinden kur ve yolu ve dict'i birlikte döndür."
+          ],
+          "solution": {
+            "approach": "Split the URL, decode the query with parse_qs and keep the first value of each key.",
+            "approach_tr": "URL'yi böl, sorguyu parse_qs ile çöz ve her anahtarın ilk değerini tut.",
+            "code": "from urllib.parse import urlsplit, parse_qs\n\ndef parse_target(target):\n    parts = urlsplit(target)\n    params = {key: values[0] for key, values in parse_qs(parts.query).items()}\n    return parts.path, params"
+          },
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        },
+        {
+          "id": "d28-b1-e4",
+          "type": "debug",
+          "prompt": "A search for `Tom & Jerry` reaches the server as just `'Tom '`. The program should print `['Tom & Jerry']`. Fix how the URL is built.",
+          "prompt_tr": "`Tom & Jerry` araması sunucuya yalnızca `'Tom '` olarak ulaşıyor. Program `['Tom & Jerry']` yazdırmalı. URL'nin kuruluşunu düzelt.",
+          "starter_code": "from urllib.parse import urlsplit, parse_qs\n\ndef search_url(term):\n    return 'https://api.example.com/search?q=' + term + '&page=1'\n\nurl = search_url('Tom & Jerry')\nprint(parse_qs(urlsplit(url).query)['q'])",
+          "tests": [
+            {
+              "code": "assert parse_qs(urlsplit(search_url('a+b=c')).query)['q'] == ['a+b=c']",
+              "visible": true,
+              "label": "Other special characters survive too",
+              "label_tr": "Diğer özel karakterler de bozulmuyor"
+            }
+          ],
+          "hints": [
+            "Look at the raw URL: which character in the search term has a special meaning in a query string?",
+            "The `&` starts a new parameter. Values must be encoded before they go into a URL.",
+            "Build the query part with `urlencode` from `urllib.parse`, passing a dict with both parameters, and append it after the `?`."
+          ],
+          "hints_tr": [
+            "Ham URL'ye bak: arama terimindeki hangi karakterin sorgu dizgesinde özel bir anlamı var?",
+            "`&` yeni bir parametre başlatır. Değerler URL'ye girmeden önce kodlanmalı.",
+            "Sorgu kısmını `urllib.parse`'taki `urlencode` ile, iki parametreyi içeren bir dict vererek kur ve `?`'den sonra ekle."
+          ],
+          "solution": {
+            "approach": "Encode the parameters with urlencode instead of gluing raw text into the URL.",
+            "approach_tr": "Ham metni URL'ye yapıştırmak yerine parametreleri urlencode ile kodla.",
+            "code": "from urllib.parse import urlsplit, parse_qs, urlencode\n\ndef search_url(term):\n    return 'https://api.example.com/search?' + urlencode({'q': term, 'page': 1})\n\nurl = search_url('Tom & Jerry')\nprint(parse_qs(urlsplit(url).query)['q'])"
+          },
+          "expected_output": "['Tom & Jerry']",
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        },
+        {
+          "id": "d28-b1-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "from urllib.parse import parse_qs\n\nprint(parse_qs('a=1&b=&a=2'))",
+          "choices": [
+            "{'a': ['1', '2']}",
+            "{'a': ['1', '2'], 'b': ['']}",
+            "{'a': '2', 'b': ''}",
+            "{'a': ['2'], 'b': []}"
+          ],
+          "expected_output": "{'a': ['1', '2']}",
+          "explanation": "The two values of `a` are collected into one list. `b=` has an empty value, and `parse_qs` drops empty values unless you pass `keep_blank_values=True`.",
+          "explanation_tr": "`a`'nın iki değeri tek bir list'te toplanır. `b=` boş bir değere sahip ve `parse_qs`, `keep_blank_values=True` vermezsen boş değerleri atar.",
+          "misconceptions": {
+            "{'a': ['1', '2'], 'b': ['']}": "That is the output with `keep_blank_values=True`; by default blank values are dropped.",
+            "{'a': '2', 'b': ''}": "`parse_qs` never overwrites: every key maps to a list of all its values.",
+            "{'a': ['2'], 'b': []}": "Both values of `a` are kept, in order, and the blank `b` is left out entirely."
+          },
+          "misconceptions_tr": {
+            "{'a': ['1', '2'], 'b': ['']}": "Bu, `keep_blank_values=True` ile alınan çıktıdır; varsayılan olarak boş değerler atılır.",
+            "{'a': '2', 'b': ''}": "`parse_qs` asla üzerine yazmaz: her anahtar tüm değerlerinin list'ine eşlenir.",
+            "{'a': ['2'], 'b': []}": "`a`'nın iki değeri de sırayla tutulur, boş `b` ise tamamen dışarıda kalır."
+          },
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        },
+        {
+          "id": "d28-b1-e6",
+          "type": "write",
+          "prompt": "Write `parse_request_line(line)` that returns a dict with the keys 'method', 'path' and 'version' from a request line like `'GET /about HTTP/1.1'`. If the line does not have exactly three space-separated parts, raise `ValueError`. Example: `parse_request_line('POST /api/v1/students HTTP/1.1')['method']` is 'POST'.",
+          "prompt_tr": "`'GET /about HTTP/1.1'` gibi bir istek satırından 'method', 'path' ve 'version' anahtarlarını içeren bir dict döndüren `parse_request_line(line)` yaz. Satırda boşlukla ayrılmış tam üç parça yoksa `ValueError` fırlat. Örnek: `parse_request_line('POST /api/v1/students HTTP/1.1')['method']` 'POST'tur.",
+          "starter_code": "",
+          "signature": "def parse_request_line(line):",
+          "tests": [
+            {
+              "code": "assert parse_request_line('GET /about HTTP/1.1') == {'method': 'GET', 'path': '/about', 'version': 'HTTP/1.1'}",
+              "visible": true,
+              "label": "A simple GET",
+              "label_tr": "Basit bir GET"
+            },
+            {
+              "code": "assert parse_request_line('POST /api/v1/students HTTP/1.1')['method'] == 'POST'",
+              "visible": true,
+              "label": "A POST",
+              "label_tr": "Bir POST"
+            },
+            {
+              "code": "assert parse_request_line('DELETE /s/5?x=1 HTTP/2')['path'] == '/s/5?x=1'",
+              "visible": false,
+              "failure_message": "Keep the target exactly as it appears, query included.",
+              "failure_message_tr": "Hedefi göründüğü gibi, sorgusuyla birlikte tut."
+            },
+            {
+              "code": "bad = 0\nfor line in ['GET /about', 'GET / HTTP/1.1 extra', '']:\n    try:\n        parse_request_line(line)\n    except ValueError:\n        bad += 1\nassert bad == 3",
+              "visible": false,
+              "failure_message": "Two parts, four parts or an empty line must all raise ValueError.",
+              "failure_message_tr": "İki parça, dört parça ya da boş bir satır, hepsi ValueError fırlatmalı."
+            }
+          ],
+          "hints": [
+            "Split the line at spaces and check how many parts you got before unpacking.",
+            "`parts = line.split()`; if `len(parts) != 3`, `raise ValueError(...)`.",
+            "After the length check, unpack the three parts into method, path and version and return them in a dict literal with the three keys."
+          ],
+          "hints_tr": [
+            "Satırı boşluklardan böl ve açmadan önce kaç parça elde ettiğini kontrol et.",
+            "`parts = line.split()`; `len(parts) != 3` ise `raise ValueError(...)`.",
+            "Uzunluk kontrolünden sonra üç parçayı method, path ve version isimlerine aç ve üç anahtarlı bir dict ile döndür."
+          ],
+          "solution": {
+            "approach": "Split, check there are exactly three parts (else raise ValueError), and return them in a dict.",
+            "approach_tr": "Böl, tam üç parça olduğunu kontrol et (yoksa ValueError fırlat) ve onları bir dict'te döndür.",
+            "code": "def parse_request_line(line):\n    parts = line.split()\n    if len(parts) != 3:\n        raise ValueError(f'bad request line: {line!r}')\n    method, path, version = parts\n    return {'method': method, 'path': path, 'version': version}"
+          },
+          "twin": "d28-b1-e7",
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        },
+        {
+          "id": "d28-b1-e7",
+          "type": "write",
+          "prompt": "Write `build_url(base, params)` that returns `base` unchanged when `params` is empty, and otherwise `base + '?' + urlencode(...)` of the params, leaving out every key whose value is None. Example: `build_url('https://x.io/s', {'q': 'çay', 'page': None})` returns `'https://x.io/s?q=%C3%A7ay'`.",
+          "prompt_tr": "`build_url(base, params)` yaz: `params` boşsa `base`'i değiştirmeden döndürsün; değilse değeri None olan anahtarları dışarıda bırakarak `base + '?' + urlencode(...)` döndürsün. Örnek: `build_url('https://x.io/s', {'q': 'çay', 'page': None})` `'https://x.io/s?q=%C3%A7ay'` döndürür.",
+          "starter_code": "",
+          "signature": "def build_url(base, params):",
+          "tests": [
+            {
+              "code": "assert build_url('https://x.io/s', {'q': 'çay', 'page': None}) == 'https://x.io/s?q=%C3%A7ay'",
+              "visible": true,
+              "label": "None is skipped, ç is encoded",
+              "label_tr": "None atlanıyor, ç kodlanıyor"
+            },
+            {
+              "code": "assert build_url('https://x.io/s', {}) == 'https://x.io/s'",
+              "visible": true,
+              "label": "No params, no ?",
+              "label_tr": "Parametre yoksa ? da yok"
+            },
+            {
+              "code": "assert build_url('/api', {'q': 'Tom & Jerry', 'page': 2}) == '/api?q=Tom+%26+Jerry&page=2'",
+              "visible": false,
+              "failure_message": "Encode the values with urlencode so & and spaces cannot break the query.",
+              "failure_message_tr": "& ve boşlukların sorguyu bozmaması için değerleri urlencode ile kodla."
+            },
+            {
+              "code": "assert build_url('/api', {'a': None}) == '/api'",
+              "visible": false,
+              "failure_message": "If every value is None there is nothing to send: return base without a ?.",
+              "failure_message_tr": "Bütün değerler None ise gönderilecek bir şey yoktur: base'i ? olmadan döndür."
+            }
+          ],
+          "hints": [
+            "First drop the None values, then decide whether anything is left.",
+            "`{k: v for k, v in params.items() if v is not None}` filters; `urlencode` from `urllib.parse` encodes.",
+            "Import `urlencode`; filter the params; if the filtered dict is empty return base; otherwise return base, a '?' and the encoded filtered dict joined together."
+          ],
+          "hints_tr": [
+            "Önce None değerleri at, sonra geriye bir şey kalıp kalmadığına karar ver.",
+            "`{k: v for k, v in params.items() if v is not None}` süzer; `urllib.parse`'taki `urlencode` kodlar.",
+            "`urlencode`'u içe aktar; parametreleri süz; süzülmüş dict boşsa base'i döndür; değilse base'i, '?' işaretini ve kodlanmış süzülmüş dict'i birleştirip döndür."
+          ],
+          "solution": {
+            "approach": "Filter out None values, return base if nothing is left, otherwise append ? and the urlencoded params.",
+            "approach_tr": "None değerleri süz; geriye bir şey kalmadıysa base'i döndür, değilse ? ve urlencode edilmiş parametreleri ekle.",
+            "code": "from urllib.parse import urlencode\n\ndef build_url(base, params):\n    clean = {key: value for key, value in params.items() if value is not None}\n    if not clean:\n        return base\n    return base + '?' + urlencode(clean)"
+          },
+          "twin": "d28-b1-e6",
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        },
+        {
+          "id": "d28-b1-e8",
+          "type": "explain",
+          "prompt": "Why does `parse_qs` return every value as a list, even when a key appears only once?",
+          "prompt_tr": "`parse_qs`, bir anahtar yalnızca bir kez geçse bile neden her değeri bir list olarak döndürür?",
+          "model_answer": "In a query string the same key may appear several times, for example tag=a&tag=b, and every value must be kept. To give one consistent type, parse_qs always returns a list of values for each key, so code that expects one value takes the first item with [0].",
+          "model_answer_tr": "Bir sorgu dizgesinde aynı anahtar birden çok kez geçebilir, örneğin tag=a&tag=b, ve her değer korunmalıdır. Tek ve tutarlı bir tip vermek için parse_qs her anahtar için her zaman bir değer list'i döndürür; tek değer bekleyen kod ilk öğeyi [0] ile alır.",
+          "keywords": [
+            "several",
+            "list",
+            "[0]"
+          ],
+          "keywords_tr": [
+            "birden çok",
+            "list",
+            "[0]"
+          ],
+          "min_words": 10,
+          "concept": "request-line-and-urls",
+          "tags": [
+            "http",
+            "strings",
+            "urllib",
+            "parsing"
+          ]
+        }
+      ]
     },
     {
-     "id": "d28-b1-e2",
-     "type": "fill_blank",
-     "concept": "request-and-status-line",
-     "tags": [
-      "http",
-      "api",
-      "strings"
-     ],
-     "prompt": "Split a request line into its three parts.",
-     "prompt_tr": "Bir istek satırını üç parçasına ayır.",
-     "starter_code": "request = 'POST /api/v1.0/students HTTP/1.1'\nmethod, ___, version = request.___(' ')",
-     "blanks": [
-      {
-       "answer": [
-        "path"
-       ]
+      "id": "d28-b2",
+      "concept": "status-codes",
+      "concept_tr": "Durum kodları",
+      "tags": [
+        "http",
+        "status-codes",
+        "integer-division",
+        "dicts"
+      ],
+      "worked_example": {
+        "code": "from http import HTTPStatus\nCLASSES = {2: 'success', 3: 'redirection', 4: 'client error', 5: 'server error'}\nline = 'HTTP/1.1 404 Not Found'\nversion, code, reason = line.split(' ', 2)\ncode = int(code)\nprint(code, reason, CLASSES[code // 100], HTTPStatus(code).phrase == reason)",
+        "notes": [
+          "`split(' ', 2)` splits at most twice, so a reason with spaces such as 'Not Found' stays in one piece.",
+          "The code arrives as text; `int()` turns it into a number so `//` can find its class.",
+          "`http.HTTPStatus` knows the standard reason phrase of every code."
+        ],
+        "notes_tr": [
+          "`split(' ', 2)` en fazla iki kez böler; 'Not Found' gibi boşluk içeren bir açıklama tek parça kalır.",
+          "Kod metin olarak gelir; `int()` onu sayıya çevirir ki `//` sınıfını bulabilsin.",
+          "`http.HTTPStatus` her kodun standart açıklamasını bilir."
+        ]
       },
-      {
-       "answer": [
-        "split"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert method == 'POST'",
-       "visible": true,
-       "label_tr": "Yöntem doğru ayrılıyor"
-      },
-      {
-       "code": "assert path == '/api/v1.0/students'",
-       "visible": true,
-       "label_tr": "Yol doğru ayrılıyor"
-      },
-      {
-       "code": "assert version == 'HTTP/1.1'",
-       "visible": true,
-       "label_tr": "Sürüm doğru ayrılıyor"
-      }
-     ]
+      "exercises": [
+        {
+          "id": "d28-b2-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "codes = [200, 201, 302, 404, 503]\nprint([code // 100 for code in codes], 404 % 100)",
+          "choices": [
+            "[2, 2, 3, 4, 5] 4",
+            "[2, 2, 3, 4, 5] 4.04",
+            "[2.0, 2.01, 3.02, 4.04, 5.03] 4",
+            "[2, 2, 3, 4, 5] 404"
+          ],
+          "expected_output": "[2, 2, 3, 4, 5] 4",
+          "explanation": "`//` keeps only the whole part of the division, giving the class digit. `%` gives the remainder: 404 % 100 is 4.",
+          "explanation_tr": "`//` bölmenin yalnızca tam kısmını tutar ve sınıf hanesini verir. `%` kalanı verir: 404 % 100 = 4.",
+          "misconceptions": {
+            "[2, 2, 3, 4, 5] 4.04": "`%` is the remainder of integer division, not a decimal division.",
+            "[2.0, 2.01, 3.02, 4.04, 5.03] 4": "That would be `/`; `//` drops everything after the decimal point.",
+            "[2, 2, 3, 4, 5] 404": "404 % 100 asks for the remainder after taking out 100 four times, which is 4."
+          },
+          "misconceptions_tr": {
+            "[2, 2, 3, 4, 5] 4.04": "`%` tam sayı bölmesinin kalanıdır, ondalıklı bölme değildir.",
+            "[2.0, 2.01, 3.02, 4.04, 5.03] 4": "Bu `/` olurdu; `//` virgülden sonrasını atar.",
+            "[2, 2, 3, 4, 5] 404": "404 % 100, 100'ü dört kez çıkardıktan sonraki kalanı sorar; bu 4'tür."
+          },
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d28-b2-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order: split a status line into its three parts and print the code as a number plus one.",
+          "prompt_tr": "Satırları sırala: bir durum satırını üç parçasına ayır ve kodu sayı olarak, bir fazlasıyla yazdır.",
+          "lines": [
+            "print(code + 1, reason)",
+            "version, code, reason = line.split(' ', 2)",
+            "line = 'HTTP/1.1 503 Service Unavailable'",
+            "code = int(code)"
+          ],
+          "correct_order": [
+            2,
+            1,
+            3,
+            0
+          ],
+          "distractors": [
+            "version, code, reason = line.split(' ')"
+          ],
+          "expected_output": "504 Service Unavailable",
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d28-b2-e3",
+          "type": "modify",
+          "prompt": "`describe(code)` only knows 2xx and 4xx. Extend it to return 'redirection' for 3xx, 'server error' for 5xx and 'unknown' for anything else (including 1xx and numbers outside 100-599).",
+          "prompt_tr": "`describe(code)` yalnızca 2xx ve 4xx'i biliyor. Onu genişlet: 3xx için 'redirection', 5xx için 'server error', diğer her şey için (1xx ve 100-599 dışındaki sayılar dahil) 'unknown' döndürsün.",
+          "starter_code": "def describe(code):\n    if 200 <= code < 300:\n        return 'success'\n    if 400 <= code < 500:\n        return 'client error'",
+          "tests": [
+            {
+              "code": "assert describe(302) == 'redirection' and describe(503) == 'server error'",
+              "visible": true,
+              "label": "3xx and 5xx",
+              "label_tr": "3xx ve 5xx"
+            },
+            {
+              "code": "assert describe(201) == 'success' and describe(404) == 'client error'",
+              "visible": true,
+              "label": "Old cases still work",
+              "label_tr": "Eski durumlar hâlâ çalışıyor"
+            },
+            {
+              "code": "assert describe(100) == 'unknown' and describe(600) == 'unknown' and describe(42) == 'unknown'",
+              "visible": false,
+              "failure_message": "Every code outside the four classes must give 'unknown', never None.",
+              "failure_message_tr": "Dört sınıfın dışındaki her kod None değil 'unknown' vermeli."
+            },
+            {
+              "code": "assert describe(300) == 'redirection' and describe(599) == 'server error' and describe(399) == 'redirection'",
+              "visible": false,
+              "failure_message": "Check the edges: 300 and 399 are 3xx, 599 is 5xx.",
+              "failure_message_tr": "Sınırları kontrol et: 300 ve 399 3xx'tir, 599 5xx'tir."
+            }
+          ],
+          "hints": [
+            "Add two more ranges in the same style, and think about what the function returns when no `if` matches.",
+            "A function that reaches its end without `return` returns None; add a final `return 'unknown'`.",
+            "Insert range checks for 300-399 and 500-599 using chained comparisons like the existing ones, then end the function with the 'unknown' return."
+          ],
+          "hints_tr": [
+            "Aynı biçimde iki aralık daha ekle ve hiçbir `if` eşleşmediğinde fonksiyonun ne döndürdüğünü düşün.",
+            "`return` olmadan sonuna ulaşan bir fonksiyon None döndürür; en sona bir `return 'unknown'` ekle.",
+            "Var olanlar gibi zincirli karşılaştırmalarla 300-399 ve 500-599 aralık kontrollerini ekle, sonra fonksiyonu 'unknown' döndüren satırla bitir."
+          ],
+          "solution": {
+            "approach": "Add the 3xx and 5xx ranges and a final return for everything else.",
+            "approach_tr": "3xx ve 5xx aralıklarını ve geri kalan her şey için son bir return ekle.",
+            "code": "def describe(code):\n    if 200 <= code < 300:\n        return 'success'\n    if 300 <= code < 400:\n        return 'redirection'\n    if 400 <= code < 500:\n        return 'client error'\n    if 500 <= code < 600:\n        return 'server error'\n    return 'unknown'"
+          },
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d28-b2-e4",
+          "type": "debug",
+          "prompt": "`parse_status('HTTP/1.1 404 Not Found')` should print `(404, 'Not Found')` but crashes with `ValueError: too many values to unpack (expected 3)`. Fix it.",
+          "prompt_tr": "`parse_status('HTTP/1.1 404 Not Found')` `(404, 'Not Found')` yazdırmalı ama `ValueError: too many values to unpack (expected 3)` ile çöküyor. Düzelt.",
+          "starter_code": "def parse_status(line):\n    version, code, reason = line.split(' ')\n    return int(code), reason\n\nprint(parse_status('HTTP/1.1 404 Not Found'))",
+          "tests": [
+            {
+              "code": "assert parse_status('HTTP/1.1 200 OK') == (200, 'OK')",
+              "visible": true,
+              "label": "A one-word reason still works",
+              "label_tr": "Tek kelimelik açıklama hâlâ çalışıyor"
+            },
+            {
+              "code": "assert parse_status('HTTP/1.1 500 Internal Server Error') == (500, 'Internal Server Error')",
+              "visible": true,
+              "label": "A three-word reason",
+              "label_tr": "Üç kelimelik açıklama"
+            }
+          ],
+          "hints": [
+            "Count the pieces `split(' ')` makes from 'HTTP/1.1 404 Not Found'.",
+            "The reason 'Not Found' contains a space, so there are four pieces for three names.",
+            "Tell `split` to stop after two cuts by giving it a second argument; the rest of the line then stays together as the reason."
+          ],
+          "hints_tr": [
+            "`split(' ')`'in 'HTTP/1.1 404 Not Found' satırından kaç parça çıkardığını say.",
+            "'Not Found' açıklaması bir boşluk içeriyor; üç isim için dört parça var.",
+            "`split`'e ikinci bir argüman vererek iki kesimden sonra durmasını söyle; satırın geri kalanı açıklama olarak bir arada kalır."
+          ],
+          "solution": {
+            "approach": "Limit the split to two cuts with split(' ', 2) so the reason keeps its spaces.",
+            "approach_tr": "Açıklama boşluklarını korusun diye bölmeyi split(' ', 2) ile iki kesimle sınırla.",
+            "code": "def parse_status(line):\n    version, code, reason = line.split(' ', 2)\n    return int(code), reason\n\nprint(parse_status('HTTP/1.1 404 Not Found'))"
+          },
+          "expected_output": "(404, 'Not Found')",
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d28-b2-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "from http import HTTPStatus\n\nprint(HTTPStatus(404).phrase, HTTPStatus.CREATED.value, HTTPStatus.OK == 200)",
+          "choices": [
+            "Not Found 201 True",
+            "404 Created True",
+            "Not Found 201 False",
+            "Not Found CREATED True"
+          ],
+          "expected_output": "Not Found 201 True",
+          "explanation": "`.phrase` is the reason text, `.value` is the number. HTTPStatus members are a kind of int, so `HTTPStatus.OK == 200` is True.",
+          "explanation_tr": "`.phrase` açıklama metnidir, `.value` ise sayıdır. HTTPStatus üyeleri bir tür int'tir; bu yüzden `HTTPStatus.OK == 200` True'dur.",
+          "misconceptions": {
+            "404 Created True": "`HTTPStatus(404).phrase` gives the words, and `.value` gives the number 201.",
+            "Not Found 201 False": "HTTPStatus members compare equal to their numbers because they are ints.",
+            "Not Found CREATED True": "`.value` is the numeric code; `.name` would give 'CREATED'."
+          },
+          "misconceptions_tr": {
+            "404 Created True": "`HTTPStatus(404).phrase` kelimeleri, `.value` ise 201 sayısını verir.",
+            "Not Found 201 False": "HTTPStatus üyeleri int oldukları için sayılarına eşittir.",
+            "Not Found CREATED True": "`.value` sayısal koddur; 'CREATED'ı `.name` verirdi."
+          },
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d28-b2-e6",
+          "type": "write",
+          "prompt": "Write `is_success(code)` that returns True for every status code from 200 to 299 and False otherwise. Example: `is_success(204)` is True, `is_success(302)` is False.",
+          "prompt_tr": "200'den 299'a kadar her durum kodu için True, diğerleri için False döndüren `is_success(code)` yaz. Örnek: `is_success(204)` True, `is_success(302)` False'tur.",
+          "starter_code": "",
+          "signature": "def is_success(code):",
+          "tests": [
+            {
+              "code": "assert is_success(204) is True",
+              "visible": true,
+              "label": "204 is a success",
+              "label_tr": "204 bir başarıdır"
+            },
+            {
+              "code": "assert is_success(302) is False",
+              "visible": true,
+              "label": "302 is not",
+              "label_tr": "302 değildir"
+            },
+            {
+              "code": "assert is_success(200) and is_success(299) and not is_success(199) and not is_success(300)",
+              "visible": false,
+              "failure_message": "Include both edges, 200 and 299, and exclude 199 and 300.",
+              "failure_message_tr": "İki sınırı da (200 ve 299) dahil et, 199 ve 300'ü dışarıda bırak."
+            },
+            {
+              "code": "assert [is_success(c) for c in (201, 404, 500, 250)] == [True, False, False, True]",
+              "visible": false,
+              "failure_message": "Decide from the range, not from a fixed list of codes.",
+              "failure_message_tr": "Sabit bir kod listesine göre değil, aralığa göre karar ver."
+            }
+          ],
+          "hints": [
+            "A success is any code in the 2xx range.",
+            "A chained comparison `a <= x < b` checks a range in one expression; `code // 100 == 2` also works.",
+            "Return the result of one comparison expression; there is no need for an `if`."
+          ],
+          "hints_tr": [
+            "Başarı, 2xx aralığındaki herhangi bir koddur.",
+            "Zincirli `a <= x < b` karşılaştırması bir aralığı tek ifadede kontrol eder; `code // 100 == 2` de çalışır.",
+            "Tek bir karşılaştırma ifadesinin sonucunu döndür; `if`'e gerek yok."
+          ],
+          "solution": {
+            "approach": "A chained comparison checks that the code is in [200, 300).",
+            "approach_tr": "Zincirli bir karşılaştırma kodun [200, 300) aralığında olduğunu kontrol eder.",
+            "code": "def is_success(code):\n    return 200 <= code < 300"
+          },
+          "twin": "d28-b2-e7",
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d28-b2-e7",
+          "type": "write",
+          "prompt": "Write `status_report(log_lines)`. Each line looks like `'GET /about 200'` (method, path, status code). Return a dict counting how many responses fell into each class, with keys like '2xx', '4xx'; only include classes that appear. Example: `status_report(['GET / 200', 'GET /x 404', 'POST /s 201'])` returns `{'2xx': 2, '4xx': 1}`.",
+          "prompt_tr": "`status_report(log_lines)` yaz. Her satır `'GET /about 200'` gibidir (metot, yol, durum kodu). Her sınıfa kaç yanıt düştüğünü '2xx', '4xx' gibi anahtarlarla sayan bir dict döndür; yalnızca görünen sınıfları ekle. Örnek: `status_report(['GET / 200', 'GET /x 404', 'POST /s 201'])` `{'2xx': 2, '4xx': 1}` döndürür.",
+          "starter_code": "",
+          "signature": "def status_report(log_lines):",
+          "tests": [
+            {
+              "code": "assert status_report(['GET / 200', 'GET /x 404', 'POST /s 201']) == {'2xx': 2, '4xx': 1}",
+              "visible": true,
+              "label": "Two classes",
+              "label_tr": "İki sınıf"
+            },
+            {
+              "code": "assert status_report([]) == {}",
+              "visible": true,
+              "label": "Empty log",
+              "label_tr": "Boş kayıt"
+            },
+            {
+              "code": "assert status_report(['GET /a 503', 'GET /b 302', 'GET /c 500', 'GET /d 301']) == {'5xx': 2, '3xx': 2}",
+              "visible": false,
+              "failure_message": "Build the key from the first digit of the code: str(code // 100) + 'xx'.",
+              "failure_message_tr": "Anahtarı kodun ilk hanesinden kur: str(code // 100) + 'xx'."
+            },
+            {
+              "code": "assert status_report(['DELETE /api/v1/students/5 204']) == {'2xx': 1}",
+              "visible": false,
+              "failure_message": "The status code is the last part of the line; the path may be long.",
+              "failure_message_tr": "Durum kodu satırın son parçasıdır; yol uzun olabilir."
+            }
+          ],
+          "hints": [
+            "For each line, take the last space-separated part and turn it into an int.",
+            "The key is `f'{code // 100}xx'`; count with `counts.get(key, 0) + 1`.",
+            "Loop over the lines, compute the class key from `int(line.split()[-1])`, increase its count in a dict, and return the dict."
+          ],
+          "hints_tr": [
+            "Her satır için boşlukla ayrılmış son parçayı al ve int'e çevir.",
+            "Anahtar `f'{code // 100}xx'`'tir; `counts.get(key, 0) + 1` ile say.",
+            "Satırlar üzerinde dön, sınıf anahtarını `int(line.split()[-1])` ile hesapla, bir dict'te sayısını artır ve dict'i döndür."
+          ],
+          "solution": {
+            "approach": "Read the last part of each line as the code, turn it into a class key and count with dict.get.",
+            "approach_tr": "Her satırın son parçasını kod olarak oku, onu bir sınıf anahtarına çevir ve dict.get ile say.",
+            "code": "def status_report(log_lines):\n    counts = {}\n    for line in log_lines:\n        code = int(line.split()[-1])\n        key = f'{code // 100}xx'\n        counts[key] = counts.get(key, 0) + 1\n    return counts"
+          },
+          "twin": "d28-b2-e6",
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d28-b2-e8",
+          "type": "explain",
+          "prompt": "What is the difference between a 4xx and a 5xx status code, and who usually has to fix the problem in each case?",
+          "prompt_tr": "4xx ile 5xx durum kodu arasındaki fark nedir ve her durumda sorunu genellikle kim düzeltmelidir?",
+          "model_answer": "A 4xx code is a client error: the request was wrong, for example a missing resource (404), bad data (400) or no permission (401, 403), so the client must change the request. A 5xx code is a server error: the request may be fine but the server failed while handling it, so the server's developers must fix it.",
+          "model_answer_tr": "4xx kodu bir istemci hatasıdır: istek yanlıştır, örneğin olmayan bir kaynak (404), hatalı veri (400) ya da izin yok (401, 403); isteği istemci değiştirmelidir. 5xx kodu bir sunucu hatasıdır: istek doğru olabilir ama sunucu onu işlerken başarısız olmuştur; düzeltmek sunucunun geliştiricilerine düşer.",
+          "keywords": [
+            "client",
+            "server",
+            "request"
+          ],
+          "keywords_tr": [
+            "istemci",
+            "sunucu",
+            "istek"
+          ],
+          "min_words": 12,
+          "concept": "status-codes",
+          "tags": [
+            "http",
+            "status-codes",
+            "integer-division",
+            "dicts"
+          ]
+        }
+      ]
     },
     {
-     "id": "d28-b1-e3",
-     "type": "write",
-     "concept": "request-and-status-line",
-     "tags": [
-      "http",
-      "api",
-      "strings"
-     ],
-     "prompt": "Write parse_request_line(line). Return a dict with the keys 'method', 'path' and 'version' for a line such as 'GET /about HTTP/1.1'.",
-     "prompt_tr": "parse_request_line(line) yaz. 'GET /about HTTP/1.1' gibi bir satır için 'method', 'path' ve 'version' anahtarlarını içeren bir dict döndür.",
-     "starter_code": "",
-     "signature": "def parse_request_line(line):",
-     "tests": [
-      {
-       "code": "assert parse_request_line('GET / HTTP/1.1') == {'method': 'GET', 'path': '/', 'version': 'HTTP/1.1'}",
-       "visible": true,
-       "label_tr": "GET satırı doğru ayrıştırılıyor"
+      "id": "d28-b3",
+      "concept": "headers-and-body",
+      "concept_tr": "Başlıklar ve gövde",
+      "tags": [
+        "http",
+        "headers",
+        "strings",
+        "bytes",
+        "json"
+      ],
+      "worked_example": {
+        "code": "raw = 'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\nContent-Length: 6\\r\\n\\r\\nİzmir'\nhead, body = raw.split('\\r\\n\\r\\n', 1)\nlines = head.split('\\r\\n')\nheaders = {n.lower(): v for n, _, v in (l.partition(': ') for l in lines[1:])}\nprint(lines[0], headers)\nprint(len(body), len(body.encode('utf-8')) == int(headers['content-length']))",
+        "notes": [
+          "The blank line (`\\r\\n\\r\\n`) separates the head from the body; splitting once keeps any blank lines inside the body.",
+          "Header names are stored in lowercase because HTTP treats them case-insensitively.",
+          "Content-Length counts bytes: 'İzmir' is 5 characters but 6 bytes in UTF-8."
+        ],
+        "notes_tr": [
+          "Boş satır (`\\r\\n\\r\\n`) baş kısmı gövdeden ayırır; bir kez bölmek gövdenin içindeki boş satırları korur.",
+          "HTTP başlık adlarını büyük-küçük harfe duyarsız ele aldığı için adlar küçük harfle saklanır.",
+          "Content-Length bayt sayar: 'İzmir' 5 karakter ama UTF-8'de 6 bayttır."
+        ]
       },
-      {
-       "code": "assert parse_request_line('POST /post HTTP/1.1')['method'] == 'POST'",
-       "visible": true,
-       "label_tr": "POST yöntemi doğru bulunuyor"
-      },
-      {
-       "code": "assert parse_request_line('GET /search?q=python HTTP/1.0')['path'] == '/search?q=python'",
-       "visible": false,
-       "failure_message": "The path is the middle part, including any query string.",
-       "failure_message_tr": "Yol, sorgu dizesi (query string) dahil ortadaki parçadır."
-      },
-      {
-       "code": "assert parse_request_line('DELETE /api/v1.0/students/5 HTTP/1.1') == {'method': 'DELETE', 'path': '/api/v1.0/students/5', 'version': 'HTTP/1.1'}",
-       "visible": false,
-       "failure_message": "Return exactly the three keys method, path, version.",
-       "failure_message_tr": "Tam olarak method, path, version olmak üzere üç anahtar döndür."
-      }
-     ],
-     "hints": [
-      "The three parts are separated by single spaces.",
-      "method, path, version = line.split(' ') then build a dict.",
-      "Last step: split line on a space into three names, then return a dict whose keys 'method', 'path' and 'version' point to those names."
-     ],
-     "solution": {
-      "approach": "Split on spaces and name the three parts.",
-      "code": "def parse_request_line(line):\n    method, path, version = line.split(' ')\n    return {'method': method, 'path': path, 'version': version}",
-      "approach_tr": "Boşluklardan böl ve üç parçaya ad ver."
-     },
-     "twin": "d28-b1-e4",
-     "hints_tr": [
-      "Üç parça tek boşluklarla ayrılmış.",
-      "method, path, version = line.split(' ') yap, sonra bir dict kur.",
-      "Son adım: satırı boşluktan bölüp üç isme ata, sonra 'method', 'path' ve 'version' anahtarlarını bu isimlere bağlayan bir dict döndür."
-     ]
+      "exercises": [
+        {
+          "id": "d28-b3-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "body = 'Çay'\nprint(len(body), len(body.encode('utf-8')))",
+          "choices": [
+            "3 4",
+            "3 3",
+            "4 4",
+            "3 6"
+          ],
+          "expected_output": "3 4",
+          "explanation": "'Çay' has 3 characters. In UTF-8 'Ç' takes 2 bytes and 'a' and 'y' take 1 each, so 4 bytes. Content-Length would have to say 4.",
+          "explanation_tr": "'Çay' 3 karakterdir. UTF-8'de 'Ç' 2 bayt, 'a' ve 'y' 1'er bayt tutar; toplam 4 bayt. Content-Length 4 demeli.",
+          "misconceptions": {
+            "3 3": "Only ASCII letters are 1 byte in UTF-8; Turkish letters like Ç take 2.",
+            "4 4": "`len` of a string counts characters, and 'Çay' has three of them.",
+            "3 6": "Not every letter doubles: only Ç needs 2 bytes, a and y need 1."
+          },
+          "misconceptions_tr": {
+            "3 3": "UTF-8'de yalnızca ASCII harfler 1 bayttır; Ç gibi Türkçe harfler 2 bayt tutar.",
+            "4 4": "Bir string'in `len`'i karakter sayar ve 'Çay' üç karakterdir.",
+            "3 6": "Her harf iki katına çıkmaz: yalnızca Ç 2 bayt ister, a ve y 1 bayt."
+          },
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        },
+        {
+          "id": "d28-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the loop so it stores every header with a lowercase name.",
+          "prompt_tr": "Döngüyü tamamla: her başlığı küçük harfli adla saklasın.",
+          "starter_code": "lines = ['Content-Type: application/json', 'X-Request-ID: abc:123']\nheaders = {}\nfor line in lines:\n    name, _, value = line.___(': ')\n    headers[name.___()] = value",
+          "blanks": [
+            {
+              "answer": [
+                "partition"
+              ]
+            },
+            {
+              "answer": [
+                "lower"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert headers == {'content-type': 'application/json', 'x-request-id': 'abc:123'}",
+              "visible": true,
+              "label": "Names lowercased, values intact",
+              "label_tr": "Adlar küçük harf, değerler sağlam"
+            }
+          ],
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        },
+        {
+          "id": "d28-b3-e3",
+          "type": "modify",
+          "prompt": "`parse_headers(lines)` keeps names as they arrive and crashes on a line without ': '. Change it so names are lowercased, values have surrounding spaces stripped, and lines without a ':' are skipped.",
+          "prompt_tr": "`parse_headers(lines)` adları geldiği gibi tutuyor ve ': ' içermeyen bir satırda çöküyor. Onu değiştir: adlar küçük harfe çevrilsin, değerlerin çevresindeki boşluklar silinsin ve ':' içermeyen satırlar atlansın.",
+          "starter_code": "def parse_headers(lines):\n    headers = {}\n    for line in lines:\n        name, value = line.split(': ')\n        headers[name] = value\n    return headers",
+          "tests": [
+            {
+              "code": "assert parse_headers(['Content-Type: text/html']) == {'content-type': 'text/html'}",
+              "visible": true,
+              "label": "Lowercase name",
+              "label_tr": "Küçük harfli ad"
+            },
+            {
+              "code": "assert parse_headers(['garbage', 'Host: a.com']) == {'host': 'a.com'}",
+              "visible": true,
+              "label": "A line without ':' is skipped",
+              "label_tr": "':' içermeyen satır atlanıyor"
+            },
+            {
+              "code": "assert parse_headers(['Referer: https://x.io/a']) == {'referer': 'https://x.io/a'}",
+              "visible": false,
+              "failure_message": "Split only at the first ':' (partition does that); the value may contain more colons.",
+              "failure_message_tr": "Yalnızca ilk ':' işaretinden böl (partition bunu yapar); değer başka iki nokta da içerebilir."
+            },
+            {
+              "code": "assert parse_headers(['X-Mode:fast', 'Accept:   text/plain  ']) == {'x-mode': 'fast', 'accept': 'text/plain'}",
+              "visible": false,
+              "failure_message": "Some senders omit the space after ':'; split at ':' and strip the value.",
+              "failure_message_tr": "Bazı göndericiler ':' işaretinden sonra boşluk bırakmaz; ':' işaretinden böl ve değeri strip ile temizle."
+            }
+          ],
+          "hints": [
+            "`split(': ')` fails for values with extra colons and for lines without the separator. `partition(':')` never fails.",
+            "`name, sep, value = line.partition(':')`; if `sep` is empty the line had no colon.",
+            "Skip the line with `continue` when the separator is missing; otherwise store `name.strip().lower()` mapped to `value.strip()`."
+          ],
+          "hints_tr": [
+            "`split(': ')` fazladan iki nokta içeren değerlerde ve ayırıcısı olmayan satırlarda başarısız olur. `partition(':')` asla başarısız olmaz.",
+            "`name, sep, value = line.partition(':')`; `sep` boşsa satırda iki nokta yoktu.",
+            "Ayırıcı yoksa satırı `continue` ile atla; değilse `name.strip().lower()` anahtarını `value.strip()` değerine eşle."
+          ],
+          "solution": {
+            "approach": "Partition at the first ':', skip lines without it, and store the lowercased name with the stripped value.",
+            "approach_tr": "İlk ':' işaretinden partition ile böl, onsuz satırları atla, küçük harfli adı temizlenmiş değerle sakla.",
+            "code": "def parse_headers(lines):\n    headers = {}\n    for line in lines:\n        name, sep, value = line.partition(':')\n        if not sep:\n            continue\n        headers[name.strip().lower()] = value.strip()\n    return headers"
+          },
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        },
+        {
+          "id": "d28-b3-e4",
+          "type": "debug",
+          "prompt": "`response_head(body)` builds the head of a response. For the body 'İzmir' the client cuts off the last byte, because Content-Length is wrong. The program should print `Content-Length: 6`. Fix it.",
+          "prompt_tr": "`response_head(body)` bir yanıtın baş kısmını kuruyor. 'İzmir' gövdesinde istemci son baytı kesiyor, çünkü Content-Length yanlış. Program `Content-Length: 6` yazdırmalı. Düzelt.",
+          "starter_code": "def response_head(body):\n    return f'Content-Length: {len(body)}'\n\nprint(response_head('İzmir'))",
+          "tests": [
+            {
+              "code": "assert response_head('abc') == 'Content-Length: 3' and response_head('ğüşıöç') == 'Content-Length: 12'",
+              "visible": true,
+              "label": "ASCII and Turkish letters",
+              "label_tr": "ASCII ve Türkçe harfler"
+            }
+          ],
+          "hints": [
+            "What unit does Content-Length use, and what unit does `len` of a string count?",
+            "Content-Length counts bytes; `len(body)` counts characters, and 'İ' is two bytes in UTF-8.",
+            "Measure the length of the body after converting it to bytes with the `encode` method and the 'utf-8' encoding."
+          ],
+          "hints_tr": [
+            "Content-Length hangi birimi kullanır ve bir string'in `len`'i hangi birimi sayar?",
+            "Content-Length bayt sayar; `len(body)` karakter sayar ve 'İ' UTF-8'de iki bayttır.",
+            "Gövdenin uzunluğunu, onu `encode` metodu ve 'utf-8' kodlamasıyla bayta çevirdikten sonra ölç."
+          ],
+          "solution": {
+            "approach": "Count bytes, not characters: len(body.encode('utf-8')).",
+            "approach_tr": "Karakter değil bayt say: len(body.encode('utf-8')).",
+            "code": "def response_head(body):\n    return f'Content-Length: {len(body.encode(\"utf-8\"))}'\n\nprint(response_head('İzmir'))"
+          },
+          "expected_output": "Content-Length: 6",
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        },
+        {
+          "id": "d28-b3-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "raw = 'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\n\\r\\nline1\\r\\n\\r\\nline2'\nprint(len(raw.split('\\r\\n\\r\\n')), len(raw.split('\\r\\n\\r\\n', 1)))",
+          "choices": [
+            "3 2",
+            "2 2",
+            "3 3",
+            "2 1"
+          ],
+          "expected_output": "3 2",
+          "explanation": "The body itself contains a blank line, so a plain split cuts the message into 3 pieces. With a limit of one cut you get exactly head and body: 2 pieces. That is why parsers split only once.",
+          "explanation_tr": "Gövdenin kendisi de boş bir satır içeriyor; düz bir split mesajı 3 parçaya böler. Tek kesimle sınırlarsan tam olarak baş ve gövde elde edersin: 2 parça. Ayrıştırıcıların yalnızca bir kez bölmesinin nedeni budur.",
+          "misconceptions": {
+            "2 2": "Without a limit, split cuts at every blank line, including the one inside the body.",
+            "3 3": "The second argument 1 allows only one cut, so at most two pieces.",
+            "2 1": "One cut always gives two pieces when the separator exists."
+          },
+          "misconceptions_tr": {
+            "2 2": "Sınır olmadan split, gövdenin içindeki dahil her boş satırdan keser.",
+            "3 3": "İkinci argüman 1 yalnızca bir kesime izin verir; en fazla iki parça olur.",
+            "2 1": "Ayırıcı varsa tek kesim her zaman iki parça verir."
+          },
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        },
+        {
+          "id": "d28-b3-e6",
+          "type": "write",
+          "prompt": "Write `parse_message(raw)` for an HTTP message whose lines end with '\\r\\n'. Return a tuple `(start_line, headers, body)`: `headers` is a dict with lowercase names and the values as written after ': ', and `body` is everything after the first blank line ('' if there is no body). Example: `parse_message('GET / HTTP/1.1\\r\\nHost: a.com\\r\\n\\r\\n')` returns `('GET / HTTP/1.1', {'host': 'a.com'}, '')`.",
+          "prompt_tr": "Satırları '\\r\\n' ile biten bir HTTP mesajı için `parse_message(raw)` yaz. `(start_line, headers, body)` tuple'ını döndür: `headers` küçük harfli adlar ve ': ' işaretinden sonra yazıldığı gibi değerler içeren bir dict; `body` ilk boş satırdan sonraki her şey (gövde yoksa ''). Örnek: `parse_message('GET / HTTP/1.1\\r\\nHost: a.com\\r\\n\\r\\n')` `('GET / HTTP/1.1', {'host': 'a.com'}, '')` döndürür.",
+          "starter_code": "",
+          "signature": "def parse_message(raw):",
+          "tests": [
+            {
+              "code": "assert parse_message('GET / HTTP/1.1\\r\\nHost: a.com\\r\\n\\r\\n') == ('GET / HTTP/1.1', {'host': 'a.com'}, '')",
+              "visible": true,
+              "label": "A request without a body",
+              "label_tr": "Gövdesiz bir istek"
+            },
+            {
+              "code": "assert parse_message('HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\n\\r\\nhi')[2] == 'hi'",
+              "visible": true,
+              "label": "A response with a body",
+              "label_tr": "Gövdeli bir yanıt"
+            },
+            {
+              "code": "s, h, b = parse_message('HTTP/1.1 200 OK\\r\\nX-A: 1\\r\\nX-B: 2\\r\\n\\r\\na\\r\\n\\r\\nb')\nassert h == {'x-a': '1', 'x-b': '2'} and b == 'a\\r\\n\\r\\nb'",
+              "visible": false,
+              "failure_message": "Split only at the first blank line; the body may contain blank lines of its own.",
+              "failure_message_tr": "Yalnızca ilk boş satırdan böl; gövdenin kendi boş satırları olabilir."
+            },
+            {
+              "code": "assert parse_message('HTTP/1.1 204 No Content\\r\\n\\r\\n') == ('HTTP/1.1 204 No Content', {}, '')",
+              "visible": false,
+              "failure_message": "A message with no headers gives an empty dict.",
+              "failure_message_tr": "Başlığı olmayan bir mesaj boş bir dict verir."
+            }
+          ],
+          "hints": [
+            "First cut the message into head and body at the first '\\r\\n\\r\\n', then cut the head into lines.",
+            "`raw.split('\\r\\n\\r\\n', 1)`; the first head line is the start line, the others are headers you can split with `partition(': ')`.",
+            "Unpack the two pieces, split the head on '\\r\\n', build the headers dict from all lines after the first, and return the three values as a tuple."
+          ],
+          "hints_tr": [
+            "Önce mesajı ilk '\\r\\n\\r\\n' noktasından baş ve gövde diye kes, sonra baş kısmını satırlara böl.",
+            "`raw.split('\\r\\n\\r\\n', 1)`; baş kısmının ilk satırı başlangıç satırıdır, diğerleri `partition(': ')` ile bölebileceğin başlıklardır.",
+            "İki parçayı aç, baş kısmını '\\r\\n' ile böl, ilk satırdan sonraki tüm satırlardan headers dict'ini kur ve üç değeri bir tuple olarak döndür."
+          ],
+          "solution": {
+            "approach": "Split once at the blank line, take the first head line as the start line and parse the rest as headers.",
+            "approach_tr": "Boş satırdan bir kez böl, baş kısmının ilk satırını başlangıç satırı olarak al ve kalanını başlık olarak ayrıştır.",
+            "code": "def parse_message(raw):\n    head, body = raw.split('\\r\\n\\r\\n', 1)\n    lines = head.split('\\r\\n')\n    headers = {}\n    for line in lines[1:]:\n        name, _, value = line.partition(': ')\n        headers[name.lower()] = value\n    return lines[0], headers, body"
+          },
+          "twin": "d28-b3-e7",
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        },
+        {
+          "id": "d28-b3-e7",
+          "type": "write",
+          "prompt": "Write `build_response(code, body, content_type)` that returns a full HTTP/1.1 response as one string: the status line `HTTP/1.1 <code> <reason>` (reason from `http.HTTPStatus`), then `Content-Type: <content_type>`, then `Content-Length: <bytes of body in UTF-8>`, then an empty line, then the body; lines joined with '\\r\\n'. Example: `build_response(200, 'hi', 'text/plain')` returns `'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\nContent-Length: 2\\r\\n\\r\\nhi'`.",
+          "prompt_tr": "Tam bir HTTP/1.1 yanıtını tek bir string olarak döndüren `build_response(code, body, content_type)` yaz: durum satırı `HTTP/1.1 <kod> <açıklama>` (açıklama `http.HTTPStatus`'tan), sonra `Content-Type: <content_type>`, sonra `Content-Length: <gövdenin UTF-8 bayt sayısı>`, sonra boş bir satır, sonra gövde; satırlar '\\r\\n' ile birleşsin. Örnek: `build_response(200, 'hi', 'text/plain')` `'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\nContent-Length: 2\\r\\n\\r\\nhi'` döndürür.",
+          "starter_code": "",
+          "signature": "def build_response(code, body, content_type):",
+          "tests": [
+            {
+              "code": "assert build_response(200, 'hi', 'text/plain') == 'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\nContent-Length: 2\\r\\n\\r\\nhi'",
+              "visible": true,
+              "label": "A small text response",
+              "label_tr": "Küçük bir metin yanıtı"
+            },
+            {
+              "code": "assert build_response(404, '', 'text/plain').startswith('HTTP/1.1 404 Not Found\\r\\n')",
+              "visible": true,
+              "label": "The reason comes from HTTPStatus",
+              "label_tr": "Açıklama HTTPStatus'tan geliyor"
+            },
+            {
+              "code": "assert 'Content-Length: 6\\r\\n' in build_response(201, 'İzmir', 'text/plain')",
+              "visible": false,
+              "failure_message": "Content-Length must count UTF-8 bytes: 'İzmir' is 6 bytes.",
+              "failure_message_tr": "Content-Length UTF-8 baytlarını saymalı: 'İzmir' 6 bayttır."
+            },
+            {
+              "code": "r = build_response(500, '{\"ok\": false}', 'application/json')\nassert r.split('\\r\\n') == ['HTTP/1.1 500 Internal Server Error', 'Content-Type: application/json', 'Content-Length: 13', '', '{\"ok\": false}']",
+              "visible": false,
+              "failure_message": "Keep the exact order: status line, Content-Type, Content-Length, empty line, body.",
+              "failure_message_tr": "Sırayı tam koru: durum satırı, Content-Type, Content-Length, boş satır, gövde."
+            }
+          ],
+          "hints": [
+            "Make a list of the five lines (the fourth is an empty string) and join it with '\\r\\n'.",
+            "`HTTPStatus(code).phrase` gives the reason; `len(body.encode('utf-8'))` gives the byte length.",
+            "Import HTTPStatus, build each line with an f-string, put the empty string and the body at the end of the list, and return the joined text."
+          ],
+          "hints_tr": [
+            "Beş satırdan bir list kur (dördüncüsü boş bir string) ve '\\r\\n' ile birleştir.",
+            "`HTTPStatus(code).phrase` açıklamayı, `len(body.encode('utf-8'))` bayt uzunluğunu verir.",
+            "HTTPStatus'u içe aktar, her satırı bir f-string ile kur, boş string'i ve gövdeyi list'in sonuna koy ve birleşmiş metni döndür."
+          ],
+          "solution": {
+            "approach": "Build the status line with HTTPStatus, compute the byte length, and join the lines with CRLF.",
+            "approach_tr": "Durum satırını HTTPStatus ile kur, bayt uzunluğunu hesapla ve satırları CRLF ile birleştir.",
+            "code": "from http import HTTPStatus\n\ndef build_response(code, body, content_type):\n    lines = [f'HTTP/1.1 {code} {HTTPStatus(code).phrase}',\n             f'Content-Type: {content_type}',\n             f'Content-Length: {len(body.encode(\"utf-8\"))}',\n             '', body]\n    return '\\r\\n'.join(lines)"
+          },
+          "twin": "d28-b3-e6",
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        },
+        {
+          "id": "d28-b3-e8",
+          "type": "explain",
+          "prompt": "Why must Content-Length be computed from the encoded bytes of the body and not with `len(body)`?",
+          "prompt_tr": "Content-Length neden `len(body)` ile değil, gövdenin kodlanmış baytlarından hesaplanmalıdır?",
+          "model_answer": "Content-Length tells the client how many bytes to read, because bytes, not characters, travel over the network. In UTF-8 letters like ş or İ take two bytes, so len(body) counts too few for Turkish text and the client would cut off the end of the body. len(body.encode('utf-8')) gives the real byte count.",
+          "model_answer_tr": "Content-Length istemciye kaç bayt okuyacağını söyler, çünkü ağdan karakter değil bayt geçer. UTF-8'de ş ya da İ gibi harfler iki bayt tutar; bu yüzden len(body) Türkçe metin için eksik sayar ve istemci gövdenin sonunu keser. Gerçek bayt sayısını len(body.encode('utf-8')) verir.",
+          "keywords": [
+            "bytes",
+            "utf-8",
+            "cut"
+          ],
+          "keywords_tr": [
+            "bayt",
+            "utf-8",
+            "kes"
+          ],
+          "min_words": 12,
+          "concept": "headers-and-body",
+          "tags": [
+            "http",
+            "headers",
+            "strings",
+            "bytes",
+            "json"
+          ]
+        }
+      ]
     },
     {
-     "id": "d28-b1-e4",
-     "type": "write",
-     "concept": "request-and-status-line",
-     "tags": [
-      "http",
-      "api",
-      "strings"
-     ],
-     "prompt": "Write parse_status_line(line). Return a dict with 'version', 'code' (an int) and 'reason' for a line such as 'HTTP/1.1 404 Not Found'. The reason can contain spaces.",
-     "prompt_tr": "parse_status_line(line) yaz. 'HTTP/1.1 404 Not Found' gibi bir satır için 'version', 'code' (int) ve 'reason' içeren bir dict döndür. Açıklama boşluk içerebilir.",
-     "starter_code": "",
-     "signature": "def parse_status_line(line):",
-     "tests": [
-      {
-       "code": "assert parse_status_line('HTTP/1.1 200 OK') == {'version': 'HTTP/1.1', 'code': 200, 'reason': 'OK'}",
-       "visible": true,
-       "label_tr": "200 OK satırı doğru ayrıştırılıyor"
+      "id": "d28-b4",
+      "concept": "methods-crud-json",
+      "concept_tr": "Metotlar, CRUD ve JSON",
+      "tags": [
+        "http",
+        "methods",
+        "crud",
+        "json",
+        "idempotency"
+      ],
+      "worked_example": {
+        "code": "import json\nCRUD = {'POST': 'create', 'GET': 'read', 'PUT': 'update', 'PATCH': 'update', 'DELETE': 'delete'}\nrequest = {'method': 'post', 'body': '{\"name\": \"Ayşe\", \"city\": \"İzmir\"}'}\naction = CRUD[request['method'].upper()]\ndata = json.loads(request['body'])\nprint(action, data['name'], json.dumps(data, ensure_ascii=False))",
+        "notes": [
+          "Every method maps to one CRUD action; uppercasing first makes 'post' and 'POST' the same.",
+          "A JSON body is text; `json.loads` turns it into a dict you can index.",
+          "`ensure_ascii=False` keeps Turkish letters readable when you turn the dict back into JSON."
+        ],
+        "notes_tr": [
+          "Her metot bir CRUD işlemine karşılık gelir; önce büyük harfe çevirmek 'post' ile 'POST'u aynı yapar.",
+          "JSON gövde bir metindir; `json.loads` onu indeksleyebileceğin bir dict'e çevirir.",
+          "`ensure_ascii=False`, dict'i yeniden JSON'a çevirirken Türkçe harfleri okunur tutar."
+        ]
       },
-      {
-       "code": "assert parse_status_line('HTTP/1.0 404 Not Found')['code'] == 404",
-       "visible": true,
-       "label_tr": "404 kodu sayı olarak okunuyor"
-      },
-      {
-       "code": "assert parse_status_line('HTTP/1.1 404 Not Found')['reason'] == 'Not Found'",
-       "visible": false,
-       "failure_message": "The reason may contain spaces. Use split(' ', 2) so everything after the code stays together.",
-       "failure_message_tr": "Açıklama boşluk içerebilir. Koddan sonrası bir arada kalsın diye split(' ', 2) kullan."
-      },
-      {
-       "code": "assert isinstance(parse_status_line('HTTP/1.1 500 Internal Server Error')['code'], int)",
-       "visible": false,
-       "failure_message": "The code must be an int, not a string.",
-       "failure_message_tr": "Kod metin değil, int olmalı."
-      }
-     ],
-     "hints": [
-      "Only the first two spaces separate fields.",
-      "line.split(' ', 2) gives version, code, reason; convert code with int().",
-      "Last step: split with a maximum of 2 cuts into three names, then return a dict where the code value is converted with int."
-     ],
-     "solution": {
-      "approach": "Split at most twice and convert the code to int.",
-      "code": "def parse_status_line(line):\n    version, code, reason = line.split(' ', 2)\n    return {'version': version, 'code': int(code), 'reason': reason}",
-      "approach_tr": "En fazla iki kez böl ve kodu int'e çevir."
-     },
-     "twin": "d28-b1-e3",
-     "hints_tr": [
-      "Yalnızca ilk iki boşluk alanları ayırır.",
-      "line.split(' ', 2) version, code, reason verir; code'u int() ile çevir.",
-      "Son adım: en fazla 2 kesimle üç isme böl, sonra code değeri int ile çevrilmiş bir dict döndür."
-     ]
+      "exercises": [
+        {
+          "id": "d28-b4-e1",
+          "type": "predict",
+          "prompt": "What does this code print? (Each loop turn is one repeated request.)",
+          "prompt_tr": "Bu kod ne yazdırır? (Her döngü turu tekrarlanan bir istektir.)",
+          "code": "posts = []\nstore = {}\nfor attempt in range(3):\n    posts.append({'name': 'Ece'})\n    store[5] = {'name': 'Ece'}\nprint(len(posts), len(store))",
+          "choices": [
+            "3 1",
+            "3 3",
+            "1 1",
+            "1 3"
+          ],
+          "expected_output": "3 1",
+          "explanation": "The append is like a POST: every repeat creates a new record. Writing to key 5 is like a PUT: repeating it leaves one record with the same content. PUT is idempotent, POST is not.",
+          "explanation_tr": "append bir POST gibidir: her tekrar yeni bir kayıt oluşturur. 5 anahtarına yazmak bir PUT gibidir: tekrarlamak aynı içerikli tek bir kayıt bırakır. PUT idempotenttir, POST değildir.",
+          "misconceptions": {
+            "3 3": "Assigning to the same key three times replaces the value; the dict still has one key.",
+            "1 1": "append adds a new item on every turn, so the list grows to 3.",
+            "1 3": "It is the other way round: the list grows, the dict keeps one key."
+          },
+          "misconceptions_tr": {
+            "3 3": "Aynı anahtara üç kez atamak değeri değiştirir; dict'te yine tek bir anahtar vardır.",
+            "1 1": "append her turda yeni bir öğe ekler; list 3'e büyür.",
+            "1 3": "Tam tersi: list büyür, dict tek anahtarı tutar."
+          },
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        },
+        {
+          "id": "d28-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the code: decode the JSON request body, change the city, and encode it back keeping Turkish letters.",
+          "prompt_tr": "Kodu tamamla: JSON istek gövdesini çöz, şehri değiştir ve Türkçe harfleri koruyarak yeniden kodla.",
+          "starter_code": "import json\n\nbody = '{\"name\": \"Ayşe\", \"city\": \"Bursa\"}'\ndata = json.___(body)\ndata['city'] = 'İzmir'\nresult = json.dumps(data, ensure_ascii=___)",
+          "blanks": [
+            {
+              "answer": [
+                "loads"
+              ]
+            },
+            {
+              "answer": [
+                "False"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert result == '{\"name\": \"Ayşe\", \"city\": \"İzmir\"}'",
+              "visible": true,
+              "label": "Readable JSON with the new city",
+              "label_tr": "Yeni şehirle okunur JSON"
+            }
+          ],
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        },
+        {
+          "id": "d28-b4-e3",
+          "type": "modify",
+          "prompt": "`handle(store, method, key, value=None)` supports GET and POST on a dict `store`. Add PUT (replace the value of an existing key, 200; 404 if the key is missing) and DELETE (remove an existing key, 204; 404 if missing). Unknown methods return 405. Every call returns a status code (GET returns a tuple, as now).",
+          "prompt_tr": "`handle(store, method, key, value=None)` bir `store` dict'i üzerinde GET ve POST'u destekliyor. PUT (var olan bir anahtarın değerini değiştir, 200; anahtar yoksa 404) ve DELETE (var olan anahtarı sil, 204; yoksa 404) ekle. Bilinmeyen metotlar 405 döndürsün. Her çağrı bir durum kodu döndürür (GET şimdiki gibi bir tuple döndürür).",
+          "starter_code": "def handle(store, method, key, value=None):\n    if method == 'GET':\n        if key in store:\n            return 200, store[key]\n        return 404, None\n    if method == 'POST':\n        store[key] = value\n        return 201",
+          "tests": [
+            {
+              "code": "s = {1: 'Ece'}\nassert handle(s, 'PUT', 1, 'Can') == 200 and s == {1: 'Can'}",
+              "visible": true,
+              "label": "PUT replaces an existing value",
+              "label_tr": "PUT var olan değeri değiştiriyor"
+            },
+            {
+              "code": "assert handle(s, 'DELETE', 1) == 204 and s == {}",
+              "visible": true,
+              "label": "DELETE removes",
+              "label_tr": "DELETE siliyor"
+            },
+            {
+              "code": "s = {}\nassert handle(s, 'PUT', 9, 'x') == 404 and handle(s, 'DELETE', 9) == 404 and s == {}",
+              "visible": false,
+              "failure_message": "PUT and DELETE on a missing key return 404 and change nothing.",
+              "failure_message_tr": "Olmayan bir anahtarda PUT ve DELETE 404 döndürür ve hiçbir şeyi değiştirmez."
+            },
+            {
+              "code": "assert handle({}, 'PATCH', 1) == 405 and handle({}, 'OPTIONS', 1) == 405",
+              "visible": false,
+              "failure_message": "Any method you do not handle must return 405, never None.",
+              "failure_message_tr": "Ele almadığın her metot None değil 405 döndürmeli."
+            },
+            {
+              "code": "s = {}\nassert handle(s, 'POST', 2, 'Ali') == 201 and handle(s, 'GET', 2) == (200, 'Ali')",
+              "visible": false,
+              "failure_message": "Keep POST and GET working as before.",
+              "failure_message_tr": "POST ve GET eskisi gibi çalışmaya devam etmeli."
+            }
+          ],
+          "hints": [
+            "Add two more `if method == ...` branches, each checking `key in store` first.",
+            "PUT assigns and returns 200; DELETE uses `del store[key]` and returns 204; both return 404 when the key is missing.",
+            "After the two new branches, end the function with a line that returns 405 for every other method."
+          ],
+          "hints_tr": [
+            "İki `if method == ...` dalı daha ekle; ikisi de önce `key in store` kontrolü yapsın.",
+            "PUT atar ve 200 döndürür; DELETE `del store[key]` kullanır ve 204 döndürür; anahtar yoksa ikisi de 404 döndürür.",
+            "İki yeni daldan sonra fonksiyonu, diğer her metot için 405 döndüren bir satırla bitir."
+          ],
+          "solution": {
+            "approach": "Add PUT and DELETE branches that check the key first, and return 405 for anything else.",
+            "approach_tr": "Önce anahtarı kontrol eden PUT ve DELETE dalları ekle ve diğer her şey için 405 döndür.",
+            "code": "def handle(store, method, key, value=None):\n    if method == 'GET':\n        if key in store:\n            return 200, store[key]\n        return 404, None\n    if method == 'POST':\n        store[key] = value\n        return 201\n    if method == 'PUT':\n        if key not in store:\n            return 404\n        store[key] = value\n        return 200\n    if method == 'DELETE':\n        if key not in store:\n            return 404\n        del store[key]\n        return 204\n    return 405"
+          },
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        },
+        {
+          "id": "d28-b4-e4",
+          "type": "debug",
+          "prompt": "The client sends a dict as the body, but the server's `json.loads` fails with `JSONDecodeError: Expecting property name enclosed in double quotes`. The program should print `Ayşe`. Fix how the body is made.",
+          "prompt_tr": "İstemci gövde olarak bir dict gönderiyor ama sunucudaki `json.loads` `JSONDecodeError: Expecting property name enclosed in double quotes` ile başarısız oluyor. Program `Ayşe` yazdırmalı. Gövdenin kuruluşunu düzelt.",
+          "starter_code": "import json\n\nstudent = {'name': 'Ayşe', 'active': True}\nbody = str(student)\ndata = json.loads(body)\nprint(data['name'])",
+          "tests": [
+            {
+              "code": "assert json.loads(body) == student",
+              "visible": true,
+              "label": "The body is valid JSON",
+              "label_tr": "Gövde geçerli JSON"
+            }
+          ],
+          "hints": [
+            "Print `body`: what quotes does `str` of a dict use, and what does JSON require?",
+            "`str(student)` gives Python syntax (single quotes, True); JSON needs double quotes and true.",
+            "Make the body with the `json` module's function that turns a Python object into JSON text, instead of `str`."
+          ],
+          "hints_tr": [
+            "`body`'yi yazdır: bir dict'in `str`'si hangi tırnakları kullanıyor ve JSON ne istiyor?",
+            "`str(student)` Python sözdizimi verir (tek tırnak, True); JSON çift tırnak ve true ister.",
+            "Gövdeyi `str` yerine, `json` modülünde bir Python nesnesini JSON metnine çeviren fonksiyonla kur."
+          ],
+          "solution": {
+            "approach": "Use json.dumps to make JSON text; str() produces Python syntax, not JSON.",
+            "approach_tr": "JSON metni üretmek için json.dumps kullan; str() JSON değil Python sözdizimi üretir.",
+            "code": "import json\n\nstudent = {'name': 'Ayşe', 'active': True}\nbody = json.dumps(student)\ndata = json.loads(body)\nprint(data['name'])"
+          },
+          "expected_output": "Ayşe",
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        },
+        {
+          "id": "d28-b4-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\nprint(json.dumps({'name': 'Ayşe', 'ok': True, 'x': None}))",
+          "choices": [
+            "{\"name\": \"Ay\\u015fe\", \"ok\": true, \"x\": null}",
+            "{\"name\": \"Ayşe\", \"ok\": true, \"x\": null}",
+            "{'name': 'Ayşe', 'ok': True, 'x': None}",
+            "{\"name\": \"Ayşe\", \"ok\": True, \"x\": None}"
+          ],
+          "expected_output": "{\"name\": \"Ay\\u015fe\", \"ok\": true, \"x\": null}",
+          "explanation": "`json.dumps` writes JSON: double quotes, true, null. By default it also escapes every non-ASCII character, so ş becomes \\u015f. `ensure_ascii=False` would keep 'Ayşe'.",
+          "explanation_tr": "`json.dumps` JSON yazar: çift tırnak, true, null. Varsayılan olarak ASCII dışındaki her karakteri de kaçışlar; ş, \\u015f olur. `ensure_ascii=False` 'Ayşe'yi korurdu.",
+          "misconceptions": {
+            "{\"name\": \"Ayşe\", \"ok\": true, \"x\": null}": "That needs `ensure_ascii=False`; by default non-ASCII letters are escaped.",
+            "{'name': 'Ayşe', 'ok': True, 'x': None}": "That is `str()` of the dict, Python syntax; dumps writes JSON.",
+            "{\"name\": \"Ayşe\", \"ok\": True, \"x\": None}": "JSON spells the values true and null in lowercase."
+          },
+          "misconceptions_tr": {
+            "{\"name\": \"Ayşe\", \"ok\": true, \"x\": null}": "Bunun için `ensure_ascii=False` gerekir; varsayılan olarak ASCII dışı harfler kaçışlanır.",
+            "{'name': 'Ayşe', 'ok': True, 'x': None}": "Bu dict'in `str()` hali, yani Python sözdizimi; dumps JSON yazar.",
+            "{\"name\": \"Ayşe\", \"ok\": True, \"x\": None}": "JSON bu değerleri küçük harfle true ve null diye yazar."
+          },
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        },
+        {
+          "id": "d28-b4-e6",
+          "type": "write",
+          "prompt": "Write `crud_action(method)` that returns 'create' for POST, 'read' for GET, 'update' for PUT and PATCH, and 'delete' for DELETE. The method may be in any letter case. For any other method raise `ValueError`. Example: `crud_action('patch')` returns 'update'.",
+          "prompt_tr": "POST için 'create', GET için 'read', PUT ve PATCH için 'update', DELETE için 'delete' döndüren `crud_action(method)` yaz. Metot herhangi bir harf büyüklüğünde gelebilir. Başka her metot için `ValueError` fırlat. Örnek: `crud_action('patch')` 'update' döndürür.",
+          "starter_code": "",
+          "signature": "def crud_action(method):",
+          "tests": [
+            {
+              "code": "assert crud_action('patch') == 'update'",
+              "visible": true,
+              "label": "Lowercase PATCH",
+              "label_tr": "Küçük harfli PATCH"
+            },
+            {
+              "code": "assert crud_action('GET') == 'read' and crud_action('Post') == 'create'",
+              "visible": true,
+              "label": "Mixed case",
+              "label_tr": "Karışık harfler"
+            },
+            {
+              "code": "assert crud_action('DELETE') == 'delete' and crud_action('put') == 'update'",
+              "visible": false,
+              "failure_message": "Cover all five methods.",
+              "failure_message_tr": "Beş metodun hepsini kapsa."
+            },
+            {
+              "code": "try:\n    crud_action('OPTIONS')\n    ok = False\nexcept ValueError:\n    ok = True\nassert ok",
+              "visible": false,
+              "failure_message": "An unknown method must raise ValueError, not return None.",
+              "failure_message_tr": "Bilinmeyen bir metot None döndürmemeli, ValueError fırlatmalı."
+            }
+          ],
+          "hints": [
+            "A dict from method name to action is shorter than five `if`s.",
+            "Normalise with `method.upper()` before looking it up; check `in` the dict before indexing.",
+            "Build the mapping dict, uppercase the argument, raise ValueError when it is not a key, otherwise return the mapped action."
+          ],
+          "hints_tr": [
+            "Metot adından işleme giden bir dict, beş `if`'ten daha kısadır.",
+            "Aramadan önce `method.upper()` ile normalleştir; indekslemeden önce dict'te `in` ile kontrol et.",
+            "Eşleme dict'ini kur, argümanı büyük harfe çevir, anahtar değilse ValueError fırlat, değilse eşlenen işlemi döndür."
+          ],
+          "solution": {
+            "approach": "Look the uppercased method up in a dict and raise ValueError when it is missing.",
+            "approach_tr": "Büyük harfe çevrilmiş metodu bir dict'te ara ve yoksa ValueError fırlat.",
+            "code": "def crud_action(method):\n    actions = {'POST': 'create', 'GET': 'read', 'PUT': 'update',\n               'PATCH': 'update', 'DELETE': 'delete'}\n    key = method.upper()\n    if key not in actions:\n        raise ValueError(f'unknown method {method}')\n    return actions[key]"
+          },
+          "twin": "d28-b4-e7",
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        },
+        {
+          "id": "d28-b4-e7",
+          "type": "write",
+          "prompt": "Write `json_response(data, status=200)` that returns a dict with three keys: 'status' (the number), 'headers' (a dict with 'Content-Type': 'application/json' and 'Content-Length': the byte length of the body as a string) and 'body' (the JSON text of `data` made with `ensure_ascii=False`). Example: `json_response({'ok': True})['body']` is `'{\"ok\": true}'`.",
+          "prompt_tr": "Üç anahtarlı bir dict döndüren `json_response(data, status=200)` yaz: 'status' (sayı), 'headers' ('Content-Type': 'application/json' ve 'Content-Length': gövdenin bayt uzunluğu string olarak içeren bir dict) ve 'body' (`data`'nın `ensure_ascii=False` ile üretilmiş JSON metni). Örnek: `json_response({'ok': True})['body']` `'{\"ok\": true}'`dur.",
+          "starter_code": "",
+          "signature": "def json_response(data, status=200):",
+          "tests": [
+            {
+              "code": "assert json_response({'ok': True}) == {'status': 200, 'headers': {'Content-Type': 'application/json', 'Content-Length': '12'}, 'body': '{\"ok\": true}'}",
+              "visible": true,
+              "label": "A full small response",
+              "label_tr": "Küçük ama tam bir yanıt"
+            },
+            {
+              "code": "assert json_response([], 201)['status'] == 201",
+              "visible": true,
+              "label": "A custom status",
+              "label_tr": "Özel bir durum kodu"
+            },
+            {
+              "code": "r = json_response({'city': 'İzmir'})\nassert r['body'] == '{\"city\": \"İzmir\"}' and r['headers']['Content-Length'] == '18'",
+              "visible": false,
+              "failure_message": "Keep Turkish letters with ensure_ascii=False and count the bytes, not the characters.",
+              "failure_message_tr": "Türkçe harfleri ensure_ascii=False ile koru ve karakterleri değil baytları say."
+            },
+            {
+              "code": "r = json_response(None, 404)\nassert r['body'] == 'null' and r['headers']['Content-Length'] == '4' and isinstance(r['headers']['Content-Length'], str)",
+              "visible": false,
+              "failure_message": "Any JSON value works, None becomes null; header values are strings.",
+              "failure_message_tr": "Her JSON değeri çalışır, None null olur; başlık değerleri string'dir."
+            }
+          ],
+          "hints": [
+            "Make the body first, because the Content-Length depends on it.",
+            "`json.dumps(data, ensure_ascii=False)` gives the body; `str(len(body.encode('utf-8')))` gives the header value.",
+            "Import json, compute the body and its byte length, and return a dict literal with the status, a headers dict and the body."
+          ],
+          "hints_tr": [
+            "Önce gövdeyi üret, çünkü Content-Length ona bağlıdır.",
+            "`json.dumps(data, ensure_ascii=False)` gövdeyi, `str(len(body.encode('utf-8')))` başlık değerini verir.",
+            "json'u içe aktar, gövdeyi ve bayt uzunluğunu hesapla, durum kodunu, bir başlık dict'ini ve gövdeyi içeren bir dict döndür."
+          ],
+          "solution": {
+            "approach": "Dump the data to JSON, measure its bytes for Content-Length, and wrap status, headers and body in a dict.",
+            "approach_tr": "Veriyi JSON'a çevir, Content-Length için baytlarını ölç ve durum kodunu, başlıkları ve gövdeyi bir dict'e koy.",
+            "code": "import json\n\ndef json_response(data, status=200):\n    body = json.dumps(data, ensure_ascii=False)\n    headers = {'Content-Type': 'application/json',\n               'Content-Length': str(len(body.encode('utf-8')))}\n    return {'status': status, 'headers': headers, 'body': body}"
+          },
+          "twin": "d28-b4-e6",
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        },
+        {
+          "id": "d28-b4-e8",
+          "type": "explain",
+          "prompt": "What do 'safe' and 'idempotent' mean for HTTP methods, and why is it a problem to retry a POST automatically?",
+          "prompt_tr": "HTTP metotları için 'güvenli' (safe) ve 'idempotent' ne anlama gelir ve bir POST'u otomatik olarak tekrar denemek neden sorundur?",
+          "model_answer": "A safe method such as GET does not change data on the server. An idempotent method leaves the same final state whether it runs once or many times: PUT and DELETE are idempotent. POST creates a new resource each time, so retrying it after a network error can create duplicate records.",
+          "model_answer_tr": "GET gibi güvenli bir metot sunucudaki veriyi değiştirmez. İdempotent bir metot bir kez de çalışsa birçok kez de çalışsa aynı son durumu bırakır: PUT ve DELETE idempotenttir. POST her seferinde yeni bir kaynak oluşturur; bu yüzden bir ağ hatasından sonra onu tekrar denemek yinelenen kayıtlar oluşturabilir.",
+          "keywords": [
+            "get",
+            "same",
+            "duplicate"
+          ],
+          "keywords_tr": [
+            "get",
+            "aynı",
+            "yinelenen"
+          ],
+          "min_words": 12,
+          "concept": "methods-crud-json",
+          "tags": [
+            "http",
+            "methods",
+            "crud",
+            "json",
+            "idempotency"
+          ]
+        }
+      ]
     }
-   ],
-   "concept_tr": "İstek satırı ve durum satırı"
-  },
-  {
-   "id": "d28-b2",
-   "concept": "headers-and-body",
-   "tags": [
-    "http",
-    "headers",
-    "body",
-    "parsing"
-   ],
-   "worked_example": {
-    "code": "header = 'Content-Type: application/json'\nname, value = header.split(': ', 1)\nprint(name, '=', value)",
-    "notes": [
-     "A header line is 'Name: value'; split only at the first ': '.",
-     "A blank line separates the headers from the optional body."
-    ],
-    "notes_tr": [
-     "Başlık satırı 'Ad: değer' biçimindedir; yalnızca ilk ': ' işaretinden böl.",
-     "Boş bir satır, başlıkları isteğe bağlı gövdeden ayırır."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d28-b2-e1",
-     "type": "predict",
-     "concept": "headers-and-body",
-     "tags": [
-      "http",
-      "headers",
-      "body",
-      "parsing"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "raw = 'GET / HTTP/1.1\\nHost: example.com\\nAccept: text/html\\n\\nhello'\nhead, body = raw.split('\\n\\n')\nlines = head.split('\\n')\nheaders = dict(line.split(': ') for line in lines[1:])\nprint(len(lines), headers['Host'], body)",
-     "choices": [
-      "3 example.com hello",
-      "2 example.com hello",
-      "3 Host hello",
-      "3 example.com GET / HTTP/1.1"
-     ],
-     "expected_output": "3 example.com hello",
-     "explanation": "The head has three lines (request line + 2 headers). lines[1:] are the two headers, so headers['Host'] is 'example.com'. The body is what follows the blank line.",
-     "misconceptions": {
-      "2 example.com hello": "The head contains the request line too, so there are 3 lines.",
-      "3 Host hello": "headers['Host'] is the value of the header, 'example.com'.",
-      "3 example.com GET / HTTP/1.1": "The part after the blank line is the body: 'hello'."
-     },
-     "explanation_tr": "Baş kısım üç satırdır (istek satırı + 2 başlık). lines[1:] iki başlıktır, bu yüzden headers['Host'] 'example.com' olur. Gövde, boş satırdan sonra gelen kısımdır.",
-     "misconceptions_tr": {
-      "2 example.com hello": "Baş kısım istek satırını da içerir, bu yüzden 3 satır vardır.",
-      "3 Host hello": "headers['Host'], başlığın değeridir: 'example.com'.",
-      "3 example.com GET / HTTP/1.1": "Boş satırdan sonraki kısım gövdedir: 'hello'."
-     }
-    },
-    {
-     "id": "d28-b2-e2",
-     "type": "parsons",
-     "concept": "headers-and-body",
-     "tags": [
-      "http",
-      "headers",
-      "body",
-      "parsing"
-     ],
-     "prompt": "Put the lines in order: split a response into head and body, then print its status line and body.",
-     "prompt_tr": "Satırları sırala: bir yanıtı baş ve gövde olarak ayır, sonra durum satırını ve gövdeyi yazdır.",
-     "lines": [
-      "print(lines[0], '|', body)",
-      "head, body = raw.split('\\n\\n')",
-      "raw = 'HTTP/1.1 200 OK\\nContent-Type: application/json\\n\\n{\"ok\": true}'",
-      "lines = head.split('\\n')"
-     ],
-     "correct_order": [
-      2,
-      1,
-      3,
-      0
-     ],
-     "distractors": [
-      "head, body = raw.split('\\n')"
-     ],
-     "expected_output": "HTTP/1.1 200 OK | {\"ok\": true}"
-    },
-    {
-     "id": "d28-b2-e3",
-     "type": "write",
-     "concept": "headers-and-body",
-     "tags": [
-      "http",
-      "headers",
-      "body",
-      "parsing"
-     ],
-     "prompt": "Write parse_headers(text). Each line of text is 'Name: value'. Return a dict {name: value}. Skip empty lines. Split only at the first ': ' because values can contain colons.",
-     "prompt_tr": "parse_headers(text) yaz. text'in her satırı 'Ad: değer' biçimindedir. {ad: değer} dict'i döndür. Boş satırları atla. Değerler iki nokta içerebileceği için yalnızca ilk ': ' işaretinden böl.",
-     "starter_code": "",
-     "signature": "def parse_headers(text):",
-     "tests": [
-      {
-       "code": "assert parse_headers('Host: example.com\\nAccept: text/html') == {'Host': 'example.com', 'Accept': 'text/html'}",
-       "visible": true,
-       "label_tr": "İki başlık sözlüğe çevriliyor"
-      },
-      {
-       "code": "assert parse_headers('') == {}",
-       "visible": true,
-       "label_tr": "Boş metin boş sözlük veriyor"
-      },
-      {
-       "code": "assert parse_headers('Referer: https://example.com/post') == {'Referer': 'https://example.com/post'}",
-       "visible": false,
-       "failure_message": "The value may contain ':'. Use split(': ', 1).",
-       "failure_message_tr": "Değer ':' içerebilir. split(': ', 1) kullan."
-      },
-      {
-       "code": "assert parse_headers('A: 1\\n\\nB: 2\\n') == {'A': '1', 'B': '2'}",
-       "visible": false,
-       "failure_message": "Skip empty lines, including the one at the end.",
-       "failure_message_tr": "Sondaki dahil, boş satırları atla."
-      }
-     ],
-     "hints": [
-      "Go through the lines and ignore empty ones.",
-      "line.split(': ', 1) splits only at the first ': '.",
-      "Last step: for every non-empty line, split it once at the first ': ' into name and value, then store headers[name] = ___."
-     ],
-     "solution": {
-      "approach": "Split every non-empty line at the first ': '.",
-      "code": "def parse_headers(text):\n    headers = {}\n    for line in text.split('\\n'):\n        if line.strip():\n            name, value = line.split(': ', 1)\n            headers[name] = value\n    return headers",
-      "approach_tr": "Boş olmayan her satırı ilk ': ' işaretinden böl."
-     },
-     "twin": "d28-b2-e4",
-     "hints_tr": [
-      "Satırları dolaş ve boş olanları yok say.",
-      "line.split(': ', 1) yalnızca ilk ': ' işaretinden böler.",
-      "Son adım: boş olmayan her satırı ilk ': ' işaretinden bir kez bölerek ad ve değere ayır, sonra headers[name] = ___ ata."
-     ]
-    },
-    {
-     "id": "d28-b2-e4",
-     "type": "write",
-     "concept": "headers-and-body",
-     "tags": [
-      "http",
-      "headers",
-      "body",
-      "parsing"
-     ],
-     "prompt": "Write header_value(text, name). text has one 'Name: value' per line. Return the value of the header called name (ignore upper/lower case in the name), or None when it is missing.",
-     "prompt_tr": "header_value(text, name) yaz. text'te her satırda bir 'Ad: değer' vardır. name adlı başlığın değerini döndür (addaki büyük/küçük harfi yok say); başlık yoksa None döndür.",
-     "starter_code": "",
-     "signature": "def header_value(text, name):",
-     "tests": [
-      {
-       "code": "assert header_value('Host: example.com\\nAccept: text/html', 'Accept') == 'text/html'",
-       "visible": true,
-       "label_tr": "Başlık değeri doğru bulunuyor"
-      },
-      {
-       "code": "assert header_value('Host: example.com', 'Accept') is None",
-       "visible": true,
-       "label_tr": "Olmayan başlık için None dönüyor"
-      },
-      {
-       "code": "assert header_value('Content-Type: application/json', 'content-type') == 'application/json'",
-       "visible": false,
-       "failure_message": "Header names are case-insensitive: compare lower-case versions.",
-       "failure_message_tr": "Başlık adları büyük/küçük harfe duyarsızdır: küçük harfli sürümleri karşılaştır."
-      },
-      {
-       "code": "assert header_value('Referer: https://x.com/post', 'Referer') == 'https://x.com/post'",
-       "visible": false,
-       "failure_message": "Split only at the first ': ' so the value keeps its colons.",
-       "failure_message_tr": "Değer iki noktaları korusun diye yalnızca ilk ': ' işaretinden böl."
-      }
-     ],
-     "hints": [
-      "Look through the lines for the one with the same name.",
-      "Compare name.lower() with the lower-cased header name; return the value part.",
-      "Last step: for every non-empty line, split once into key and value; if the lower-cased key equals the lower-cased name, return the value; after the loop return None."
-     ],
-     "solution": {
-      "approach": "Compare lower-cased names and return the matching value.",
-      "code": "def header_value(text, name):\n    for line in text.split('\\n'):\n        if line.strip():\n            key, value = line.split(': ', 1)\n            if key.lower() == name.lower():\n                return value\n    return None",
-      "approach_tr": "Küçük harfli adları karşılaştır ve eşleşen değeri döndür."
-     },
-     "twin": "d28-b2-e3",
-     "hints_tr": [
-      "Satırlar arasında aynı ada sahip olanı ara.",
-      "name.lower() ile küçük harfe çevrilmiş başlık adını karşılaştır; değer kısmını döndür.",
-      "Son adım: boş olmayan her satırı bir kez bölerek anahtar ve değere ayır; küçük harfli anahtar küçük harfli name'e eşitse değeri döndür; döngüden sonra None döndür."
-     ]
-    },
-    {
-     "id": "d28-b2-e5",
-     "type": "debug",
-     "concept": "headers-and-body",
-     "tags": [
-      "http",
-      "headers",
-      "body",
-      "parsing"
-     ],
-     "prompt": "This should print the Referer URL, but it crashes with a ValueError. Fix the split.",
-     "prompt_tr": "Bu kod Referer URL'sini yazdırmalı ama ValueError ile çöküyor. split işlemini düzelt.",
-     "starter_code": "lines = ['Host: example.com', 'Referer: https://example.com/post']\nheaders = {}\nfor line in lines:\n    name, value = line.split(':')\n    headers[name] = value\nprint(headers['Referer'])",
-     "hints": [
-      "Count the colons in the Referer line. How many parts does split(':') return?",
-      "The URL itself contains a colon (https:). You must split only at the separator after the name.",
-      "Last step: give split the separator ': ' (colon and space) and tell it to cut at most once."
-     ],
-     "solution": {
-      "approach": "A value can contain colons, so split only once at the first ': '.",
-      "code": "lines = ['Host: example.com', 'Referer: https://example.com/post']\nheaders = {}\nfor line in lines:\n    name, value = line.split(': ', 1)\n    headers[name] = value\nprint(headers['Referer'])",
-      "approach_tr": "Değer iki nokta içerebilir; bu yüzden yalnızca ilk ': ' işaretinden bir kez böl."
-     },
-     "expected_output": "https://example.com/post",
-     "hints_tr": [
-      "Referer satırındaki iki noktaları say. split(':') kaç parça döndürür?",
-      "URL'nin kendisi de iki nokta içerir (https:). Yalnızca addan sonraki ayırıcıdan bölmelisin.",
-      "Son adım: split'e ': ' (iki nokta ve boşluk) ayırıcısını ver ve en fazla bir kez kesmesini söyle."
-     ]
-    }
-   ],
-   "concept_tr": "Başlıklar (headers) ve gövde (body)"
-  },
-  {
-   "id": "d28-b3",
-   "concept": "methods-crud-json",
-   "tags": [
-    "http",
-    "methods",
-    "crud",
-    "json"
-   ],
-   "worked_example": {
-    "code": "import json\nbody = '{\"name\": \"Asabeneh\", \"skills\": [\"Python\"]}'\nstudent = json.loads(body)\nprint(student['skills'][0])",
-    "notes": [
-     "GET reads, POST creates, PUT updates, DELETE removes: the CRUD operations.",
-     "APIs send data as JSON text; json.loads turns it into a dict, json.dumps back into text."
-    ],
-    "notes_tr": [
-     "GET okur, POST oluşturur, PUT günceller, DELETE siler: bunlar CRUD işlemleridir.",
-     "API'ler veriyi JSON metni olarak gönderir; json.loads onu dict'e, json.dumps tekrar metne çevirir."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d28-b3-e1",
-     "type": "predict",
-     "concept": "methods-crud-json",
-     "tags": [
-      "http",
-      "methods",
-      "crud",
-      "json"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "import json\nstudent = {'name': 'David', 'age': 34, 'active': True}\ntext = json.dumps(student)\nback = json.loads(text)\nprint(text, back == student, type(text).__name__)",
-     "choices": [
-      "{\"name\": \"David\", \"age\": 34, \"active\": true} True str",
-      "{'name': 'David', 'age': 34, 'active': True} True str",
-      "{\"name\": \"David\", \"age\": 34, \"active\": true} True dict",
-      "{\"name\": \"David\", \"age\": 34, \"active\": true} False str"
-     ],
-     "expected_output": "{\"name\": \"David\", \"age\": 34, \"active\": true} True str",
-     "explanation": "json.dumps returns a str in JSON syntax (double quotes, lowercase true). json.loads rebuilds an equal dict, so the comparison is True.",
-     "misconceptions": {
-      "{'name': 'David', 'age': 34, 'active': True} True str": "That is Python's repr of the dict. JSON uses double quotes and lowercase true.",
-      "{\"name\": \"David\", \"age\": 34, \"active\": true} True dict": "json.dumps returns text, so its type is str.",
-      "{\"name\": \"David\", \"age\": 34, \"active\": true} False str": "Round-tripping through JSON gives an equal dict, so == is True."
-     },
-     "explanation_tr": "json.dumps JSON sözdiziminde bir str döndürür (çift tırnak, küçük harfli true). json.loads eşit bir dict kurar, bu yüzden karşılaştırma True olur.",
-     "misconceptions_tr": {
-      "{'name': 'David', 'age': 34, 'active': True} True str": "Bu dict'in Python gösterimidir (repr). JSON çift tırnak ve küçük harfli true kullanır.",
-      "{\"name\": \"David\", \"age\": 34, \"active\": true} True dict": "json.dumps metin döndürür, bu yüzden türü str'dir.",
-      "{\"name\": \"David\", \"age\": 34, \"active\": true} False str": "JSON'dan geçip dönmek eşit bir dict verir, bu yüzden == True olur."
-     }
-    },
-    {
-     "id": "d28-b3-e2",
-     "type": "fill_blank",
-     "concept": "methods-crud-json",
-     "tags": [
-      "http",
-      "methods",
-      "crud",
-      "json"
-     ],
-     "prompt": "Complete the table that maps HTTP methods to CRUD actions.",
-     "prompt_tr": "HTTP yöntemlerini CRUD eylemlerine eşleyen tabloyu tamamla.",
-     "starter_code": "actions = {'GET': 'read', 'POST': ___, 'PUT': 'update', 'DELETE': ___}",
-     "blanks": [
-      {
-       "answer": [
-        "'create'"
-       ]
-      },
-      {
-       "answer": [
-        "'delete'"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert actions['POST'] == 'create'",
-       "visible": true,
-       "label_tr": "POST 'create' oluyor"
-      },
-      {
-       "code": "assert actions['DELETE'] == 'delete'",
-       "visible": true,
-       "label_tr": "DELETE 'delete' oluyor"
-      }
-     ]
-    },
-    {
-     "id": "d28-b3-e3",
-     "type": "write",
-     "concept": "methods-crud-json",
-     "tags": [
-      "http",
-      "methods",
-      "crud",
-      "json"
-     ],
-     "prompt": "Write crud_action(method). Return 'read' for GET, 'create' for POST, 'update' for PUT and 'delete' for DELETE (ignore upper/lower case). Return 'unknown' for any other method.",
-     "prompt_tr": "crud_action(method) yaz. GET için 'read', POST için 'create', PUT için 'update', DELETE için 'delete' döndür (büyük/küçük harfi yok say). Diğer her yöntem için 'unknown' döndür.",
-     "starter_code": "",
-     "signature": "def crud_action(method):",
-     "tests": [
-      {
-       "code": "assert crud_action('GET') == 'read'",
-       "visible": true,
-       "label_tr": "GET 'read' oluyor"
-      },
-      {
-       "code": "assert crud_action('POST') == 'create'",
-       "visible": true,
-       "label_tr": "POST 'create' oluyor"
-      },
-      {
-       "code": "assert crud_action('put') == 'update' and crud_action('Delete') == 'delete'",
-       "visible": false,
-       "failure_message": "Ignore case: convert the method to upper case first.",
-       "failure_message_tr": "Büyük/küçük harfi yok say: önce yöntemi büyük harfe çevir."
-      },
-      {
-       "code": "assert crud_action('PATCH') == 'unknown' and crud_action('') == 'unknown'",
-       "visible": false,
-       "failure_message": "Any method that is not GET, POST, PUT or DELETE must return 'unknown'.",
-       "failure_message_tr": "GET, POST, PUT ya da DELETE olmayan her yöntem 'unknown' döndürmeli."
-      }
-     ],
-     "hints": [
-      "Use a dict from method to action.",
-      "Normalise with method.upper() and use .get with a default.",
-      "Last step: build a dict of the four methods, then return its .get on method.upper() with the default ___."
-     ],
-     "solution": {
-      "approach": "A dict lookup on the upper-cased method with a default.",
-      "code": "def crud_action(method):\n    actions = {'GET': 'read', 'POST': 'create', 'PUT': 'update', 'DELETE': 'delete'}\n    return actions.get(method.upper(), 'unknown')",
-      "approach_tr": "Büyük harfe çevrilmiş yöntemde, varsayılan değerli bir dict araması yap."
-     },
-     "twin": "d28-b3-e4",
-     "hints_tr": [
-      "Yöntemden eyleme bir dict kullan.",
-      "method.upper() ile normalleştir ve varsayılan değerli .get kullan.",
-      "Son adım: dört yöntemin dict'ini kur, sonra method.upper() için varsayılanı ___ olan .get sonucunu döndür."
-     ]
-    },
-    {
-     "id": "d28-b3-e4",
-     "type": "write",
-     "concept": "methods-crud-json",
-     "tags": [
-      "http",
-      "methods",
-      "crud",
-      "json"
-     ],
-     "prompt": "Write method_for_action(action). Return 'GET' for 'read', 'POST' for 'create', 'PUT' for 'update' and 'DELETE' for 'delete' (ignore upper/lower case). Return None for any other action.",
-     "prompt_tr": "method_for_action(action) yaz. 'read' için 'GET', 'create' için 'POST', 'update' için 'PUT', 'delete' için 'DELETE' döndür (büyük/küçük harfi yok say). Diğer her eylem için None döndür.",
-     "starter_code": "",
-     "signature": "def method_for_action(action):",
-     "tests": [
-      {
-       "code": "assert method_for_action('read') == 'GET'",
-       "visible": true,
-       "label_tr": "'read' GET oluyor"
-      },
-      {
-       "code": "assert method_for_action('create') == 'POST'",
-       "visible": true,
-       "label_tr": "'create' POST oluyor"
-      },
-      {
-       "code": "assert method_for_action('UPDATE') == 'PUT' and method_for_action('Delete') == 'DELETE'",
-       "visible": false,
-       "failure_message": "Ignore case: convert the action to lower case first.",
-       "failure_message_tr": "Büyük/küçük harfi yok say: önce eylemi küçük harfe çevir."
-      },
-      {
-       "code": "assert method_for_action('patch') is None and method_for_action('') is None",
-       "visible": false,
-       "failure_message": "Any other action must return None.",
-       "failure_message_tr": "Başka her eylem None döndürmeli."
-      }
-     ],
-     "hints": [
-      "It is the same table as crud_action, the other way round.",
-      "Normalise with action.lower() and use .get(...) which returns None by default.",
-      "Last step: build a dict from action names to method names and return its .get on action.lower() with no default."
-     ],
-     "solution": {
-      "approach": "A dict from action to method on the lower-cased action.",
-      "code": "def method_for_action(action):\n    methods = {'read': 'GET', 'create': 'POST', 'update': 'PUT', 'delete': 'DELETE'}\n    return methods.get(action.lower())",
-      "approach_tr": "Küçük harfe çevrilmiş eylemde, eylemden yönteme bir dict araması yap."
-     },
-     "twin": "d28-b3-e3",
-     "hints_tr": [
-      "crud_action ile aynı tablo, ters yönde.",
-      "action.lower() ile normalleştir ve varsayılan olarak None veren .get(...) kullan.",
-      "Son adım: eylem adlarını yöntem adlarına eşleyen bir dict kur ve action.lower() için varsayılansız .get sonucunu döndür."
-     ]
-    },
-    {
-     "id": "d28-b3-e5",
-     "type": "explain",
-     "concept": "methods-crud-json",
-     "tags": [
-      "http",
-      "methods",
-      "crud",
-      "json"
-     ],
-     "prompt": "In your own words: describe the request-response cycle, and what GET and POST are used for.",
-     "prompt_tr": "Kendi cümlelerinle anlat: istek-yanıt (request-response) döngüsünü anlat ve GET ile POST'un ne için kullanıldığını söyle.",
-     "model_answer": "The client (for example a browser) sends a request message to the server, and the server sends back a response message with a status code and usually a body; then the connection closes. GET is used to retrieve data without changing anything, and POST is used to send data to create a new resource.",
-     "keywords": [
-      "request",
-      "response",
-      "GET",
-      "POST"
-     ],
-     "model_answer_tr": "İstemci (örneğin bir tarayıcı) sunucuya bir istek mesajı gönderir; sunucu da bir durum kodu ve genellikle bir gövde içeren yanıt mesajı gönderir, sonra bağlantı kapanır. GET, bir şeyi değiştirmeden veri almak için, POST ise yeni bir kaynak oluşturmak üzere veri göndermek için kullanılır.",
-     "keywords_tr": [
-      "istek",
-      "yanıt",
-      "GET",
-      "POST"
-     ],
-     "min_words": 6
-    }
-   ],
-   "concept_tr": "HTTP yöntemleri, CRUD ve JSON"
-  }
- ],
- "review_pool": [
-  "d28-b1-e1",
-  "d28-b1-e3",
-  "d28-b2-e1",
-  "d28-b2-e3",
-  "d28-b3-e1",
-  "d28-b3-e3"
- ],
- "title_tr": "API (HTTP Temelleri)"
+  ],
+  "review_pool": [
+    "d28-b1-e1",
+    "d28-b1-e6",
+    "d28-b2-e1",
+    "d28-b2-e7",
+    "d28-b3-e1",
+    "d28-b4-e7"
+  ]
 }
