@@ -1,236 +1,427 @@
 {
- "day": 29,
- "title_tr": "API Kurmak (CRUD)",
- "title": "Building an API (CRUD)",
- "est_minutes": 30,
- "cards": [
-  {
-   "id": "d29-c01",
-   "type": "explain",
-   "title_tr": "Endpoint'in yapısı",
-   "title": "The structure of an endpoint",
-   "body_tr": "Bir API **endpoint**'i, veriyi almak, oluşturmak, güncellemek veya silmek için kullandığın adrestir. Yapı: şirket/sunucu adı + sürüm + amaç. Örnek: `https://api.twitter.com/1.1/lists/members.json`. Biz `/api/v1.0/students` gibi bir endpoint kuracağız. Tarayıcı yalnız GET gönderir; POST, PUT, DELETE denemek için Postman ya da Insomnia kullanılır. Burada Flask ve MongoDB çalışmaz, saf Python ile canlandıracağız.",
-   "body": "An API **endpoint** is the address you use to retrieve, create, update or delete data. Structure: company/server name + version + purpose. Example: `https://api.twitter.com/1.1/lists/members.json`. We'll build an endpoint like `/api/v1.0/students`. A browser only sends GET; to try POST, PUT, DELETE you use Postman or Insomnia. Flask and MongoDB can't run here, so we mimic everything in plain Python.",
-   "code": "url = 'https://api.twitter.com/1.1/lists/members.json'\nhost, version, *purpose = url.split('/')[2:]\nprint(host, version, purpose)",
-   "expected_output": "api.twitter.com 1.1 ['lists', 'members.json']",
-   "section": "Structure of an API"
-  },
-  {
-   "id": "d29-c02",
-   "type": "predict",
-   "prompt_tr": "Çıktı ne olur?",
-   "prompt": "What is printed?",
-   "code": "url = 'http://localhost:5000/api/v1.0/students'\nprint(url.split('/')[4])",
-   "choices": [
-    "api",
-    "localhost:5000",
-    "students",
-    "v1.0"
-   ],
-   "answer": "v1.0",
-   "why_tr": "Bölünce: `http:`, boş, `localhost:5000`, `api`, `v1.0`, `students`; 4. indeks sürümdür.",
-   "why": "After splitting: `http:`, empty, `localhost:5000`, `api`, `v1.0`, `students`; index 4 is the version.",
-   "section": "Structure of an API"
-  },
-  {
-   "id": "d29-c03",
-   "type": "explain",
-   "title_tr": "GET ile veri döndürmek",
-   "title": "Returning data with GET",
-   "body_tr": "Önce sahte (dummy) veriyle başlıyoruz. Flask'ta `Response(json.dumps(liste), mimetype='application/json')` listeyi JSON metnine çevirip doğru türle gönderir. Burada `json.dumps` kısmını görelim:",
-   "body": "We start with dummy data. In Flask, `Response(json.dumps(list), mimetype='application/json')` turns the list into JSON text and sends it with the right type. Here is the `json.dumps` part:",
-   "code": "import json\nstudent_list = [{'name': 'Asabeneh', 'skills': ['HTML', 'Python']},\n                {'name': 'David', 'skills': ['Python', 'MongoDB']}]\nprint(json.dumps(student_list))",
-   "expected_output": "[{\"name\": \"Asabeneh\", \"skills\": [\"HTML\", \"Python\"]}, {\"name\": \"David\", \"skills\": [\"Python\", \"MongoDB\"]}]",
-   "section": "Retrieving data using get"
-  },
-  {
-   "id": "d29-c04",
-   "type": "explain",
-   "title_tr": "Route fonksiyonu GET'e yanıt verir",
-   "title": "A route function answers GET",
-   "body_tr": "`@app.route('/api/v1.0/students', methods=['GET'])` adresi `students()` fonksiyonuna bağlar. Aynı bağı bir sözlükle gösterelim.",
-   "body": "`@app.route('/api/v1.0/students', methods=['GET'])` binds the address to the `students()` function. Here is the same binding with a dict.",
-   "code": "import json\nroutes = {}\ndef students():\n    return json.dumps([{'name': 'Asabeneh'}, {'name': 'David'}])\nroutes['/api/v1.0/students'] = students\nprint(routes['/api/v1.0/students']())",
-   "expected_output": "[{\"name\": \"Asabeneh\"}, {\"name\": \"David\"}]",
-   "section": "Retrieving data using get"
-  },
-  {
-   "id": "d29-c05",
-   "type": "predict",
-   "prompt_tr": "Çıktı ne olur?",
-   "prompt": "What is printed?",
-   "code": "import json\nprint(json.dumps({'a': [1, 2]}))",
-   "choices": [
-    "{\"a\": [1, 2]}",
-    "[1, 2]",
-    "{'a': [1, 2]}",
-    "a: [1, 2]"
-   ],
-   "answer": "{\"a\": [1, 2]}",
-   "why_tr": "JSON metni çift tırnak kullanır; Python sözlüğünün tek tırnaklı gösteriminden farklıdır.",
-   "why": "JSON text uses double quotes, unlike the single-quoted display of a Python dict.",
-   "section": "Retrieving data using get"
-  },
-  {
-   "id": "d29-c06",
-   "type": "explain",
-   "title_tr": "Veritabanından okurken JSON sorunu",
-   "title": "A JSON problem when reading from the database",
-   "body_tr": "MongoDB belgelerindeki `_id` bir `ObjectId`'dir ve `json.dumps` bunu yazamaz (TypeError). Çözüm: `bson.json_util.dumps`. (Dersteki ikinci örnek tanımsız `student` değişkenini döndürüyor; doğrusu `dumps(db.students.find())`.)",
-   "body": "The `_id` in MongoDB documents is an `ObjectId`, and `json.dumps` can't write it (TypeError). The fix: `bson.json_util.dumps`. (The lesson's second example returns an undefined `student`; the correct form is `dumps(db.students.find())`.)",
-   "code": "import json\ntry:\n    json.dumps({'_id': object()})\nexcept TypeError:\n    print('not serializable')",
-   "expected_output": "not serializable",
-   "section": "Retrieving data using get"
-  },
-  {
-   "id": "d29-c07",
-   "type": "truefalse",
-   "statement_tr": "`json.dumps` her türlü Python nesnesini, ObjectId dahil, JSON'a çevirebilir.",
-   "statement": "`json.dumps` can turn any Python object, ObjectId included, into JSON.",
-   "answer": false,
-   "why_tr": "Yalnızca dict, list, str, sayı, bool, None gibi temel türleri yazar; ObjectId için `bson.json_util` gerekir.",
-   "why": "It only handles basic types such as dict, list, str, numbers, bool, None; ObjectId needs `bson.json_util`.",
-   "section": "Retrieving data using get"
-  },
-  {
-   "id": "d29-c08",
-   "type": "explain",
-   "title_tr": "Adresten id okumak",
-   "title": "Reading the id from the address",
-   "body_tr": "`/api/v1.0/students/<id>` içindeki `<id>` değişken parçadır; Flask bunu fonksiyona parametre olarak verir. Biz yolu bölüp son parçayı alarak aynı şeyi yapalım ve belgeyi bulalım.",
-   "body": "In `/api/v1.0/students/<id>`, `<id>` is a variable part; Flask passes it to the function as a parameter. We'll do the same by splitting the path and taking the last piece, then look up the document.",
-   "code": "students = {'1': {'name': 'Asabeneh'}, '2': {'name': 'David'}}\npath = '/api/v1.0/students/2'\nstudent_id = path.split('/')[-1]\nprint(students[student_id])",
-   "expected_output": "{'name': 'David'}",
-   "trace": true,
-   "section": "Getting a document by id"
-  },
-  {
-   "id": "d29-c09",
-   "type": "fill",
-   "prompt_tr": "Son parçayı seçen indeksi yaz.",
-   "prompt": "Write the index that picks the last piece.",
-   "code": "path = '/api/v1.0/students/5'\nprint(path.split('/')[___])",
-   "answers": [
-    "-1"
-   ],
-   "expected_output": "5",
-   "why_tr": "Negatif indeks sondan sayar; `-1` son elemandır.",
-   "why": "A negative index counts from the end; `-1` is the last item.",
-   "section": "Getting a document by id"
-  },
-  {
-   "id": "d29-c10",
-   "type": "explain",
-   "title_tr": "POST ile veri oluşturmak",
-   "title": "Creating data with POST",
-   "body_tr": "Form verisi `request.form['name']` ile okunur, bir sözlüğe (belgeye) dönüştürülür ve `insert_one` ile kaydedilir. `skills` alanı `'Python, SQL'` metnini `split(', ')` ile listeye çevirir. (Dersteki kodda `request` import edilmemiş, `return ;` yarım; sonuç JSON olarak dönmeli. `created_at = datetime.now()` da eklenir.)",
-   "body": "Form data is read with `request.form['name']`, turned into a dict (document) and saved with `insert_one`. The `skills` field turns the text `'Python, SQL'` into a list with `split(', ')`. (The lesson code never imports `request` and has an unfinished `return ;`; it should return JSON. It also adds `created_at = datetime.now()`.)",
-   "code": "form = {'name': 'Ada', 'skills': 'Python, SQL', 'birthyear': '2000'}\nstudent = {'name': form['name'],\n           'skills': form['skills'].split(', '),\n           'birthyear': form['birthyear']}\ndb = []\ndb.append(student)\nprint(db)",
-   "expected_output": "[{'name': 'Ada', 'skills': ['Python', 'SQL'], 'birthyear': '2000'}]",
-   "section": "Creating data using POST"
-  },
-  {
-   "id": "d29-c11",
-   "type": "predict",
-   "prompt_tr": "Çıktı ne olur?",
-   "prompt": "What is printed?",
-   "code": "print('Python, SQL'.split(', '))",
-   "choices": [
-    "Python SQL",
-    "['Python, SQL']",
-    "['Python,', 'SQL']",
-    "['Python', 'SQL']"
-   ],
-   "answer": "['Python', 'SQL']",
-   "why_tr": "Ayırıcı `', '` (virgül ve boşluk) olduğu için iki temiz parça çıkar.",
-   "why": "The separator is `', '` (comma and space), so we get two clean pieces.",
-   "section": "Creating data using POST"
-  },
-  {
-   "id": "d29-c12",
-   "type": "explain",
-   "title_tr": "PUT ile güncellemek",
-   "title": "Updating with PUT",
-   "body_tr": "PUT, id'si verilen belgeyi yeni bilgiyle değiştirir. Adım adım izle.",
-   "body": "PUT replaces the document with the given id by the new data. Step through it.",
-   "code": "db = [{'id': 1, 'name': 'Ada', 'city': 'London'}]\ndef put(student_id, new):\n    for i, s in enumerate(db):\n        if s['id'] == student_id:\n            db[i] = {'id': student_id, **new}\nput(1, {'name': 'Ada', 'city': 'Paris'})\nprint(db)",
-   "expected_output": "[{'id': 1, 'name': 'Ada', 'city': 'Paris'}]",
-   "trace": true,
-   "section": "Updating using PUT"
-  },
-  {
-   "id": "d29-c13",
-   "type": "truefalse",
-   "statement_tr": "pymongo'da `update_one(query, student)` yazmak yeterlidir; `$set` gerekmez.",
-   "statement": "In pymongo, `update_one(query, student)` is enough; `$set` isn't needed.",
-   "answer": false,
-   "why_tr": "`update_one` ikinci argümanda `{'$set': student}` gibi bir güncelleme operatörü ister (Gün 27). Dersteki örnekte bu eksik.",
-   "why": "`update_one` expects an update operator like `{'$set': student}` as its second argument (Day 27). The lesson example misses it.",
-   "section": "Updating using PUT"
-  },
-  {
-   "id": "d29-c14",
-   "type": "explain",
-   "title_tr": "DELETE ile silmek",
-   "title": "Deleting with DELETE",
-   "body_tr": "DELETE, id'ye uyan belgeyi kaldırır: `db.students.delete_one({'_id': ObjectId(id)})`. Aynısını liste üzerinde yapalım.",
-   "body": "DELETE removes the document that matches the id: `db.students.delete_one({'_id': ObjectId(id)})`. Let's do the same on a list.",
-   "code": "db = [{'id': 1}, {'id': 2}, {'id': 3}]\ndef delete(student_id):\n    for s in db:\n        if s['id'] == student_id:\n            db.remove(s)\n            break\ndelete(2)\nprint(db)",
-   "expected_output": "[{'id': 1}, {'id': 3}]",
-   "section": "Deleting a document using Delete"
-  },
-  {
-   "id": "d29-c15",
-   "type": "explain",
-   "title_tr": "Dört metot bir arada",
-   "title": "All four methods together",
-   "body_tr": "Tüm CRUD'u tek bir dağıtıcı fonksiyonda toplayalım: POST ve PUT kaydeder, DELETE siler, sonda mevcut değer döner (GET).",
-   "body": "Let's gather all of CRUD in one dispatcher function: POST and PUT store, DELETE removes, and the current value is returned at the end (GET).",
-   "code": "db = {}\ndef handle(method, key, value=None):\n    if method in ('POST', 'PUT'):\n        db[key] = value\n    elif method == 'DELETE':\n        db.pop(key)\n    return db.get(key)\n\nprint(handle('POST', 1, 'Ada'), handle('PUT', 1, 'Grace'), handle('DELETE', 1))",
-   "expected_output": "Ada Grace None",
-   "section": "Deleting a document using Delete"
-  },
-  {
-   "id": "d29-c16",
-   "type": "order",
-   "prompt_tr": "Satırları doğru sıraya diz: oluştur, güncelle, sil.",
-   "prompt": "Order the lines: create, update, delete.",
-   "lines": [
-    "db = []",
-    "db.append({'name': 'Ada'})",
-    "print(db)",
-    "db.pop(0)",
-    "db[0]['name'] = 'Grace'"
-   ],
-   "correct_order": [
-    0,
-    1,
-    4,
-    3,
-    2
-   ],
-   "expected_output": "[]",
-   "section": "Deleting a document using Delete"
-  },
-  {
-   "id": "d29-c17",
-   "type": "recap",
-   "points_tr": [
-    "Endpoint = sunucu + sürüm + amaç; metot işlemi belirler.",
-    "GET veriyi JSON olarak döndürür; ObjectId için `bson.json_util` gerekir.",
-    "POST belge oluşturur, PUT günceller (`$set` ile), DELETE siler.",
-    "URL'deki `<id>` değişkeni fonksiyona parametre olarak gelir."
-   ],
-   "points": [
-    "Endpoint = server + version + purpose; the method decides the operation.",
-    "GET returns data as JSON; ObjectId needs `bson.json_util`.",
-    "POST creates a document, PUT updates it (with `$set`), DELETE removes it.",
-    "The `<id>` variable in the URL arrives as a function parameter."
-   ],
-   "cta_tr": "Şimdi alıştırmalara geç",
-   "cta": "Go to the exercises now",
-   "link": "learn",
-   "section": "Deleting a document using Delete"
-  }
- ]
+  "day": 29,
+  "title_tr": "API Kurmak (CRUD)",
+  "title": "Building an API (CRUD)",
+  "est_minutes": 55,
+  "cards": [
+    {
+      "id": "d29-c01",
+      "type": "explain",
+      "title_tr": "Üç günü birleştirmek",
+      "title": "Putting three days together",
+      "body_tr": "Bugün son üç günün parçalarını tek bir çalışan API'de birleştiriyoruz: Gün 26'nın **route tablosu** (yol ve metot bir fonksiyona gider), Gün 27'nin **belge deposu** (dict'ler, `_id`, sorgular) ve Gün 28'in **HTTP mesajları** (durum kodları, JSON gövde).\n\nDersteki Flask + MongoDB kodu birkaç gerçek hata içeriyor: eksik `import`, tanımsız değişkenler, hiçbir şey döndürmeyen view'lar, `$set`'siz güncelleme. Her birini yeri gelince gösterip düzelteceğiz.\n\nTarayıcı yalnızca GET gönderebildiği için ders Postman kullanıyor. Biz istekleri Python'dan, aşağıdaki gibi bir \"istek listesiyle\" göndereceğiz.",
+      "body": "Today we combine the pieces of the last three days into one working API: Day 26's **route table** (a path and a method lead to a function), Day 27's **document store** (dicts, `_id`, queries) and Day 28's **HTTP messages** (status codes, a JSON body).\n\nThe lesson's Flask + MongoDB code contains several real bugs: a missing `import`, undefined variables, views that return nothing, an update without `$set`. We will show and fix each one when we reach it.\n\nA browser can only send GET, so the lesson uses Postman. We will send requests from Python, with a \"request list\" like the one below.",
+      "code": "test_requests = [\n    ('GET', '/api/v1.0/students', None),\n    ('GET', '/api/v1.0/students/1', None),\n    ('POST', '/api/v1.0/students', {'name': 'Ayşe', 'country': 'Türkiye'}),\n    ('PUT', '/api/v1.0/students/1', {'city': 'Espoo'}),\n    ('DELETE', '/api/v1.0/students/2', None),\n]\nfor method, path, body in test_requests:\n    print(method, path, body or '')",
+      "expected_output": "GET /api/v1.0/students\nGET /api/v1.0/students/1\nPOST /api/v1.0/students {'name': 'Ayşe', 'country': 'Türkiye'}\nPUT /api/v1.0/students/1 {'city': 'Espoo'}\nDELETE /api/v1.0/students/2",
+      "section": "Building API"
+    },
+    {
+      "id": "d29-c02",
+      "type": "explain",
+      "title_tr": "Bir endpoint'in yapısı",
+      "title": "The structure of an endpoint",
+      "body_tr": "Bir **endpoint**, bir kaynağı okumak, oluşturmak, güncellemek ya da silmek için kullanılan bir URL'dir. `https://api.example.com/api/v1.0/students/5` adresini parçala: önce sunucu, sonra `api` (bu yolun bir API olduğunu söyler), sonra sürüm `v1.0`, sonra kaynak `students`, en sonda bir **id**.\n\nKural basittir: koleksiyon çoğul bir isimdir (`/students`), tek bir öğe ise koleksiyon artı id'dir (`/students/5`). Metot ne yapılacağını söyler.\n\nYolu bölümlere ayırmak için önce baştaki ve sondaki `/` işaretlerini `strip('/')` ile silip sonra `split('/')` kullanırız.",
+      "body": "An **endpoint** is a URL used to read, create, update or delete a resource. Take `https://api.example.com/api/v1.0/students/5` apart: first the server, then `api` (it says this path is an API), then the version `v1.0`, then the resource `students`, and finally an **id**.\n\nThe rule is simple: a collection is a plural noun (`/students`), and a single item is the collection plus an id (`/students/5`). The method says what to do.\n\nTo cut the path into segments, we first remove the leading and trailing `/` with `strip('/')` and then use `split('/')`.",
+      "code": "path = '/api/v1.0/students/5'\nsegments = path.strip('/').split('/')\nprint(segments)\nprefix, version, resource, item_id = segments\nprint(version, resource, item_id)",
+      "expected_output": "['api', 'v1.0', 'students', '5']\nv1.0 students 5",
+      "section": "Structure of an API"
+    },
+    {
+      "id": "d29-c03",
+      "type": "predict",
+      "prompt_tr": "Sondaki eğik çizgi neyi değiştirir?",
+      "prompt": "What does the trailing slash change?",
+      "code": "path = '/api/v1.0/students/'\nprint(path.split('/'), len(path.strip('/').split('/')))",
+      "choices": [
+        "['', 'api', 'v1.0', 'students', ''] 3",
+        "['api', 'v1.0', 'students'] 3",
+        "['', 'api', 'v1.0', 'students', ''] 5",
+        "['api', 'v1.0', 'students', ''] 4"
+      ],
+      "answer": "['', 'api', 'v1.0', 'students', ''] 3",
+      "why_tr": "Baştaki ve sondaki `/` işaretleri `split`'te boş string'ler üretir. `strip('/')` önce onları sildiği için temiz üç bölüm kalır.",
+      "why": "The leading and trailing `/` produce empty strings in `split`. `strip('/')` removes them first, so three clean segments remain.",
+      "section": "Structure of an API"
+    },
+    {
+      "id": "d29-c04",
+      "type": "explain",
+      "title_tr": "Route tablosu: (metot, yol) anahtarı",
+      "title": "The route table: a (method, path) key",
+      "body_tr": "Gün 26'da route tablosunun anahtarı yalnızca yoldu. Bir API'de aynı yol farklı metotlarla farklı işler yapar: `GET /students` listeler, `POST /students` oluşturur. Bu yüzden anahtar bir **tuple** olur: `(metot, yol)`. Tuple değiştirilemez olduğu için dict anahtarı olabilir; list olamaz.\n\nFlask'ta bu `@app.route('/api/v1.0/students', methods=['GET'])` ile yazılır; aynı yol için iki ayrı fonksiyon iki ayrı dekoratör alır.\n\nBir istek gelince tabloda `(metot, yol)` aranır; bulunan fonksiyon çağrılır.",
+      "body": "On Day 26 the route table's key was just the path. In an API the same path does different things with different methods: `GET /students` lists, `POST /students` creates. So the key becomes a **tuple**: `(method, path)`. A tuple is immutable, so it can be a dict key; a list cannot.\n\nIn Flask this is written as `@app.route('/api/v1.0/students', methods=['GET'])`; two different functions for the same path get two separate decorators.\n\nWhen a request arrives, `(method, path)` is looked up in the table and the function found there is called.",
+      "code": "def list_students():\n    return 200, ['Asabeneh', 'David']\n\ndef create_student():\n    return 201, 'created'\n\nroutes = {('GET', '/students'): list_students,\n          ('POST', '/students'): create_student}\n\nprint(routes[('GET', '/students')]())\nprint(routes[('POST', '/students')]())",
+      "expected_output": "(200, ['Asabeneh', 'David'])\n(201, 'created')",
+      "section": "Structure of an API"
+    },
+    {
+      "id": "d29-c05",
+      "type": "truefalse",
+      "statement_tr": "Aynı yol (`/students`) farklı metotlar için farklı view fonksiyonlarına gidebilir.",
+      "statement": "The same path (`/students`) can lead to different view functions for different methods.",
+      "answer": true,
+      "why_tr": "Doğru. Anahtar yalnızca yol değil, (metot, yol) çiftidir; GET ve POST aynı yolda farklı fonksiyonlar çalıştırır.",
+      "why": "True. The key is not just the path but the (method, path) pair; GET and POST run different functions on the same path.",
+      "section": "Structure of an API"
+    },
+    {
+      "id": "d29-c06",
+      "type": "explain",
+      "title_tr": "GET: veriyi JSON olarak döndürmek",
+      "title": "GET: returning data as JSON",
+      "body_tr": "Dersteki ilk view, bir öğrenci list'ini `Response(json.dumps(student_list), mimetype='application/json')` ile döndürür: gövde JSON metnidir ve `Content-Type` başlığı istemciye bunu söyler.\n\nGüncel Flask'ta daha kısa yollar var: `return jsonify(student_list)` ya da doğrudan bir dict veya list döndürmek; Flask onu JSON'a çevirir.\n\nModelimizde bir view `(durum, veri)` döndürüyor ve küçük bir `respond` fonksiyonu bunu bir HTTP yanıtına (Gün 28) dönüştürüyor. Bu ayrım önemli: view yalnızca veriyle uğraşır, biçimlendirme tek bir yerde yapılır.",
+      "body": "The lesson's first view returns a list of students with `Response(json.dumps(student_list), mimetype='application/json')`: the body is JSON text and the `Content-Type` header tells the client so.\n\nCurrent Flask has shorter ways: `return jsonify(student_list)`, or simply returning a dict or a list, which Flask turns into JSON.\n\nIn our model a view returns `(status, data)`, and a small `respond` function turns that into an HTTP response (Day 28). The separation matters: the view deals only with data, and formatting happens in one place.",
+      "code": "import json\nstore = {1: {'id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n         2: {'id': 2, 'name': 'David', 'country': 'UK', 'city': 'London'}}\n\ndef list_students():\n    return 200, list(store.values())\n\ndef respond(status, data):\n    return {'status': status, 'content_type': 'application/json',\n            'body': json.dumps(data, ensure_ascii=False)}\n\nprint(respond(*list_students())['body'][:60])",
+      "expected_output": "[{\"id\": 1, \"name\": \"Asabeneh\", \"country\": \"Finland\", \"city\":",
+      "section": "Retrieving data using get"
+    },
+    {
+      "id": "d29-c07",
+      "type": "explain",
+      "title_tr": "Sık hata: JSON'a çevrilemeyen değerler",
+      "title": "Common mistake: values that cannot become JSON",
+      "body_tr": "Dersin ikinci GET kodunda iki sorun var. Önce `json.dumps(student)` tanımsız bir `student` kullanır: `NameError`. Doğrusu `students = list(db.students.find())`.\n\nİkinci sorun daha öğretici: MongoDB belgelerindeki `_id` bir `ObjectId`'dir ve `json` modülü onu tanımaz. Python şunu söyler: `TypeError: Object of type ObjectId is not JSON serializable`. Ders bu yüzden `bson.json_util.dumps` kullanır.\n\nAynı hatayı bir `datetime` ile görebiliriz: JSON'da tarih tipi yoktur. Mesajı oku: hangi tipin sorun olduğunu adıyla söylüyor.",
+      "body": "The lesson's second GET code has two problems. First, `json.dumps(student)` uses an undefined `student`: `NameError`. It should be `students = list(db.students.find())`.\n\nThe second problem teaches more: the `_id` in MongoDB documents is an `ObjectId`, and the `json` module does not know it. Python says: `TypeError: Object of type ObjectId is not JSON serializable`. That is why the lesson uses `bson.json_util.dumps`.\n\nWe can see the same error with a `datetime`: JSON has no date type. Read the message: it names the type that is the problem.",
+      "code": "import json\nfrom datetime import datetime\n\ndoc = {'name': 'Ayşe', 'created_at': datetime(2026, 11, 2, 9, 30)}\ntry:\n    json.dumps(doc)\nexcept TypeError as err:\n    print('TypeError:', err)",
+      "expected_output": "TypeError: Object of type datetime is not JSON serializable",
+      "hide_output": true,
+      "section": "Retrieving data using get"
+    },
+    {
+      "id": "d29-c08",
+      "type": "predict",
+      "prompt_tr": "default=str ne yapar?",
+      "prompt": "What does default=str do?",
+      "code": "import json\nfrom datetime import datetime\n\ndoc = {'id': 7, 'created_at': datetime(2026, 11, 2, 9, 30)}\nprint(json.dumps(doc, default=str))",
+      "choices": [
+        "{\"id\": 7, \"created_at\": \"2026-11-02 09:30:00\"}",
+        "{\"id\": 7, \"created_at\": \"2026-11-02T09:30:00\"}",
+        "TypeError",
+        "{\"id\": \"7\", \"created_at\": \"2026-11-02 09:30:00\"}"
+      ],
+      "answer": "{\"id\": 7, \"created_at\": \"2026-11-02 09:30:00\"}",
+      "why_tr": "`default`, json'un tanımadığı her değer için çağrılan bir fonksiyondur. Yalnızca datetime'a uygulanır; `str(datetime)` boşlukla ayrılmış biçimi verir. 7 zaten JSON sayısı olduğu için dokunulmaz.",
+      "why": "`default` is a function called for every value json does not know. It is applied only to the datetime, and `str(datetime)` gives the space-separated form. 7 is already a JSON number, so it is not touched.",
+      "section": "Retrieving data using get"
+    },
+    {
+      "id": "d29-c09",
+      "type": "explain",
+      "title_tr": "Serileştirme adımı: belgeden JSON'a",
+      "title": "A serialisation step: from document to JSON",
+      "body_tr": "`default=str` hızlı bir çözümdür ama biçimi kontrol edemezsin. Daha temiz yol, veritabanı ile yanıt arasına bir **serileştirme** (serialisation) fonksiyonu koymaktır: her belgeyi JSON'a uygun yeni bir dict'e çevirir.\n\nAşağıdaki `to_json`, `_id`'yi bir string olan `id` alanına çevirir ve tarihleri `isoformat()` ile standart ISO 8601 metnine (`2026-11-02T09:30:00`) dönüştürür. JavaScript'teki `new Date(...)` bu biçimi doğrudan okuyabilir.\n\nFonksiyon yeni bir dict kurar; veritabanındaki belge değişmez. İzleyicide her alanın tek tek dönüştürülüşünü izle.",
+      "body": "`default=str` is a quick fix, but you cannot control the format. The cleaner way is to put a **serialisation** function between the database and the response: it turns every document into a new, JSON-friendly dict.\n\nThe `to_json` below turns `_id` into a string field `id` and converts dates with `isoformat()` into standard ISO 8601 text (`2026-11-02T09:30:00`). JavaScript's `new Date(...)` can read that format directly.\n\nThe function builds a new dict; the document in the database does not change. Watch each field being converted in the tracer.",
+      "code": "import json\nfrom datetime import datetime\n\ndef to_json(doc):\n    out = {}\n    for key, value in doc.items():\n        if isinstance(value, datetime):\n            value = value.isoformat()\n        out[key] = value\n    out['id'] = str(out.pop('_id'))\n    return out\n\ndoc = {'_id': 7, 'name': 'Ayşe', 'created_at': datetime(2026, 11, 2, 9, 30)}\nprint(json.dumps(to_json(doc), ensure_ascii=False))",
+      "expected_output": "{\"name\": \"Ayşe\", \"created_at\": \"2026-11-02T09:30:00\", \"id\": \"7\"}",
+      "trace": true,
+      "section": "Retrieving data using get"
+    },
+    {
+      "id": "d29-c10",
+      "type": "explain",
+      "title_tr": "Yol parametresi: /students/<id>",
+      "title": "A path parameter: /students/<id>",
+      "body_tr": "Tek bir öğrenciyi getirmek için ders `@app.route('/api/v1.0/students/<id>')` yazar. `<id>` bir **yol parametresidir**: Flask URL'nin o bölümünü yakalar ve view fonksiyonuna argüman olarak verir: `def single_student(id)`.\n\nModelimizde `match` fonksiyonu bir kalıbı ve bir yolu bölüm bölüm karşılaştırır. `<...>` ile başlayan bölüm her değeri kabul eder ve onu bir dict'e kaydeder; diğer bölümler birebir eşleşmelidir. Bölüm sayısı farklıysa eşleşme yoktur.\n\nİzleyicide `zip` ile bölümlerin yan yana yürüyüşünü izle.",
+      "body": "To fetch one student, the lesson writes `@app.route('/api/v1.0/students/<id>')`. `<id>` is a **path parameter**: Flask captures that part of the URL and passes it to the view function as an argument: `def single_student(id)`.\n\nIn our model the `match` function compares a pattern and a path segment by segment. A segment that starts with `<` accepts any value and saves it in a dict; other segments must match exactly. If the number of segments differs, there is no match.\n\nIn the tracer, watch `zip` walk the segments side by side.",
+      "code": "def match(pattern, path):\n    p_parts, parts = pattern.strip('/').split('/'), path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    params = {}\n    for p, value in zip(p_parts, parts):\n        if p.startswith('<'):\n            params[p[1:-1]] = value\n        elif p != value:\n            return None\n    return params\n\nprint(match('/students/<id>', '/students/5'), match('/students/<id>', '/teachers/5'))",
+      "expected_output": "{'id': '5'} None",
+      "trace": true,
+      "section": "Getting a document by id"
+    },
+    {
+      "id": "d29-c11",
+      "type": "predict",
+      "prompt_tr": "Bu yol kalıpla eşleşir mi?",
+      "prompt": "Does this path match the pattern?",
+      "code": "def match(pattern, path):\n    p_parts, parts = pattern.strip('/').split('/'), path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    params = {}\n    for p, value in zip(p_parts, parts):\n        if p.startswith('<'):\n            params[p[1:-1]] = value\n        elif p != value:\n            return None\n    return params\n\nprint(match('/students/<id>', '/students/5/'), match('/students/<id>', '/students/5/grades'))",
+      "choices": [
+        "{'id': '5'} None",
+        "None None",
+        "{'id': '5'} {'id': '5'}",
+        "{'id': 5} None"
+      ],
+      "answer": "{'id': '5'} None",
+      "why_tr": "`strip('/')` sondaki eğik çizgiyi siler, bu yüzden ilk yol iki bölümdür ve eşleşir. İkinci yolda üç bölüm var, kalıpta iki; uzunluk farkı eşleşmeyi bitirir. Yakalanan değer bir string'dir: '5'.",
+      "why": "`strip('/')` removes the trailing slash, so the first path has two segments and matches. The second path has three segments against the pattern's two; the length difference ends the match. The captured value is a string: '5'.",
+      "section": "Getting a document by id"
+    },
+    {
+      "id": "d29-c12",
+      "type": "explain",
+      "title_tr": "Sık hata: yol parametresi bir string'dir",
+      "title": "Common mistake: a path parameter is a string",
+      "body_tr": "URL'den gelen her şey metindir. Depoda anahtarlar `int` ise, `store['5']` aramak `KeyError: '5'` verir; `'5'` ile `5` farklı anahtarlardır. Mesajdaki tırnaklara dikkat et: string bir anahtar arandığını söylüyor.\n\nÇözüm, parametreyi kullanmadan önce dönüştürmek: `int(student_id)`. Flask bunu kalıpta da yapabilir: `<int:student_id>` yazarsan sayı olmayan bir id zaten 404 olur. Elle dönüştürürken `'abc'` için `ValueError` çıkar; onu yakalayıp 400 ya da 404 döndürürsün.\n\nBir not: dersteki parametre adı `id`, Python'un yerleşik `id()` fonksiyonunun adını gölgeler. `student_id` daha iyi bir isim.",
+      "body": "Everything that comes from a URL is text. If the store's keys are `int`, looking up `store['5']` raises `KeyError: '5'`; `'5'` and `5` are different keys. Notice the quotes in the message: they tell you a string key was looked up.\n\nThe fix is to convert the parameter before using it: `int(student_id)`. Flask can also do this in the pattern: write `<int:student_id>` and a non-numeric id is a 404 straight away. When you convert by hand, `'abc'` raises `ValueError`; you catch it and return 400 or 404.\n\nA side note: the lesson's parameter name `id` shadows Python's built-in `id()` function. `student_id` is a better name.",
+      "code": "store = {1: {'id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n         2: {'id': 2, 'name': 'David', 'country': 'UK', 'city': 'London'}}\nstudent_id = '1'\ntry:\n    print(store[student_id])\nexcept KeyError as err:\n    print('KeyError:', err)\nprint(store[int(student_id)]['name'])",
+      "expected_output": "KeyError: '1'\nAsabeneh",
+      "section": "Getting a document by id"
+    },
+    {
+      "id": "d29-c13",
+      "type": "explain",
+      "title_tr": "Bulunamayan belge: 404 ve JSON hata gövdesi",
+      "title": "A missing document: 404 and a JSON error body",
+      "body_tr": "Ders tek öğrenciyi `db.students.find({'_id': ObjectId(id)})` ile arar ve sonucu bir list olarak döndürür. Tek bir belge için `find_one` daha doğrudur: bir dict ya da `None` verir (Gün 27).\n\n`None` geldiğinde ne döndürmeli? Boş bir 200 değil, **404**. Ve gövde de JSON olmalı, ki istemci her yanıtı aynı şekilde okuyabilsin: `{'error': 'student not found'}`.\n\nAşağıdaki `get_student` dönüşümü, aramayı ve iki sonucu tek yerde topluyor. Bu fonksiyonu Flask'a taşıdığında yalnızca dekoratörü eklemen yeter.",
+      "body": "The lesson looks the student up with `db.students.find({'_id': ObjectId(id)})` and returns the result as a list. For a single document `find_one` is more direct: it gives a dict or `None` (Day 27).\n\nWhat should you return for `None`? Not an empty 200, but **404**. And the body should be JSON too, so the client can read every response the same way: `{'error': 'student not found'}`.\n\nThe `get_student` below keeps the conversion, the lookup and both outcomes in one place. When you move it into Flask, you only need to add the decorator.",
+      "code": "store = {1: {'id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n         2: {'id': 2, 'name': 'David', 'country': 'UK', 'city': 'London'}}\n\ndef get_student(student_id):\n    student = store.get(int(student_id))\n    if student is None:\n        return 404, {'error': 'student not found'}\n    return 200, student\n\nprint(get_student('2'))\nprint(get_student('9'))",
+      "expected_output": "(200, {'id': 2, 'name': 'David', 'country': 'UK', 'city': 'London'})\n(404, {'error': 'student not found'})",
+      "section": "Getting a document by id"
+    },
+    {
+      "id": "d29-c14",
+      "type": "fill",
+      "prompt_tr": "Öğrenci yoksa 404 döndür. Boşluğu doldur.",
+      "prompt": "Return 404 when the student does not exist. Fill the blank.",
+      "code": "store = {1: {'name': 'Ece'}}\n\ndef get_student(student_id):\n    student = store.get(student_id)\n    if student is ___:\n        return 404\n    return 200\n\nprint(get_student(1), get_student(2))",
+      "answers": [
+        "None"
+      ],
+      "expected_output": "200 404",
+      "why_tr": "`store.get` olmayan bir anahtar için `None` döndürür; `is None` bu durumu tam olarak yakalar.",
+      "why": "`store.get` returns `None` for a missing key; `is None` catches exactly that case.",
+      "section": "Getting a document by id"
+    },
+    {
+      "id": "d29-c15",
+      "type": "explain",
+      "title_tr": "POST: yeni bir öğrenci oluşturmak",
+      "title": "POST: creating a new student",
+      "body_tr": "Oluşturma view'ı isteğin gövdesini okur, yeni bir belge kurar, saklar ve **201 Created** ile yeni belgeyi döndürür. İyi bir API ayrıca `Location: /api/v1.0/students/3` başlığıyla yeni kaynağın adresini de verir.\n\nDersteki kodun iki hatası var: `request` içe aktarılmamış (`from flask import request` gerekir) ve view `return ;` ile **hiçbir şey döndürmüyor**. Flask bu durumda `TypeError: The view function for 'create_student' did not return a valid response. The function either returned None or ended without a return statement.` hatası verir. Bir view her zaman bir yanıt döndürmelidir.\n\nDers form verisi (`request.form`) okuyor; JSON gönderen istemciler için `request.get_json()` kullanılır.",
+      "body": "The create view reads the request body, builds a new document, stores it and returns the new document with **201 Created**. A good API also gives the new resource's address in a `Location: /api/v1.0/students/3` header.\n\nThe lesson's code has two bugs: `request` is not imported (it needs `from flask import request`), and the view `return ;` returns **nothing**. Flask then raises `TypeError: The view function for 'create_student' did not return a valid response. The function either returned None or ended without a return statement.` A view must always return a response.\n\nThe lesson reads form data (`request.form`); for clients that send JSON you use `request.get_json()`.",
+      "code": "store = {1: {'id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n         2: {'id': 2, 'name': 'David', 'country': 'UK', 'city': 'London'}}\n\ndef create_student(data):\n    new_id = max(store, default=0) + 1\n    student = {'id': new_id, 'name': data['name'], 'country': data['country']}\n    store[new_id] = student\n    return 201, student, {'Location': f'/api/v1.0/students/{new_id}'}\n\nprint(create_student({'name': 'Ayşe', 'country': 'Türkiye'}))\nprint(sorted(store))",
+      "expected_output": "(201, {'id': 3, 'name': 'Ayşe', 'country': 'Türkiye'}, {'Location': '/api/v1.0/students/3'})\n[1, 2, 3]",
+      "section": "Creating data using POST"
+    },
+    {
+      "id": "d29-c16",
+      "type": "explain",
+      "title_tr": "Doğrulama: istemciye güvenme",
+      "title": "Validation: never trust the client",
+      "body_tr": "Bir istemci her şeyi gönderebilir: eksik alanlar, boş string'ler, sayı yerine metin. Dersteki kod `request.form['name']` ile okur; alan eksikse istek bir 400 hatasıyla çöker ve istemci neyin yanlış olduğunu öğrenemez.\n\nDaha iyisi: kaydetmeden önce **doğrula** ve her sorunu bir hata list'inde topla. List boşsa devam et; değilse **400 Bad Request** ile bütün hataları birlikte döndür. Böylece istemci hepsini tek seferde düzeltebilir.\n\nİzleyicide `errors` list'inin nasıl dolduğunu izle.",
+      "body": "A client can send anything: missing fields, empty strings, text instead of numbers. The lesson's code reads `request.form['name']`; if the field is missing, the request crashes into a 400 error and the client cannot learn what was wrong.\n\nBetter: **validate** before saving and collect every problem in a list of errors. If the list is empty, carry on; otherwise return **400 Bad Request** with all the errors together. Then the client can fix them all in one go.\n\nWatch the `errors` list fill up in the tracer.",
+      "code": "REQUIRED = ['name', 'country']\n\ndef validate(data):\n    errors = []\n    for field in REQUIRED:\n        if not str(data.get(field, '')).strip():\n            errors.append(f'{field} is required')\n    if 'birthyear' in data and not str(data['birthyear']).isdigit():\n        errors.append('birthyear must be a number')\n    return errors\n\nprint(validate({'name': 'Ayşe', 'country': 'Türkiye'}))\nprint(validate({'name': '  ', 'birthyear': '199x'}))",
+      "expected_output": "[]\n['name is required', 'country is required', 'birthyear must be a number']",
+      "trace": true,
+      "section": "Creating data using POST"
+    },
+    {
+      "id": "d29-c17",
+      "type": "predict",
+      "prompt_tr": "Hangi hatalar döner?",
+      "prompt": "Which errors come back?",
+      "code": "REQUIRED = ['name', 'country']\n\ndef validate(data):\n    return [f'{f} is required' for f in REQUIRED if not data.get(f)]\n\nprint(validate({'name': 'Can', 'country': ''}), validate({}))",
+      "choices": [
+        "['country is required'] ['name is required', 'country is required']",
+        "[] ['name is required', 'country is required']",
+        "['country is required'] []",
+        "KeyError: 'country'"
+      ],
+      "answer": "['country is required'] ['name is required', 'country is required']",
+      "why_tr": "Boş string yanlış (falsy) sayılır, bu yüzden `country` eksik kabul edilir. Boş dict'te `get` iki alan için de `None` döndürür ve iki hata da eklenir. `get` kullanıldığı için KeyError olmaz.",
+      "why": "The empty string is falsy, so `country` counts as missing. In the empty dict, `get` returns `None` for both fields and both errors are added. Because `get` is used, there is no KeyError.",
+      "section": "Creating data using POST"
+    },
+    {
+      "id": "d29-c18",
+      "type": "explain",
+      "title_tr": "Beceri list'ini sağlam ayrıştırmak",
+      "title": "Parsing the skills list robustly",
+      "body_tr": "Ders becerileri bir form alanından okuyup `request.form['skills'].split(', ')` ile böler. Bu, kullanıcının virgülden sonra **tam bir boşluk** bıraktığını varsayar. `'Python,SQL'` yazan biri tek bir beceri alır: `['Python,SQL']`. `'Python, SQL, '` yazan da sonda boş bir beceri alır.\n\nSağlam yol: yalnızca virgülden böl, her parçayı `strip()` ile temizle ve boş kalanları at. Bu küçük fonksiyon, kullanıcı girdisinin dağınık olacağını kabul eden bir kalıptır; Gün 4'ün string metotları ve Gün 13'ün comprehension'ı bir arada.",
+      "body": "The lesson reads the skills from a form field and splits them with `request.form['skills'].split(', ')`. That assumes the user typed **exactly one space** after each comma. Someone who types `'Python,SQL'` gets one skill: `['Python,SQL']`. Someone who types `'Python, SQL, '` gets an empty skill at the end.\n\nThe robust way: split on the comma only, clean every piece with `strip()` and drop the ones that end up empty. This small function is a pattern that accepts that user input will be messy; it combines Day 4's string methods with Day 13's comprehension.",
+      "code": "def parse_skills(text):\n    return [s.strip() for s in text.split(',') if s.strip()]\n\nfor raw in ['Python, SQL', 'Python,SQL', ' Python ,  SQL, ', '']:\n    print(repr(raw), '->', raw.split(', '), parse_skills(raw))",
+      "expected_output": "'Python, SQL' -> ['Python', 'SQL'] ['Python', 'SQL']\n'Python,SQL' -> ['Python,SQL'] ['Python', 'SQL']\n' Python ,  SQL, ' -> [' Python ', ' SQL', ''] ['Python', 'SQL']\n'' -> [''] []",
+      "section": "Creating data using POST"
+    },
+    {
+      "id": "d29-c19",
+      "type": "order",
+      "prompt_tr": "Satırları sırala: doğrula, hata varsa 400 döndür, yoksa 201 döndür.",
+      "prompt": "Order the lines: validate, return 400 if there are errors, otherwise return 201.",
+      "lines": [
+        "    return 201, data",
+        "    if errors:",
+        "print(create({'name': 'Ece'}), create({'name': 'Ece', 'country': 'TR'}))",
+        "def create(data):",
+        "        return 400, errors",
+        "    errors = [f for f in ('name', 'country') if not data.get(f)]"
+      ],
+      "correct_order": [
+        3,
+        5,
+        1,
+        4,
+        0,
+        2
+      ],
+      "expected_output": "(400, ['country']) (201, {'name': 'Ece', 'country': 'TR'})",
+      "section": "Creating data using POST"
+    },
+    {
+      "id": "d29-c20",
+      "type": "explain",
+      "title_tr": "Oluşturulma zamanı",
+      "title": "The creation time",
+      "body_tr": "Ders her yeni öğrenciye `created_at = datetime.now()` ekler. Bu iyi bir alışkanlık: bir kaydın ne zaman oluştuğunu sonradan bilemezsin.\n\nİki iyileştirme var. Birincisi, sunucular farklı saat dilimlerinde çalışabilir; bu yüzden zamanı UTC ile saklamak daha güvenlidir: `datetime.now(timezone.utc)`. İkincisi, yanıtta tarihi `isoformat()` ile gönder (bugünün başındaki serileştirme).\n\nAşağıda çıktı her çalıştırmada aynı olsun diye sabit bir zaman kullanıyoruz; gerçek kodda yerinde `datetime.now(timezone.utc)` durur.",
+      "body": "The lesson adds `created_at = datetime.now()` to every new student. It is a good habit: otherwise you can never find out later when a record was created.\n\nTwo improvements. First, servers may run in different time zones, so storing the time in UTC is safer: `datetime.now(timezone.utc)`. Second, send the date in the response with `isoformat()` (the serialisation from the start of today).\n\nBelow we use a fixed time so the output is the same on every run; real code has `datetime.now(timezone.utc)` in its place.",
+      "code": "from datetime import datetime, timezone\n\ndef new_student(name, now):\n    return {'name': name, 'created_at': now}\n\nnow = datetime(2026, 11, 2, 9, 30, tzinfo=timezone.utc)\nstudent = new_student('Ayşe', now)\nprint(student['created_at'].isoformat())\nprint(student['created_at'].year)",
+      "expected_output": "2026-11-02T09:30:00+00:00\n2026",
+      "section": "Creating data using POST"
+    },
+    {
+      "id": "d29-c21",
+      "type": "explain",
+      "title_tr": "PUT: güncellemek ve dersin üç hatası",
+      "title": "PUT: updating, and three bugs in the lesson",
+      "body_tr": "Güncelleme view'ı önce belgeyi bulur (yoksa 404), sonra değişiklikleri uygular ve 200 ile güncel belgeyi döndürür.\n\nDersteki PUT kodunda üç hata var. Bir: `db.students.update_one(query, student)` `$set` olmadan çağrılıyor; pymongo bunu `ValueError: update only works with $ operators` ile reddeder (Gün 27). Doğrusu `{'$set': student}`. İki: her güncellemede `created_at = datetime.now()` yeniden yazılıyor, yani oluşturulma zamanı kayboluyor; bunun yerine ayrı bir `updated_at` tutulmalı. Üç: view yine hiçbir şey döndürmüyor.\n\nİzleyicide `dict.update`'in (yani `$set`'in) yalnızca verilen alanları değiştirdiğini gör.",
+      "body": "The update view first finds the document (404 if missing), then applies the changes and returns the updated document with 200.\n\nThe lesson's PUT code has three bugs. One: `db.students.update_one(query, student)` is called without `$set`; pymongo refuses it with `ValueError: update only works with $ operators` (Day 27). It should be `{'$set': student}`. Two: every update rewrites `created_at = datetime.now()`, so the creation time is lost; a separate `updated_at` should be kept instead. Three: the view again returns nothing.\n\nIn the tracer, see that `dict.update` (that is, `$set`) changes only the given fields.",
+      "code": "store = {1: {'id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n         2: {'id': 2, 'name': 'David', 'country': 'UK', 'city': 'London'}}\n\ndef update_student(student_id, changes):\n    student = store.get(student_id)\n    if student is None:\n        return 404, {'error': 'student not found'}\n    student.update(changes)\n    return 200, student\n\nprint(update_student(1, {'city': 'Espoo'}))\nprint(update_student(5, {'city': 'Espoo'}))",
+      "expected_output": "(200, {'id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'city': 'Espoo'})\n(404, {'error': 'student not found'})",
+      "trace": true,
+      "section": "Updating using PUT"
+    },
+    {
+      "id": "d29-c22",
+      "type": "explain",
+      "title_tr": "Hangi alanlar değişebilir? İzin listesi",
+      "title": "Which fields may change? An allow-list",
+      "body_tr": "Bir istemci `{'id': 99, 'created_at': '1900-01-01', 'name': 'Can'}` gönderirse ne olur? Gelen dict'i olduğu gibi `update` edersen kaydın id'si ve oluşturulma zamanı değişir. Bu bir güvenlik ve tutarlılık sorunudur.\n\nÇözüm bir **izin listesi** (allow-list): değişmesine izin verilen alanların bir set'i (küme). Bir dict comprehension yalnızca bu alanları tutar; geri kalanlar sessizce atılır (ya da 400 ile reddedilir).\n\nBu, aynı zamanda PUT ile PATCH farkının pratik yüzüdür: burada yalnızca gönderilen alanlar değişiyor, yani bu bir PATCH. Tam bir PUT, izin verilen bütün alanların gönderilmesini isterdi.",
+      "body": "What happens if a client sends `{'id': 99, 'created_at': '1900-01-01', 'name': 'Can'}`? If you `update` with the incoming dict as it is, the record's id and creation time change. That is a security and consistency problem.\n\nThe fix is an **allow-list**: a set of the fields that may change. A dict comprehension keeps only those fields; the rest are silently dropped (or rejected with 400).\n\nThis is also the practical side of PUT versus PATCH: here only the fields sent are changed, so this is really a PATCH. A strict PUT would require all allowed fields to be sent.",
+      "code": "ALLOWED = {'name', 'country', 'city', 'skills', 'bio', 'birthyear'}\n\nincoming = {'id': 99, 'created_at': '1900-01-01', 'name': 'Can', 'city': 'Ankara'}\nchanges = {k: v for k, v in incoming.items() if k in ALLOWED}\nprint(changes)\n\nstudent = {'id': 3, 'name': 'Cem', 'city': 'Bursa', 'created_at': '2026-11-02'}\nstudent.update(changes)\nprint(student)",
+      "expected_output": "{'name': 'Can', 'city': 'Ankara'}\n{'id': 3, 'name': 'Can', 'city': 'Ankara', 'created_at': '2026-11-02'}",
+      "section": "Updating using PUT"
+    },
+    {
+      "id": "d29-c23",
+      "type": "predict",
+      "prompt_tr": "İzin listesinden sonra ne kalır?",
+      "prompt": "What is left after the allow-list?",
+      "code": "ALLOWED = {'name', 'city'}\nincoming = {'name': 'Ece', '_id': 1, 'City': 'İzmir', 'city': 'Bursa'}\nprint({k: v for k, v in incoming.items() if k in ALLOWED})",
+      "choices": [
+        "{'name': 'Ece', 'city': 'Bursa'}",
+        "{'name': 'Ece', 'City': 'İzmir', 'city': 'Bursa'}",
+        "{'name': 'Ece', 'city': 'İzmir'}",
+        "{'name': 'Ece'}"
+      ],
+      "answer": "{'name': 'Ece', 'city': 'Bursa'}",
+      "why_tr": "Yalnızca set'teki anahtarlar kalır. `'City'` büyük harfle yazıldığı için `'city'` ile aynı anahtar değildir ve atılır; `_id` de izinli değildir.",
+      "why": "Only keys in the set stay. `'City'` is capitalised, so it is not the same key as `'city'` and is dropped; `_id` is not allowed either.",
+      "section": "Updating using PUT"
+    },
+    {
+      "id": "d29-c24",
+      "type": "explain",
+      "title_tr": "Sık hata: aynı isimde iki fonksiyon",
+      "title": "Common mistake: two functions with the same name",
+      "body_tr": "Dersin son kodunda `update_student` iki kez tanımlanıyor ve bir de gövdesi olmayan `def update_student (id):` satırı var. Gövdesiz `def` Python'u hiç çalıştırmaz: `IndentationError: expected an indented block after function definition on line ...`\n\nGövdeli iki tanım ise sessizce çalışır: isim etiketi modelini hatırla, ikinci `def` aynı ismi yeni bir fonksiyona bağlar ve ilki kaybolur. Flask burada ayrıca şunu der: `AssertionError: View function mapping is overwriting an existing endpoint function: update_student`.\n\nKural: her view'a kendi adını ver (`delete_student` gibi) ve bir dosyayı kopyalayıp yapıştırırken isimleri kontrol et.",
+      "body": "The lesson's last code defines `update_student` twice and also contains a body-less `def update_student (id):` line. A `def` without a body stops Python from running at all: `IndentationError: expected an indented block after function definition on line ...`\n\nTwo definitions with bodies run silently: remember the name-tag model, the second `def` binds the same name to a new function and the first one is lost. Flask additionally says here: `AssertionError: View function mapping is overwriting an existing endpoint function: update_student`.\n\nRule: give every view its own name (like `delete_student`), and check the names when you copy and paste code.",
+      "code": "def update_student(student_id):\n    return 'update ' + str(student_id)\n\ndef update_student(student_id):\n    return 'delete ' + str(student_id)\n\nprint(update_student(5))",
+      "expected_output": "delete 5",
+      "hide_output": true,
+      "section": "Updating using PUT"
+    },
+    {
+      "id": "d29-c25",
+      "type": "truefalse",
+      "statement_tr": "Python'da aynı dosyada aynı isimli iki fonksiyon tanımlamak hata verir.",
+      "statement": "Defining two functions with the same name in one file raises an error in Python.",
+      "answer": false,
+      "why_tr": "Yanlış. Python hata vermez; ikinci `def` ismi yeni fonksiyona bağlar ve ilki sessizce kaybolur. Bu yüzden hata sinsi ve tehlikelidir (Flask ise route kaydında itiraz eder).",
+      "why": "False. Python raises no error; the second `def` binds the name to the new function and the first one silently disappears. That is what makes the bug sneaky (Flask, though, complains when registering the route).",
+      "section": "Updating using PUT"
+    },
+    {
+      "id": "d29-c26",
+      "type": "explain",
+      "title_tr": "DELETE: silmek ve 204",
+      "title": "DELETE: removing, and 204",
+      "body_tr": "Silme view'ı belgeyi siler ve **204 No Content** döndürür: başarılı, ama gönderilecek bir gövde yok. Bazı API'ler bunun yerine 200 ve `{'message': 'deleted'}` döndürür; ikisi de kabul görür.\n\nGerçek kodda `result = db.students.delete_one({'_id': ObjectId(student_id)})` yazılır ve `result.deleted_count` 0 ise belge zaten yoktu: **404**. Dersteki kod sonucu kontrol etmiyor ve yine hiçbir şey döndürmüyor.\n\nModelde `dict.pop(anahtar, None)` aynı işi yapar: anahtar varsa siler ve değerini verir, yoksa `None` verir ve hata çıkarmaz.",
+      "body": "The delete view removes the document and returns **204 No Content**: success, but there is no body to send. Some APIs return 200 and `{'message': 'deleted'}` instead; both are accepted.\n\nIn real code you write `result = db.students.delete_one({'_id': ObjectId(student_id)})`, and if `result.deleted_count` is 0 the document was already gone: **404**. The lesson's code does not check the result and again returns nothing.\n\nIn the model `dict.pop(key, None)` does the same job: it removes the key and gives its value if it exists, otherwise it gives `None` and raises no error.",
+      "code": "store = {1: {'id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n         2: {'id': 2, 'name': 'David', 'country': 'UK', 'city': 'London'}}\n\ndef delete_student(student_id):\n    removed = store.pop(student_id, None)\n    if removed is None:\n        return 404, {'error': 'student not found'}\n    return 204, None\n\nprint(delete_student(2))\nprint(sorted(store))",
+      "expected_output": "(204, None)\n[1]",
+      "section": "Deleting a document using Delete"
+    },
+    {
+      "id": "d29-c27",
+      "type": "predict",
+      "prompt_tr": "Aynı silme iki kez gönderiliyor. Çıktı ne?",
+      "prompt": "The same delete is sent twice. What is printed?",
+      "code": "store = {1: 'Ece', 2: 'Can'}\n\ndef delete_student(student_id):\n    if store.pop(student_id, None) is None:\n        return 404\n    return 204\n\nprint(delete_student(2), delete_student(2), store)",
+      "choices": [
+        "204 404 {1: 'Ece'}",
+        "204 204 {1: 'Ece'}",
+        "204 404 {}",
+        "KeyError: 2"
+      ],
+      "answer": "204 404 {1: 'Ece'}",
+      "why_tr": "İlk çağrı 2'yi siler: 204. İkincisinde anahtar artık yoktur, `pop` `None` döndürür: 404. Durum kodu farklı olsa da depo aynı kalır; DELETE'in idempotent olması budur (Gün 28).",
+      "why": "The first call removes 2: 204. On the second call the key is gone and `pop` returns `None`: 404. The status code differs, but the store stays the same; that is what makes DELETE idempotent (Day 28).",
+      "section": "Deleting a document using Delete"
+    },
+    {
+      "id": "d29-c28",
+      "type": "explain",
+      "title_tr": "Hepsini birleştirmek: 404 mü 405 mi?",
+      "title": "Putting it together: 404 or 405?",
+      "body_tr": "Şimdi bir isteği doğru view'a gönderen **dispatcher**'ı kuralım. Önemli bir ayrım var: yol hiç yoksa **404 Not Found**; yol var ama bu metot desteklenmiyorsa **405 Method Not Allowed** (ve gerçek sunucular izinli metotları `Allow` başlığında listeler).\n\nBu yüzden tablo iki katmanlıdır: önce yol, sonra o yolun metotları. Aşağıdaki modelde yollar sabit; yol parametrelerini daha önceki `match` fonksiyonuyla birleştirmek, alıştırmalarda senin işin olacak.\n\nİzleyicide üç isteğin üç farklı sonuca gidişini izle.",
+      "body": "Now let us build the **dispatcher** that sends a request to the right view. There is an important distinction: if the path does not exist at all, **404 Not Found**; if the path exists but this method is not supported, **405 Method Not Allowed** (and real servers list the allowed methods in an `Allow` header).\n\nSo the table has two layers: first the path, then that path's methods. In the model below the paths are fixed; combining them with the `match` function from earlier is your job in the exercises.\n\nIn the tracer, watch three requests reach three different results.",
+      "code": "routes = {'/students': {'GET': lambda: (200, ['Ece', 'Can']),\n                        'POST': lambda: (201, 'created')}}\n\ndef dispatch(method, path):\n    methods = routes.get(path)\n    if methods is None:\n        return 404, 'not found'\n    if method not in methods:\n        return 405, 'allowed: ' + ', '.join(methods)\n    return methods[method]()\n\nfor method, path in [('GET', '/students'), ('DELETE', '/students'), ('GET', '/teachers')]:\n    print(method, path, dispatch(method, path))",
+      "expected_output": "GET /students (200, ['Ece', 'Can'])\nDELETE /students (405, 'allowed: GET, POST')\nGET /teachers (404, 'not found')",
+      "trace": true,
+      "section": "Deleting a document using Delete"
+    },
+    {
+      "id": "d29-c29",
+      "type": "explain",
+      "title_tr": "Postman olmadan test etmek",
+      "title": "Testing without Postman",
+      "body_tr": "Postman'de her endpoint'i elle denemek yorucudur ve unutkanlığa açıktır. Daha iyisi, beklenen davranışı **kodla yazmak**: her istek için beklenen durum kodunu bir `assert` ile kontrol et. Alıştırmalarımızdaki testler tam olarak böyle çalışıyor.\n\nGerçek Flask'ta bunun için bir test istemcisi vardır: `client = app.test_client()`, sonra `response = client.get('/api/v1.0/students/1')` ve `assert response.status_code == 200`. Sunucu başlatmaya, ağa ya da tarayıcıya gerek yoktur.\n\nBir değişiklik yaptığında testleri yeniden çalıştırırsın; bozduğun bir şey varsa hemen görürsün.",
+      "body": "Trying every endpoint by hand in Postman is tiring and easy to forget. Better: **write the expected behaviour as code**: check the expected status code of every request with an `assert`. The tests in our exercises work exactly this way.\n\nReal Flask has a test client for this: `client = app.test_client()`, then `response = client.get('/api/v1.0/students/1')` and `assert response.status_code == 200`. No server, network or browser is needed.\n\nWhenever you change something, you run the tests again; if you broke something, you see it at once.",
+      "code": "store = {1: {'name': 'Ece'}}\n\ndef get_student(student_id):\n    student = store.get(student_id)\n    return (200, student) if student else (404, {'error': 'not found'})\n\nassert get_student(1) == (200, {'name': 'Ece'})\nassert get_student(2)[0] == 404\nprint('all tests passed')",
+      "expected_output": "all tests passed",
+      "section": "Deleting a document using Delete"
+    },
+    {
+      "id": "d29-c30",
+      "type": "explain",
+      "title_tr": "Gerçek bir API için kontrol listesi",
+      "title": "A checklist for a real API",
+      "body_tr": "Bugünkü modeller gerçek Flask koduna birebir taşınır: `@app.route('/api/v1.0/students/<int:student_id>', methods=['GET'])`, view içinde `find_one`, `jsonify(...)` ve bir durum kodu.\n\nYayına almadan önce şu soruları sor: Her view bir yanıt döndürüyor mu? Girdi doğrulanıyor mu (400)? Olmayan kayıtlar 404 veriyor mu? Desteklenmeyen metotlar 405 mi? Hata yanıtları da JSON mu? Parola ve bağlantı adresi ortam değişkeninde mi (Gün 27)? Kim neyi değiştirebilir (401/403, kimlik doğrulama)? Hata ayrıntıları ve debug modu kullanıcıdan gizli mi (Gün 26)?\n\nAşağıdaki tablo bugünkü API'nin sözleşmesidir.",
+      "body": "Today's models carry over to real Flask code one to one: `@app.route('/api/v1.0/students/<int:student_id>', methods=['GET'])`, `find_one` inside the view, `jsonify(...)` and a status code.\n\nBefore deploying, ask these questions: Does every view return a response? Is input validated (400)? Do missing records give 404? Are unsupported methods 405? Are error responses JSON too? Are the password and connection string in environment variables (Day 27)? Who may change what (401/403, authentication)? Are error details and debug mode hidden from users (Day 26)?\n\nThe table below is the contract of today's API.",
+      "code": "contract = [\n    ('GET', '/students', '200'),\n    ('GET', '/students/<id>', '200 or 404'),\n    ('POST', '/students', '201 or 400'),\n    ('PUT', '/students/<id>', '200, 400 or 404'),\n    ('DELETE', '/students/<id>', '204 or 404'),\n]\nfor method, path, codes in contract:\n    print(f'{method:<7}{path:<16}{codes}')",
+      "expected_output": "GET    /students       200\nGET    /students/<id>  200 or 404\nPOST   /students       201 or 400\nPUT    /students/<id>  200, 400 or 404\nDELETE /students/<id>  204 or 404",
+      "section": "Deleting a document using Delete"
+    },
+    {
+      "id": "d29-c31",
+      "type": "truefalse",
+      "statement_tr": "Başarılı bir DELETE genellikle 201 döndürür.",
+      "statement": "A successful DELETE usually returns 201.",
+      "answer": false,
+      "why_tr": "Yanlış. 201 Created yeni bir kaynak oluşturulduğunda (POST) kullanılır. Başarılı bir DELETE genellikle 204 No Content ya da bir mesajla 200 döndürür.",
+      "why": "False. 201 Created is for when a new resource was created (POST). A successful DELETE usually returns 204 No Content, or 200 with a message.",
+      "section": "Deleting a document using Delete"
+    },
+    {
+      "id": "d29-c32",
+      "type": "recap",
+      "points_tr": [
+        "Bir REST API'de URL kaynağı (`/students`, `/students/5`), metot ise işlemi seçer; route tablosunun anahtarı (metot, yol) çiftidir.",
+        "View veriyi ve durum kodunu döndürür; JSON'a çevrilemeyen değerler (ObjectId, datetime) önce `str` ya da `isoformat()` ile serileştirilir.",
+        "Yol parametreleri string olarak gelir; kullanmadan önce dönüştür ve bulunamayan kayıt için JSON gövdeli 404 döndür.",
+        "POST ve PUT girdiyi doğrular (400) ve yalnızca izinli alanları yazar; POST 201, PUT 200 döndürür ve oluşturulma zamanı korunur.",
+        "DELETE başarılıysa 204, kayıt yoksa 404 döndürür; yol yoksa 404, metot desteklenmiyorsa 405 olur ve her view mutlaka bir yanıt döndürür."
+      ],
+      "points": [
+        "In a REST API the URL selects the resource (`/students`, `/students/5`) and the method the operation; the route table's key is the (method, path) pair.",
+        "A view returns data and a status code; values JSON cannot handle (ObjectId, datetime) are serialised first with `str` or `isoformat()`.",
+        "Path parameters arrive as strings; convert them before use and return a 404 with a JSON body for a missing record.",
+        "POST and PUT validate input (400) and write only allowed fields; POST returns 201, PUT returns 200, and the creation time is kept.",
+        "DELETE returns 204 on success and 404 if the record is missing; an unknown path is 404, an unsupported method is 405, and every view must return a response."
+      ],
+      "cta_tr": "Şimdi alıştırmalara geç",
+      "cta": "Go to the exercises now",
+      "link": "learn",
+      "section": "Deleting a document using Delete"
+    }
+  ]
 }
