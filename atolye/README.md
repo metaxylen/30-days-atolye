@@ -95,6 +95,16 @@ node scripts/e2e.mjs                 # all tests
 node scripts/e2e.mjs --only name     # selected tests, comma-separated
 ```
 
+## Contributing
+
+Changes come in through pull requests from a fork; nothing is pushed straight to `main`.
+
+1. Fork the repository on GitHub and clone your fork.
+2. Create a branch for your change: `git switch -c my-change`.
+3. Make the change, then check it locally: `npm run build` in `atolye/`, the content validators for any day you touched, and a look at the screen in the browser.
+4. Push the branch to your fork and open a pull request against `main`. Describe what you changed and how you checked it (the template asks for this).
+5. The **Atolye check** workflow runs automatically on the pull request: content validators, the production build and the end-to-end tests in Chrome. A pull request is merged only when it is green and has been reviewed.
+
 ## Credits
 
 The course outline and the original lesson text are based on [30 Days of Python](https://github.com/Asabeneh/30-Days-Of-Python) by Asabeneh Yetayeh.

@@ -1,0 +1,65 @@
+name: Atolye check
+
+# Runs on every pull request and on pushes to main. A pull request should only be merged when this is green.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: atolye-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  content:
+    name: Content validators
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install numpy and pandas
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --quiet numpy pandas
+      - name: Lesson cards
+        run: |
+          for r in d01-10 d11-20 d21-30; do .venv/bin/python atolye/content/tools/validate_cards_$r.py; done
+      - name: Exercises
+        run: |
+          for r in d01-10 d11-20 d21-30; do .venv/bin/python atolye/content/tools/validate_$r.py; done
+      - name: End-of-part projects
+        run: .venv/bin/python atolye/content/tools/validate_bosses.py
+
+  app:
+    name: Build and end-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: atolye
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: atolye/package-lock.json
+      - run: npm ci
+      - name: Build (prepare + type check + vite build)
+        run: npm run build
+      - name: Install playwright-core
+        run: npm install --no-save playwright-core
+      - name: End-to-end tests in Chrome
+        run: node scripts/e2e.mjs --out e2e-output
+      - name: Keep test screenshots when something fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-output
+          path: atolye/e2e-output
