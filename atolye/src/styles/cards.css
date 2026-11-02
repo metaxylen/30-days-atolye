@@ -1,0 +1,790 @@
+/*
+ * Anlatım: the lesson as one card at a time. Same system as the rest of the app: flat fills, the chevron as the one shape,
+ * tokens only. Motion is transform and opacity; the slide/spring lives in Cards.tsx (WAAPI), this file only holds the rest state.
+ */
+.lesson-cards {
+  max-width: 780px;
+}
+.cards {
+  display: block;
+  min-width: 0;
+}
+.cards-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.cards-strip {
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 0;
+}
+.cards-count {
+  flex: none;
+  font-size: var(--t-small);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.cards-stage {
+  position: relative;
+  overflow-x: clip;
+  touch-action: pan-y;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.cards-stage.is-dragging {
+  cursor: grabbing;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.card-slide {
+  position: relative;
+}
+.card-slide.is-leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.card-face {
+  background: var(--cell);
+  border: 1px solid var(--border);
+  padding: 26px clamp(18px, 4vw, 40px) 22px;
+  min-height: 320px;
+}
+.card-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.card-kicker::before {
+  content: '';
+  width: 9px;
+  height: 13px;
+  background: var(--accent);
+  clip-path: var(--chev);
+}
+
+.cbody {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.ctitle {
+  font-size: clamp(26px, 3.4vw, 36px);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  max-width: 24ch;
+  text-wrap: balance;
+}
+.ctitle-q {
+  font-size: var(--t-lead);
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+.clead {
+  font-size: var(--t-lead);
+  line-height: 1.4;
+  max-width: 62ch;
+}
+.cmd {
+  font-size: clamp(19px, 2.2vw, 22px);
+  line-height: 1.58;
+  max-width: 62ch;
+}
+.cmd > :first-child {
+  margin-top: 0;
+}
+.cmd > :last-child {
+  margin-bottom: 0;
+}
+.cmd p,
+.cmd ul,
+.cmd ol {
+  margin: 0 0 0.8em;
+}
+.cmd code {
+  font-size: 0.86em;
+}
+.cstatement {
+  margin: 0;
+  padding: 4px 0 4px 18px;
+  border-left: 4px solid var(--accent);
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.32;
+  font-weight: 500;
+  max-width: 34ch;
+  text-wrap: balance;
+}
+
+/* ---- live code on an explain card ---- */
+.ccode {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.ccode-cell {
+  margin: 0;
+}
+.ccode-bar {
+  display: flex;
+  gap: 8px;
+}
+.guess {
+  display: grid;
+  gap: 8px;
+}
+.guess-l {
+  font-size: 17px;
+  font-weight: 700;
+}
+.guess-in {
+  font: 16px/1.5 var(--font-code);
+  color: var(--ink);
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 3.4em;
+  width: 100%;
+}
+.guess-in:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.guess-nudge {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--negative);
+  animation: note-in 240ms var(--ease-out) both;
+}
+.ccode-out {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.ccode-out.is-pair {
+  grid-template-columns: 1fr 1fr;
+}
+.ccode-out pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.guess-card pre {
+  font-family: var(--font-code);
+  font-size: 14.5px;
+  line-height: 1.55;
+  padding: 10px 14px;
+  background: var(--surface);
+  min-height: 2.6em;
+}
+.guess-card pre.is-ok {
+  background: color-mix(in srgb, var(--field-2) 40%, var(--cell));
+}
+.guess-card pre.is-bad {
+  background: var(--negative-bg);
+}
+.match {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  animation: note-in 240ms var(--ease-out) both;
+}
+.match .chev {
+  width: 11px;
+  height: 14px;
+}
+.match.is-bad {
+  color: var(--negative);
+}
+
+/* ---- checkpoints ---- */
+.cchoices {
+  display: grid;
+  gap: 10px;
+}
+.cchoice {
+  font: inherit;
+  text-align: left;
+  min-height: 56px;
+  padding: 10px 16px;
+  color: var(--ink);
+  background: var(--bg);
+  border: 2px solid var(--control);
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, border-color 160ms ease;
+}
+.cchoice pre {
+  margin: 0;
+  font-family: var(--font-code);
+  font-size: 16px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.cchoice:active:not(:disabled) {
+  transform: scale(0.985);
+}
+.cchoice:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.cchoice:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.cchoice.is-right {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--field-2) 45%, var(--cell));
+}
+.cchoice.is-wrong {
+  border-color: var(--negative);
+  background: var(--negative-bg);
+}
+.cchoice.is-picked {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--field-1) 38%, var(--cell));
+}
+.cchoice:disabled:not(.is-right):not(.is-wrong) {
+  opacity: 0.55;
+}
+.ctf {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.ctf-btn {
+  text-align: center;
+  font-size: var(--t-lead);
+  font-weight: 700;
+  min-height: 64px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cchoice:hover:not(:disabled) {
+    border-color: var(--ink);
+  }
+}
+.ccode-fill {
+  padding: 14px 0;
+}
+.ccode-fill .fill-input {
+  background: var(--cell);
+  font-size: inherit;
+}
+.ccode-fill .fill-input.is-ok {
+  border-bottom-color: var(--accent);
+}
+.order-want {
+  display: grid;
+  gap: 6px;
+}
+.cbody .parsons {
+  min-width: 0;
+}
+
+/* ---- recap ---- */
+.recap-points {
+  display: grid;
+  gap: 14px;
+  max-width: 60ch;
+}
+.recap-points li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: clamp(19px, 2.2vw, 22px);
+  line-height: 1.45;
+}
+.recap-points .chev {
+  flex: none;
+  width: 12px;
+  height: 16px;
+  margin-top: 0.4em;
+}
+.recap-score {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--surface);
+  font-size: 17px;
+}
+.recap-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.recap-dots li {
+  width: 15px;
+  height: 20px;
+  background: var(--chev-new);
+  clip-path: var(--chev);
+  opacity: 0.55;
+}
+.recap-dots li.is-ok {
+  background: var(--accent);
+  opacity: 1;
+}
+.recap-dots li.is-bad {
+  background: var(--field-3);
+  opacity: 1;
+}
+.recap-dots li.is-skip {
+  background: var(--control);
+  opacity: 1;
+}
+.recap-next {
+  font-size: 15px;
+  color: var(--muted);
+}
+.recap-full {
+  color: var(--muted);
+  text-underline-offset: 3px;
+}
+
+/* ---- original text ---- */
+.orig {
+  margin-top: 26px;
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+}
+.orig summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+}
+.orig summary::-webkit-details-marker {
+  display: none;
+}
+.orig summary::before {
+  content: '';
+  width: 8px;
+  height: 12px;
+  background: currentColor;
+  clip-path: var(--chev);
+  transition: transform 160ms var(--ease-out);
+}
+.orig[open] summary::before {
+  transform: rotate(90deg);
+}
+.orig summary:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.orig-wait {
+  font-size: 15px;
+  color: var(--muted);
+  padding: 4px 0 8px;
+}
+.orig-body {
+  max-height: 420px;
+  overflow: auto;
+  padding: 4px 14px 10px;
+  background: var(--surface);
+  font-size: 16px;
+  overscroll-behavior: contain;
+}
+.orig-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---- bar under the card ---- */
+/* anything focused or scrolled into view stops above the sticky bar */
+html:has(.cards-bar) {
+  scroll-padding-bottom: 96px;
+}
+.card-face {
+  scroll-margin-bottom: 96px;
+}
+.cards-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.cards-msg {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--negative);
+  animation: note-in 240ms var(--ease-out) both;
+}
+.cards-msg:empty {
+  animation: none;
+}
+.tb-chev {
+  width: 9px;
+  height: 13px;
+  background: currentColor;
+  clip-path: var(--chev);
+}
+.tb-chev.is-back {
+  transform: scaleX(-1);
+}
+.cards-next {
+  margin-left: auto;
+}
+.cards-msg ~ .cards-next,
+.cards-msg ~ .btn {
+  margin-left: 0;
+}
+.cards-next.is-gated {
+  background: color-mix(in srgb, var(--ink) 58%, var(--bg));
+  animation: arrow-pulse 1.7s ease-in-out infinite;
+}
+.cards-next.is-nudged {
+  animation: cards-shake 260ms var(--ease-out), arrow-pulse 1.7s ease-in-out 260ms infinite;
+}
+@keyframes arrow-pulse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+@keyframes cards-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+}
+.cards-keys {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--muted);
+  text-align: center;
+}
+@media (pointer: coarse) {
+  .cards-keys {
+    display: none;
+  }
+}
+
+/* ---- the line-by-line stepper ---- */
+.trace {
+  container-type: inline-size;
+  border: 1px solid var(--border);
+  background: var(--cell);
+  min-width: 0;
+}
+.trace.is-wait {
+  padding: 16px;
+  font-size: 15px;
+  color: var(--muted);
+}
+/* compact: the code, then its controls in one row right under it, then the variables. On a wide card the variables sit beside the code. */
+.trace-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'code' 'bar' 'side';
+}
+.trace-code {
+  grid-area: code;
+  list-style: none;
+  margin: 0;
+  padding: 10px 0;
+  /* long code scrolls inside its box, so the controls below never move off screen */
+  max-height: min(34vh, 300px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  font-family: var(--font-code);
+  font-size: 14.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  font-variant-ligatures: none;
+}
+.tc-row {
+  position: relative;
+  display: flex;
+  min-width: max-content;
+  padding-right: 14px;
+  white-space: pre;
+  transition: background-color 120ms ease;
+}
+.tc-n {
+  flex: none;
+  width: 3.4em;
+  padding-right: 12px;
+  text-align: right;
+  color: var(--faint);
+}
+.tc-row.is-now {
+  background: color-mix(in srgb, var(--field-3) 30%, var(--surface));
+}
+.tc-row.is-now::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 8px;
+  height: 13px;
+  margin-top: -6.5px;
+  background: var(--accent);
+  clip-path: var(--chev);
+}
+.tc-row.is-err {
+  background: var(--negative-bg);
+}
+.tc-row.is-err::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 8px;
+  height: 13px;
+  margin-top: -6.5px;
+  background: var(--negative);
+  clip-path: var(--chev);
+}
+.tc-row.is-seen .tc-t {
+  opacity: 0.8;
+}
+.trace-side {
+  grid-area: side;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+@container (min-width: 560px) {
+  .trace-main {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-areas: 'code side' 'bar bar';
+  }
+  .trace-side {
+    border-top: 0;
+    border-left: 1px solid var(--border);
+    max-height: min(34vh, 300px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+.tv-h {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.tv-none {
+  font-size: 14px;
+  color: var(--muted);
+}
+.tv-list {
+  display: grid;
+  gap: 4px;
+}
+.tv-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 4px 12px;
+  padding: 6px 8px;
+  border-left: 3px solid transparent;
+  min-width: 0;
+}
+.tv-list li.is-changed {
+  border-left-color: var(--accent);
+  animation: tv-flash 760ms var(--ease-out);
+}
+@keyframes tv-flash {
+  from {
+    background-color: color-mix(in srgb, var(--field-3) 75%, transparent);
+  }
+}
+.tv-name {
+  font-family: var(--font-code);
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 4ch;
+}
+.tv-plain {
+  font-family: var(--font-code);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.tv-boxes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+.tv-kind {
+  font-size: 12.5px;
+  color: var(--muted);
+  align-self: center;
+  margin-right: 2px;
+}
+.tv-box {
+  display: inline-grid;
+  min-width: 30px;
+  border: 1.5px solid var(--ink);
+  background: var(--cell);
+  text-align: center;
+  font-family: var(--font-code);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.tv-box i {
+  font-style: normal;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  min-height: 1.5em;
+}
+.tv-box span,
+.tv-box b {
+  padding: 3px 8px;
+}
+.tv-pair b {
+  font-weight: 700;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tv-more,
+.tv-empty {
+  align-self: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.tv-out {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--surface);
+  font-family: var(--font-code);
+  font-size: 14.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 2.6em;
+}
+.trace-bar {
+  grid-area: bar;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  /* when focus or a scroll brings a control into view it stops above the sticky Geri/İleri bar, never under it */
+  scroll-margin-bottom: 96px;
+}
+.trace-bar .btn {
+  padding-inline: 12px;
+}
+.trace-bar .btn-chev {
+  padding-right: calc(12px + var(--tip));
+}
+.trace-scrub {
+  flex: 1 1 120px;
+  min-width: 100px;
+  height: 40px;
+  accent-color: var(--ink);
+  touch-action: none;
+}
+.trace-count {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.trace-where {
+  font-family: var(--font);
+}
+.trace-error {
+  margin: 0;
+  padding: 10px 14px;
+  white-space: pre-wrap;
+}
+
+/* ---- plan line in Öğren, and the home preview ---- */
+.plan-cards {
+  color: var(--ink);
+  font-weight: 500;
+  text-underline-offset: 3px;
+}
+.preview-cards {
+  margin-top: 6px;
+  font-size: 15px;
+}
+
+@media (max-width: 640px) {
+  /* many cards: the strip becomes one row of thin segments instead of wrapping over three lines */
+  .cards-strip {
+    flex-wrap: nowrap;
+    gap: 3px;
+  }
+  .cards-strip li {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .cards-strip .strip-cell {
+    width: 100%;
+    height: 6px;
+    clip-path: none;
+  }
+  .cards-strip .strip-cell.is-current {
+    transform: none;
+    height: 10px;
+  }
+  .cards-strip .strip-cell:focus-visible {
+    outline-offset: 2px;
+  }
+  .card-face {
+    padding: 20px 16px 16px;
+    min-height: 0;
+  }
+  .ccode-out.is-pair {
+    grid-template-columns: 1fr;
+  }
+  .cards-bar .btn {
+    padding-inline: 14px;
+  }
+  .cards-bar .btn-chev {
+    padding-right: calc(14px + var(--tip));
+  }
+  .ctf-btn {
+    min-height: 60px;
+  }
+}

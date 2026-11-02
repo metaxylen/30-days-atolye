@@ -1,0 +1,721 @@
+{
+  "day": 10,
+  "title": "Loops",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "blocks": [
+    {
+      "id": "d10-b1",
+      "concept": "while-break-continue",
+      "tags": [
+        "loops",
+        "while",
+        "break",
+        "continue"
+      ],
+      "worked_example": {
+        "code": "count = 0\nwhile count < 3:\n    print(count)\n    count += 1",
+        "notes": [
+          "The body repeats while the condition is True.",
+          "The loop must change something (count += 1), or it never ends."
+        ],
+        "notes_tr": [
+          "Koşul True olduğu sürece gövde tekrar eder.",
+          "Döngü bir şeyi değiştirmeli (count += 1), yoksa hiç bitmez."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d10-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "count = 0\nwhile count < 5:\n    count += 1\n    if count == 2:\n        continue\n    if count == 4:\n        break\n    print(count)",
+          "choices": [
+            "1\n3",
+            "1\n2\n3",
+            "1\n3\n4",
+            "0\n1\n3"
+          ],
+          "expected_output": "1\n3",
+          "explanation": "count becomes 1 and prints 1. At 2, continue skips the print. At 3 it prints. At 4, break ends the loop before printing.",
+          "misconceptions": {
+            "1\n2\n3": "When count is 2, continue jumps straight to the next round, skipping the print.",
+            "1\n3\n4": "break runs when count is 4, before the print line.",
+            "0\n1\n3": "count is increased BEFORE the print, so 0 is never printed."
+          },
+          "explanation_tr": "count 1 olur ve 1 yazdırılır. 2'de continue print'i atlar. 3'te yazdırılır. 4'te break, print'ten önce döngüyü bitirir.",
+          "misconceptions_tr": {
+            "1\n2\n3": "count 2 iken continue hemen sonraki tura geçer, print atlanır.",
+            "1\n3\n4": "count 4 iken print satırından ÖNCE break çalışır.",
+            "0\n1\n3": "count print'ten ÖNCE artırılıyor, bu yüzden 0 hiç yazdırılmaz."
+          }
+        },
+        {
+          "id": "d10-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the loop prints 0, 1 and 2.",
+          "prompt_tr": "Döngünün 0, 1 ve 2 yazdırması için boşluğu doldur.",
+          "starter_code": "count = 0\nwhile count ___ 3:\n    print(count)\n    count += 1",
+          "blanks": [
+            {
+              "answer": [
+                "<",
+                "!="
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['0', '1', '2']",
+              "visible": true,
+              "failure_message": "The loop must print 0, 1 and 2.",
+              "label_tr": "Döngü 0, 1 ve 2 yazdırıyor mu",
+              "failure_message_tr": "Döngü 0, 1 ve 2 yazdırmalı."
+            }
+          ],
+          "hints": [
+            "The loop should run while count is still smaller than 3.",
+            "The operator you need compares two numbers and means 'is smaller than'.",
+            "On the blank put the less-than comparison operator."
+          ],
+          "hints_tr": [
+            "Döngü, count hâlâ 3'ten küçükken çalışmalı.",
+            "İhtiyacın olan operatör iki sayıyı karşılaştırır ve 'küçüktür' anlamına gelir.",
+            "Boşluğa 'küçüktür' karşılaştırma operatörünü yaz."
+          ]
+        },
+        {
+          "id": "d10-b1-e3",
+          "type": "modify",
+          "prompt": "Change the program so it skips the number 3 and prints 0, 1, 2 and 4.",
+          "prompt_tr": "Programı 3'ü atlayıp 0, 1, 2 ve 4'ü yazdıracak şekilde değiştir.",
+          "starter_code": "count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['0', '1', '2', '4']",
+              "visible": true,
+              "failure_message": "Expected 0, 1, 2 and 4 on separate lines.",
+              "label_tr": "0, 1, 2 ve 4 yazdırılıyor mu",
+              "failure_message_tr": "0, 1, 2 ve 4 ayrı satırlarda beklenir."
+            },
+            {
+              "code": "import io, contextlib\n__ns = {}\n__buf = io.StringIO()\nwith contextlib.redirect_stdout(__buf):\n    exec(__source__.replace('count < 5', 'count < 7'), __ns)\nassert __buf.getvalue().split() == ['0', '1', '2', '4', '5', '6']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The loop limit can change: your code must still skip only 3 and print the other numbers.",
+              "failure_message_tr": "Döngü sınırı değişebilir: kodun yalnız 3'ü atlayıp diğer sayıları yazdırmaya devam etmeli."
+            }
+          ],
+          "hints": [
+            "Add an if inside the loop that handles count == 3.",
+            "continue skips the rest of the round, but count must still grow first, or the loop never ends.",
+            "Put an if before the print: when count is 3, increase count by 1 and then use continue."
+          ],
+          "solution": {
+            "approach": "Increase count and continue when count is 3, before the print.",
+            "code": "count = 0\nwhile count < 5:\n    if count == 3:\n        count += 1\n        continue\n    print(count)\n    count = count + 1",
+            "approach_tr": "count 3 iken önce count'u artır, sonra continue kullan; hepsi print'ten önce olsun."
+          },
+          "hints_tr": [
+            "Döngünün içine count == 3 durumunu ele alan bir if ekle.",
+            "continue turun geri kalanını atlar, ama önce count artmalı; yoksa döngü hiç bitmez.",
+            "print'ten önce bir if koy: count 3 ise count'u 1 artır ve sonra continue kullan."
+          ]
+        }
+      ],
+      "concept_tr": "while, break ve continue"
+    },
+    {
+      "id": "d10-b2",
+      "concept": "for-loops",
+      "tags": [
+        "loops",
+        "for",
+        "iteration",
+        "dictionaries"
+      ],
+      "worked_example": {
+        "code": "for letter in 'Python':\n    print(letter)\nfor key, value in {'a': 1}.items():\n    print(key, value)",
+        "notes": [
+          "for takes each item of a sequence in turn.",
+          "Looping over a dictionary gives keys; use .items() to get key and value."
+        ],
+        "notes_tr": [
+          "for, bir dizinin öğelerini sırayla alır.",
+          "Bir dict üzerinde döngü anahtarları verir; anahtar ve değeri birlikte almak için .items() kullan."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d10-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "person = {'name': 'Mia', 'age': 30}\nfor key in person:\n    print(key)\nfor key, value in person.items():\n    print(key, value)",
+          "choices": [
+            "name\nage\nname Mia\nage 30",
+            "Mia\n30\nname Mia\nage 30",
+            "name\nage\nMia 30",
+            "name Mia\nage 30\nname\nage"
+          ],
+          "expected_output": "name\nage\nname Mia\nage 30",
+          "explanation": "A plain for over a dictionary gives its keys. items() gives (key, value) pairs.",
+          "misconceptions": {
+            "Mia\n30\nname Mia\nage 30": "Looping over the dictionary directly gives the KEYS, not the values.",
+            "name\nage\nMia 30": "items() gives each key together with its value, so each line starts with the key.",
+            "name Mia\nage 30\nname\nage": "The loops run in the order written: first the keys, then the pairs."
+          },
+          "explanation_tr": "Bir dict üzerinde düz for anahtarları verir. items() (anahtar, değer) çiftlerini verir.",
+          "misconceptions_tr": {
+            "Mia\n30\nname Mia\nage 30": "Dict üzerinde doğrudan döngü DEĞERLERİ değil ANAHTARLARI verir.",
+            "name\nage\nMia 30": "items() her anahtarı değeriyle birlikte verir, bu yüzden her satır anahtarla başlar.",
+            "name Mia\nage 30\nname\nage": "Döngüler yazıldığı sırayla çalışır: önce anahtarlar, sonra çiftler."
+          }
+        },
+        {
+          "id": "d10-b2-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program adds up the numbers and prints 15.",
+          "prompt_tr": "Programın sayıları toplayıp 15 yazdırması için boşluğu doldur.",
+          "starter_code": "total = 0\nfor n in [4, 5, 6]:\n    total ___ n\nprint(total)",
+          "blanks": [
+            {
+              "answer": [
+                "+=",
+                "= total +"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '15'",
+              "visible": true,
+              "failure_message": "The program must print 15.",
+              "label_tr": "Program 15 yazdırıyor mu",
+              "failure_message_tr": "Program 15 yazdırmalı."
+            }
+          ],
+          "hints": [
+            "Each round must add n to the running total.",
+            "There is a shorthand operator that adds to a variable and stores the result back in it.",
+            "Use the 'add and assign' operator on the blank."
+          ],
+          "hints_tr": [
+            "Her turda n, toplam değere eklenmeli.",
+            "Bir değişkene ekleyip sonucu yine aynı değişkene kaydeden bir kısayol operatörü var.",
+            "Boşluğa 'ekle ve ata' operatörünü yaz."
+          ]
+        },
+        {
+          "id": "d10-b2-e3",
+          "type": "write",
+          "prompt": "Write a function count_vowels(text) that returns how many vowels (a, e, i, o, u, in lower or upper case) the text contains. Use a for loop. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "Metindeki sesli harflerin (a, e, i, o, u; küçük veya büyük) sayısını döndüren bir count_vowels(text) fonksiyonu yaz. for döngüsü kullan. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def count_vowels(text):",
+          "tests": [
+            {
+              "code": "assert count_vowels('python') == 1",
+              "visible": true,
+              "failure_message": "'python' has one vowel (o).",
+              "label_tr": "python içinde 1 sesli harf sayılıyor mu",
+              "failure_message_tr": "'python' içinde bir sesli harf var (o)."
+            },
+            {
+              "code": "assert count_vowels('Finland') == 2",
+              "visible": true,
+              "failure_message": "'Finland' has two vowels (i and a).",
+              "label_tr": "Finland içinde 2 sesli harf sayılıyor mu",
+              "failure_message_tr": "'Finland' içinde iki sesli harf var (i ve a)."
+            },
+            {
+              "code": "assert count_vowels('') == 0",
+              "visible": false,
+              "failure_message": "An empty text has no vowels: return 0.",
+              "failure_message_tr": "Boş metinde sesli harf yoktur: 0 döndür."
+            },
+            {
+              "code": "assert count_vowels('rhythm') == 0",
+              "visible": false,
+              "failure_message": "'rhythm' has no vowels.",
+              "failure_message_tr": "'rhythm' içinde sesli harf yok."
+            },
+            {
+              "code": "assert count_vowels('Education') == 5",
+              "visible": false,
+              "failure_message": "Capital vowels count too: E, u, a, i, o. Convert with .lower().",
+              "failure_message_tr": "Büyük harfli sesli harfler de sayılır: E, u, a, i, o. .lower() ile çevir."
+            },
+            {
+              "code": "assert count_vowels('Mississippi') == 4 and count_vowels('AEIOU xyz') == 5",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other words too: the function must count vowels in any text.",
+              "failure_message_tr": "Başka kelimelerle de dene: fonksiyon her metindeki sesli harfleri saymalı."
+            }
+          ],
+          "hints": [
+            "Start a counter at 0 and look at each letter.",
+            "Lowercase the text first, then test each letter with the in operator against the string of vowels.",
+            "Use a counter, a for loop over the lowercased text, an if with `in`, and finish with return of the counter."
+          ],
+          "solution": {
+            "approach": "Loop over the letters and count those found in 'aeiou'.",
+            "code": "def count_vowels(text):\n    total = 0\n    for letter in text.lower():\n        if letter in 'aeiou':\n            total += 1\n    return total",
+            "approach_tr": "Harfler üzerinde döngü kur ve 'aeiou' içinde bulunanları say."
+          },
+          "twin": "d10-b2-e4",
+          "hints_tr": [
+            "Sayacı 0'dan başlat ve her harfe bak.",
+            "Önce metni küçük harfe çevir, sonra her harfi in operatörüyle sesli harflerin olduğu metne karşı test et.",
+            "Bir sayaç, küçük harfe çevrilmiş metin üzerinde bir for döngüsü, `in` kullanan bir if ve sonda sayacı return et."
+          ]
+        },
+        {
+          "id": "d10-b2-e4",
+          "type": "write",
+          "prompt": "Write a function sum_values(d) that takes a dictionary of numbers and returns the sum of its values. Use a for loop (not the sum function). (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "Sayılardan oluşan bir sözlük alıp değerlerinin toplamını döndüren bir sum_values(d) fonksiyonu yaz. for döngüsü kullan (sum fonksiyonunu değil). (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def sum_values(d):",
+          "tests": [
+            {
+              "code": "assert sum_values({'a': 1, 'b': 2}) == 3",
+              "visible": true,
+              "failure_message": "1 + 2 should give 3.",
+              "label_tr": "1 + 2 için 3 dönüyor mu",
+              "failure_message_tr": "1 + 2 sonucu 3 olmalı."
+            },
+            {
+              "code": "assert sum_values({'x': 10, 'y': -4}) == 6",
+              "visible": true,
+              "failure_message": "10 + (-4) should give 6.",
+              "label_tr": "10 + (-4) için 6 dönüyor mu",
+              "failure_message_tr": "10 + (-4) sonucu 6 olmalı."
+            },
+            {
+              "code": "assert sum_values({}) == 0",
+              "visible": false,
+              "failure_message": "An empty dictionary sums to 0.",
+              "failure_message_tr": "Boş sözlüğün toplamı 0'dır."
+            },
+            {
+              "code": "assert sum_values({'only': 7}) == 7",
+              "visible": false,
+              "failure_message": "A single pair should return its value.",
+              "failure_message_tr": "Tek çiftli sözlükte o çiftin değeri dönmeli."
+            },
+            {
+              "code": "assert sum_values({'a': 0.5, 'b': 0.25, 'c': 1}) == 1.75",
+              "visible": false,
+              "failure_message": "Floats should work too.",
+              "failure_message_tr": "Ondalık sayılarla da çalışmalı."
+            },
+            {
+              "code": "assert sum_values({'p': 100, 'q': 200, 'r': -50}) == 250 and sum_values({'k': 3, 'm': 3, 'n': 3, 'o': 3}) == 12",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other dictionaries: the function must work for any numbers.",
+              "failure_message_tr": "Başka sözlüklerle dene: fonksiyon her sayı için çalışmalı."
+            }
+          ],
+          "hints": [
+            "Start a total at 0.",
+            "Loop over the dictionary and add each value to the total (d[key], or loop over d.values()).",
+            "Use a total variable, a for loop over the keys, += with the value of each key, and return the total at the end."
+          ],
+          "solution": {
+            "approach": "Accumulate the values in a loop.",
+            "code": "def sum_values(d):\n    total = 0\n    for key in d:\n        total += d[key]\n    return total",
+            "approach_tr": "Değerleri bir döngüde biriktir."
+          },
+          "twin": "d10-b2-e3",
+          "hints_tr": [
+            "Toplamı 0'dan başlat.",
+            "Sözlük üzerinde döngü kur ve her değeri toplama ekle (d[key] ya da d.values() üzerinde döngü).",
+            "Bir toplam değişkeni, anahtarlar üzerinde for döngüsü, her anahtarın değeriyle += ve sonda toplamı return et."
+          ]
+        }
+      ],
+      "concept_tr": "for döngüleri"
+    },
+    {
+      "id": "d10-b3",
+      "concept": "range-accumulate",
+      "tags": [
+        "loops",
+        "range",
+        "accumulator"
+      ],
+      "worked_example": {
+        "code": "for number in range(1, 6):\n    print(number * number)",
+        "notes": [
+          "range(start, stop, step) stops BEFORE stop.",
+          "A counter or total outside the loop collects results."
+        ],
+        "notes_tr": [
+          "range(start, stop, step) stop değerinden ÖNCE durur.",
+          "Döngünün dışındaki bir sayaç ya da toplam sonuçları biriktirir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d10-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "for i in range(0, 10, 3):\n    print(i)\nprint(list(range(5, 0, -2)))",
+          "choices": [
+            "0\n3\n6\n9\n[5, 3, 1]",
+            "0\n3\n6\n[5, 3, 1]",
+            "0\n3\n6\n9\n[5, 3, 1, 0]",
+            "3\n6\n9\n[5, 3, 1]"
+          ],
+          "expected_output": "0\n3\n6\n9\n[5, 3, 1]",
+          "explanation": "range(0, 10, 3) gives 0, 3, 6, 9 (12 is past the end). range(5, 0, -2) counts down 5, 3, 1 and stops before 0.",
+          "misconceptions": {
+            "0\n3\n6\n[5, 3, 1]": "9 is below 10, so it is included.",
+            "0\n3\n6\n9\n[5, 3, 1, 0]": "The stop value 0 is never included in a range.",
+            "3\n6\n9\n[5, 3, 1]": "range starts at its first argument, 0, which is printed."
+          },
+          "explanation_tr": "range(0, 10, 3) 0, 3, 6, 9 verir (12 sınırı aşar). range(5, 0, -2) 5, 3, 1 diye geri sayar ve 0'dan önce durur.",
+          "misconceptions_tr": {
+            "0\n3\n6\n[5, 3, 1]": "9, 10'dan küçük, bu yüzden dahildir.",
+            "0\n3\n6\n9\n[5, 3, 1, 0]": "Stop değeri olan 0 range'e hiçbir zaman dahil değildir.",
+            "3\n6\n9\n[5, 3, 1]": "range ilk argümanından, yani 0'dan başlar ve 0 yazdırılır."
+          }
+        },
+        {
+          "id": "d10-b3-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints the sum of 1 to 5.",
+          "prompt_tr": "Satırları, program 1'den 5'e kadar olan sayıların toplamını yazdıracak şekilde sırala.",
+          "lines": [
+            "    total += number",
+            "total = 0",
+            "print(total)",
+            "for number in range(1, 6):"
+          ],
+          "correct_order": [
+            1,
+            3,
+            0,
+            2
+          ],
+          "distractors": [
+            "    total = number"
+          ],
+          "expected_output": "15"
+        },
+        {
+          "id": "d10-b3-e3",
+          "type": "write",
+          "prompt": "Write a function squares_text(limit) that returns a list of strings like '3 x 3 = 9', one for each number from 0 up to and including limit. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "0'dan limit'e kadar (limit dahil) her sayı için '3 x 3 = 9' gibi bir metin içeren liste döndüren squares_text(limit) fonksiyonu yaz. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def squares_text(limit):",
+          "tests": [
+            {
+              "code": "assert squares_text(2) == ['0 x 0 = 0', '1 x 1 = 1', '2 x 2 = 4']",
+              "visible": true,
+              "failure_message": "squares_text(2) should have three strings.",
+              "label_tr": "squares_text(2) üç metin veriyor mu",
+              "failure_message_tr": "squares_text(2) üç metin içermeli."
+            },
+            {
+              "code": "assert squares_text(0) == ['0 x 0 = 0']",
+              "visible": true,
+              "failure_message": "limit 0 still gives one string.",
+              "label_tr": "limit 0 için tek metin geliyor mu",
+              "failure_message_tr": "limit 0 olsa da bir metin döner."
+            },
+            {
+              "code": "assert len(squares_text(5)) == 6",
+              "visible": false,
+              "failure_message": "From 0 to 5 inclusive there are 6 numbers. Use range(limit + 1).",
+              "failure_message_tr": "0'dan 5'e kadar (5 dahil) 6 sayı var. range(limit + 1) kullan."
+            },
+            {
+              "code": "assert squares_text(10)[-1] == '10 x 10 = 100'",
+              "visible": false,
+              "failure_message": "The last string should be '10 x 10 = 100'.",
+              "failure_message_tr": "Son metin '10 x 10 = 100' olmalı."
+            },
+            {
+              "code": "assert squares_text(3)[3] == '3 x 3 = 9'",
+              "visible": false,
+              "failure_message": "Check the format: '3 x 3 = 9'.",
+              "failure_message_tr": "Biçimi kontrol et: '3 x 3 = 9'."
+            },
+            {
+              "code": "assert squares_text(4) == ['0 x 0 = 0', '1 x 1 = 1', '2 x 2 = 4', '3 x 3 = 9', '4 x 4 = 16']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other limits: the function must build the list for any limit.",
+              "failure_message_tr": "Başka limitlerle dene: fonksiyon her limit için listeyi oluşturmalı."
+            }
+          ],
+          "hints": [
+            "Start with an empty list and loop over a range.",
+            "range(limit + 1) includes limit. Build each text with an f-string and add it to the list with append.",
+            "Use an empty list, a for loop over range(limit + 1), append an f-string with n in three places, and return the list."
+          ],
+          "solution": {
+            "approach": "Loop with range(limit + 1) and append f-strings.",
+            "code": "def squares_text(limit):\n    lines = []\n    for n in range(limit + 1):\n        lines.append(f'{n} x {n} = {n * n}')\n    return lines",
+            "approach_tr": "range(limit + 1) ile döngü kur ve f-string'leri listeye ekle."
+          },
+          "twin": "d10-b3-e4",
+          "hints_tr": [
+            "Boş bir listeyle başla ve bir range üzerinde döngü kur.",
+            "range(limit + 1) limit değerini de içerir. Her metni f-string ile oluştur ve append ile listeye ekle.",
+            "Boş bir liste, range(limit + 1) üzerinde for döngüsü, n'i üç yerde kullanan bir f-string'i append et ve listeyi return et."
+          ]
+        },
+        {
+          "id": "d10-b3-e4",
+          "type": "write",
+          "prompt": "Write a function even_odd_sums(limit) that returns a tuple (sum_of_evens, sum_of_odds) for the numbers from 0 up to and including limit. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "0'dan limit'e kadar (limit dahil) sayılar için (çiftlerin_toplamı, teklerin_toplamı) tuple'ı döndüren even_odd_sums(limit) fonksiyonu yaz. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def even_odd_sums(limit):",
+          "tests": [
+            {
+              "code": "assert even_odd_sums(5) == (6, 9)",
+              "visible": true,
+              "failure_message": "0+2+4 = 6 and 1+3+5 = 9.",
+              "label_tr": "5 için (6, 9) dönüyor mu",
+              "failure_message_tr": "0+2+4 = 6 ve 1+3+5 = 9."
+            },
+            {
+              "code": "assert even_odd_sums(0) == (0, 0)",
+              "visible": true,
+              "failure_message": "Only the number 0 exists, which adds nothing.",
+              "label_tr": "0 için (0, 0) dönüyor mu",
+              "failure_message_tr": "Yalnız 0 sayısı var ve hiçbir şey eklemez."
+            },
+            {
+              "code": "assert even_odd_sums(100) == (2550, 2500)",
+              "visible": false,
+              "failure_message": "For limit 100 the sums are 2550 and 2500.",
+              "failure_message_tr": "limit 100 için toplamlar 2550 ve 2500 olmalı."
+            },
+            {
+              "code": "assert even_odd_sums(1) == (0, 1)",
+              "visible": false,
+              "failure_message": "1 is odd, so the odd sum is 1.",
+              "failure_message_tr": "1 tektir, bu yüzden tek sayıların toplamı 1 olmalı."
+            },
+            {
+              "code": "assert type(even_odd_sums(4)) is tuple",
+              "visible": false,
+              "failure_message": "Return a tuple, e.g. return evens, odds.",
+              "failure_message_tr": "Bir tuple döndür, örneğin return evens, odds."
+            },
+            {
+              "code": "assert even_odd_sums(10) == (30, 25) and even_odd_sums(7) == (12, 16)",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other limits: the function must work for any limit.",
+              "failure_message_tr": "Başka limitlerle dene: fonksiyon her limit için çalışmalı."
+            }
+          ],
+          "hints": [
+            "You need two totals that start at 0.",
+            "Inside the loop use the remainder (%) to decide which total grows.",
+            "Two variables set to 0, a for loop over range(limit + 1), an if/else on `n % 2 == 0`, and return both totals separated by a comma."
+          ],
+          "solution": {
+            "approach": "Two accumulators and a modulus test.",
+            "code": "def even_odd_sums(limit):\n    evens = 0\n    odds = 0\n    for n in range(limit + 1):\n        if n % 2 == 0:\n            evens += n\n        else:\n            odds += n\n    return evens, odds",
+            "approach_tr": "İki biriktirici ve bir mod testi kullan."
+          },
+          "twin": "d10-b3-e3",
+          "hints_tr": [
+            "0'dan başlayan iki toplama ihtiyacın var.",
+            "Döngü içinde hangi toplamın artacağına kalan (%) ile karar ver.",
+            "0'a eşitlenmiş iki değişken, range(limit + 1) üzerinde for döngüsü, `n % 2 == 0` üzerinde if/else ve iki toplamı virgülle ayırarak return et."
+          ]
+        },
+        {
+          "id": "d10-b3-e5",
+          "type": "debug",
+          "prompt": "This should print the numbers 1 to 5, one per line, but it stops at 4. Fix it.",
+          "prompt_tr": "Bu 1'den 5'e kadar sayıları satır satır yazdırmalı ama 4'te duruyor. Düzelt.",
+          "starter_code": "for number in range(1, 5):\n    print(number)",
+          "expected_output": "1\n2\n3\n4\n5",
+          "hints": [
+            "Count how many numbers range(1, 5) produces.",
+            "The stop value of a range is never included.",
+            "Change the stop value so it is one larger than the last number you want to see."
+          ],
+          "solution": {
+            "approach": "The stop value is excluded, so use 6 to include 5.",
+            "code": "for number in range(1, 6):\n    print(number)",
+            "approach_tr": "Stop değeri dahil değildir, bu yüzden 5'i de içermesi için 6 yaz."
+          },
+          "hints_tr": [
+            "range(1, 5) kaç sayı üretiyor, say.",
+            "range'in stop değeri hiçbir zaman dahil edilmez.",
+            "Stop değerini, görmek istediğin son sayıdan bir büyük olacak şekilde değiştir."
+          ]
+        },
+        {
+          "id": "d10-b3-e6",
+          "type": "explain",
+          "prompt": "In your own words: why does range(5) give 0, 1, 2, 3, 4 and not 5?",
+          "prompt_tr": "Kendi cümlelerinle: range(5) neden 5'i değil de 0, 1, 2, 3, 4'ü verir?",
+          "model_answer": "range starts at 0 by default and the stop value is excluded, so range(5) produces five numbers, 0 to 4.",
+          "keywords": [
+            "0",
+            "exclu",
+            "stop",
+            "five",
+            "not include"
+          ],
+          "model_answer_tr": "range varsayılan olarak 0'dan başlar ve stop değeri dahil edilmez; bu yüzden range(5) beş sayı üretir: 0'dan 4'e kadar.",
+          "keywords_tr": [
+            "0",
+            "dahil değil",
+            "dahil edilmez",
+            "stop",
+            "beş",
+            "sıfır",
+            "başlar"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "range ve toplam biriktirme"
+    },
+    {
+      "id": "d10-b4",
+      "concept": "nested-loops-for-else",
+      "tags": [
+        "loops",
+        "nested",
+        "for-else"
+      ],
+      "worked_example": {
+        "code": "for row in range(2):\n    for col in range(3):\n        print(row, col)",
+        "notes": [
+          "The inner loop runs completely for every round of the outer loop.",
+          "else after a for loop runs once the loop ends normally."
+        ],
+        "notes_tr": [
+          "İç döngü, dış döngünün her turunda baştan sona çalışır.",
+          "for döngüsünden sonraki else, döngü normal biterse bir kez çalışır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d10-b4-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "count = 0\nfor x in range(3):\n    for y in range(4):\n        count += 1\nprint(count)",
+          "choices": [
+            "12",
+            "7",
+            "3",
+            "4"
+          ],
+          "expected_output": "12",
+          "explanation": "The inner loop runs 4 times for each of the 3 rounds of the outer loop, so count grows 3 * 4 = 12 times.",
+          "misconceptions": {
+            "7": "That would be 3 + 4. The loops are nested, so the numbers multiply.",
+            "3": "That is only the number of outer rounds; the inner loop adds 4 each time.",
+            "4": "That is only the number of inner rounds; it runs again for every outer round."
+          },
+          "explanation_tr": "İç döngü, dış döngünün 3 turunun her birinde 4 kez çalışır; yani count 3 * 4 = 12 kez artar.",
+          "misconceptions_tr": {
+            "7": "Bu 3 + 4 olurdu. Döngüler iç içe, bu yüzden sayılar çarpılır.",
+            "3": "Bu yalnız dış turların sayısı; iç döngü her seferinde 4 ekler.",
+            "4": "Bu yalnız iç turların sayısı; iç döngü her dış turda yeniden çalışır."
+          }
+        },
+        {
+          "id": "d10-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so 'done' prints after the loop has finished.",
+          "prompt_tr": "Döngü bittikten sonra 'done' yazdırılması için boşluğu doldur.",
+          "starter_code": "for number in range(3):\n    print(number)\n___:\n    print('done')",
+          "blanks": [
+            {
+              "answer": [
+                "else"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['0', '1', '2', 'done']",
+              "visible": true,
+              "failure_message": "Expected 0, 1, 2 and done.",
+              "label_tr": "Döngüden sonra done yazdırılıyor mu",
+              "failure_message_tr": "0, 1, 2 ve done beklenir."
+            }
+          ],
+          "hints": [
+            "The extra block belongs to the for loop and has no condition.",
+            "It uses the same keyword as the 'otherwise' branch of an if.",
+            "Write that keyword at the start of the blank line, right after the loop body, at the same indentation as for."
+          ],
+          "hints_tr": [
+            "Ek blok for döngüsüne aittir ve koşulu yoktur.",
+            "Bir if'in 'aksi halde' dalıyla aynı anahtar kelimeyi kullanır.",
+            "O anahtar kelimeyi boş satırın başına, döngü gövdesinden hemen sonra, for ile aynı girintide yaz."
+          ]
+        },
+        {
+          "id": "d10-b4-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints each skill on its own line instead of the whole list.",
+          "prompt_tr": "Programı, tüm listeyi değil her beceriyi ayrı satırda yazdıracak şekilde değiştir.",
+          "starter_code": "person = {'name': 'Mia', 'skills': ['Python', 'JS']}\nprint(person['skills'])",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['Python', 'JS']",
+              "visible": true,
+              "failure_message": "Expected Python and JS on separate lines.",
+              "label_tr": "Her beceri ayrı satıra yazılıyor mu",
+              "failure_message_tr": "Python ve JS ayrı satırlarda beklenir."
+            },
+            {
+              "code": "import io, contextlib\n__ns = {}\n__buf = io.StringIO()\nwith contextlib.redirect_stdout(__buf):\n    exec(__source__.replace(\"'Python', 'JS'\", \"'Go', 'Rust', 'C'\"), __ns)\nassert __buf.getvalue().split() == ['Go', 'Rust', 'C']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Your code must work for any list of skills, not only the current one.",
+              "failure_message_tr": "Kodun yalnız mevcut listede değil, her beceri listesinde çalışmalı."
+            }
+          ],
+          "hints": [
+            "You want to repeat print once per skill.",
+            "Loop over the list stored under 'skills' in the dictionary.",
+            "Replace the print line with a for loop over person['skills'], and print the loop variable inside it."
+          ],
+          "solution": {
+            "approach": "Loop over the list stored in the dictionary.",
+            "code": "person = {'name': 'Mia', 'skills': ['Python', 'JS']}\nfor skill in person['skills']:\n    print(skill)",
+            "approach_tr": "Sözlükte saklanan liste üzerinde döngü kur."
+          },
+          "hints_tr": [
+            "print'i her beceri için bir kez tekrarlamak istiyorsun.",
+            "Sözlükte 'skills' altında duran liste üzerinde döngü kur.",
+            "print satırını person['skills'] üzerinde bir for döngüsüyle değiştir ve döngü değişkenini içeride yazdır."
+          ]
+        }
+      ],
+      "concept_tr": "iç içe döngüler ve for-else"
+    }
+  ],
+  "review_pool": [
+    "d10-b1-e1",
+    "d10-b2-e1",
+    "d10-b2-e3",
+    "d10-b3-e1",
+    "d10-b3-e3",
+    "d10-b4-e1"
+  ],
+  "title_tr": "Döngüler"
+}

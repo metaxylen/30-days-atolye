@@ -1,0 +1,306 @@
+{
+  "day": 17,
+  "title_tr": "Hata Yönetimi ve Açma/Paketleme",
+  "title": "Exception Handling and Packing/Unpacking",
+  "est_minutes": 28,
+  "cards": [
+    {
+      "id": "d17-c01",
+      "type": "explain",
+      "section": "Exception Handling",
+      "title_tr": "try / except",
+      "title": "try / except",
+      "body_tr": "`try` bloğunda hata çıkarsa program çökmez, `except` bloğu çalışır. Hatayı zarifçe karşılamak uygulamayı sağlamlaştırır.",
+      "body": "If the `try` block fails, the program does not crash; the `except` block runs. Handling errors gracefully makes apps robust.",
+      "code": "try:\n    print(10 + '5')\nexcept:\n    print('Something went wrong')\nprint('devam ediyor')",
+      "expected_output": "Something went wrong\ndevam ediyor",
+      "trace": true
+    },
+    {
+      "id": "d17-c02",
+      "type": "predict",
+      "section": "Exception Handling",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "try:\n    print('a')\n    print(1 / 0)\n    print('b')\nexcept:\n    print('hata')",
+      "choices": [
+        "a\nhata",
+        "a\nb",
+        "hata",
+        "a\nhata\nb"
+      ],
+      "answer": "a\nhata",
+      "why_tr": "`1 / 0` hata verince `try` anında kesilir; 'b' yazılmaz.",
+      "why": "When `1 / 0` fails, `try` stops at once; 'b' never prints."
+    },
+    {
+      "id": "d17-c03",
+      "type": "explain",
+      "section": "Exception Handling",
+      "title_tr": "Hatanın türüne göre yakala",
+      "title": "Catch by error type",
+      "body_tr": "Çıplak `except` neyin yanlış gittiğini söylemez. `except TypeError:` gibi türe özel bloklar yaz; ilk uyan çalışır. (Derste `input()` vardı; burada sabit değerler kullanıyoruz.)",
+      "body": "A bare `except` hides what went wrong. Write type-specific blocks like `except TypeError:`; the first match runs. (The lesson used `input()`; we use fixed values.)",
+      "code": "year_born = '1920'\ntry:\n    age = 2019 - year_born\nexcept TypeError:\n    print('Type error occured')\nexcept ValueError:\n    print('Value error occured')\nexcept ZeroDivisionError:\n    print('zero division error occured')",
+      "expected_output": "Type error occured"
+    },
+    {
+      "id": "d17-c04",
+      "type": "fill",
+      "section": "Exception Handling",
+      "prompt_tr": "Boşluğu doldur.",
+      "code": "try:\n    number = int('abc')\nexcept ___:\n    print('Value error')",
+      "answers": [
+        "ValueError"
+      ],
+      "expected_output": "Value error",
+      "why_tr": "`int('abc')` ValueError verir.",
+      "why": "`int('abc')` raises ValueError."
+    },
+    {
+      "id": "d17-c05",
+      "type": "explain",
+      "section": "Exception Handling",
+      "title_tr": "else ve finally",
+      "title": "else and finally",
+      "body_tr": "`else`: hata çıkmazsa çalışır. `finally`: hata olsa da olmasa da her zaman çalışır (temizlik için ideal). Hatasız çalıştır, sonra '1920' yerine 'abc' dene.",
+      "body": "`else` runs only if no error occurred. `finally` always runs, error or not (ideal for cleanup). Run it as is, then try 'abc' instead of '1920'.",
+      "code": "year_born = '1920'\ntry:\n    age = 2019 - int(year_born)\n    print(f'Your age is {age}.')\nexcept ValueError:\n    print('Value error occur')\nelse:\n    print('I usually run with the try block')\nfinally:\n    print('I alway run.')",
+      "expected_output": "Your age is 99.\nI usually run with the try block\nI alway run.",
+      "trace": true
+    },
+    {
+      "id": "d17-c06",
+      "type": "predict",
+      "section": "Exception Handling",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "try:\n    x = int('abc')\nexcept ValueError:\n    print('E')\nelse:\n    print('ELSE')\nfinally:\n    print('F')",
+      "choices": [
+        "E\nF",
+        "E\nELSE\nF",
+        "ELSE\nF",
+        "E"
+      ],
+      "answer": "E\nF",
+      "why_tr": "Hata oldu: except çalıştı, else atlandı, finally yine çalıştı.",
+      "why": "An error happened: except ran, else was skipped, finally still ran."
+    },
+    {
+      "id": "d17-c07",
+      "type": "explain",
+      "section": "Exception Handling",
+      "title_tr": "except Exception as e",
+      "title": "except Exception as e",
+      "body_tr": "`Exception as e` her hatayı yakalar ve hata nesnesini `e` içinde verir; `print(e)` mesajı gösterir. Tüm hatalara tek blok yeter ama bilmediğin hataları da sessizce yutar.",
+      "body": "`Exception as e` catches any error and gives you the error object as `e`; `print(e)` shows its message. One block for all errors, but it also silently swallows ones you did not expect.",
+      "code": "try:\n    age = 2019 - '1920'\nexcept Exception as e:\n    print(e)",
+      "expected_output": "unsupported operand type(s) for -: 'int' and 'str'"
+    },
+    {
+      "id": "d17-c08",
+      "type": "truefalse",
+      "section": "Exception Handling",
+      "statement_tr": "`finally` bloğu yalnız hata olmadığında çalışır.",
+      "statement": "The `finally` block runs only when no error occurred.",
+      "answer": false,
+      "why_tr": "`finally` her durumda çalışır.",
+      "why": "`finally` runs in every case."
+    },
+    {
+      "id": "d17-c09",
+      "type": "explain",
+      "section": "Unpacking Lists",
+      "title_tr": "Listeyi argümanlara aç: *",
+      "title": "Unpack a list into arguments: *",
+      "body_tr": "Fonksiyon ayrı ayrı sayılar bekliyorsa ve elindeki bir liste ise `*liste` onu argümanlara açar. Açmadan verirsen TypeError olur.",
+      "body": "If a function expects separate values but you have a list, `*list` spreads it into arguments. Without it you get a TypeError.",
+      "code": "def sum_of_five_nums(a, b, c, d, e):\n    return a + b + c + d + e\n\nlst = [1, 2, 3, 4, 5]\ntry:\n    sum_of_five_nums(lst)\nexcept TypeError:\n    print('TypeError')\nprint(sum_of_five_nums(*lst))",
+      "expected_output": "TypeError\n15"
+    },
+    {
+      "id": "d17-c10",
+      "type": "fill",
+      "section": "Unpacking Lists",
+      "prompt_tr": "Boşluğu doldur.",
+      "code": "args = [2, 7]\nprint(list(range(___args)))",
+      "answers": [
+        "*"
+      ],
+      "expected_output": "[2, 3, 4, 5, 6]",
+      "why_tr": "`*args` listeyi `range(2, 7)` olarak açar.",
+      "why": "`*args` expands the list to `range(2, 7)`."
+    },
+    {
+      "id": "d17-c11",
+      "type": "explain",
+      "section": "Unpacking Lists",
+      "title_tr": "Değişkenlere açmak",
+      "title": "Unpack into variables",
+      "body_tr": "Listeyi değişkenlere dağıtabilirsin; `*adı` kalanları liste olarak toplar.",
+      "body": "You can distribute a list into variables; `*name` gathers the rest as a list.",
+      "code": "countries = ['Finland', 'Sweden', 'Norway', 'Denmark', 'Iceland']\nfin, sw, nor, *rest = countries\nprint(fin, sw, nor, rest)\nnumbers = [1, 2, 3, 4, 5, 6, 7]\none, *middle, last = numbers\nprint(one, middle, last)",
+      "expected_output": "Finland Sweden Norway ['Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7",
+      "trace": true
+    },
+    {
+      "id": "d17-c12",
+      "type": "predict",
+      "section": "Unpacking Lists",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "first, *others = [10, 20, 30]\nprint(first, others)",
+      "choices": [
+        "10 [20, 30]",
+        "10 20",
+        "[10] [20, 30]",
+        "10 30"
+      ],
+      "answer": "10 [20, 30]",
+      "why_tr": "`first` ilk elemanı alır, `*others` kalanı liste yapar.",
+      "why": "`first` takes the first item and `*others` collects the rest as a list."
+    },
+    {
+      "id": "d17-c13",
+      "type": "explain",
+      "section": "Unpacking Dictionaries",
+      "title_tr": "Sözlüğü aç: **",
+      "title": "Unpack a dict: **",
+      "body_tr": "`**sözlük` anahtarları keyword argümana dönüştürür; anahtarlar parametre adlarıyla eşleşmeli.",
+      "body": "`**dict` turns keys into keyword arguments; keys must match parameter names.",
+      "code": "def info(name, country, city, age):\n    return f'{name} lives in {country}, {city}. He is {age} years old.'\n\ndct = {'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250}\nprint(info(**dct))",
+      "expected_output": "Asabeneh lives in Finland, Helsinki. He is 250 years old."
+    },
+    {
+      "id": "d17-c14",
+      "type": "explain",
+      "section": "Packing Lists",
+      "title_tr": "*args ile paketlemek",
+      "title": "Packing with *args",
+      "body_tr": "Tanımda `*args` argümanları tuple'a paketler; çağrıda `*` ise açar. Aynı işaret, ters iş.",
+      "body": "In a definition `*args` packs arguments into a tuple; in a call `*` unpacks. Same sign, opposite job.",
+      "code": "def sum_all(*args):\n    s = 0\n    for i in args:\n        s += i\n    return s\n\nprint(sum_all(1, 2, 3))\nprint(sum_all(1, 2, 3, 4, 5, 6, 7))",
+      "expected_output": "6\n28",
+      "trace": true
+    },
+    {
+      "id": "d17-c15",
+      "type": "explain",
+      "section": "Packing Dictionaries",
+      "title_tr": "**kwargs ile paketlemek",
+      "title": "Packing with **kwargs",
+      "body_tr": "`**kwargs` isimli argümanları sözlüğe paketler.",
+      "body": "`**kwargs` packs named arguments into a dict.",
+      "code": "def packing_person_info(**kwargs):\n    for key in kwargs:\n        print(f'{key} = {kwargs[key]}')\n    return kwargs\n\nprint(packing_person_info(name='Asabeneh', country='Finland', age=250))",
+      "expected_output": "name = Asabeneh\ncountry = Finland\nage = 250\n{'name': 'Asabeneh', 'country': 'Finland', 'age': 250}"
+    },
+    {
+      "id": "d17-c16",
+      "type": "truefalse",
+      "section": "Packing Dictionaries",
+      "statement_tr": "Fonksiyon tanımında `**kwargs`, gelen isimli argümanları sözlük olarak verir.",
+      "statement": "In a definition, `**kwargs` gives incoming named arguments as a dict.",
+      "answer": true,
+      "why_tr": "Anahtar = parametre adı, değer = verdiğin değer.",
+      "why": "Key = argument name, value = the value you passed."
+    },
+    {
+      "id": "d17-c17",
+      "type": "explain",
+      "section": "Spreading in Python",
+      "title_tr": "Yayma (spreading)",
+      "title": "Spreading",
+      "body_tr": "Liste içinde `*` ile başka listeleri açıp birleştirebilirsin; yeni bir liste oluşur.",
+      "body": "Inside a list, `*` expands other lists so you can merge them into a new one.",
+      "code": "lst_one = [1, 2, 3]\nlst_two = [4, 5, 6, 7]\nprint([0, *lst_one, *lst_two])\nnordic = [*['Finland', 'Sweden', 'Norway'], *['Denmark', 'Iceland']]\nprint(nordic)",
+      "expected_output": "[0, 1, 2, 3, 4, 5, 6, 7]\n['Finland', 'Sweden', 'Norway', 'Denmark', 'Iceland']"
+    },
+    {
+      "id": "d17-c18",
+      "type": "predict",
+      "section": "Spreading in Python",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "a = [1, 2]\nb = [3]\nprint([*b, *a, 9])",
+      "choices": [
+        "[3, 1, 2, 9]",
+        "[1, 2, 3, 9]",
+        "[[3], [1, 2], 9]",
+        "[3, 1, 2]"
+      ],
+      "answer": "[3, 1, 2, 9]",
+      "why_tr": "Önce b açılır, sonra a, sonra 9.",
+      "why": "b is spread first, then a, then 9."
+    },
+    {
+      "id": "d17-c19",
+      "type": "explain",
+      "section": "Enumerate",
+      "title_tr": "enumerate: indeks + eleman",
+      "title": "enumerate: index + item",
+      "body_tr": "Döngüde hem sırayı hem elemanı istiyorsan `enumerate` ver; her turda `(indeks, eleman)` çifti gelir.",
+      "body": "When you need both position and item in a loop, use `enumerate`; each turn yields an `(index, item)` pair.",
+      "code": "for index, item in enumerate([20, 30, 40]):\n    print(index, item)",
+      "expected_output": "0 20\n1 30\n2 40"
+    },
+    {
+      "id": "d17-c20",
+      "type": "fill",
+      "section": "Enumerate",
+      "prompt_tr": "Boşluğu doldur.",
+      "code": "for i, ch in ___('ab'):\n    print(i, ch)",
+      "answers": [
+        "enumerate"
+      ],
+      "expected_output": "0 a\n1 b",
+      "why_tr": "`enumerate` indeks ve elemanı birlikte verir.",
+      "why": "`enumerate` yields index and item together."
+    },
+    {
+      "id": "d17-c21",
+      "type": "explain",
+      "section": "Zip",
+      "title_tr": "zip: listeleri eşleştir",
+      "title": "zip: pair up lists",
+      "body_tr": "`zip` iki (ya da daha fazla) listeyi eleman eleman eşler. Kısa olan bitince durur.",
+      "body": "`zip` pairs two or more lists item by item. It stops when the shortest ends.",
+      "code": "fruits = ['banana', 'orange', 'mango']\nvegetables = ['Tomato', 'Potato', 'Cabbage']\nresult = []\nfor f, v in zip(fruits, vegetables):\n    result.append({'fruit': f, 'veg': v})\nprint(result)",
+      "expected_output": "[{'fruit': 'banana', 'veg': 'Tomato'}, {'fruit': 'orange', 'veg': 'Potato'}, {'fruit': 'mango', 'veg': 'Cabbage'}]",
+      "trace": true
+    },
+    {
+      "id": "d17-c22",
+      "type": "predict",
+      "section": "Zip",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "print(list(zip([1, 2, 3], ['a', 'b'])))",
+      "choices": [
+        "[(1, 'a'), (2, 'b')]",
+        "[(1, 'a'), (2, 'b'), (3, None)]",
+        "[(1, 2, 3), ('a', 'b')]",
+        "Hata verir"
+      ],
+      "answer": "[(1, 'a'), (2, 'b')]",
+      "why_tr": "`zip` en kısa listede durur.",
+      "why": "`zip` stops at the shortest list."
+    },
+    {
+      "id": "d17-c23",
+      "type": "recap",
+      "section": "Recap",
+      "title_tr": "Özet",
+      "title": "Summary",
+      "points_tr": [
+        "`try/except/else/finally`: hata, başarı ve her durumda çalışan bloklar.",
+        "Türe özel `except` yaz; `Exception as e` mesajı verir.",
+        "`*` ve `**` çağrıda açar, tanımda paketler.",
+        "`enumerate` indeks, `zip` eşleştirme sağlar."
+      ],
+      "points": [
+        "`try/except/else/finally`: blocks for failure, success and always.",
+        "Write type-specific `except`; `Exception as e` gives the message.",
+        "`*` and `**` unpack in calls and pack in definitions.",
+        "`enumerate` gives indexes; `zip` pairs lists."
+      ],
+      "link": "learn",
+      "link_label_tr": "Şimdi alıştırmalara geç",
+      "link_label": "Go to the exercises"
+    }
+  ]
+}

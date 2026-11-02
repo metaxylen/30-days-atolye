@@ -1,0 +1,430 @@
+{
+ "day": 24,
+ "title_tr": "İstatistik ve NumPy",
+ "title": "Statistics and NumPy",
+ "est_minutes": 40,
+ "cards": [
+  {
+   "id": "d24-c01",
+   "type": "explain",
+   "title_tr": "NumPy nedir, nasıl içe aktarılır?",
+   "title": "What is NumPy and how do we import it?",
+   "body_tr": "**NumPy**, bilimsel hesaplama için çok boyutlu dizi (array) nesnesi sunan temel kütüphanedir. Konvansiyon: `import numpy as np`. Sürüm bilgisi `np.__version__` ile bir string olarak gelir. (Python'un kendi `statistics` modülü hesap makinesi seviyesindedir; dizilerde NumPy kullanılır.)",
+   "body": "**NumPy** is the core library for scientific computing; it gives you a multi-dimensional array object. Convention: `import numpy as np`. The version comes as a string in `np.__version__`. (Python's own `statistics` module is calculator-level; for arrays we use NumPy.)",
+   "code": "import numpy as np\nprint(type(np.__version__))\nprint(np.array([1, 2, 3]))",
+   "expected_output": "<class 'str'>\n[1 2 3]",
+   "section": "Importing NumPy"
+  },
+  {
+   "id": "d24-c02",
+   "type": "explain",
+   "title_tr": "Listeden NumPy dizisi",
+   "title": "A NumPy array from a list",
+   "body_tr": "`np.array(liste)` bir Python listesini `numpy.ndarray`'e çevirir. Dikkat: yazdırınca virgül yok, elemanlar boşlukla ayrılır.",
+   "body": "`np.array(list)` turns a Python list into a `numpy.ndarray`. Note: when printed there are no commas; items are separated by spaces.",
+   "code": "import numpy as np\npython_list = [1, 2, 3, 4, 5]\narr = np.array(python_list)\nprint(type(arr))\nprint(arr)",
+   "expected_output": "<class 'numpy.ndarray'>\n[1 2 3 4 5]",
+   "section": "Creating int numpy arrays"
+  },
+  {
+   "id": "d24-c03",
+   "type": "explain",
+   "title_tr": "float ve bool diziler",
+   "title": "Float and boolean arrays",
+   "body_tr": "`dtype` parametresiyle tür belirlersin. `dtype=float` tamsayıları ondalıklı yapar (`1.`). `dtype=bool` ile sıfır `False`, sıfırdan farklı her sayı `True` olur.",
+   "body": "The `dtype` parameter sets the type. `dtype=float` turns integers into floats (`1.`). With `dtype=bool`, zero becomes `False` and every non-zero number becomes `True`.",
+   "code": "import numpy as np\nf = np.array([1, 2, 3], dtype=float)\nb = np.array([0, 1, -1, 0], dtype=bool)\nprint(f)\nprint(b)",
+   "expected_output": "[1. 2. 3.]\n[False  True  True False]",
+   "section": "Creating float numpy arrays",
+   "also_sections": [
+    "Creating boolean numpy arrays"
+   ]
+  },
+  {
+   "id": "d24-c04",
+   "type": "truefalse",
+   "statement_tr": "np.array([0, 5, -2], dtype=bool) sonucunda -2 değeri False olur.",
+   "statement": "In np.array([0, 5, -2], dtype=bool) the value -2 becomes False.",
+   "answer": false,
+   "why_tr": "Sadece 0 `False` olur; negatif sayılar dahil sıfırdan farklı her sayı `True` olur.",
+   "why": "Only 0 becomes `False`; every non-zero number, negatives included, becomes `True`.",
+   "section": "Creating boolean numpy arrays"
+  },
+  {
+   "id": "d24-c05",
+   "type": "explain",
+   "title_tr": "İç içe liste = iki boyutlu dizi",
+   "title": "Nested lists = a 2D array",
+   "body_tr": "İç içe liste, satır ve sütunlu iki boyutlu dizi olur. `tolist()` dizi nesnesini tekrar Python listesine çevirir. Tuple'dan da dizi yapılabilir.",
+   "body": "A nested list becomes a 2D array with rows and columns. `tolist()` converts the array back to a Python list. You can build an array from a tuple too.",
+   "code": "import numpy as np\nm = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])\nprint(m)\nprint(m.tolist())\nprint(np.array((1, 2, 3)))",
+   "expected_output": "[[0 1 2]\n [3 4 5]\n [6 7 8]]\n[[0, 1, 2], [3, 4, 5], [6, 7, 8]]\n[1 2 3]",
+   "section": "Creating multidimensional array using numpy",
+   "also_sections": [
+    "Converting numpy array to list",
+    "Creating numpy array from tuple"
+   ]
+  },
+  {
+   "id": "d24-c06",
+   "type": "explain",
+   "title_tr": "shape ve size",
+   "title": "shape and size",
+   "body_tr": "`shape` boyutları tuple olarak verir: (satır, sütun). Tek boyutlu dizide yalnızca uzunluk gelir: `(5,)`. `size` toplam eleman sayısıdır.",
+   "body": "`shape` gives the dimensions as a tuple: (rows, columns). A 1D array gives only its length: `(5,)`. `size` is the total number of items.",
+   "code": "import numpy as np\nnums = np.array([1, 2, 3, 4, 5])\nm = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])\nprint(nums.shape, nums.size)\nprint(m.shape, m.size)",
+   "expected_output": "(5,) 5\n(3, 3) 9",
+   "section": "Shape of numpy array",
+   "also_sections": [
+    "Size of a numpy array"
+   ]
+  },
+  {
+   "id": "d24-c07",
+   "type": "predict",
+   "prompt_tr": "3 satır, 4 sütunlu bir dizinin shape değeri ne? (Derste bu örnekte kapanmayan bir parantez vardı; düzelttik.)",
+   "prompt": "What is the shape of an array with 3 rows and 4 columns? (The lesson example had an unclosed parenthesis; we fixed it.)",
+   "code": "import numpy as np\na = np.array([[0, 1, 2, 3],\n              [4, 5, 6, 7],\n              [8, 9, 10, 11]])\nprint(a.shape)",
+   "choices": [
+    "(3, 4)",
+    "(4, 3)",
+    "12",
+    "(12,)"
+   ],
+   "answer": "(3, 4)",
+   "why_tr": "`shape` (satır, sütun) sırasıyla verir: 3 satır, 4 sütun.",
+   "why": "`shape` is (rows, columns): 3 rows, 4 columns.",
+   "section": "Shape of numpy array"
+  },
+  {
+   "id": "d24-c08",
+   "type": "explain",
+   "title_tr": "Veri tipi ve tip dönüşümü",
+   "title": "Data types and conversion",
+   "body_tr": "Dizideki her eleman aynı `dtype`'a sahiptir. `astype` yeni bir türde kopya üretir: int'ten float'a, int'ten bool'a. Not: tamsayı dtype'ı sisteme göre `int64` ya da `int32` görünebilir; biz float ve bool ile gösteriyoruz.",
+   "body": "Every item in an array shares one `dtype`. `astype` makes a copy in a new type: int to float, int to bool. Note: the integer dtype may appear as `int64` or `int32` depending on the system, so we demo with float and bool.",
+   "code": "import numpy as np\na = np.array([-3, -2, 0, 1])\nprint(a.astype(float))\nprint(a.astype(float).dtype)\nprint(a.astype(bool))\nprint(np.array([1.1, 2.0]).dtype)",
+   "expected_output": "[-3. -2.  0.  1.]\nfloat64\n[ True  True False  True]\nfloat64",
+   "section": "Data type of numpy array",
+   "also_sections": [
+    "Checking data types",
+    "Converting types"
+   ]
+  },
+  {
+   "id": "d24-c09",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import numpy as np\nprint(np.array([1.9, 2.5, -1.2]).astype(int))",
+   "choices": [
+    "[ 1  3 -2]",
+    "[ 1  2 -1]",
+    "[2 3 -1]",
+    "[ 1.  2. -1.]"
+   ],
+   "answer": "[ 1  2 -1]",
+   "why_tr": "float'tan int'e çevirmek ondalık kısmı atar (sıfıra doğru kırpar); yuvarlamaz.",
+   "why": "Converting float to int drops the fractional part (truncates toward zero); it does not round.",
+   "section": "Converting types"
+  },
+  {
+   "id": "d24-c10",
+   "type": "explain",
+   "title_tr": "Python listesinde işlem için döngü gerekir",
+   "title": "A Python list needs a loop",
+   "body_tr": "Listedeki her sayıya 10 eklemek için döngü yazarız. NumPy'ın en büyük avantajı bu döngüyü kaldırmasıdır. Önce döngü hâlini adım adım izle.",
+   "body": "To add 10 to every number in a list, we write a loop. NumPy's big advantage is that it removes this loop. First, step through the loop version.",
+   "code": "nums = [1, 2, 3]\nresult = []\nfor n in nums:\n    result.append(n + 10)\nprint(result)",
+   "expected_output": "[11, 12, 13]",
+   "trace": true,
+   "section": "Mathematical Operation using numpy"
+  },
+  {
+   "id": "d24-c11",
+   "type": "explain",
+   "title_tr": "Döngüsüz işlemler (vectorized)",
+   "title": "Loop-free operations (vectorized)",
+   "body_tr": "Dizi üzerinde `+ - * / % // **` doğrudan her elemana uygulanır. `%` kalan, `//` bölümün tam kısmı, `**` üs alma. Bölme (`/`) sonucu float yapar.",
+   "body": "On an array, `+ - * / % // **` apply to every element directly. `%` is the remainder, `//` the integer part of the division, `**` the power. Division (`/`) gives floats.",
+   "code": "import numpy as np\na = np.array([1, 2, 3, 4, 5])\nprint(a + 10, a - 10, a * 10)\nprint(a / 10)\nprint(a % 3, a // 2, a ** 2)",
+   "expected_output": "[11 12 13 14 15] [-9 -8 -7 -6 -5] [10 20 30 40 50]\n[0.1 0.2 0.3 0.4 0.5]\n[1 2 0 1 2] [0 1 1 2 2] [ 1  4  9 16 25]",
+   "section": "Addition",
+   "also_sections": [
+    "Subtraction",
+    "Multiplication",
+    "Division",
+    "Modulus",
+    "Floor Division",
+    "Exponential"
+   ]
+  },
+  {
+   "id": "d24-c12",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import numpy as np\nprint(np.array([5, 6, 7]) // 2)",
+   "choices": [
+    "[2.5 3.  3.5]",
+    "[1 0 1]",
+    "[2 3 3]",
+    "[3 3 4]"
+   ],
+   "answer": "[2 3 3]",
+   "why_tr": "`//` her elemanı 2'ye bölüp tam kısmı alır: 2, 3, 3.",
+   "why": "`//` divides each item by 2 and keeps the integer part: 2, 3, 3.",
+   "section": "Floor Division"
+  },
+  {
+   "id": "d24-c13",
+   "type": "explain",
+   "title_tr": "İki boyutlu diziden satır ve sütun almak",
+   "title": "Getting rows and columns from a 2D array",
+   "body_tr": "`m[0]` ilk satırı verir. `m[:, 0]` ise **tüm satırlardan** 0. sütunu alır: virgülün solu satırlar, sağı sütunlar, `:` hepsi demek.",
+   "body": "`m[0]` gives the first row. `m[:, 0]` takes column 0 from **all rows**: left of the comma are rows, right are columns, and `:` means all.",
+   "code": "import numpy as np\nm = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\nprint(m[0])\nprint(m[:, 0])",
+   "expected_output": "[1 2 3]\n[1 4 7]",
+   "section": "Multi-dimensional Arrays",
+   "also_sections": [
+    "Getting items from a numpy array"
+   ]
+  },
+  {
+   "id": "d24-c14",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import numpy as np\nm = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\nprint(m[:, 1])",
+   "choices": [
+    "[2 5 8]",
+    "[4 5 6]",
+    "[2 3]",
+    "[1 2 3]"
+   ],
+   "answer": "[2 5 8]",
+   "why_tr": "`m[:, 1]` her satırdan 1. indeksli (ikinci) elemanı alır: 2, 5, 8.",
+   "why": "`m[:, 1]` takes the item at index 1 (the second) from every row: 2, 5, 8.",
+   "section": "Getting items from a numpy array"
+  },
+  {
+   "id": "d24-c15",
+   "type": "explain",
+   "title_tr": "Dilimleme ve tersine çevirme",
+   "title": "Slicing and reversing",
+   "body_tr": "Dilimleme liste gibidir ama her eksen için ayrı yazılır: `m[0:2, 0:2]` ilk iki satır ve ilk iki sütun. `[::-1, ::-1]` hem satırları hem sütunları tersine çevirir.",
+   "body": "Slicing works like lists, but per axis: `m[0:2, 0:2]` is the first two rows and first two columns. `[::-1, ::-1]` reverses both rows and columns.",
+   "code": "import numpy as np\nm = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\nprint(m[0:2, 0:2])\nprint(m[::-1, ::-1])",
+   "expected_output": "[[1 2]\n [4 5]]\n[[9 8 7]\n [6 5 4]\n [3 2 1]]",
+   "section": "Slicing Numpy array",
+   "also_sections": [
+    "How to reverse the rows and the whole array?",
+    "Reverse the row and column positions"
+   ]
+  },
+  {
+   "id": "d24-c16",
+   "type": "fill",
+   "prompt_tr": "Sütun dilimini tamamla: ilk iki sütun.",
+   "prompt": "Complete the column slice: the first two columns.",
+   "code": "import numpy as np\nm = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\nprint(m[0:2, ___])",
+   "answers": [
+    "0:2",
+    ":2"
+   ],
+   "expected_output": "[[1 2]\n [4 5]]",
+   "why_tr": "`0:2` 0. ve 1. sütunu seçer (bitiş dahil değildir).",
+   "why": "`0:2` selects columns 0 and 1 (the end is excluded).",
+   "section": "Slicing Numpy array"
+  },
+  {
+   "id": "d24-c17",
+   "type": "explain",
+   "title_tr": "Hücre değiştirmek, zeros ve ones",
+   "title": "Changing cells, zeros and ones",
+   "body_tr": "`m[1, 1] = 55` tek bir hücreyi değiştirir. `np.zeros` ve `np.ones` belirli boyutta sıfır ya da bir dolu dizi üretir; çoğu zaman 'boş tahta' olarak kullanılır.",
+   "body": "`m[1, 1] = 55` changes a single cell. `np.zeros` and `np.ones` make arrays of a given shape filled with zeros or ones; often used as a blank canvas.",
+   "code": "import numpy as np\nm = np.zeros((3, 3), dtype=int)\nm[1, 1] = 55\nprint(m)\nprint(np.ones((2, 2), dtype=int) * 2)",
+   "expected_output": "[[ 0  0  0]\n [ 0 55  0]\n [ 0  0  0]]\n[[2 2]\n [2 2]]",
+   "section": "How to represent missing values ?"
+  },
+  {
+   "id": "d24-c18",
+   "type": "explain",
+   "title_tr": "reshape, flatten, hstack, vstack",
+   "title": "reshape, flatten, hstack, vstack",
+   "body_tr": "`reshape` elemanları yeni bir şekle dizer, `flatten` tek boyuta indirir. `hstack` dizileri yan yana (tek satır), `vstack` alt alta ekler.",
+   "body": "`reshape` rearranges the items into a new shape, `flatten` collapses to 1D. `hstack` joins arrays side by side (one row), `vstack` stacks them on top of each other.",
+   "code": "import numpy as np\na = np.array([[1, 2, 3], [4, 5, 6]])\nprint(a.reshape(3, 2))\nprint(a.flatten())\nx, y = np.array([1, 2, 3]), np.array([4, 5, 6])\nprint(np.hstack((x, y)))\nprint(np.vstack((x, y)))",
+   "expected_output": "[[1 2]\n [3 4]\n [5 6]]\n[1 2 3 4 5 6]\n[1 2 3 4 5 6]\n[[1 2 3]\n [4 5 6]]",
+   "section": "How to represent missing values ?"
+  },
+  {
+   "id": "d24-c19",
+   "type": "truefalse",
+   "statement_tr": "İki diziyi `+` ile toplamak, onları `hstack` gibi uç uca ekler.",
+   "statement": "Adding two arrays with `+` joins them end to end, like `hstack`.",
+   "answer": false,
+   "why_tr": "`+` aynı konumdaki elemanları toplar ([5 7 9]); uç uca eklemek için `hstack` gerekir.",
+   "why": "`+` adds items at the same position ([5 7 9]); to join end to end you need `hstack`.",
+   "section": "How to represent missing values ?"
+  },
+  {
+   "id": "d24-c20",
+   "type": "explain",
+   "title_tr": "Rastgele sayılar",
+   "title": "Random numbers",
+   "body_tr": "`np.random` ile rastgele sayı üretilir: `random` [0,1) arası, `randint` tamsayı, `normal(ortalama, sapma, adet)` normal dağılım, `choice` listeden seçim. `seed` aynı sayıları tekrar üretir; böylece sonuç sabit kalır. Aşağıda şekil bilgisini yazdırıyoruz.",
+   "body": "`np.random` generates random numbers: `random` in [0,1), `randint` for integers, `normal(mean, sigma, count)` for a normal distribution, `choice` to pick from a list. `seed` repeats the same numbers so results stay fixed. Below we print the shapes.",
+   "code": "import numpy as np\nnp.random.seed(0)\nprint(np.random.randint(0, 10, size=5))\nprint(np.random.random(3).shape)\nprint(np.random.normal(79, 15, 80).size)\nprint(np.random.choice(['a', 'e', 'i'], size=4).shape)",
+   "expected_output": "[5 0 3 3 7]\n(3,)\n80\n(4,)",
+   "section": "Generationg random numbers",
+   "also_sections": [
+    "How to generate random numbers?"
+   ]
+  },
+  {
+   "id": "d24-c21",
+   "type": "explain",
+   "title_tr": "Dağılımı saymak: histogram",
+   "title": "Counting a distribution: histogram",
+   "body_tr": "Derste `plt.hist` ile grafik çizilir. Burada grafik yok; `np.histogram` aynı bilgiyi sayılarla verir: her aralığa kaç değer düştü, ve aralık sınırları.",
+   "body": "The lesson draws a chart with `plt.hist`. We have no charts here; `np.histogram` gives the same information as numbers: how many values fell in each bin, and the bin edges.",
+   "code": "import numpy as np\ndata = np.array([1, 2, 2, 3, 3, 3, 4, 4, 5])\ncounts, edges = np.histogram(data, bins=4)\nprint(counts)\nprint(edges)",
+   "expected_output": "[1 2 3 3]\n[1. 2. 3. 4. 5.]",
+   "section": "Numpy and Statistics"
+  },
+  {
+   "id": "d24-c22",
+   "type": "explain",
+   "title_tr": "Matris",
+   "title": "Matrix",
+   "body_tr": "Derste `np.matrix` kullanılır; modern kodda iki boyutlu `ndarray` tercih edilir. `m[2] = 2` bir satırdaki tüm hücreleri aynı anda değiştirir.",
+   "body": "The lesson uses `np.matrix`; modern code prefers a 2D `ndarray`. `m[2] = 2` sets every cell of a row at once.",
+   "code": "import numpy as np\nm = np.ones((4, 4))\nm[2] = 2\nprint(m)",
+   "expected_output": "[[1. 1. 1. 1.]\n [1. 1. 1. 1.]\n [2. 2. 2. 2.]\n [1. 1. 1. 1.]]",
+   "section": "Matrix in numpy"
+  },
+  {
+   "id": "d24-c23",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import numpy as np\nm = np.zeros((2, 2), dtype=int)\nm[1] = 7\nprint(m)",
+   "choices": [
+    "[[7 7]\n [0 0]]",
+    "[[0 7]\n [0 7]]",
+    "[[0 0]\n [7 7]]",
+    "[[0 0]\n [0 7]]"
+   ],
+   "answer": "[[0 0]\n [7 7]]",
+   "why_tr": "`m[1] = 7` 1. indeksli satırın tamamını 7 yapar.",
+   "why": "`m[1] = 7` sets the whole row at index 1 to 7.",
+   "section": "Matrix in numpy"
+  },
+  {
+   "id": "d24-c24",
+   "type": "explain",
+   "title_tr": "arange ve linspace",
+   "title": "arange and linspace",
+   "body_tr": "`np.arange(başla, bitir, adım)` `range` gibidir ama dizi üretir (bitiş dahil değil). `np.linspace(başla, bitir, num=n)` iki sayı arasına eşit aralıklı n değer koyar; `endpoint=False` son değeri dışarıda bırakır.",
+   "body": "`np.arange(start, stop, step)` is like `range` but produces an array (stop excluded). `np.linspace(start, stop, num=n)` places n evenly spaced values between two numbers; `endpoint=False` leaves out the last one.",
+   "code": "import numpy as np\nprint(np.arange(1, 20, 2))\nprint(np.linspace(1.0, 5.0, num=5))\nprint(np.linspace(1.0, 5.0, num=5, endpoint=False))",
+   "expected_output": "[ 1  3  5  7  9 11 13 15 17 19]\n[1. 2. 3. 4. 5.]\n[1.  1.8 2.6 3.4 4.2]",
+   "section": "Numpy numpy.arange()",
+   "also_sections": [
+    "Creating sequence of numbers using linspace"
+   ]
+  },
+  {
+   "id": "d24-c25",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import numpy as np\nprint(np.arange(2, 10, 3))",
+   "choices": [
+    "[5 8]",
+    "[2 5 8 11]",
+    "[2 3 4]",
+    "[2 5 8]"
+   ],
+   "answer": "[2 5 8]",
+   "why_tr": "2'den başlar, 3'er artar, 10'a ulaşmadan durur: 2, 5, 8.",
+   "why": "It starts at 2, steps by 3 and stops before 10: 2, 5, 8.",
+   "section": "Numpy numpy.arange()"
+  },
+  {
+   "id": "d24-c26",
+   "type": "explain",
+   "title_tr": "İstatistik fonksiyonları",
+   "title": "Statistical functions",
+   "body_tr": "`min`, `max`, `mean`, `std` (standart sapma) tek çağrıyla hesaplanır. `axis=0` sütun, `axis=1` satır bazında çalışır. Derste `scipy.stats.mode` da var; scipy bu ortamda olmadığı için atladık.",
+   "body": "`min`, `max`, `mean`, `std` (standard deviation) are one call each. `axis=0` works per column, `axis=1` per row. The lesson also uses `scipy.stats.mode`; scipy isn't available here, so we skipped it.",
+   "code": "import numpy as np\nm = np.array([[1, 2, 3], [4, 55, 44], [7, 8, 9]])\nprint(m.min(), m.max(), round(m.mean(), 2))\nprint(np.min(m, axis=0))\nprint(np.max(m, axis=1))",
+   "expected_output": "1 55 14.78\n[1 2 3]\n[ 3 55  9]",
+   "section": "NumPy Statistical Functions with Example"
+  },
+  {
+   "id": "d24-c27",
+   "type": "explain",
+   "title_tr": "tile ve repeat",
+   "title": "tile and repeat",
+   "body_tr": "`np.tile(a, 2)` dizinin **tamamını** 2 kez tekrarlar. `np.repeat(a, 2)` **her elemanı** 2 kez tekrarlar.",
+   "body": "`np.tile(a, 2)` repeats the **whole array** twice. `np.repeat(a, 2)` repeats **each item** twice.",
+   "code": "import numpy as np\na = [1, 2, 3]\nprint(np.tile(a, 2))\nprint(np.repeat(a, 2))",
+   "expected_output": "[1 2 3 1 2 3]\n[1 1 2 2 3 3]",
+   "section": "How to create repeating sequences?"
+  },
+  {
+   "id": "d24-c28",
+   "type": "explain",
+   "title_tr": "Nokta çarpımı ve matris çarpımı",
+   "title": "Dot product and matrix multiplication",
+   "body_tr": "`np.dot` iki dizinin elemanlarını çarpıp toplar: 1*4 + 2*5 + 3*6 = 32. `np.matmul` matris çarpımıdır. (Derste g'nin son elemanı 3 yazılmış ve yorumla çelişiyor; 6 yaptık. Determinant için `np.linalg.det` var.)",
+   "body": "`np.dot` multiplies matching items and sums them: 1*4 + 2*5 + 3*6 = 32. `np.matmul` is matrix multiplication. (The lesson's g ends with 3 and contradicts its own comment; we used 6. For determinants there's `np.linalg.det`.)",
+   "code": "import numpy as np\nf = np.array([1, 2, 3])\ng = np.array([4, 5, 6])\nprint(np.dot(f, g))\nh = [[1, 2], [3, 4]]\ni = [[5, 6], [7, 8]]\nprint(np.matmul(h, i))",
+   "expected_output": "32\n[[19 22]\n [43 50]]",
+   "section": "Linear Algebra",
+   "also_sections": [
+    "NumPy Matrix Multiplication with np.matmul()"
+   ]
+  },
+  {
+   "id": "d24-c29",
+   "type": "predict",
+   "prompt_tr": "Derstin doğrusal denklem örneği: pressure = temp * 2 + 5. Çıktı ne olur?",
+   "prompt": "The lesson's linear-equation example: pressure = temp * 2 + 5. What is printed?",
+   "code": "import numpy as np\ntemp = np.array([1, 2, 3, 4, 5])\nprint(temp * 2 + 5)",
+   "choices": [
+    "[ 7  9 11 13 15]",
+    "[ 7  9 11 13]",
+    "[ 6  7  8  9 10]",
+    "[ 2  4  6  8 10]"
+   ],
+   "answer": "[ 7  9 11 13 15]",
+   "why_tr": "Her elemana önce 2 ile çarpma, sonra 5 ekleme uygulanır: 1*2+5=7, ..., 5*2+5=15. (Derste bu ilişki grafikle çiziliyordu.)",
+   "why": "Each item is multiplied by 2 then 5 is added: 1*2+5=7, ..., 5*2+5=15. (The lesson plots this relationship.)",
+   "section": "NumPy Matrix Multiplication with np.matmul()"
+  },
+  {
+   "id": "d24-c30",
+   "type": "recap",
+   "points_tr": [
+    "NumPy dizisi (`ndarray`) tek `dtype`'lıdır ve boyutu sabittir.",
+    "İşlemler döngüsüz, her elemana birden uygulanır (vectorized).",
+    "`shape`, `size`, `astype`, dilimleme `m[satır, sütun]` temel araçlardır.",
+    "`zeros/ones/arange/linspace/random` ile dizi üretir, `mean/std/min/max` ile özetlersin."
+   ],
+   "points": [
+    "A NumPy array (`ndarray`) has a single `dtype` and a fixed size.",
+    "Operations apply to every item at once, with no loop (vectorized).",
+    "`shape`, `size`, `astype` and slicing `m[row, col]` are the basic tools.",
+    "Build arrays with `zeros/ones/arange/linspace/random`, summarise with `mean/std/min/max`."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "NumPy Matrix Multiplication with np.matmul()"
+  }
+ ]
+}

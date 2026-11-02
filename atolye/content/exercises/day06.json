@@ -1,0 +1,602 @@
+{
+  "day": 6,
+  "title": "Tuples",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "blocks": [
+    {
+      "id": "d06-b1",
+      "concept": "tuple-basics",
+      "tags": [
+        "tuples",
+        "indexing",
+        "immutability"
+      ],
+      "worked_example": {
+        "code": "fruits = ('banana', 'orange', 'mango', 'lemon')\nprint(fruits[0], fruits[-1])\nprint(fruits[1:3])",
+        "notes": [
+          "A tuple uses round brackets and is indexed and sliced like a list.",
+          "A tuple cannot be changed after it is created."
+        ],
+        "notes_tr": [
+          "Tuple yuvarlak parantez kullanır; liste gibi indekslenir ve dilimlenir.",
+          "Tuple oluşturulduktan sonra değiştirilemez."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d06-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "point = (3, 7)\nprint(point[1], len(point))\nprint(point + (9,))",
+          "choices": [
+            "7 2\n(3, 7, 9)",
+            "3 2\n(3, 7, 9)",
+            "7 2\n(3, 7) (9,)",
+            "7 3\n(3, 7, 9)"
+          ],
+          "expected_output": "7 2\n(3, 7, 9)",
+          "explanation": "point[1] is the second item, 7; the tuple has 2 items. + joins two tuples into a new tuple (3, 7, 9).",
+          "misconceptions": {
+            "3 2\n(3, 7, 9)": "Indexes start at 0, so point[1] is the SECOND item, 7.",
+            "7 2\n(3, 7) (9,)": "The + operator joins the tuples into one new tuple.",
+            "7 3\n(3, 7, 9)": "len(point) is evaluated before any new tuple is built: point still has two items."
+          },
+          "explanation_tr": "point[1] ikinci elemandır, yani 7; tuple'da 2 eleman var. + iki tuple'ı birleştirip yeni bir tuple (3, 7, 9) yapar.",
+          "misconceptions_tr": {
+            "3 2\n(3, 7, 9)": "İndeksler 0'dan başlar, bu yüzden point[1] İKİNCİ elemandır: 7.",
+            "7 2\n(3, 7) (9,)": "+ operatörü tuple'ları tek bir yeni tuple'da birleştirir.",
+            "7 3\n(3, 7, 9)": "len(point) yeni tuple kurulmadan önce hesaplanır: point'te hâlâ iki eleman var."
+          }
+        },
+        {
+          "id": "d06-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so single is a tuple with one item (the program must print <class 'tuple'>).",
+          "prompt_tr": "single'ın tek elemanlı bir tuple olması için boşluğu doldur (program <class 'tuple'> yazdırmalı).",
+          "starter_code": "single = (5___)\nprint(type(single))",
+          "blanks": [
+            {
+              "answer": [
+                ","
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"<class 'tuple'>\"",
+              "visible": true,
+              "failure_message": "Without the comma, (5) is just the number 5.",
+              "failure_message_tr": "Virgül olmazsa (5) sadece 5 sayısıdır.",
+              "label_tr": "single bir tuple oluyor"
+            }
+          ],
+          "hints": [
+            "Parentheses alone do not make a tuple.",
+            "What character separates items in a tuple?",
+            "A one-item tuple needs a trailing comma right after the 5."
+          ],
+          "hints_tr": [
+            "Tek başına parantez tuple yapmaz.",
+            "Tuple'da elemanları hangi karakter ayırır?",
+            "Tek elemanlı tuple için 5'in hemen arkasına bir virgül gerekir."
+          ]
+        },
+        {
+          "id": "d06-b1-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints two lines: whether 'Estonia' is in the tuple, then whether 'Iceland' is in the tuple.",
+          "prompt_tr": "Programı iki satır yazdıracak şekilde değiştir: 'Estonia' tuple içinde mi, sonra 'Iceland' tuple içinde mi.",
+          "starter_code": "nordic = ('Denmark', 'Finland', 'Iceland', 'Norway', 'Sweden')\nprint(nordic[0])",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['False', 'True']",
+              "visible": true,
+              "failure_message": "Expected False then True.",
+              "failure_message_tr": "Önce False, sonra True beklenir.",
+              "label_tr": "Estonia ve Iceland için True/False yazdırılıyor"
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\nassert sum(isinstance(op, ast.In) for n in ast.walk(_t) if isinstance(n, ast.Compare) for op in n.ops) >= 2",
+              "visible": false,
+              "failure_message": "Use the in operator to check membership instead of typing True and False.",
+              "failure_message_tr": "True ve False'u elle yazma; üyelik için in operatörünü kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "You need a membership check, twice.",
+            "The in operator answers True or False.",
+            "Write two print lines: in each one, put a country name, then in, then nordic."
+          ],
+          "solution": {
+            "approach": "Use the in operator.",
+            "code": "nordic = ('Denmark', 'Finland', 'Iceland', 'Norway', 'Sweden')\nprint('Estonia' in nordic)\nprint('Iceland' in nordic)",
+            "approach_tr": "in operatörünü kullan."
+          },
+          "hints_tr": [
+            "İki kez üyelik kontrolü yapman gerekiyor.",
+            "in operatörü True ya da False cevabı verir.",
+            "İki print satırı yaz: her birinde önce bir ülke adı, sonra in, sonra nordic olsun."
+          ]
+        },
+        {
+          "id": "d06-b1-e4",
+          "type": "type_it",
+          "prompt": "Study the snippet, then retype it from memory.",
+          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz.",
+          "code": "fruits = ('banana', 'orange', 'mango')\nprint(fruits[0])\nprint(fruits[-1])\nprint(len(fruits))",
+          "expected_output": "banana\nmango\n3"
+        }
+      ],
+      "concept_tr": "Tuple temelleri"
+    },
+    {
+      "id": "d06-b2",
+      "concept": "tuple-list-conversion",
+      "tags": [
+        "tuples",
+        "lists",
+        "conversion",
+        "immutability"
+      ],
+      "worked_example": {
+        "code": "fruits = ('banana', 'orange')\nitems = list(fruits)\nitems[0] = 'apple'\nfruits = tuple(items)\nprint(fruits)",
+        "notes": [
+          "To 'change' a tuple, convert to a list, edit, convert back.",
+          "The result is a NEW tuple; the old one is not modified."
+        ],
+        "notes_tr": [
+          "Bir tuple'ı 'değiştirmek' için listeye çevir, düzenle, tekrar tuple yap.",
+          "Sonuç YENİ bir tuple'dır; eskisi değişmez."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d06-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "t = (1, 2, 3)\nl = list(t)\nl.append(4)\nprint(t, l)",
+          "choices": [
+            "(1, 2, 3) [1, 2, 3, 4]",
+            "(1, 2, 3, 4) [1, 2, 3, 4]",
+            "(1, 2, 3) [1, 2, 3]",
+            "[1, 2, 3, 4] (1, 2, 3)"
+          ],
+          "expected_output": "(1, 2, 3) [1, 2, 3, 4]",
+          "explanation": "list(t) builds a separate list. Appending to that list never touches the tuple t.",
+          "misconceptions": {
+            "(1, 2, 3, 4) [1, 2, 3, 4]": "Tuples cannot be changed. list(t) made a separate list; t stays (1, 2, 3).",
+            "(1, 2, 3) [1, 2, 3]": "l.append(4) did run, so l has four items.",
+            "[1, 2, 3, 4] (1, 2, 3)": "The print order is t first, then l."
+          },
+          "explanation_tr": "list(t) ayrı bir liste oluşturur. Bu listeye ekleme yapmak t tuple'ına hiç dokunmaz.",
+          "misconceptions_tr": {
+            "(1, 2, 3, 4) [1, 2, 3, 4]": "Tuple'lar değiştirilemez. list(t) ayrı bir liste yaptı; t (1, 2, 3) olarak kalır.",
+            "(1, 2, 3) [1, 2, 3]": "l.append(4) çalıştı, bu yüzden l'de dört eleman var.",
+            "[1, 2, 3, 4] (1, 2, 3)": "Yazdırma sırası önce t, sonra l'dir."
+          }
+        },
+        {
+          "id": "d06-b2-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints ('pink', 'green', 'blue').",
+          "prompt_tr": "Satırları, program ('pink', 'green', 'blue') yazdıracak şekilde sırala.",
+          "lines": [
+            "colors = tuple(temp)",
+            "colors = ('red', 'green', 'blue')",
+            "print(colors)",
+            "temp[0] = 'pink'",
+            "temp = list(colors)"
+          ],
+          "correct_order": [
+            1,
+            4,
+            3,
+            0,
+            2
+          ],
+          "distractors": [
+            "colors[0] = 'pink'"
+          ],
+          "expected_output": "('pink', 'green', 'blue')"
+        },
+        {
+          "id": "d06-b2-e3",
+          "type": "write",
+          "prompt": "Start with planets = ('Earth', 'Mars', 'Venus'). Convert it to a list called planet_list, append 'Jupiter', and convert the result back into a tuple called planets. Print planets.",
+          "prompt_tr": "planets = ('Earth', 'Mars', 'Venus') ile başla. Bunu planet_list adında bir listeye çevir, 'Jupiter' ekle ve sonucu tekrar planets adında bir tuple'a çevir. planets'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert planets == ('Earth', 'Mars', 'Venus', 'Jupiter')",
+              "visible": true,
+              "failure_message": "planets should end as ('Earth', 'Mars', 'Venus', 'Jupiter').",
+              "failure_message_tr": "planets ('Earth', 'Mars', 'Venus', 'Jupiter') olmalı.",
+              "label_tr": "planets doğru dört gezegeni içeriyor"
+            },
+            {
+              "code": "assert type(planets) is tuple",
+              "visible": true,
+              "failure_message": "planets must be a tuple again.",
+              "failure_message_tr": "planets tekrar tuple olmalı.",
+              "label_tr": "planets yine bir tuple"
+            },
+            {
+              "code": "assert type(planet_list) is list and len(planet_list) == 4",
+              "visible": false,
+              "failure_message": "planet_list must be a list with four items.",
+              "failure_message_tr": "planet_list dört elemanlı bir liste olmalı."
+            },
+            {
+              "code": "assert planets[-1] == 'Jupiter'",
+              "visible": false,
+              "failure_message": "'Jupiter' should be the last planet.",
+              "failure_message_tr": "'Jupiter' son gezegen olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"('Earth', 'Mars', 'Venus', 'Jupiter')\"",
+              "visible": false,
+              "failure_message": "Print planets.",
+              "failure_message_tr": "planets'i yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_calls = {n.func.id for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert {'list', 'tuple'} <= _calls",
+              "visible": false,
+              "failure_message": "Convert with list() and tuple() instead of typing the final tuple by hand.",
+              "failure_message_tr": "Son tuple'ı elle yazma; list() ve tuple() ile dönüştür.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare planets first.",
+            "list(...) gives you an editable version; tuple(...) freezes it again.",
+            "Convert planets with list into planet_list, append 'Jupiter' to it, convert planet_list back with tuple into planets, then print planets."
+          ],
+          "solution": {
+            "approach": "tuple -> list -> edit -> tuple.",
+            "code": "planets = ('Earth', 'Mars', 'Venus')\nplanet_list = list(planets)\nplanet_list.append('Jupiter')\nplanets = tuple(planet_list)\nprint(planets)",
+            "approach_tr": "tuple -> liste -> düzenle -> tuple."
+          },
+          "twin": "d06-b2-e4",
+          "hints_tr": [
+            "Önce planets'i tanımla.",
+            "list(...) düzenlenebilir bir sürüm verir; tuple(...) onu tekrar dondurur.",
+            "planets'i list ile planet_list'e çevir, ona 'Jupiter' ekle, planet_list'i tuple ile tekrar planets'e çevir, sonra planets'i yazdır."
+          ]
+        },
+        {
+          "id": "d06-b2-e4",
+          "type": "write",
+          "prompt": "Start with levels = (1, 2, 3). Convert it to a list called level_list, change its first item to 10, and convert it back into the tuple levels. Print levels.",
+          "prompt_tr": "levels = (1, 2, 3) ile başla. level_list adında bir listeye çevir, ilk elemanını 10 yap ve tekrar levels adında bir tuple'a çevir. levels'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert levels == (10, 2, 3)",
+              "visible": true,
+              "failure_message": "levels should end as (10, 2, 3).",
+              "failure_message_tr": "levels (10, 2, 3) olmalı.",
+              "label_tr": "levels (10, 2, 3) oldu"
+            },
+            {
+              "code": "assert type(levels) is tuple",
+              "visible": true,
+              "failure_message": "levels must be a tuple again.",
+              "failure_message_tr": "levels tekrar tuple olmalı.",
+              "label_tr": "levels yine bir tuple"
+            },
+            {
+              "code": "assert type(level_list) is list and level_list[0] == 10",
+              "visible": false,
+              "failure_message": "level_list must be a list whose first item is 10.",
+              "failure_message_tr": "level_list ilk elemanı 10 olan bir liste olmalı."
+            },
+            {
+              "code": "assert len(levels) == 3",
+              "visible": false,
+              "failure_message": "levels must still have three items.",
+              "failure_message_tr": "levels hâlâ üç elemanlı olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == '(10, 2, 3)'",
+              "visible": false,
+              "failure_message": "Print levels.",
+              "failure_message_tr": "levels'i yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_calls = {n.func.id for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert {'list', 'tuple'} <= _calls",
+              "visible": false,
+              "failure_message": "Convert with list() and tuple() instead of typing the final tuple by hand.",
+              "failure_message_tr": "Son tuple'ı elle yazma; list() ve tuple() ile dönüştür.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare levels first.",
+            "A list item can be replaced by index; a tuple item cannot.",
+            "Convert levels with list into level_list, assign 10 to index 0 of level_list, convert back with tuple into levels, then print levels."
+          ],
+          "solution": {
+            "approach": "Same conversion trick, with an item replacement.",
+            "code": "levels = (1, 2, 3)\nlevel_list = list(levels)\nlevel_list[0] = 10\nlevels = tuple(level_list)\nprint(levels)",
+            "approach_tr": "Aynı dönüştürme hilesi, bu kez bir elemanı değiştirerek."
+          },
+          "twin": "d06-b2-e3",
+          "hints_tr": [
+            "Önce levels'i tanımla.",
+            "Liste elemanı indeksle değiştirilebilir; tuple elemanı değiştirilemez.",
+            "levels'i list ile level_list'e çevir, level_list'in 0. indeksine 10 ata, tuple ile tekrar levels'e çevir, sonra levels'i yazdır."
+          ]
+        },
+        {
+          "id": "d06-b2-e5",
+          "type": "debug",
+          "prompt": "This should print ('apple', 'orange', 'mango') but crashes with a TypeError. Fix it without removing the line that creates the tuple.",
+          "prompt_tr": "Bu ('apple', 'orange', 'mango') yazdırmalı ama TypeError ile çöküyor. Tuple'ı oluşturan satırı silmeden düzelt.",
+          "starter_code": "fruits = ('banana', 'orange', 'mango')\nfruits[0] = 'apple'\nprint(fruits)",
+          "expected_output": "('apple', 'orange', 'mango')",
+          "hints": [
+            "Read the error: what does a tuple not support?",
+            "You cannot assign to an index of a tuple. Use a list as a go-between.",
+            "Around line 2, first make a list from fruits, change the first item of that list, then make a tuple from the list again and store it in fruits."
+          ],
+          "solution": {
+            "approach": "Convert to a list, edit, convert back.",
+            "code": "fruits = ('banana', 'orange', 'mango')\ntemp = list(fruits)\ntemp[0] = 'apple'\nfruits = tuple(temp)\nprint(fruits)",
+            "approach_tr": "Listeye çevir, düzenle, tekrar tuple'a çevir."
+          },
+          "hints_tr": [
+            "Hatayı oku: tuple neyi desteklemiyor?",
+            "Tuple'ın bir indeksine atama yapamazsın. Ara adım olarak bir liste kullan.",
+            "2. satırın çevresinde önce fruits'ten bir liste yap, o listenin ilk elemanını değiştir, sonra listeyi tekrar tuple yapıp fruits'e ata."
+          ]
+        }
+      ],
+      "concept_tr": "Tuple ile liste arasında dönüştürme"
+    },
+    {
+      "id": "d06-b3",
+      "concept": "tuple-join-count-index",
+      "tags": [
+        "tuples",
+        "count",
+        "index",
+        "join"
+      ],
+      "worked_example": {
+        "code": "a = (1, 2)\nb = (3,)\nprint(a + b)\nprint((1, 2, 1).count(1))",
+        "notes": [
+          "+ joins tuples into a new tuple.",
+          "count(x) counts how often x appears; index(x) says where it first appears."
+        ],
+        "notes_tr": [
+          "+ tuple'ları birleştirip yeni bir tuple yapar.",
+          "count(x) x'in kaç kez geçtiğini, index(x) ilk nerede geçtiğini söyler."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d06-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "nordic = ('Denmark', 'Finland', 'Iceland', 'Norway')\nprint('Estonia' in nordic)\nprint(nordic.index('Iceland'))\nprint(nordic[1:3] + ('Sweden',))",
+          "choices": [
+            "False\n2\n('Finland', 'Iceland', 'Sweden')",
+            "False\n3\n('Finland', 'Iceland', 'Sweden')",
+            "True\n2\n('Finland', 'Iceland', 'Sweden')",
+            "False\n2\n('Finland', 'Iceland', 'Norway', 'Sweden')"
+          ],
+          "expected_output": "False\n2\n('Finland', 'Iceland', 'Sweden')",
+          "explanation": "'Estonia' is not in the tuple. 'Iceland' sits at index 2. The slice [1:3] holds Finland and Iceland, then Sweden is added.",
+          "misconceptions": {
+            "False\n3\n('Finland', 'Iceland', 'Sweden')": "Indexes start at 0: Denmark 0, Finland 1, Iceland 2.",
+            "True\n2\n('Finland', 'Iceland', 'Sweden')": "'Estonia' is not one of the four countries.",
+            "False\n2\n('Finland', 'Iceland', 'Norway', 'Sweden')": "The stop index 3 is excluded, so 'Norway' is not in the slice."
+          },
+          "explanation_tr": "'Estonia' tuple'da yok. 'Iceland' 2. indekste duruyor. [1:3] dilimi Finland ve Iceland'i alır, sonra Sweden eklenir.",
+          "misconceptions_tr": {
+            "False\n3\n('Finland', 'Iceland', 'Sweden')": "İndeksler 0'dan başlar: Denmark 0, Finland 1, Iceland 2.",
+            "True\n2\n('Finland', 'Iceland', 'Sweden')": "'Estonia' dört ülkeden biri değil.",
+            "False\n2\n('Finland', 'Iceland', 'Norway', 'Sweden')": "Bitiş indeksi 3 dahil değildir, bu yüzden 'Norway' dilimde yok."
+          }
+        },
+        {
+          "id": "d06-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints 2 (how often 22 appears).",
+          "prompt_tr": "Programın 2 yazdırması için boşluğu doldur (22 kaç kez geçiyor).",
+          "starter_code": "ages = (22, 19, 22, 24)\nprint(ages.___(22))",
+          "blanks": [
+            {
+              "answer": [
+                "count"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '2'",
+              "visible": true,
+              "failure_message": "The program must print 2.",
+              "failure_message_tr": "Program 2 yazdırmalı.",
+              "label_tr": "22'nin kaç kez geçtiği yazdırılıyor"
+            }
+          ],
+          "hints": [
+            "You want how MANY times, not where.",
+            "The method name is a verb meaning 'to count'.",
+            "The method is called count (the value to look for is already in the parentheses)."
+          ],
+          "hints_tr": [
+            "NE KADAR çok olduğunu istiyorsun, nerede olduğunu değil.",
+            "Metodun adı 'saymak' anlamında bir fiil.",
+            "Metodun adı count (aranan değer zaten parantezin içinde)."
+          ]
+        },
+        {
+          "id": "d06-b3-e3",
+          "type": "write",
+          "prompt": "Create a = ('x', 'y') and b = ('y', 'z'). Then create joined (a joined with b), count_y (how many times 'y' is in joined), pos_z (the index of 'z' in joined) and has_w (whether 'w' is in joined). Print joined.",
+          "prompt_tr": "a = ('x', 'y') ve b = ('y', 'z') oluştur. Sonra joined (a ve b birleşimi), count_y (joined içinde 'y' kaç kez geçiyor), pos_z (joined içinde 'z'nin indeksi) ve has_w ('w' joined içinde mi) değişkenlerini oluştur. joined'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert joined == ('x', 'y', 'y', 'z')",
+              "visible": true,
+              "failure_message": "joined should be ('x', 'y', 'y', 'z').",
+              "failure_message_tr": "joined ('x', 'y', 'y', 'z') olmalı.",
+              "label_tr": "joined doğru birleştirilmiş"
+            },
+            {
+              "code": "assert count_y == 2 and pos_z == 3",
+              "visible": true,
+              "failure_message": "count_y is 2 and pos_z is 3.",
+              "failure_message_tr": "count_y 2, pos_z 3 olmalı.",
+              "label_tr": "count_y ve pos_z doğru"
+            },
+            {
+              "code": "assert has_w is False",
+              "visible": false,
+              "failure_message": "'w' is not in joined, so has_w is False.",
+              "failure_message_tr": "'w' joined içinde yok, bu yüzden has_w False olmalı."
+            },
+            {
+              "code": "assert type(joined) is tuple",
+              "visible": false,
+              "failure_message": "joined must be a tuple: join with +.",
+              "failure_message_tr": "joined bir tuple olmalı: + ile birleştir."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"('x', 'y', 'y', 'z')\"",
+              "visible": false,
+              "failure_message": "Print joined.",
+              "failure_message_tr": "joined'i yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert {'count', 'index'} <= _used and any(isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add) for n in ast.walk(_t)) and any(isinstance(op, ast.In) for n in ast.walk(_t) if isinstance(n, ast.Compare) for op in n.ops)",
+              "visible": false,
+              "failure_message": "Use +, count(), index() and in instead of typing the values by hand.",
+              "failure_message_tr": "Değerleri elle yazma; +, count(), index() ve in kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare a and b first.",
+            "+ joins tuples; count() tells how often; index() tells where; in tells whether.",
+            "Join with +, call count and index on joined, test 'w' with in, and print joined."
+          ],
+          "solution": {
+            "approach": "+, count, index, in.",
+            "code": "a = ('x', 'y')\nb = ('y', 'z')\njoined = a + b\ncount_y = joined.count('y')\npos_z = joined.index('z')\nhas_w = 'w' in joined\nprint(joined)",
+            "approach_tr": "+, count, index ve in."
+          },
+          "twin": "d06-b3-e4",
+          "hints_tr": [
+            "Önce a ve b'yi tanımla.",
+            "+ tuple'ları birleştirir; count() kaç kez olduğunu, index() nerede olduğunu, in ise var olup olmadığını söyler.",
+            "+ ile birleştir, joined üzerinde count ve index çağır, 'w' için in kullan, sonra joined'i yazdır."
+          ]
+        },
+        {
+          "id": "d06-b3-e4",
+          "type": "write",
+          "prompt": "Create left = (10, 20) and right = (20, 30, 40). Then create both (left joined with right), count_20 (how many times 20 appears in both), pos_40 (the index of 40 in both) and has_50 (whether 50 is in both). Print count_20.",
+          "prompt_tr": "left = (10, 20) ve right = (20, 30, 40) oluştur. Sonra both (left ve right birleşimi), count_20 (both içinde 20 kaç kez geçiyor), pos_40 (both içinde 40'ın indeksi) ve has_50 (50 both içinde mi) değişkenlerini oluştur. count_20'yi yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert both == (10, 20, 20, 30, 40)",
+              "visible": true,
+              "failure_message": "both should be (10, 20, 20, 30, 40).",
+              "failure_message_tr": "both (10, 20, 20, 30, 40) olmalı.",
+              "label_tr": "both doğru birleştirilmiş"
+            },
+            {
+              "code": "assert count_20 == 2 and pos_40 == 4",
+              "visible": true,
+              "failure_message": "count_20 is 2 and pos_40 is 4.",
+              "failure_message_tr": "count_20 2, pos_40 4 olmalı.",
+              "label_tr": "count_20 ve pos_40 doğru"
+            },
+            {
+              "code": "assert has_50 is False",
+              "visible": false,
+              "failure_message": "50 is not in both.",
+              "failure_message_tr": "50 both içinde yok."
+            },
+            {
+              "code": "assert type(both) is tuple",
+              "visible": false,
+              "failure_message": "both must be a tuple.",
+              "failure_message_tr": "both bir tuple olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == '2'",
+              "visible": false,
+              "failure_message": "Print count_20.",
+              "failure_message_tr": "count_20'yi yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert {'count', 'index'} <= _used and any(isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add) for n in ast.walk(_t)) and any(isinstance(op, ast.In) for n in ast.walk(_t) if isinstance(n, ast.Compare) for op in n.ops)",
+              "visible": false,
+              "failure_message": "Use +, count(), index() and in instead of typing the values by hand.",
+              "failure_message_tr": "Değerleri elle yazma; +, count(), index() ve in kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare left and right first.",
+            "+ joins tuples; count() tells how often; index() tells where; in tells whether.",
+            "Join with +, call count and index on both, test 50 with in, and print count_20."
+          ],
+          "solution": {
+            "approach": "Same four tools on numbers.",
+            "code": "left = (10, 20)\nright = (20, 30, 40)\nboth = left + right\ncount_20 = both.count(20)\npos_40 = both.index(40)\nhas_50 = 50 in both\nprint(count_20)",
+            "approach_tr": "Aynı dört araç, bu kez sayılarla."
+          },
+          "twin": "d06-b3-e3",
+          "hints_tr": [
+            "Önce left ve right'ı tanımla.",
+            "+ tuple'ları birleştirir; count() kaç kez olduğunu, index() nerede olduğunu, in ise var olup olmadığını söyler.",
+            "+ ile birleştir, both üzerinde count ve index çağır, 50 için in kullan, sonra count_20'yi yazdır."
+          ]
+        },
+        {
+          "id": "d06-b3-e5",
+          "type": "explain",
+          "prompt": "In your own words: what is the difference between a list and a tuple, and when would you choose a tuple?",
+          "prompt_tr": "Kendi cümlelerinle: liste ile tuple arasındaki fark nedir ve ne zaman tuple seçerdin?",
+          "model_answer": "A list can be changed after it is created, a tuple cannot (it is immutable). A tuple is a good choice for data that should stay fixed, such as coordinates or the days of the week.",
+          "keywords": [
+            "immutab",
+            "cannot be changed",
+            "fixed",
+            "change",
+            "list"
+          ],
+          "model_answer_tr": "Liste oluşturulduktan sonra değiştirilebilir, tuple ise değiştirilemez (immutable). Hafta günleri ya da koordinatlar gibi sabit kalması gereken veriler için tuple iyi bir seçimdir.",
+          "keywords_tr": [
+            "değiştirilemez",
+            "değişmez",
+            "sabit",
+            "liste",
+            "tuple"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "Tuple birleştirme, count ve index"
+    }
+  ],
+  "review_pool": [
+    "d06-b1-e1",
+    "d06-b2-e1",
+    "d06-b2-e3",
+    "d06-b3-e1",
+    "d06-b3-e3"
+  ],
+  "title_tr": "Tuple'lar"
+}

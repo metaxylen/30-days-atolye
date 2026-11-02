@@ -1,0 +1,505 @@
+{
+ "day": 21,
+ "title_tr": "Sınıflar ve Nesneler",
+ "title": "Classes and Objects",
+ "est_minutes": 40,
+ "cards": [
+  {
+   "id": "d21-c01",
+   "type": "explain",
+   "title_tr": "Python'da her şey bir nesne",
+   "title": "Everything in Python is an object",
+   "body_tr": "Sayı, string, list, dict... hepsi bir **nesne** (object). Nesne, hem veriyi hem de o veriyle çalışan fonksiyonları (**method**) bir arada tutan şeydir. Örneğin `'ada'` bir string verisidir ama aynı zamanda `.upper()` gibi methodları da vardır. Her nesne bir **sınıftan** (class) üretilir; `type()` bu sınıfı gösterir. Bugün kendi sınıflarımızı yazmayı öğreneceğiz, ama yeni bir şey icat etmiyoruz: `list` ve `str` zaten aynı mekanizmayla yazılmış sınıflar.",
+   "body": "Numbers, strings, lists, dicts: all of them are **objects**. An object bundles data together with the functions that work on that data (**methods**). For example `'ada'` is string data, but it also carries methods such as `.upper()`. Every object is made from a **class**, and `type()` shows which one. Today we write our own classes, but we are not inventing anything new: `list` and `str` are classes built with the very same mechanism.",
+   "code": "print(type(10))\nprint(type('metin'))\nprint(type([]))\nprint('ada'.upper())\nprint(type(len))",
+   "expected_output": "<class 'int'>\n<class 'str'>\n<class 'list'>\nADA\n<class 'builtin_function_or_method'>",
+   "section": "Classes and Objects"
+  },
+  {
+   "id": "d21-c02",
+   "type": "truefalse",
+   "statement_tr": "Python'da sadece kendi yazdığımız sınıflardan üretilenler nesnedir; 10 gibi bir sayı nesne değildir.",
+   "statement": "Only things built from classes we write ourselves are objects; a number like 10 is not an object.",
+   "answer": false,
+   "why_tr": "Sayılar, string'ler, list'ler de yerleşik sınıflardan (int, str, list) üretilen nesnelerdir.",
+   "why": "Numbers, strings and lists are objects too, made from built-in classes (int, str, list).",
+   "section": "Classes and Objects"
+  },
+  {
+   "id": "d21-c03",
+   "type": "explain",
+   "title_tr": "Sınıf neden gerekli?",
+   "title": "Why do we need classes?",
+   "body_tr": "Bir sipariş sistemi yazdığını düşün. Her müşteri için ayrı değişkenler (`ad1`, `sehir1`, `ad2`, `sehir2`...) tutmak hızla çorbaya döner. Dict kullanırsan veri düzenlenir ama davranış (örneğin \"bilgiyi yazdır\") hâlâ dışarıda kalır. Sınıf, **veriyi ve o veriye ait davranışı tek pakette** toplar: kalıbı bir kez yazarsın, istediğin kadar nesne üretirsin ve her nesne kendi verisini taşır.",
+   "body": "Imagine writing an order system. Keeping separate variables per customer (`name1`, `city1`, `name2`, `city2`...) turns into a mess fast. A dict organises the data, but the behaviour (say, \"print the info\") still lives outside. A class packs **data and the behaviour that belongs to it into one package**: you write the pattern once, create as many objects as you need, and each object carries its own data.",
+   "code": "musteri = {'ad': 'Ayse', 'sehir': 'Ankara'}\n\ndef bilgi(m):\n    return f\"{m['ad']} - {m['sehir']}\"\n\nprint(bilgi(musteri))",
+   "expected_output": "Ayse - Ankara",
+   "section": "Classes and Objects"
+  },
+  {
+   "id": "d21-c04",
+   "type": "explain",
+   "title_tr": "Sınıf oluşturmak",
+   "title": "Creating a class",
+   "body_tr": "Sınıf, `class` anahtar kelimesi + isim + iki nokta ile yazılır. İsim **CamelCase** olur: her kelimenin ilk harfi büyük, aralarda alt çizgi yok (`ShoppingCart`). Bu bir yazım geleneğidir ve fonksiyon adlarından (`snake_case`) ayırt etmemizi sağlar. İçi boşsa `pass` yazarız. Önemli bir ayrıntı: sınıf tanımı da çalışan bir koddur; Python `class` satırına gelince bir sınıf nesnesi üretir ve onu isme bağlar.",
+   "body": "A class is written with the `class` keyword, a name and a colon. The name is **CamelCase**: each word starts with a capital letter and there are no underscores (`ShoppingCart`). It is a convention that lets us tell classes apart from functions (`snake_case`). An empty body uses `pass`. One detail worth knowing: a class definition is executable code too; when Python reaches the `class` line it builds a class object and binds it to the name.",
+   "code": "class Person:\n    pass\n\nprint(Person)\nprint(type(Person))",
+   "expected_output": "<class '__main__.Person'>\n<class 'type'>",
+   "section": "Creating a Class"
+  },
+  {
+   "id": "d21-c05",
+   "type": "explain",
+   "title_tr": "Sınıfı çağırınca nesne çıkar",
+   "title": "Calling the class makes an object",
+   "body_tr": "Sınıfı bir fonksiyon gibi çağırırsan yeni bir nesne (**instance**, örnek) elde edersin. Her çağrı **ayrı** bir nesne üretir; `p` ve `q` aynı nesneye bağlı iki ayrı etiket değil, iki ayrı nesneye yapışmış iki etikettir (değişken bir kutu değil, nesneye yapıştırılmış isim etiketidir). `isinstance(p, Person)` bir nesnenin hangi sınıftan geldiğini sorar. Orijinal derste `print(p)` bellek adresi gösterir; o her çalıştırmada değiştiği için burada `type` ve `isinstance` ile bakıyoruz.",
+   "body": "Call the class like a function and you get a new object (an **instance**). Every call creates a **separate** object; `p` and `q` are name tags stuck on two different objects (a variable is a name tag on an object, not a box). `isinstance(p, Person)` asks which class an object came from. The original lesson prints `p` and shows a memory address; it changes on every run, so here we inspect it with `type` and `isinstance`.",
+   "code": "class Person:\n    pass\n\np = Person()\nq = Person()\nprint(type(p))\nprint(isinstance(p, Person))\nprint(p is q)",
+   "expected_output": "<class '__main__.Person'>\nTrue\nFalse",
+   "section": "Creating an Object"
+  },
+  {
+   "id": "d21-c06",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "class Dog:\n    pass\n\na = Dog()\nb = Dog()\nprint(a == b)",
+   "choices": [
+    "False",
+    "Error",
+    "True",
+    "Dog"
+   ],
+   "answer": "False",
+   "why_tr": "Dog() her çağrıldığında ayrı bir nesne üretir; iki ayrı nesne varsayılan olarak eşit sayılmaz (`==` burada kimliğe bakar).",
+   "why": "Each Dog() call creates a separate object, and two separate objects are not equal by default (`==` falls back to identity).",
+   "section": "Creating an Object"
+  },
+  {
+   "id": "d21-c07",
+   "type": "explain",
+   "title_tr": "Constructor: __init__",
+   "title": "The constructor: __init__",
+   "body_tr": "`__init__`, nesne yaratıldıktan hemen sonra Python tarafından **otomatik** çağrılır; ona nesnenin ilk ayarlarını yaptırırız. İlk parametre `self`, o an oluşturulan nesnenin kendisidir. `self.name = name` satırı, parametredeki değeri nesnenin içine \"name\" adıyla yazar. Fonksiyon bitince yerel `name` kaybolur ama `self.name` nesnede yaşamaya devam eder. Aşağıdaki adımları izleyerek `self`'in `p` ile aynı nesne olduğunu gör.",
+   "body": "`__init__` is called **automatically** by Python right after the object is created; we use it to do the object's initial setup. The first parameter, `self`, is the object being created. The line `self.name = name` stores the parameter's value inside the object under the name \"name\". When the function ends the local `name` disappears, but `self.name` lives on in the object. Step through below and watch `self` be the same object as `p`.",
+   "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\np = Person('Asabeneh')\nprint(p.name)",
+   "expected_output": "Asabeneh",
+   "trace": true,
+   "section": "Class Constructor"
+  },
+  {
+   "id": "d21-c08",
+   "type": "fill",
+   "prompt_tr": "Boşluğu doldur: nesnenin kendisini gösteren isim hangisi?",
+   "prompt": "Fill the blank: which name refers to the object itself?",
+   "code": "class Person:\n    def __init__(self, name):\n        ___.name = name\n\nprint(Person('Ada').name)",
+   "answers": [
+    "self"
+   ],
+   "expected_output": "Ada",
+   "why_tr": "`self`, oluşturulan nesnenin kendisidir; veriyi ona bağlamak için `self.name` yazarız.",
+   "why": "`self` is the object being created; we write `self.name` to attach data to it.",
+   "section": "Class Constructor"
+  },
+  {
+   "id": "d21-c09",
+   "type": "explain",
+   "title_tr": "Birden çok attribute",
+   "title": "More than one attribute",
+   "body_tr": "Constructor'a istediğin kadar parametre ekleyebilirsin; her biri `self.` ile nesnenin bir **attribute**'una (özelliğine) dönüşür. Nesnenin attribute'ları, nesnenin içinde bir sözlükte (`__dict__`) tutulur. İki nesne aynı sınıftan gelse bile attribute'ları ayrıdır: birinin yaşını değiştirmek ötekini etkilemez. Bu, sınıfın \"kalıp\", nesnenin \"kalıptan çıkan somut ürün\" olmasının sonucudur.",
+   "body": "A constructor can take as many parameters as you like; each becomes an **attribute** of the object via `self.`. An object's attributes are stored inside the object in a dictionary (`__dict__`). Two objects from the same class have separate attributes: changing one's age does not touch the other. This is what it means for the class to be the \"mould\" and the object the concrete product.",
+   "code": "class Person:\n    def __init__(self, firstname, lastname, age):\n        self.firstname = firstname\n        self.lastname = lastname\n        self.age = age\n\np = Person('Asabeneh', 'Yetayeh', 250)\nq = Person('Ada', 'Lovelace', 36)\nq.age += 1\nprint(p.age, q.age)\nprint(p.__dict__)",
+   "expected_output": "250 37\n{'firstname': 'Asabeneh', 'lastname': 'Yetayeh', 'age': 250}",
+   "section": "Class Constructor"
+  },
+  {
+   "id": "d21-c10",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "class Item:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\na = Item('ekmek', 15)\nb = Item('süt', 30)\nb.price = 35\nprint(a.price, b.price)",
+   "choices": [
+    "35 35",
+    "15 15",
+    "15 35",
+    "30 35"
+   ],
+   "answer": "15 35",
+   "why_tr": "`b.price = 35` yalnızca `b` nesnesinin kendi attribute'unu değiştirir; `a` aynı kalır.",
+   "why": "`b.price = 35` changes only `b`'s own attribute; `a` stays as it was.",
+   "section": "Class Constructor"
+  },
+  {
+   "id": "d21-c11",
+   "type": "explain",
+   "title_tr": "Sık hata: self'i unutmak",
+   "title": "Common mistake: forgetting self",
+   "body_tr": "İki klasik hata var. Birincisi, `__init__`'e `self` parametresini yazmamak: Python nesneyi yine de ilk argüman olarak gönderir, sayılar tutmaz ve `TypeError` alırsın. İkincisi, `self.name = name` yerine sadece `name = name` yazmak: bu yerel değişken yaratır ve hata vermez, ama nesne hiçbir şey saklamaz; sonra `p.name` istediğinde `AttributeError` çıkar. Hata mesajını okumak çoğu zaman çözümü doğrudan söyler.",
+   "body": "There are two classic mistakes. The first is leaving `self` out of `__init__`: Python still passes the object as the first argument, the counts do not match and you get a `TypeError`. The second is writing just `name = name` instead of `self.name = name`: that makes a local variable, raises nothing, but the object stores nothing, so later `p.name` fails with an `AttributeError`. Reading the error message usually names the fix directly.",
+   "code": "class Bad1:\n    def __init__(name):\n        pass\n\ntry:\n    Bad1('Ada')\nexcept TypeError as e:\n    print('TypeError:', e)\n\nclass Bad2:\n    def __init__(self, name):\n        name = name\n\ntry:\n    print(Bad2('Ada').name)\nexcept AttributeError as e:\n    print('AttributeError:', e)",
+   "expected_output": "TypeError: Bad1.__init__() takes 1 positional argument but 2 were given\nAttributeError: 'Bad2' object has no attribute 'name'",
+   "hide_output": true,
+   "section": "Class Constructor"
+  },
+  {
+   "id": "d21-c12",
+   "type": "truefalse",
+   "statement_tr": "`self` Python'un ayrılmış anahtar kelimesidir; başka bir isim yazarsak program çalışmaz.",
+   "statement": "`self` is a reserved Python keyword; any other name would break the program.",
+   "answer": false,
+   "why_tr": "`self` yalnızca güçlü bir gelenektir. Çalışırdı ama herkes `self` bekler; başka isim kullanmak okunabilirliği bozar.",
+   "why": "`self` is just a strong convention. Another name would work, but everybody expects `self`, so renaming hurts readability.",
+   "section": "Class Constructor"
+  },
+  {
+   "id": "d21-c13",
+   "type": "explain",
+   "title_tr": "Nesne metotları",
+   "title": "Object methods",
+   "body_tr": "Sınıfın içindeki fonksiyonlara **method** denir. İlk parametreleri `self`'tir; böylece nesnenin attribute'larını okuyup değiştirebilirler. `p.person_info()` yazdığında Python bunu `Person.person_info(p)` olarak çalıştırır: `self`'i biz vermeyiz, noktanın solundaki nesne otomatik gider. Bu yüzden method tanımında bir parametre varmış gibi görünür ama çağırırken bir eksik argüman yazarız.",
+   "body": "Functions inside a class are called **methods**. Their first parameter is `self`, so they can read and change the object's attributes. When you write `p.person_info()`, Python runs it as `Person.person_info(p)`: we do not pass `self`, the object left of the dot is handed in automatically. That is why a method definition seems to have one extra parameter compared with the call.",
+   "code": "class Person:\n    def __init__(self, firstname, age):\n        self.firstname = firstname\n        self.age = age\n    def person_info(self):\n        return f'{self.firstname} is {self.age} years old.'\n\np = Person('Asabeneh', 250)\nprint(p.person_info())\nprint(Person.person_info(p))",
+   "expected_output": "Asabeneh is 250 years old.\nAsabeneh is 250 years old.",
+   "trace": true,
+   "section": "Object Methods"
+  },
+  {
+   "id": "d21-c14",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "class Counter:\n    def __init__(self):\n        self.n = 0\n    def up(self):\n        self.n += 1\n\nc = Counter()\nc.up()\nc.up()\nprint(c.n)",
+   "choices": [
+    "1",
+    "0",
+    "Error",
+    "2"
+   ],
+   "answer": "2",
+   "why_tr": "`up` her çağrıldığında nesnenin kendi `n` değerini 1 artırır; iki çağrı sonunda 2.",
+   "why": "Each `up` call adds 1 to the object's own `n`; after two calls it is 2.",
+   "section": "Object Methods"
+  },
+  {
+   "id": "d21-c15",
+   "type": "explain",
+   "title_tr": "Gerçekçi örnek: alışveriş sepeti",
+   "title": "Realistic example: a shopping cart",
+   "body_tr": "Sınıfın asıl gücü, durumu (state) ve o duruma uygulanan işlemleri birlikte tutmasıdır. Sepet nesnesi ürün listesini kendisi saklar; `add` ürün ekler, `total` toplamı hesaplar. Dışarıdan bakan kişi listenin nasıl tutulduğunu bilmek zorunda değildir, sadece methodları çağırır. İki ayrı sepet oluşturursan her birinin listesi ayrıdır, çünkü liste `__init__` içinde her nesne için yeniden yaratılır.",
+   "body": "The real power of a class is keeping state together with the operations that act on it. A cart object stores its own item list; `add` appends an item and `total` computes the sum. Whoever uses the cart does not need to know how the list is kept, they just call methods. Two carts have separate lists, because the list is created anew inside `__init__` for every object.",
+   "code": "class Cart:\n    def __init__(self):\n        self.items = []\n    def add(self, name, price):\n        self.items.append((name, price))\n    def total(self):\n        return sum(p for _, p in self.items)\n\nc1 = Cart()\nc1.add('ekmek', 15)\nc1.add('süt', 30)\nc2 = Cart()\nprint(c1.total(), c2.total())",
+   "expected_output": "45 0",
+   "section": "Object Methods"
+  },
+  {
+   "id": "d21-c16",
+   "type": "order",
+   "prompt_tr": "Satırları doğru sıraya diz: sınıfı tanımla, nesne üret, method çağır.",
+   "prompt": "Put the lines in order: define the class, create an object, call a method.",
+   "lines": [
+    "class Dog:",
+    "d = Dog('Pamuk')",
+    "        self.name = name",
+    "print(d.name)",
+    "    def __init__(self, name):"
+   ],
+   "correct_order": [
+    0,
+    4,
+    2,
+    1,
+    3
+   ],
+   "expected_output": "Pamuk",
+   "section": "Object Methods"
+  },
+  {
+   "id": "d21-c17",
+   "type": "explain",
+   "title_tr": "Varsayılan değerler",
+   "title": "Default values",
+   "body_tr": "Constructor parametrelerine varsayılan değer verirsen nesneyi argümansız da oluşturabilirsin; argüman verirsen o kullanılır. Kural fonksiyonlardaki gibidir: varsayılanlı parametreler sona gelir ve anahtar kelimeyle (`city='Izmir'`) seçilerek atlanabilir. (Orijinal başlık \"default methods\" diyor ama konu varsayılan parametre değerleridir.)",
+   "body": "Give constructor parameters default values and you can create the object with no arguments; if you pass arguments, those are used. The rules are the same as for functions: defaulted parameters come last and can be picked by keyword (`city='Izmir'`) to skip the others. (The original heading says \"default methods\" but the topic is default parameter values.)",
+   "code": "class Person:\n    def __init__(self, name='Asabeneh', city='Helsinki'):\n        self.name = name\n        self.city = city\n\np1 = Person()\np2 = Person('John', 'London')\np3 = Person(city='Izmir')\nprint(p1.name, p1.city)\nprint(p2.name, p2.city)\nprint(p3.name, p3.city)",
+   "expected_output": "Asabeneh Helsinki\nJohn London\nAsabeneh Izmir",
+   "section": "Object Default Methods"
+  },
+  {
+   "id": "d21-c18",
+   "type": "fill",
+   "prompt_tr": "Varsayılan adı 'Anonim' yap.",
+   "prompt": "Make 'Anonim' the default name.",
+   "code": "class Person:\n    def __init__(self, name=___):\n        self.name = name\n\nprint(Person().name)\nprint(Person('Ayse').name)",
+   "answers": [
+    "'Anonim'",
+    "\"Anonim\""
+   ],
+   "expected_output": "Anonim\nAyse",
+   "why_tr": "Varsayılan değer parametre listesinde `=` ile verilir; argüman gelmezse o kullanılır.",
+   "why": "The default goes in the parameter list after `=`; it is used when no argument is given.",
+   "section": "Object Default Methods"
+  },
+  {
+   "id": "d21-c19",
+   "type": "explain",
+   "title_tr": "Sık hata: değiştirilebilir varsayılan",
+   "title": "Common mistake: a mutable default",
+   "body_tr": "Varsayılan değerler fonksiyon **tanımlandığında bir kez** hesaplanır, her çağrıda değil. Varsayılan olarak `[]` verirsen, o tek liste bütün nesneler tarafından paylaşılır ve biri ekleme yapınca hepsi görür. Çözüm: varsayılanı `None` yap, `__init__` içinde `if tags is None: tags = []` ile her nesne için taze liste yarat. Bu, Python'un en bilinen tuzaklarından biridir; tahmin etmeden önce çıktıyı düşün.",
+   "body": "Default values are evaluated **once, when the function is defined**, not on every call. If the default is `[]`, that single list is shared by every object, and an append through one is visible through all. The fix: make the default `None` and build a fresh list inside `__init__` with `if tags is None: tags = []`. This is one of Python's best-known traps; think about the output before running.",
+   "code": "class Post:\n    def __init__(self, tags=[]):\n        self.tags = tags\n\na = Post()\nb = Post()\na.tags.append('python')\nprint(b.tags)\n\nclass SafePost:\n    def __init__(self, tags=None):\n        self.tags = [] if tags is None else tags\n\nc = SafePost()\nd2 = SafePost()\nc.tags.append('python')\nprint(d2.tags)",
+   "expected_output": "['python']\n[]",
+   "hide_output": true,
+   "section": "Object Default Methods"
+  },
+  {
+   "id": "d21-c20",
+   "type": "explain",
+   "title_tr": "Durumu değiştiren method",
+   "title": "Methods that modify state",
+   "body_tr": "Nesnenin attribute'larını sadece okumak zorunda değiliz; method içinden `self.x = ...` ile değiştirebiliriz. Bu methodlar genelde bir şey döndürmez (`None`), nesnenin durumunu günceller. Böylece değişiklik mantığı tek yerde toplanır: `add_skill` çağıran herkes aynı kuralı kullanır. Orijinal derste `add_skill` ile beceri listesine ekleme yapılır; aşağıda aynısını bir fark ekleyerek görüyoruz.",
+   "body": "We do not only read attributes; a method can change them with `self.x = ...`. Such methods usually return nothing (`None`) and just update the object's state. The logic for changing state then lives in one place: everyone calling `add_skill` gets the same rule. The original lesson uses `add_skill` to extend a skills list; below is the same idea with one extra safeguard.",
+   "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n        self.skills = []\n    def add_skill(self, skill):\n        if skill not in self.skills:\n            self.skills.append(skill)\n\np = Person('Ada')\np.add_skill('Python')\np.add_skill('SQL')\np.add_skill('Python')\nprint(p.skills)",
+   "expected_output": "['Python', 'SQL']",
+   "trace": true,
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c21",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "class Wallet:\n    def __init__(self, balance):\n        self.balance = balance\n    def spend(self, amount):\n        self.balance -= amount\n\nw = Wallet(100)\nr = w.spend(30)\nprint(r, w.balance)",
+   "choices": [
+    "70 70",
+    "None 70",
+    "None 100",
+    "30 70"
+   ],
+   "answer": "None 70",
+   "why_tr": "`spend` durumu değiştirir ama `return` yazmadığı için `None` döner; bakiye 70 olur.",
+   "why": "`spend` changes state but has no `return`, so it gives back `None`; the balance becomes 70.",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c22",
+   "type": "explain",
+   "title_tr": "Sınıf attribute'u ve nesne attribute'u",
+   "title": "Class attributes vs instance attributes",
+   "body_tr": "`__init__` içinde `self.x` ile yazılanlar nesneye aittir. Sınıf gövdesine doğrudan yazılan değişken (`count = 0`) ise **sınıfa** aittir ve tüm nesneler paylaşır. Python bir attribute ararken önce nesneye, bulamazsa sınıfa bakar. Bu yüzden sabitler ve sayaçlar için sınıf attribute'u uygundur, ama `self.count += 1` yazarsan nesneye yeni bir kopya açılır; sınıfı değiştirmek için `Dog.count += 1` yazmalısın.",
+   "body": "What you write with `self.x` inside `__init__` belongs to the object. A variable written directly in the class body (`count = 0`) belongs to the **class** and is shared by all objects. When Python looks up an attribute it checks the object first, then the class. So class attributes suit constants and counters, but `self.count += 1` creates a new per-object copy; to change the class value you must write `Dog.count += 1`.",
+   "code": "class Dog:\n    count = 0\n    def __init__(self, name):\n        self.name = name\n        Dog.count += 1\n\na = Dog('Pamuk')\nb = Dog('Karabas')\nprint(Dog.count, a.count, b.count)\nprint('count' in a.__dict__)",
+   "expected_output": "2 2 2\nFalse",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c23",
+   "type": "truefalse",
+   "statement_tr": "Bir method `self.balance` değerini değiştirirse, değişiklik method bittikten sonra da nesnede kalır.",
+   "statement": "If a method changes `self.balance`, the change stays on the object after the method ends.",
+   "answer": true,
+   "why_tr": "`self` nesnenin kendisidir; yerel değişkenlerin aksine attribute'lar method bitince kaybolmaz.",
+   "why": "`self` is the object itself; unlike local variables, attributes do not vanish when the method returns.",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c24",
+   "type": "explain",
+   "title_tr": "__repr__: nesneyi okunur yazdırmak",
+   "title": "__repr__: printing an object readably",
+   "body_tr": "Bir nesneyi `print` edersen varsayılan çıktı `<__main__.Person object at 0x...>` gibi anlamsız bir adres olur. Sınıfa `__repr__` methodu yazarsan Python nesneyi göstermek istediği her yerde (print, debug, list içinde) onu kullanır. Genel kural: `__repr__` geliştirici içindir ve nesneyi yeniden kurabilecek kadar açık olmalıdır, örneğin `Person('Ada', 36)`. İstersen kullanıcıya dönük bir `__str__` de ekleyebilirsin; yoksa `__repr__` kullanılır.",
+   "body": "If you `print` an object, the default output is a meaningless address such as `<__main__.Person object at 0x...>`. Give the class a `__repr__` method and Python uses it wherever it needs to show the object (print, debugging, inside lists). The rule of thumb: `__repr__` is for developers and should be clear enough to rebuild the object, like `Person('Ada', 36)`. You may add a user-facing `__str__` too; without it `__repr__` is used.",
+   "code": "class Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    def __repr__(self):\n        return f\"Person('{self.name}', {self.age})\"\n\np = Person('Ada', 36)\nprint(p)\nprint([p, Person('Can', 20)])",
+   "expected_output": "Person('Ada', 36)\n[Person('Ada', 36), Person('Can', 20)]",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c25",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "class Tag:\n    def __init__(self, t):\n        self.t = t\n    def __repr__(self):\n        return 'repr:' + self.t\n    def __str__(self):\n        return 'str:' + self.t\n\nx = Tag('a')\nprint(x)\nprint([x])",
+   "choices": [
+    "repr:a\n[repr:a]",
+    "str:a\n[str:a]",
+    "str:a\n['str:a']",
+    "str:a\n[repr:a]"
+   ],
+   "answer": "str:a\n[repr:a]",
+   "why_tr": "`print(x)` `__str__`'ı kullanır; ama list içindeki elemanlar `__repr__` ile gösterilir.",
+   "why": "`print(x)` uses `__str__`; but elements inside a list are shown with `__repr__`.",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c26",
+   "type": "explain",
+   "title_tr": "@property: hesaplanan attribute",
+   "title": "@property: a computed attribute",
+   "body_tr": "`@property` ile bir methodu parantezsiz, sanki attribute'muş gibi okuyabilirsin: `p.full_name`. Neden işe yarar? Değer saklanmaz, her okunduğunda hesaplanır; böylece `first` değişince `full_name` kendiliğinden güncel kalır. Dışarıdan kullanım attribute gibidir, içeride ise istediğin hesabı yapabilirsin. Bir `@property`'ye atama yapmaya çalışırsan Python `AttributeError` verir, çünkü yalnızca okunabilir bir değerdir.",
+   "body": "With `@property` you can read a method without parentheses, as if it were an attribute: `p.full_name`. Why is it useful? The value is not stored, it is computed on each read, so when `first` changes `full_name` stays current automatically. From outside it looks like an attribute, inside you can do any computation. Trying to assign to a plain `@property` makes Python raise `AttributeError`, because it is read-only.",
+   "code": "class Person:\n    def __init__(self, first, last):\n        self.first = first\n        self.last = last\n    @property\n    def full_name(self):\n        return f'{self.first} {self.last}'\n\np = Person('Ada', 'Lovelace')\np.first = 'Augusta'\nprint(p.full_name)\ntry:\n    p.full_name = 'X Y'\nexcept AttributeError as e:\n    print('AttributeError:', e)",
+   "expected_output": "Augusta Lovelace\nAttributeError: property 'full_name' of 'Person' object has no setter",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c27",
+   "type": "explain",
+   "title_tr": "@property ile doğrulama (setter)",
+   "title": "Validation with a property setter",
+   "body_tr": "Bir attribute'a değer atanırken kural koymak istersen `@x.setter` yazarsın. Atama `p.age = -5` biçiminde kalır, ama arkada senin methodun çalışır ve geçersiz değeri `ValueError` ile reddedebilir. Gerçek değer genelde `_age` gibi başına alt çizgi konmuş bir attribute'ta saklanır; alt çizgi \"bu içeriye ait, dışarıdan dokunma\" demenin gelenekselidir. Böylece kullanan kod değişmeden doğrulama sonradan eklenebilir.",
+   "body": "When you want a rule applied as a value is assigned, you write an `@x.setter`. The assignment still looks like `p.age = -5`, but your method runs behind it and can reject bad values with a `ValueError`. The real value is usually stored in an attribute with a leading underscore like `_age`; the underscore is the convention for \"internal, do not touch from outside\". That way validation can be added later without changing the code that uses the class.",
+   "code": "class Person:\n    def __init__(self, age):\n        self._age = age\n    @property\n    def age(self):\n        return self._age\n    @age.setter\n    def age(self, value):\n        if value < 0:\n            raise ValueError('age cannot be negative')\n        self._age = value\n\np = Person(36)\np.age = 37\nprint(p.age)\ntry:\n    p.age = -5\nexcept ValueError as e:\n    print('rejected:', e)",
+   "expected_output": "37\nrejected: age cannot be negative",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c28",
+   "type": "explain",
+   "title_tr": "Kalıtım (inheritance)",
+   "title": "Inheritance",
+   "body_tr": "Yeni bir sınıf yazarken var olan bir sınıfın her şeyini yeniden yazmak zorunda değilsin. `class Student(Person):` yazarsan `Student`, `Person`'ın bütün attribute ve methodlarını **miras alır**. `Person` ebeveyn (parent/base) sınıf, `Student` alt (child) sınıftır. Ortak davranış tek yerde durur, alt sınıf sadece farklı olanı ekler. Aşağıda `Student` hiçbir şey tanımlamadan `Person`'ın `__init__`'ini ve `greet`'ini kullanıyor.",
+   "body": "When writing a new class you need not rewrite everything from an existing one. With `class Student(Person):`, `Student` **inherits** all of `Person`'s attributes and methods. `Person` is the parent (base) class, `Student` the child. Shared behaviour lives in one place and the child adds only what differs. Below, `Student` defines nothing yet uses `Person`'s `__init__` and `greet`.",
+   "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n    def greet(self):\n        return f'Merhaba, ben {self.name}'\n\nclass Student(Person):\n    pass\n\ns = Student('Ada')\nprint(s.greet())\nprint(isinstance(s, Person), issubclass(Student, Person))",
+   "expected_output": "Merhaba, ben Ada\nTrue True",
+   "section": "Inheritance"
+  },
+  {
+   "id": "d21-c29",
+   "type": "truefalse",
+   "statement_tr": "`Student(Person)` yazarsak Student nesnesi aynı zamanda bir Person nesnesi sayılır (isinstance True verir).",
+   "statement": "With `Student(Person)`, a Student object also counts as a Person (isinstance gives True).",
+   "answer": true,
+   "why_tr": "Alt sınıf nesnesi \"bir tür\" ebeveyn sınıftır; `isinstance` bu ilişkiyi doğru verir.",
+   "why": "A child instance is \"a kind of\" parent, and `isinstance` reflects that.",
+   "section": "Inheritance"
+  },
+  {
+   "id": "d21-c30",
+   "type": "explain",
+   "title_tr": "super(): ebeveynin constructor'ını çağırmak",
+   "title": "super(): calling the parent's constructor",
+   "body_tr": "Alt sınıf kendi `__init__`'ini yazarsa ebeveynin `__init__`'i **otomatik çalışmaz**. Ortak kısmı yeniden yazmak yerine `super().__init__(...)` ile ebeveyne yaptırırız, sonra alt sınıfa özgü attribute'ları ekleriz. `super()` \"bir üst sınıftaki karşılığı\" demektir. Adımları izle: `Student` nesnesi önce ebeveynin kurulumundan geçer, sonra kendi `school` bilgisini alır.",
+   "body": "If a child class defines its own `__init__`, the parent's `__init__` does **not** run automatically. Instead of rewriting the shared part, we call `super().__init__(...)` to let the parent do it, then add child-specific attributes. `super()` means \"the next class up\". Step through: the `Student` object first goes through the parent's setup and then receives its own `school`.",
+   "code": "class Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\nclass Student(Person):\n    def __init__(self, name, age, school):\n        super().__init__(name, age)\n        self.school = school\n\ns = Student('Ada', 20, 'ODTU')\nprint(s.name, s.age, s.school)",
+   "expected_output": "Ada 20 ODTU",
+   "trace": true,
+   "section": "Inheritance"
+  },
+  {
+   "id": "d21-c31",
+   "type": "explain",
+   "title_tr": "Sık hata: super()'i unutmak",
+   "title": "Common mistake: forgetting super()",
+   "body_tr": "Alt sınıfta `__init__` yazıp `super().__init__` çağırmayı unutursan hata hemen çıkmaz; ebeveynin attribute'ları sadece hiç oluşmaz. Sorun, bu attribute'ı kullandığın ilk satırda `AttributeError` olarak patlar, yani hatanın göründüğü yer ile asıl sebebi arasında uzaklık olur. Alt sınıfa `__init__` ekler eklemez \"ebeveyni çağırdım mı?\" diye sor.",
+   "body": "If a child class defines `__init__` and you forget `super().__init__`, nothing fails right away; the parent's attributes just never get created. The problem explodes as an `AttributeError` at the first line that uses one, so the place where the error shows is far from the real cause. The moment you add `__init__` to a child, ask yourself: did I call the parent?",
+   "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Student(Person):\n    def __init__(self, name, school):\n        self.school = school\n\ns = Student('Ada', 'ODTU')\nprint(s.school)\ntry:\n    print(s.name)\nexcept AttributeError as e:\n    print('AttributeError:', e)",
+   "expected_output": "ODTU\nAttributeError: 'Student' object has no attribute 'name'",
+   "hide_output": true,
+   "section": "Inheritance"
+  },
+  {
+   "id": "d21-c32",
+   "type": "fill",
+   "prompt_tr": "Ebeveynin constructor'ını çağır.",
+   "prompt": "Call the parent constructor.",
+   "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Student(Person):\n    def __init__(self, name, school):\n        ___.__init__(name)\n        self.school = school\n\ns = Student('Ada', 'ODTU')\nprint(s.name, s.school)",
+   "answers": [
+    "super()"
+   ],
+   "expected_output": "Ada ODTU",
+   "why_tr": "`super()` bir üst sınıfın karşılığına erişir; `super().__init__(name)` ebeveyn kurulumunu çalıştırır.",
+   "why": "`super()` reaches the next class up; `super().__init__(name)` runs the parent's setup.",
+   "section": "Inheritance"
+  },
+  {
+   "id": "d21-c33",
+   "type": "explain",
+   "title_tr": "Method'u ezmek (override)",
+   "title": "Overriding a method",
+   "body_tr": "Alt sınıf, ebeveynle aynı isimde bir method tanımlarsa o method ebeveynin yerine geçer; buna **override** denir. Python bir method ararken sırayla nesnenin sınıfına, sonra ebeveynlerine bakar ve ilk bulduğunu kullanır; bu sıraya **MRO** (method resolution order) denir. Ebeveyn davranışını tamamen değiştirmek yerine genişletmek istersen override içinde `super().method()` çağırabilirsin.",
+   "body": "If a child class defines a method with the same name as the parent's, it replaces the parent's version; this is **overriding**. When Python looks up a method it checks the object's class first, then its parents, and uses the first match; that search order is the **MRO** (method resolution order). To extend rather than replace the parent's behaviour, call `super().method()` inside the override.",
+   "code": "class Person:\n    def info(self):\n        return 'Person'\n\nclass Student(Person):\n    def info(self):\n        return 'Student, ' + super().info()\n\nprint(Student().info())\nprint([c.__name__ for c in Student.__mro__])",
+   "expected_output": "Student, Person\n['Student', 'Person', 'object']",
+   "section": "Overriding parent method"
+  },
+  {
+   "id": "d21-c34",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "class A:\n    def hi(self):\n        return 'A'\n\nclass B(A):\n    def hi(self):\n        return 'B'\n\nclass C(B):\n    pass\n\nprint(C().hi())",
+   "choices": [
+    "B",
+    "A",
+    "C",
+    "Error"
+   ],
+   "answer": "B",
+   "why_tr": "Arama `C`'den başlar; `C`'de yok, bir üstte `B`'de bulunur ve durur.",
+   "why": "The search starts at `C`; it is not there, `B` is the next class up and it matches, so lookup stops.",
+   "section": "Overriding parent method"
+  },
+  {
+   "id": "d21-c35",
+   "type": "explain",
+   "title_tr": "Gerçekçi örnek: maaş hesabı",
+   "title": "Realistic example: payroll",
+   "body_tr": "Bir şirkette çalışan türleri aynı arayüzü paylaşır ama hesaplamaları farklıdır. `Employee.pay()` temel maaşı verir, `Manager` bunu override edip prim ekler. Ekleme kısmını yeniden yazmak yerine `super().pay()` ile temel hesabı alır. Aşağıdaki döngü farklı türleri aynı şekilde kullanır: `pay()` çağrılır ve her nesne kendi sürümünü çalıştırır. Buna **polymorphism** (çok biçimlilik) denir.",
+   "body": "Employee types in a company share an interface but compute differently. `Employee.pay()` gives the base salary; `Manager` overrides it to add a bonus, reusing the base calculation through `super().pay()`. The loop below treats different types the same way: it calls `pay()` and each object runs its own version. This is called **polymorphism**.",
+   "code": "class Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n    def pay(self):\n        return self.salary\n\nclass Manager(Employee):\n    def pay(self):\n        return super().pay() + 5000\n\nstaff = [Employee('Can', 30000), Manager('Ece', 40000)]\nfor s in staff:\n    print(s.name, s.pay())",
+   "expected_output": "Can 30000\nEce 45000",
+   "section": "Overriding parent method"
+  },
+  {
+   "id": "d21-c36",
+   "type": "order",
+   "prompt_tr": "Satırları sırala: ebeveyn, alt sınıf ve çağrı.",
+   "prompt": "Order the lines: parent, child class and the call.",
+   "lines": [
+    "class Animal:",
+    "print(Cat().sound())",
+    "    def sound(self): return '...'",
+    "class Cat(Animal):",
+    "    def sound(self): return 'miyav'"
+   ],
+   "correct_order": [
+    0,
+    2,
+    3,
+    4,
+    1
+   ],
+   "expected_output": "miyav",
+   "section": "Overriding parent method"
+  },
+  {
+   "id": "d21-c37",
+   "type": "truefalse",
+   "statement_tr": "Alt sınıf bir methodu override edince ebeveynin o methoduna artık hiçbir şekilde erişilemez.",
+   "statement": "Once a child overrides a method, the parent's version can no longer be reached in any way.",
+   "answer": false,
+   "why_tr": "`super().method()` ile ebeveynin sürümü yine çağrılabilir; override onu silmez, sadece önüne geçer.",
+   "why": "`super().method()` still reaches the parent's version; overriding does not delete it, it just takes precedence.",
+   "section": "Overriding parent method"
+  },
+  {
+   "id": "d21-c38",
+   "type": "recap",
+   "points_tr": [
+    "Sınıf bir kalıptır, nesne o kalıptan çıkan somut üründür; `__init__` ve `self` ile her nesne kendi verisini taşır.",
+    "Method çağrısı `p.m()` aslında `Class.m(p)` demektir; varsayılan parametrelerde `[]` gibi değiştirilebilir değerlerden kaçın.",
+    "`__repr__` nesneyi okunur gösterir, `@property` hesaplanan ve doğrulanan attribute verir.",
+    "Kalıtımda alt sınıf ebeveynin her şeyini alır; `super()` ile onu genişletir, aynı isimli method ile override eder."
+   ],
+   "points": [
+    "A class is a mould and an object the concrete product; `__init__` and `self` let each object carry its own data.",
+    "A call `p.m()` really means `Class.m(p)`; avoid mutable defaults like `[]` in parameters.",
+    "`__repr__` makes an object readable, `@property` gives computed and validated attributes.",
+    "With inheritance a child gets everything from its parent; it extends it with `super()` and overrides with a same-named method."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "Overriding parent method"
+  }
+ ]
+}

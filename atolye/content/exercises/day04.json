@@ -1,0 +1,720 @@
+{
+  "day": 4,
+  "title": "Strings",
+  "title_tr": "String'ler (Metinler)",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "blocks": [
+    {
+      "id": "d04-b1",
+      "concept": "concatenation-fstrings",
+      "tags": [
+        "strings",
+        "concatenation",
+        "f-strings"
+      ],
+      "worked_example": {
+        "code": "first = 'Asabeneh'\nlast = 'Yetayeh'\nprint(first + ' ' + last)\nprint(f'{first} has {len(first)} letters')",
+        "notes": [
+          "+ joins strings; you must add the space yourself.",
+          "An f-string puts values inside {} directly in the text."
+        ],
+        "notes_tr": [
+          "+ string'leri birbirine ekler; boşluğu kendin eklemelisin.",
+          "f-string, değerleri {} içinde doğrudan metne yerleştirir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d04-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "a = 4\nb = 3\nprint(f'{a} / {b} = {a / b:.2f}')",
+          "choices": [
+            "4 / 3 = 1.33",
+            "4 / 3 = 1.3333333333333333",
+            "4 / 3 = 1.3",
+            "4 / 3 = 1"
+          ],
+          "expected_output": "4 / 3 = 1.33",
+          "explanation": ":.2f inside the braces rounds the float to 2 digits after the decimal point.",
+          "misconceptions": {
+            "4 / 3 = 1.3333333333333333": ":.2f limits the number to two decimals; without it you would see the long float.",
+            "4 / 3 = 1.3": "The 2 in .2f means two digits after the point, not one.",
+            "4 / 3 = 1": "/ is true division, so the value is 1.333..., which .2f formats as 1.33."
+          },
+          "explanation_tr": "Süslü parantez içindeki :.2f, ondalık sayıyı virgülden sonra 2 basamağa yuvarlar.",
+          "misconceptions_tr": {
+            "4 / 3 = 1.3333333333333333": ":.2f sayıyı iki ondalık basamakla sınırlar; onsuz uzun float'ı görürdün.",
+            "4 / 3 = 1.3": ".2f içindeki 2, virgülden sonra iki basamak demektir, bir değil.",
+            "4 / 3 = 1": "/ gerçek bölmedir, değer 1.333... olur; .2f bunu 1.33 olarak biçimler."
+          }
+        },
+        {
+          "id": "d04-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the f-string prints Hello, Mia!",
+          "prompt_tr": "f-string'in Hello, Mia! yazdırması için boşluğu doldur.",
+          "starter_code": "name = 'Mia'\nprint(f'Hello, ___!')",
+          "blanks": [
+            {
+              "answer": [
+                "{name}"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Hello, Mia!'",
+              "visible": true,
+              "failure_message": "Expected: Hello, Mia!",
+              "label_tr": "Çıktı Hello, Mia! olmalı",
+              "failure_message_tr": "Beklenen çıktı: Hello, Mia!"
+            }
+          ],
+          "hints": [
+            "Variables inside an f-string go inside curly braces.",
+            "Put the variable name between { and } directly in the text.",
+            "The blank needs the variable name wrapped in curly braces."
+          ],
+          "hints_tr": [
+            "f-string içindeki değişkenler süslü parantez içine yazılır.",
+            "Değişken adını doğrudan metnin içinde { ve } arasına koy.",
+            "Boşluğa, süslü parantezler içine alınmış değişken adı gelir."
+          ]
+        },
+        {
+          "id": "d04-b1-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints exactly: The area of a circle with a radius 10 is 314.00 (use an f-string with two decimals for the area).",
+          "prompt_tr": "Programı, tam olarak şunu yazdıracak şekilde değiştir: The area of a circle with a radius 10 is 314.00 (alan için iki ondalıklı bir f-string kullan).",
+          "starter_code": "radius = 10\npi = 3.14\narea = pi * radius ** 2\nprint('The area is', area)",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'The area of a circle with a radius 10 is 314.00'",
+              "visible": true,
+              "failure_message": "Output must be: The area of a circle with a radius 10 is 314.00",
+              "label_tr": "Çıktı istenen cümleyle aynı",
+              "failure_message_tr": "Çıktı şöyle olmalı: The area of a circle with a radius 10 is 314.00"
+            },
+            {
+              "code": "import io, contextlib\nassert '314.00' not in __source__\n__ns = {}\n__buf = io.StringIO()\nwith contextlib.redirect_stdout(__buf):\n    exec(__source__.replace('radius = 10', 'radius = 2'), __ns)\nassert __buf.getvalue().strip() == 'The area of a circle with a radius 2 is 12.56'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The answer was typed by hand; keep the calculation and put the variables in the f-string so other radius values work too.",
+              "failure_message_tr": "Sonucu elle yazmışsın; hesabı koru ve değişkenleri f-string içine koy ki başka yarıçaplarda da çalışsın."
+            }
+          ],
+          "hints": [
+            "The sentence changes and the number format changes.",
+            "An f-string starts with f before the quote; put the variable names in {}, and add a colon and a format after the name to control decimals.",
+            "Turn the print text into an f-string with {radius} and {area} in it, and format area with two decimals (:.2f)."
+          ],
+          "solution": {
+            "approach": "Use an f-string with the :.2f format.",
+            "code": "radius = 10\npi = 3.14\narea = pi * radius ** 2\nprint(f'The area of a circle with a radius {radius} is {area:.2f}')",
+            "approach_tr": ":.2f biçimiyle bir f-string kullan."
+          },
+          "hints_tr": [
+            "Hem cümle hem sayı biçimi değişiyor.",
+            "f-string, tırnaktan önce f ile başlar; değişken adlarını {} içine yaz, ondalık sayısını ayarlamak için addan sonra iki nokta ve bir biçim ekle.",
+            "print metnini içinde {radius} ve {area} olan bir f-string yap ve area'yı iki ondalıkla (:.2f) biçimle."
+          ]
+        },
+        {
+          "id": "d04-b1-e4",
+          "type": "debug",
+          "prompt": "This should print Age: 25 but crashes with a TypeError. Fix it.",
+          "prompt_tr": "Bu Age: 25 yazdırmalı ama TypeError ile çöküyor. Düzelt.",
+          "starter_code": "age = 25\nprint('Age: ' + age)",
+          "expected_output": "Age: 25",
+          "hints": [
+            "Read the last line of the error: which two types does + try to join?",
+            "You cannot add a string and an int. Either convert the number to text, or build the text another way.",
+            "Wrap age in the function that converts a value to a string, or turn the print argument into an f-string."
+          ],
+          "solution": {
+            "approach": "Convert the int with str() or use an f-string.",
+            "code": "age = 25\nprint('Age: ' + str(age))",
+            "approach_tr": "int'i str() ile string'e çevir ya da f-string kullan."
+          },
+          "hints_tr": [
+            "Hatanın son satırını oku: + hangi iki türü birleştirmeye çalışıyor?",
+            "String ile int toplanamaz. Ya sayıyı metne çevir ya da metni başka yolla kur.",
+            "age'i değeri string'e çeviren fonksiyonla sar ya da print argümanını bir f-string yap."
+          ]
+        }
+      ],
+      "concept_tr": "String birleştirme ve f-string"
+    },
+    {
+      "id": "d04-b2",
+      "concept": "indexing-slicing",
+      "tags": [
+        "strings",
+        "indexing",
+        "slicing"
+      ],
+      "worked_example": {
+        "code": "language = 'Python'\nprint(language[0], language[-1])\nprint(language[0:3])",
+        "notes": [
+          "Counting starts at 0; -1 is the last character.",
+          "A slice [start:stop] stops BEFORE the stop index."
+        ],
+        "notes_tr": [
+          "Sayma 0'dan başlar; -1 son karakterdir.",
+          "[başlangıç:bitiş] diliminde bitiş indeksi DAHİL değildir, ondan önce durur."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d04-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "word = 'dragon'\nprint(word[1:4])\nprint(word[::-1])\nprint(word[-3:])",
+          "choices": [
+            "rag\nnogard\ngon",
+            "dra\nnogard\ngon",
+            "rago\ndragon\nagon",
+            "rag\nnogard\ndra"
+          ],
+          "expected_output": "rag\nnogard\ngon",
+          "explanation": "[1:4] takes indexes 1, 2, 3 = 'rag'. A step of -1 reverses. [-3:] takes the last three characters, 'gon'.",
+          "misconceptions": {
+            "dra\nnogard\ngon": "Index 0 is 'd'. [1:4] starts at index 1, so it begins with 'r'.",
+            "rago\ndragon\nagon": "The stop index is excluded, and [::-1] reverses the text.",
+            "rag\nnogard\ndra": "[-3:] counts from the END: the last three letters."
+          },
+          "explanation_tr": "[1:4] 1, 2, 3 numaralı indeksleri alır: 'rag'. -1 adımı metni ters çevirir. [-3:] son üç karakteri alır: 'gon'.",
+          "misconceptions_tr": {
+            "dra\nnogard\ngon": "0. indeks 'd'dir. [1:4] 1. indeksten başlar, yani 'r' ile başlar.",
+            "rago\ndragon\nagon": "Bitiş indeksi dahil değildir ve [::-1] metni ters çevirir.",
+            "rag\nnogard\ndra": "[-3:] SONDAN sayar: son üç harfi verir."
+          }
+        },
+        {
+          "id": "d04-b2-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints hon (the last three letters of Python).",
+          "prompt_tr": "Programın Python'ın son üç harfi olan hon'u yazdırması için boşluğu doldur.",
+          "starter_code": "word = 'Python'\nprint(word[___:])",
+          "blanks": [
+            {
+              "answer": [
+                "3",
+                "-3"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'hon'",
+              "visible": true,
+              "failure_message": "The program must print hon.",
+              "label_tr": "Program hon yazdırmalı",
+              "failure_message_tr": "Program hon yazdırmalı."
+            }
+          ],
+          "hints": [
+            "Which index does 'hon' start at (counting from 0)?",
+            "You can count from the left or from the right (negative numbers); the slice has only a start, so it runs to the end.",
+            "The blank takes the start index of the slice: a number from the left, or a negative number from the right."
+          ],
+          "hints_tr": [
+            "'hon' hangi indeksten başlıyor (0'dan sayarak)?",
+            "Soldan ya da sağdan (negatif sayılarla) sayabilirsin; dilimde yalnızca başlangıç var, bu yüzden sona kadar gider.",
+            "Boşluğa dilimin başlangıç indeksi gelir: soldan bir sayı ya da sağdan negatif bir sayı."
+          ]
+        },
+        {
+          "id": "d04-b2-e3",
+          "type": "write",
+          "prompt": "Create word = 'Strawberry'. Then create first (its first letter), last (its last letter), middle (the characters at index 2 up to but not including 6) and backwards (the word reversed). Print backwards.",
+          "prompt_tr": "word = 'Strawberry' oluştur. Sonra first (ilk harf), last (son harf), middle (2. indeksten 6. indekse kadar, 6 dahil değil) ve backwards (kelimenin tersi) değişkenlerini oluştur. backwards'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert first == 'S' and last == 'y'",
+              "visible": true,
+              "failure_message": "first is the letter at index 0, last the letter at index -1.",
+              "label_tr": "first ve last doğru",
+              "failure_message_tr": "first 0. indeksteki, last -1 indeksindeki harftir."
+            },
+            {
+              "code": "assert middle == 'rawb'",
+              "visible": true,
+              "failure_message": "middle should be 'rawb': use a slice [2:6].",
+              "label_tr": "middle doğru kesiliyor",
+              "failure_message_tr": "middle 'rawb' olmalı: [2:6] dilimini kullan."
+            },
+            {
+              "code": "assert backwards == 'yrrebwartS'",
+              "visible": false,
+              "failure_message": "Reverse with a slice step of -1: word[::-1].",
+              "failure_message_tr": "Ters çevirmek için -1 adımlı dilim kullan: word[::-1]."
+            },
+            {
+              "code": "assert word == 'Strawberry'",
+              "visible": false,
+              "failure_message": "Start with word = 'Strawberry'.",
+              "failure_message_tr": "word = 'Strawberry' ile başla."
+            },
+            {
+              "code": "assert __stdout__.strip() == 'yrrebwartS'",
+              "visible": false,
+              "failure_message": "Print backwards.",
+              "failure_message_tr": "backwards değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\nassert sum(isinstance(n, ast.Subscript) for n in ast.walk(__t)) >= 4\nassert 'yrrebwartS' not in __source__",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The results were typed by hand; take them from word with indexing and slicing.",
+              "failure_message_tr": "Sonuçları elle yazmışsın; word'den indeksleme ve dilimlemeyle al."
+            }
+          ],
+          "hints": [
+            "Declare word first. Index 0 is the first letter.",
+            "The last letter has index -1. A slice is word[start:stop] and the stop is excluded; reversing uses a step of -1.",
+            "Write word, then four lines that each use square brackets on word (an index, a negative index, a slice, a slice with a step), and print only backwards."
+          ],
+          "solution": {
+            "approach": "Use an index, a negative index, a slice and a reversing slice.",
+            "code": "word = 'Strawberry'\nfirst = word[0]\nlast = word[-1]\nmiddle = word[2:6]\nbackwards = word[::-1]\nprint(backwards)",
+            "approach_tr": "Bir indeks, bir negatif indeks, bir dilim ve ters çeviren bir dilim kullan."
+          },
+          "twin": "d04-b2-e4",
+          "hints_tr": [
+            "Önce word'ü tanımla. 0. indeks ilk harftir.",
+            "Son harfin indeksi -1'dir. Dilim word[başlangıç:bitiş] biçimindedir ve bitiş dahil değildir; ters çevirmek için adım -1 kullanılır.",
+            "word'ü yaz, sonra her biri word üzerinde köşeli parantez kullanan dört satır yaz (indeks, negatif indeks, dilim, adımlı dilim) ve yalnızca backwards'i yazdır."
+          ]
+        },
+        {
+          "id": "d04-b2-e4",
+          "type": "write",
+          "prompt": "Create country = 'Finland'. Then create initial (its first letter), final (its last letter), part (the characters at index 1 up to but not including 4) and every_other (every second character, starting at index 0). Print every_other.",
+          "prompt_tr": "country = 'Finland' oluştur. Sonra initial (ilk harf), final (son harf), part (1. indeksten 4. indekse kadar, 4 dahil değil) ve every_other (0. indeksten başlayarak her ikinci karakter) değişkenlerini oluştur. every_other'ı yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert initial == 'F' and final == 'd'",
+              "visible": true,
+              "failure_message": "initial is index 0, final is index -1.",
+              "label_tr": "initial ve final doğru",
+              "failure_message_tr": "initial 0. indeks, final -1. indekstir."
+            },
+            {
+              "code": "assert part == 'inl'",
+              "visible": true,
+              "failure_message": "part is the slice [1:4].",
+              "label_tr": "part doğru kesiliyor",
+              "failure_message_tr": "part, [1:4] dilimidir."
+            },
+            {
+              "code": "assert every_other == 'Fnad'",
+              "visible": false,
+              "failure_message": "A slice with step 2 gives every second character: country[::2].",
+              "failure_message_tr": "Adımı 2 olan dilim her ikinci karakteri verir: country[::2]."
+            },
+            {
+              "code": "assert country == 'Finland'",
+              "visible": false,
+              "failure_message": "Start with country = 'Finland'.",
+              "failure_message_tr": "country = 'Finland' ile başla."
+            },
+            {
+              "code": "assert __stdout__.strip() == 'Fnad'",
+              "visible": false,
+              "failure_message": "Print every_other.",
+              "failure_message_tr": "every_other değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\nassert sum(isinstance(n, ast.Subscript) for n in ast.walk(__t)) >= 4\nassert 'Fnad' not in __source__",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The results were typed by hand; take them from country with indexing and slicing.",
+              "failure_message_tr": "Sonuçları elle yazmışsın; country'den indeksleme ve dilimlemeyle al."
+            }
+          ],
+          "hints": [
+            "Declare country first.",
+            "Index 0 is the first letter, index -1 the last; slices use [start:stop:step] and the stop is excluded.",
+            "Write country, then four lines that each use square brackets on country (index, negative index, slice, slice with a step of 2), and print only every_other."
+          ],
+          "solution": {
+            "approach": "Index, negative index, slice, slice with step.",
+            "code": "country = 'Finland'\ninitial = country[0]\nfinal = country[-1]\npart = country[1:4]\nevery_other = country[::2]\nprint(every_other)",
+            "approach_tr": "İndeks, negatif indeks, dilim ve adımlı dilim."
+          },
+          "twin": "d04-b2-e3",
+          "hints_tr": [
+            "Önce country'yi tanımla.",
+            "0. indeks ilk harf, -1. indeks son harftir; dilimler [başlangıç:bitiş:adım] biçimindedir ve bitiş dahil değildir.",
+            "country'yi yaz, sonra her biri country üzerinde köşeli parantez kullanan dört satır yaz (indeks, negatif indeks, dilim, adımı 2 olan dilim) ve yalnızca every_other'ı yazdır."
+          ]
+        },
+        {
+          "id": "d04-b2-e5",
+          "type": "type_it",
+          "prompt": "Study the snippet, then retype it from memory.",
+          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz.",
+          "code": "language = 'Python'\nprint(language[0])\nprint(language[-1])\nprint(language[0:3])",
+          "expected_output": "P\nn\nPyt"
+        }
+      ],
+      "concept_tr": "İndeksleme ve dilimleme (slicing)"
+    },
+    {
+      "id": "d04-b3",
+      "concept": "string-methods",
+      "tags": [
+        "strings",
+        "methods",
+        "replace",
+        "count"
+      ],
+      "worked_example": {
+        "code": "challenge = 'thirty days of python'\nprint(challenge.title())\nprint(challenge.replace('python', 'coding'))",
+        "notes": [
+          "Methods are called with a dot: text.method().",
+          "Strings are immutable: methods return a NEW string."
+        ],
+        "notes_tr": [
+          "Metotlar nokta ile çağrılır: text.method().",
+          "String'ler değiştirilemez (immutable): metotlar YENİ bir string döndürür."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d04-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "text = 'Python is fun'\nprint(text.upper())\nprint(text.lower().count('n'))\nprint(text.replace('fun', 'great'))",
+          "choices": [
+            "PYTHON IS FUN\n2\nPython is great",
+            "PYTHON IS FUN\n3\nPython is great",
+            "Python is fun\n2\nPython is great",
+            "PYTHON IS FUN\n2\nPython is fun"
+          ],
+          "expected_output": "PYTHON IS FUN\n2\nPython is great",
+          "explanation": "upper makes all capitals. 'python is fun' contains two n letters. replace swaps 'fun' for 'great'.",
+          "misconceptions": {
+            "PYTHON IS FUN\n3\nPython is great": "Count the n letters in 'python is fun': one in python, one in fun = 2.",
+            "Python is fun\n2\nPython is great": "upper() makes every letter a capital, so the first line is all caps.",
+            "PYTHON IS FUN\n2\nPython is fun": "replace returns a new string with the change; the print uses that result."
+          },
+          "explanation_tr": "upper tüm harfleri büyütür. 'python is fun' içinde iki tane n var. replace 'fun' yerine 'great' koyar.",
+          "misconceptions_tr": {
+            "PYTHON IS FUN\n3\nPython is great": "'python is fun' içindeki n harflerini say: python'da bir, fun'da bir, toplam 2.",
+            "Python is fun\n2\nPython is great": "upper() her harfi büyük yapar, yani ilk satır tamamen büyük harftir.",
+            "PYTHON IS FUN\n2\nPython is fun": "replace değişmiş YENİ bir string döndürür; print bu sonucu yazdırır."
+          }
+        },
+        {
+          "id": "d04-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints Thirty Days.",
+          "prompt_tr": "Programın Thirty Days yazdırması için boşluğu doldur.",
+          "starter_code": "print('thirty days'.___())",
+          "blanks": [
+            {
+              "answer": [
+                "title"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Thirty Days'",
+              "visible": true,
+              "failure_message": "Each word must start with a capital letter.",
+              "label_tr": "Her kelime büyük harfle başlıyor",
+              "failure_message_tr": "Her kelime büyük harfle başlamalı."
+            }
+          ],
+          "hints": [
+            "You want every word capitalised, not just the first.",
+            "Strings have a method that capitalises each word, named after what a book has on its cover.",
+            "The blank takes the method name (five letters, the same word as a book's name)."
+          ],
+          "hints_tr": [
+            "Yalnızca ilk kelimeyi değil, her kelimeyi büyük harfle başlatmak istiyorsun.",
+            "String'lerde her kelimeyi büyük harfle başlatan bir metot var; adı, kitabın kapağında bulunan şeyden gelir.",
+            "Boşluğa metodun adı gelir (beş harfli, bir kitabın adıyla aynı kelime)."
+          ]
+        },
+        {
+          "id": "d04-b3-e3",
+          "type": "write",
+          "prompt": "Create sentence = 'coding for all'. Then create shout (all uppercase), title_case (each word capitalised), swapped (replace 'all' with 'everyone') and n_o (how many times 'o' appears). Print title_case.",
+          "prompt_tr": "sentence = 'coding for all' oluştur. Sonra shout (hepsi büyük harf), title_case (her kelime büyük harfle başlasın), swapped ('all' yerine 'everyone') ve n_o ('o' kaç kez geçiyor) değişkenlerini oluştur. title_case'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert shout == 'CODING FOR ALL'",
+              "visible": true,
+              "failure_message": "shout: use .upper().",
+              "label_tr": "shout büyük harfli",
+              "failure_message_tr": "shout: .upper() kullan."
+            },
+            {
+              "code": "assert title_case == 'Coding For All'",
+              "visible": true,
+              "failure_message": "title_case: use .title().",
+              "label_tr": "title_case her kelime büyük harfle",
+              "failure_message_tr": "title_case: .title() kullan."
+            },
+            {
+              "code": "assert swapped == 'coding for everyone'",
+              "visible": false,
+              "failure_message": "swapped: use .replace('all', 'everyone').",
+              "failure_message_tr": "swapped: .replace('all', 'everyone') kullan."
+            },
+            {
+              "code": "assert n_o == 2",
+              "visible": false,
+              "failure_message": "n_o: use .count('o') (there are two o letters).",
+              "failure_message_tr": "n_o: .count('o') kullan (iki tane o var)."
+            },
+            {
+              "code": "assert __stdout__.strip() == 'Coding For All'",
+              "visible": false,
+              "failure_message": "Print title_case.",
+              "failure_message_tr": "title_case değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\n__m = {n.attr for n in ast.walk(__t) if isinstance(n, ast.Attribute)}\nassert {'upper', 'title', 'replace', 'count'} <= __m",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The results were typed by hand; call the string methods (upper, title, replace, count) on sentence.",
+              "failure_message_tr": "Sonuçları elle yazmışsın; sentence üzerinde string metotlarını (upper, title, replace, count) çağır."
+            }
+          ],
+          "hints": [
+            "Declare sentence first, then one method per variable.",
+            "Methods: upper(), title(), replace(old, new), count(x). Each one is called with a dot after the string.",
+            "Write sentence, then four lines that each call a different method on sentence, and print only title_case."
+          ],
+          "solution": {
+            "approach": "One string method per requirement.",
+            "code": "sentence = 'coding for all'\nshout = sentence.upper()\ntitle_case = sentence.title()\nswapped = sentence.replace('all', 'everyone')\nn_o = sentence.count('o')\nprint(title_case)",
+            "approach_tr": "Her istek için bir string metodu kullan."
+          },
+          "twin": "d04-b3-e4",
+          "hints_tr": [
+            "Önce sentence'ı tanımla, sonra her değişken için bir metot kullan.",
+            "Metotlar: upper(), title(), replace(eski, yeni), count(x). Her biri string'den sonra nokta ile çağrılır.",
+            "sentence'ı yaz, sonra her biri sentence üzerinde farklı bir metot çağıran dört satır yaz ve yalnızca title_case'i yazdır."
+          ]
+        },
+        {
+          "id": "d04-b3-e4",
+          "type": "write",
+          "prompt": "Create challenge = 'thirty days of python'. Then create loud (uppercase), cap (only the first letter capitalised), replaced (replace 'python' with 'coding') and n_y (how many times 'y' appears). Print n_y.",
+          "prompt_tr": "challenge = 'thirty days of python' oluştur. Sonra loud (büyük harf), cap (yalnızca ilk harf büyük), replaced ('python' yerine 'coding') ve n_y ('y' kaç kez geçiyor) değişkenlerini oluştur. n_y'yi yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert loud == 'THIRTY DAYS OF PYTHON'",
+              "visible": true,
+              "failure_message": "loud: use .upper().",
+              "label_tr": "loud büyük harfli",
+              "failure_message_tr": "loud: .upper() kullan."
+            },
+            {
+              "code": "assert cap == 'Thirty days of python'",
+              "visible": true,
+              "failure_message": "cap: use .capitalize().",
+              "label_tr": "cap yalnızca ilk harf büyük",
+              "failure_message_tr": "cap: .capitalize() kullan."
+            },
+            {
+              "code": "assert replaced == 'thirty days of coding'",
+              "visible": false,
+              "failure_message": "replaced: .replace('python', 'coding').",
+              "failure_message_tr": "replaced: .replace('python', 'coding') kullan."
+            },
+            {
+              "code": "assert n_y == 3",
+              "visible": false,
+              "failure_message": "n_y: .count('y') should be 3.",
+              "failure_message_tr": "n_y: .count('y') 3 olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == '3'",
+              "visible": false,
+              "failure_message": "Print n_y.",
+              "failure_message_tr": "n_y değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\n__m = {n.attr for n in ast.walk(__t) if isinstance(n, ast.Attribute)}\nassert {'upper', 'capitalize', 'replace', 'count'} <= __m",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The results were typed by hand; call the string methods (upper, capitalize, replace, count) on challenge.",
+              "failure_message_tr": "Sonuçları elle yazmışsın; challenge üzerinde string metotlarını (upper, capitalize, replace, count) çağır."
+            }
+          ],
+          "hints": [
+            "Declare challenge first.",
+            "capitalize() only changes the first letter; title() changes every word. count(x) counts how often x appears.",
+            "Write challenge, then four lines that each call a different method on challenge, and print only n_y."
+          ],
+          "solution": {
+            "approach": "upper, capitalize, replace, count.",
+            "code": "challenge = 'thirty days of python'\nloud = challenge.upper()\ncap = challenge.capitalize()\nreplaced = challenge.replace('python', 'coding')\nn_y = challenge.count('y')\nprint(n_y)",
+            "approach_tr": "upper, capitalize, replace, count."
+          },
+          "twin": "d04-b3-e3",
+          "hints_tr": [
+            "Önce challenge'ı tanımla.",
+            "capitalize() yalnızca ilk harfi değiştirir; title() her kelimeyi değiştirir. count(x), x'in kaç kez geçtiğini sayar.",
+            "challenge'ı yaz, sonra her biri challenge üzerinde farklı bir metot çağıran dört satır yaz ve yalnızca n_y'yi yazdır."
+          ]
+        }
+      ],
+      "concept_tr": "String metotları"
+    },
+    {
+      "id": "d04-b4",
+      "concept": "split-join-strip",
+      "tags": [
+        "strings",
+        "split",
+        "join",
+        "strip"
+      ],
+      "worked_example": {
+        "code": "words = 'HTML CSS JS'.split()\nprint(words)\nprint(' - '.join(words))",
+        "notes": [
+          "split() turns a string into a list of words.",
+          "'sep'.join(list) glues a list of strings back together."
+        ],
+        "notes_tr": [
+          "split() bir string'i kelime listesine çevirir.",
+          "'ayraç'.join(liste) string listesini tekrar birleştirir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d04-b4-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "tags = 'HTML,CSS,JS'.split(',')\nprint(len(tags))\nprint('+'.join(tags))\nprint('  hi  '.strip() + '!')",
+          "choices": [
+            "3\nHTML+CSS+JS\nhi!",
+            "3\nHTML+CSS+JS\n  hi  !",
+            "1\nHTML+CSS+JS\nhi!",
+            "3\nHTML,CSS,JS\nhi!"
+          ],
+          "expected_output": "3\nHTML+CSS+JS\nhi!",
+          "explanation": "Splitting on commas gives 3 items. join('+') glues them with a plus. strip() removes the spaces on both ends before the '!' is added.",
+          "misconceptions": {
+            "3\nHTML+CSS+JS\n  hi  !": "strip() removes the spaces at both ends of 'hi'.",
+            "1\nHTML+CSS+JS\nhi!": "split(',') cuts at every comma, so you get 3 pieces.",
+            "3\nHTML,CSS,JS\nhi!": "The join separator is '+', so the pieces are glued with plus signs."
+          },
+          "explanation_tr": "Virgülden bölmek 3 parça verir. join('+') parçaları artıyla birleştirir. strip() '!' eklenmeden önce baştaki ve sondaki boşlukları siler.",
+          "misconceptions_tr": {
+            "3\nHTML+CSS+JS\n  hi  !": "strip() 'hi' kelimesinin iki ucundaki boşlukları siler.",
+            "1\nHTML+CSS+JS\nhi!": "split(',') her virgülden keser, yani 3 parça elde edersin.",
+            "3\nHTML,CSS,JS\nhi!": "join ayracı '+' olduğu için parçalar artı işaretiyle birleşir."
+          }
+        },
+        {
+          "id": "d04-b4-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints Thirty Days Of Python.",
+          "prompt_tr": "Satırları, programın Thirty Days Of Python yazdırması için sırala.",
+          "lines": [
+            "sentence = ' '.join(words)",
+            "print(sentence.title())",
+            "words = ['thirty', 'days', 'of', 'python']"
+          ],
+          "correct_order": [
+            2,
+            0,
+            1
+          ],
+          "distractors": [
+            "sentence = ''.join(words)"
+          ],
+          "expected_output": "Thirty Days Of Python"
+        },
+        {
+          "id": "d04-b4-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints the list ['thirty', 'days', 'of', 'python'] (no commas stuck to the words).",
+          "prompt_tr": "Programı ['thirty', 'days', 'of', 'python'] listesini (kelimelere yapışık virgül olmadan) yazdıracak şekilde değiştir.",
+          "starter_code": "challenge = 'thirty, days, of, python'\nprint(challenge.split())",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"['thirty', 'days', 'of', 'python']\"",
+              "visible": true,
+              "failure_message": "Expected ['thirty', 'days', 'of', 'python'].",
+              "label_tr": "Çıktı beklenen liste",
+              "failure_message_tr": "Beklenen: ['thirty', 'days', 'of', 'python']"
+            },
+            {
+              "code": "import io, contextlib\nassert \"'thirty', 'days'\" not in __source__\n__ns = {}\n__buf = io.StringIO()\nwith contextlib.redirect_stdout(__buf):\n    exec(__source__.replace(\"'thirty, days, of, python'\", \"'a, b, c'\"), __ns)\nassert __buf.getvalue().strip() == \"['a', 'b', 'c']\"",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The list was typed by hand; split the text in challenge so it works for other texts too.",
+              "failure_message_tr": "Listeyi elle yazmışsın; challenge içindeki metni split ile böl ki başka metinlerde de çalışsın."
+            }
+          ],
+          "hints": [
+            "split() with no argument cuts only at spaces.",
+            "split can take a separator: the exact text that sits between the words, including the comma and the space.",
+            "Give split the separator as a string argument (a comma followed by a space)."
+          ],
+          "solution": {
+            "approach": "Give split the separator ', '.",
+            "code": "challenge = 'thirty, days, of, python'\nprint(challenge.split(', '))",
+            "approach_tr": "split'e ayraç olarak ', ' ver."
+          },
+          "hints_tr": [
+            "Argümansız split() yalnızca boşluklardan keser.",
+            "split bir ayraç alabilir: kelimelerin arasındaki tam metin, yani virgül ve boşluk.",
+            "split'e ayracı string argüman olarak ver (bir virgül ve ardından bir boşluk)."
+          ]
+        },
+        {
+          "id": "d04-b4-e4",
+          "type": "explain",
+          "prompt": "In your own words: why does 'Python'[0:3] give 'Pyt' and not 'Pyth'?",
+          "prompt_tr": "Kendi cümlelerinle: 'Python'[0:3] neden 'Pyth' değil de 'Pyt' verir?",
+          "model_answer": "Indexing starts at 0 and the stop index in a slice is excluded. [0:3] takes the characters at index 0, 1 and 2, which are P, y and t.",
+          "keywords": [
+            "0",
+            "exclu",
+            "stop",
+            "index",
+            "not include"
+          ],
+          "model_answer_tr": "İndeksleme 0'dan başlar ve dilimde bitiş indeksi dahil değildir. [0:3] 0, 1 ve 2. indeksteki karakterleri alır: P, y ve t.",
+          "keywords_tr": [
+            "0",
+            "dahil değil",
+            "bitiş",
+            "indeks",
+            "önce"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "split, join ve strip"
+    }
+  ],
+  "review_pool": [
+    "d04-b1-e1",
+    "d04-b2-e1",
+    "d04-b2-e3",
+    "d04-b3-e1",
+    "d04-b3-e3",
+    "d04-b4-e1"
+  ]
+}

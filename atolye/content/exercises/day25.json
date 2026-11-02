@@ -1,0 +1,804 @@
+{
+ "day": 25,
+ "title": "Pandas",
+ "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+ "blocks": [
+  {
+   "id": "d25-b1",
+   "concept": "series-and-dataframe",
+   "tags": [
+    "pandas",
+    "series",
+    "dataframe"
+   ],
+   "worked_example": {
+    "code": "import pandas as pd\ndata = {'Name': ['Asabeneh', 'David'], 'Country': ['Finland', 'UK']}\ndf = pd.DataFrame(data)\nprint(df.shape)\nprint(df['Name'].tolist())",
+    "notes": [
+     "A DataFrame is a table; each column is a Series.",
+     "A dict of lists gives one column per key."
+    ],
+    "notes_tr": [
+     "DataFrame bir tablodur; her sütun bir Series'tir.",
+     "Listelerden oluşan bir dict, her anahtar için bir sütun verir."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d25-b1-e1",
+     "type": "predict",
+     "concept": "series-and-dataframe",
+     "tags": [
+      "pandas",
+      "series",
+      "dataframe"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import pandas as pd\ndata = [{'Name': 'Asabeneh', 'Country': 'Finland'},\n        {'Name': 'David', 'Country': 'UK'}]\ndf = pd.DataFrame(data)\nprint(df.shape, df.columns.tolist(), df['Country'].tolist())",
+     "choices": [
+      "(2, 2) ['Name', 'Country'] ['Finland', 'UK']",
+      "(2, 2) ['Asabeneh', 'David'] ['Finland', 'UK']",
+      "(2, 2) ['Name', 'Country'] ['Asabeneh', 'David']",
+      "(1, 4) ['Name', 'Country'] ['Finland', 'UK']"
+     ],
+     "expected_output": "(2, 2) ['Name', 'Country'] ['Finland', 'UK']",
+     "explanation": "A list of dicts gives one row per dict and one column per key. So there are 2 rows and 2 columns, and df['Country'] holds the country of each row.",
+     "misconceptions": {
+      "(2, 2) ['Asabeneh', 'David'] ['Finland', 'UK']": "columns are the dict keys ('Name', 'Country'); the names are values inside the Name column.",
+      "(2, 2) ['Name', 'Country'] ['Asabeneh', 'David']": "df['Country'] is the Country column, not the Name column.",
+      "(1, 4) ['Name', 'Country'] ['Finland', 'UK']": "Each dict becomes one row, so there are 2 rows and 2 columns."
+     },
+     "explanation_tr": "Dict listesi, her dict için bir satır ve her anahtar için bir sütun verir. Yani 2 satır ve 2 sütun vardır; df['Country'] her satırın ülkesini tutar.",
+     "misconceptions_tr": {
+      "(2, 2) ['Asabeneh', 'David'] ['Finland', 'UK']": "Sütunlar dict anahtarlarıdır ('Name', 'Country'); isimler Name sütununun içindeki değerlerdir.",
+      "(2, 2) ['Name', 'Country'] ['Asabeneh', 'David']": "df['Country'], Name sütunu değil Country sütunudur.",
+      "(1, 4) ['Name', 'Country'] ['Finland', 'UK']": "Her dict bir satır olur, yani 2 satır ve 2 sütun vardır."
+     }
+    },
+    {
+     "id": "d25-b1-e2",
+     "type": "fill_blank",
+     "concept": "series-and-dataframe",
+     "tags": [
+      "pandas",
+      "series",
+      "dataframe"
+     ],
+     "prompt": "Create a DataFrame from a list of lists and name its columns.",
+     "prompt_tr": "Liste listesinden bir DataFrame oluştur ve sütunlarını adlandır.",
+     "starter_code": "import pandas as pd\ndata = [['Asabeneh', 'Finland'], ['David', 'UK'], ['John', 'Sweden']]\ndf = pd.___(data, ___=['Names', 'Country'])",
+     "blanks": [
+      {
+       "answer": [
+        "DataFrame"
+       ]
+      },
+      {
+       "answer": [
+        "columns"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert df.shape == (3, 2)",
+       "visible": true,
+       "label_tr": "Tablo 3 satır 2 sütun"
+      },
+      {
+       "code": "assert df['Country'].tolist() == ['Finland', 'UK', 'Sweden']",
+       "visible": true,
+       "label_tr": "Country sütunu doğru"
+      }
+     ]
+    },
+    {
+     "id": "d25-b1-e3",
+     "type": "write",
+     "concept": "series-and-dataframe",
+     "tags": [
+      "pandas",
+      "series",
+      "dataframe"
+     ],
+     "prompt": "Write make_table(names, countries). It returns a pandas DataFrame with two columns, 'Name' and 'Country', built from the two lists.",
+     "prompt_tr": "make_table(names, countries) yaz. İki listeden 'Name' ve 'Country' sütunları olan bir pandas DataFrame döndürsün.",
+     "starter_code": "",
+     "signature": "def make_table(names, countries):",
+     "tests": [
+      {
+       "code": "import pandas as pd\ndf = make_table(['Ada', 'Ben'], ['UK', 'Finland'])\nassert df.shape == (2, 2)\nassert df['Name'].tolist() == ['Ada', 'Ben']",
+       "visible": true,
+       "label_tr": "İki satırlı tablo doğru kuruluyor"
+      },
+      {
+       "code": "import pandas as pd\nassert make_table(['A'], ['B'])['Country'].tolist() == ['B']",
+       "visible": true,
+       "label_tr": "Tek satırlı tabloda Country sütunu doğru"
+      },
+      {
+       "code": "import pandas as pd\nassert make_table(['A', 'B'], ['C', 'D']).columns.tolist() == ['Name', 'Country']",
+       "visible": false,
+       "failure_message": "The columns must be named exactly 'Name' and 'Country', in that order.",
+       "failure_message_tr": "Sütun adları tam olarak 'Name' ve 'Country' olmalı ve bu sırayla."
+      },
+      {
+       "code": "import pandas as pd\nassert make_table([], []).shape == (0, 2)",
+       "visible": false,
+       "failure_message": "Empty lists must still give a table with two columns and zero rows.",
+       "failure_message_tr": "Boş listelerde de iki sütunlu, sıfır satırlı bir tablo dönmeli."
+      }
+     ],
+     "hints": [
+      "A dict of lists is the easiest way to build a table from columns.",
+      "Use {'Name': names, 'Country': countries} and pass it to pd.DataFrame.",
+      "Last step: return pd.DataFrame(___) where the argument is a dict with the keys 'Name' and 'Country' pointing to the two lists."
+     ],
+     "solution": {
+      "approach": "Build a dict with one list per column and pass it to pd.DataFrame.",
+      "code": "import pandas as pd\n\ndef make_table(names, countries):\n    return pd.DataFrame({'Name': names, 'Country': countries})",
+      "approach_tr": "Her sütun için bir liste içeren bir dict kur ve pd.DataFrame'e ver."
+     },
+     "twin": "d25-b1-e4",
+     "hints_tr": [
+      "Sütunlardan tablo kurmanın en kolay yolu, listelerden oluşan bir dict'tir.",
+      "{'Name': names, 'Country': countries} dict'ini kur ve pd.DataFrame'e ver.",
+      "Son adım: pd.DataFrame(___) döndür; argüman, 'Name' ve 'Country' anahtarlarını iki listeye bağlayan bir dict olsun."
+     ]
+    },
+    {
+     "id": "d25-b1-e4",
+     "type": "write",
+     "concept": "series-and-dataframe",
+     "tags": [
+      "pandas",
+      "series",
+      "dataframe"
+     ],
+     "prompt": "Write make_scores(names, scores). It returns a pandas DataFrame with two columns, 'Name' and 'Score', built from the two lists.",
+     "prompt_tr": "make_scores(names, scores) yaz. İki listeden 'Name' ve 'Score' sütunları olan bir pandas DataFrame döndürsün.",
+     "starter_code": "",
+     "signature": "def make_scores(names, scores):",
+     "tests": [
+      {
+       "code": "import pandas as pd\ndf = make_scores(['Ada', 'Ben'], [90, 75])\nassert df.shape == (2, 2)\nassert df['Score'].tolist() == [90, 75]",
+       "visible": true,
+       "label_tr": "İki satırlı tablo doğru kuruluyor"
+      },
+      {
+       "code": "import pandas as pd\nassert make_scores(['A'], [1])['Name'].tolist() == ['A']",
+       "visible": true,
+       "label_tr": "Tek satırlı tabloda Name sütunu doğru"
+      },
+      {
+       "code": "import pandas as pd\nassert make_scores(['A', 'B'], [1, 2]).columns.tolist() == ['Name', 'Score']",
+       "visible": false,
+       "failure_message": "The columns must be named exactly 'Name' and 'Score', in that order.",
+       "failure_message_tr": "Sütun adları tam olarak 'Name' ve 'Score' olmalı ve bu sırayla."
+      },
+      {
+       "code": "import pandas as pd\nassert make_scores([], []).shape == (0, 2)",
+       "visible": false,
+       "failure_message": "Empty lists must still give a table with two columns and zero rows.",
+       "failure_message_tr": "Boş listelerde de iki sütunlu, sıfır satırlı bir tablo dönmeli."
+      }
+     ],
+     "hints": [
+      "Same as the country table with different column names.",
+      "pd.DataFrame({'Name': names, 'Score': scores})",
+      "Last step: return pd.DataFrame(___) with a dict whose keys are 'Name' and 'Score'."
+     ],
+     "solution": {
+      "approach": "A dict with one list per column, passed to pd.DataFrame.",
+      "code": "import pandas as pd\n\ndef make_scores(names, scores):\n    return pd.DataFrame({'Name': names, 'Score': scores})",
+      "approach_tr": "Her sütun için bir liste içeren bir dict kur ve pd.DataFrame'e ver."
+     },
+     "twin": "d25-b1-e3",
+     "hints_tr": [
+      "Ülke tablosuyla aynı, yalnızca sütun adları farklı.",
+      "pd.DataFrame({'Name': names, 'Score': scores})",
+      "Son adım: anahtarları 'Name' ve 'Score' olan bir dict ile pd.DataFrame(___) döndür."
+     ]
+    },
+    {
+     "id": "d25-b1-e5",
+     "type": "explain",
+     "concept": "series-and-dataframe",
+     "tags": [
+      "pandas",
+      "series",
+      "dataframe"
+     ],
+     "prompt": "In your own words: what is the difference between a pandas Series and a DataFrame?",
+     "prompt_tr": "Kendi cümlelerinle anlat: pandas Series ile DataFrame arasındaki fark nedir?",
+     "model_answer": "A Series is a single column of data with an index. A DataFrame is a table made of several Series that share the same index, so it has rows and many named columns. Selecting one column of a DataFrame gives you a Series.",
+     "keywords": [
+      "column",
+      "table",
+      "series"
+     ],
+     "model_answer_tr": "Series, indeksi olan tek bir veri sütunudur. DataFrame ise aynı indeksi paylaşan birkaç Series'ten oluşan bir tablodur; yani satırları ve adlandırılmış birçok sütunu vardır. Bir DataFrame'in tek bir sütununu seçersen bir Series elde edersin.",
+     "keywords_tr": [
+      "sütun",
+      "tablo",
+      "series"
+     ],
+     "min_words": 6
+    }
+   ],
+   "concept_tr": "Series ve DataFrame"
+  },
+  {
+   "id": "d25-b2",
+   "concept": "read-csv-explore",
+   "tags": [
+    "pandas",
+    "csv",
+    "head-tail",
+    "describe"
+   ],
+   "worked_example": {
+    "code": "import pandas as pd\nfrom io import StringIO\ncsv = 'Gender,Height\\nMale,73.8\\nFemale,61.9'\ndf = pd.read_csv(StringIO(csv))\nprint(df.shape, df['Height'].tolist())",
+    "notes": [
+     "read_csv reads a file; StringIO makes a text string behave like a file, so it works without downloads.",
+     "head(n) gives the first n rows, tail(n) the last n."
+    ],
+    "notes_tr": [
+     "read_csv bir dosyayı okur; StringIO bir metni dosya gibi davranır hâle getirir, böylece indirme olmadan çalışır.",
+     "head(n) ilk n satırı, tail(n) son n satırı verir."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d25-b2-e1",
+     "type": "predict",
+     "concept": "read-csv-explore",
+     "tags": [
+      "pandas",
+      "csv",
+      "head-tail",
+      "describe"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import pandas as pd\nfrom io import StringIO\ncsv = 'Gender,Height,Weight\\nMale,73,241\\nFemale,63,128\\nMale,69,206\\nFemale,66,170'\ndf = pd.read_csv(StringIO(csv))\nprint(df.shape, df.head(2)['Gender'].tolist(), df.tail(1)['Weight'].tolist())",
+     "choices": [
+      "(4, 3) ['Male', 'Female'] [170]",
+      "(3, 4) ['Male', 'Female'] [170]",
+      "(4, 3) ['Male', 'Female'] [241]",
+      "(4, 3) ['Male', 'Male'] [170]"
+     ],
+     "expected_output": "(4, 3) ['Male', 'Female'] [170]",
+     "explanation": "The CSV has a header and 4 data rows with 3 columns, so shape is (4, 3). head(2) takes the first two genders; tail(1) takes the last row, whose Weight is 170.",
+     "misconceptions": {
+      "(3, 4) ['Male', 'Female'] [170]": "shape is (rows, columns). There are 4 rows and 3 columns.",
+      "(4, 3) ['Male', 'Female'] [241]": "tail(1) is the LAST row (Weight 170). 241 is in the first row.",
+      "(4, 3) ['Male', 'Male'] [170]": "head(2) takes the first two rows: Male then Female."
+     },
+     "explanation_tr": "CSV'de bir başlık ve 3 sütunlu 4 veri satırı var, yani shape (4, 3). head(2) ilk iki cinsiyeti alır; tail(1) son satırı alır ve onun Weight değeri 170'tir.",
+     "misconceptions_tr": {
+      "(3, 4) ['Male', 'Female'] [170]": "shape (satır, sütun) demektir. 4 satır ve 3 sütun var.",
+      "(4, 3) ['Male', 'Female'] [241]": "tail(1) SON satırdır (Weight 170). 241 ilk satırdadır.",
+      "(4, 3) ['Male', 'Male'] [170]": "head(2) ilk iki satırı alır: önce Male, sonra Female."
+     }
+    },
+    {
+     "id": "d25-b2-e2",
+     "type": "fill_blank",
+     "concept": "read-csv-explore",
+     "tags": [
+      "pandas",
+      "csv",
+      "head-tail",
+      "describe"
+     ],
+     "prompt": "Select the Height column and compute its mean.",
+     "prompt_tr": "Height sütununu seç ve ortalamasını hesapla.",
+     "starter_code": "import pandas as pd\nfrom io import StringIO\ndf = pd.read_csv(StringIO('Name,Height\\nAda,170\\nBen,180\\nCem,190'))\nheights = df[___]\naverage = heights.___()",
+     "blanks": [
+      {
+       "answer": [
+        "'Height'"
+       ]
+      },
+      {
+       "answer": [
+        "mean"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert average == 180",
+       "visible": true,
+       "label_tr": "Ortalama doğru hesaplanıyor"
+      }
+     ]
+    },
+    {
+     "id": "d25-b2-e3",
+     "type": "write",
+     "concept": "read-csv-explore",
+     "tags": [
+      "pandas",
+      "csv",
+      "head-tail",
+      "describe"
+     ],
+     "prompt": "Write average_column(csv_text, column). csv_text is CSV text with a header row. Return the mean of the given column.",
+     "prompt_tr": "average_column(csv_text, column) yaz. csv_text, ilk satırı başlık olan CSV metnidir. Verilen sütunun ortalamasını döndür.",
+     "starter_code": "",
+     "signature": "def average_column(csv_text, column):",
+     "tests": [
+      {
+       "code": "assert average_column('Name,Age\\nAda,20\\nBen,30', 'Age') == 25",
+       "visible": true,
+       "label_tr": "İki yaşın ortalaması doğru"
+      },
+      {
+       "code": "assert average_column('Name,Age\\nAda,20', 'Age') == 20",
+       "visible": true,
+       "label_tr": "Tek satırlı CSV'de ortalama doğru"
+      },
+      {
+       "code": "assert average_column('Name,Age,Score\\nAda,20,1\\nBen,30,3', 'Score') == 2",
+       "visible": false,
+       "failure_message": "Use the column name that is passed in, not always 'Age'.",
+       "failure_message_tr": "Verilen sütun adını kullan, her zaman 'Age' değil."
+      },
+      {
+       "code": "assert abs(average_column('x\\n1.5\\n2.5\\n3.5', 'x') - 2.5) < 1e-9",
+       "visible": false,
+       "failure_message": "Floats must work too.",
+       "failure_message_tr": "Ondalıklı sayılarla da çalışmalı."
+      }
+     ],
+     "hints": [
+      "Read the text like a file first.",
+      "pd.read_csv(StringIO(csv_text)) gives a DataFrame; then pick the column and call .mean().",
+      "Last step: build df with read_csv, then return df[___].mean() using the column argument."
+     ],
+     "solution": {
+      "approach": "Parse the CSV text with StringIO and average the selected column.",
+      "code": "import pandas as pd\nfrom io import StringIO\n\ndef average_column(csv_text, column):\n    df = pd.read_csv(StringIO(csv_text))\n    return df[column].mean()",
+      "approach_tr": "CSV metnini StringIO ile oku ve seçilen sütunun ortalamasını al."
+     },
+     "twin": "d25-b2-e4",
+     "hints_tr": [
+      "Önce metni bir dosya gibi oku.",
+      "pd.read_csv(StringIO(csv_text)) bir DataFrame verir; sonra sütunu seç ve .mean() çağır.",
+      "Son adım: df'i read_csv ile kur, sonra column argümanını kullanarak df[___].mean() döndür."
+     ]
+    },
+    {
+     "id": "d25-b2-e4",
+     "type": "write",
+     "concept": "read-csv-explore",
+     "tags": [
+      "pandas",
+      "csv",
+      "head-tail",
+      "describe"
+     ],
+     "prompt": "Write max_column(csv_text, column). csv_text is CSV text with a header row. Return the largest value of the given column.",
+     "prompt_tr": "max_column(csv_text, column) yaz. csv_text, ilk satırı başlık olan CSV metnidir. Verilen sütunun en büyük değerini döndür.",
+     "starter_code": "",
+     "signature": "def max_column(csv_text, column):",
+     "tests": [
+      {
+       "code": "assert max_column('Name,Age\\nAda,20\\nBen,30', 'Age') == 30",
+       "visible": true,
+       "label_tr": "En büyük yaş doğru"
+      },
+      {
+       "code": "assert max_column('Name,Age\\nAda,20', 'Age') == 20",
+       "visible": true,
+       "label_tr": "Tek satırlı CSV'de en büyük değer doğru"
+      },
+      {
+       "code": "assert max_column('Name,Age,Score\\nAda,20,9\\nBen,30,3', 'Score') == 9",
+       "visible": false,
+       "failure_message": "Use the column name that is passed in, not always 'Age'.",
+       "failure_message_tr": "Verilen sütun adını kullan, her zaman 'Age' değil."
+      },
+      {
+       "code": "assert max_column('x\\n-5\\n-2\\n-9', 'x') == -2",
+       "visible": false,
+       "failure_message": "Negative numbers must work: the largest of -5, -2, -9 is -2.",
+       "failure_message_tr": "Negatif sayılarla da çalışmalı: -5, -2, -9 içinde en büyüğü -2'dir."
+      }
+     ],
+     "hints": [
+      "Same recipe as the average, with a different method at the end.",
+      "After selecting the column call .max().",
+      "Last step: build df with read_csv, then return df[___].max() using the column argument."
+     ],
+     "solution": {
+      "approach": "Parse the CSV text and take the max of the selected column.",
+      "code": "import pandas as pd\nfrom io import StringIO\n\ndef max_column(csv_text, column):\n    df = pd.read_csv(StringIO(csv_text))\n    return df[column].max()",
+      "approach_tr": "CSV metnini oku ve seçilen sütunun en büyük değerini al."
+     },
+     "twin": "d25-b2-e3",
+     "hints_tr": [
+      "Ortalamayla aynı tarif, yalnızca sondaki metot farklı.",
+      "Sütunu seçtikten sonra .max() çağır.",
+      "Son adım: df'i read_csv ile kur, sonra column argümanını kullanarak df[___].max() döndür."
+     ]
+    }
+   ],
+   "concept_tr": "CSV okuma ve veriyi keşfetme"
+  },
+  {
+   "id": "d25-b3",
+   "concept": "modify-columns",
+   "tags": [
+    "pandas",
+    "columns",
+    "astype",
+    "arithmetic"
+   ],
+   "worked_example": {
+    "code": "import pandas as pd\ndf = pd.DataFrame({'Weight': [74, 78], 'Height': [173, 175]})\ndf['Height'] = df['Height'] * 0.01\ndf['BMI'] = round(df['Weight'] / df['Height'] ** 2, 1)\nprint(df['BMI'].tolist())",
+    "notes": [
+     "Assigning to a new column name adds a column, like adding a key to a dict.",
+     "Column arithmetic works on all rows at once."
+    ],
+    "notes_tr": [
+     "Yeni bir sütun adına atama yapmak sütun ekler, tıpkı dict'e anahtar eklemek gibi.",
+     "Sütun aritmetiği tüm satırlara aynı anda uygulanır."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d25-b3-e1",
+     "type": "predict",
+     "concept": "modify-columns",
+     "tags": [
+      "pandas",
+      "columns",
+      "astype",
+      "arithmetic"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['A', 'B'], 'Birth Year': ['1990', '1985']})\ndf['Birth Year'] = df['Birth Year'].astype('int')\ndf['Age'] = 2020 - df['Birth Year']\nprint(df['Age'].tolist(), df.columns.tolist())",
+     "choices": [
+      "[30, 35] ['Name', 'Birth Year', 'Age']",
+      "[30, 35] ['Name', 'Age']",
+      "[1990, 1985] ['Name', 'Birth Year', 'Age']",
+      "Error"
+     ],
+     "expected_output": "[30, 35] ['Name', 'Birth Year', 'Age']",
+     "explanation": "astype('int') turns the year strings into integers, so 2020 - year works: 30 and 35. The new Age column is added after the existing ones.",
+     "misconceptions": {
+      "[30, 35] ['Name', 'Age']": "Assigning to df['Age'] adds a column; Birth Year is still there.",
+      "[1990, 1985] ['Name', 'Birth Year', 'Age']": "Age is 2020 minus the year, not the year itself.",
+      "Error": "The strings were converted to int first, so the subtraction is valid."
+     },
+     "explanation_tr": "astype('int') yıl metinlerini tam sayıya çevirir, böylece 2020 - yıl işlemi çalışır: 30 ve 35. Yeni Age sütunu mevcutların sonuna eklenir.",
+     "misconceptions_tr": {
+      "[30, 35] ['Name', 'Age']": "df['Age']'e atama sütun ekler; Birth Year yerinde kalır.",
+      "[1990, 1985] ['Name', 'Birth Year', 'Age']": "Age, yılın kendisi değil, 2020 eksi yıldır.",
+      "Error": "Metinler önce int'e çevrildi, bu yüzden çıkarma işlemi geçerlidir."
+     }
+    },
+    {
+     "id": "d25-b3-e2",
+     "type": "fill_blank",
+     "concept": "modify-columns",
+     "tags": [
+      "pandas",
+      "columns",
+      "astype",
+      "arithmetic"
+     ],
+     "prompt": "Add a BMI column: weight divided by height squared.",
+     "prompt_tr": "BMI sütunu ekle: kilo bölü boyun karesi.",
+     "starter_code": "import pandas as pd\ndf = pd.DataFrame({'Weight': [74, 78], 'Height': [1.73, 1.75]})\ndf[___] = df['Weight'] / (df['Height'] ___ 2)",
+     "blanks": [
+      {
+       "answer": [
+        "'BMI'"
+       ]
+      },
+      {
+       "answer": [
+        "**"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert df['BMI'].round(1).tolist() == [24.7, 25.5]",
+       "visible": true,
+       "label_tr": "BMI değerleri doğru hesaplanıyor"
+      }
+     ]
+    },
+    {
+     "id": "d25-b3-e3",
+     "type": "modify",
+     "concept": "modify-columns",
+     "tags": [
+      "pandas",
+      "columns",
+      "astype",
+      "arithmetic"
+     ],
+     "prompt": "The table has the birth year and the current year. Add a new column 'Age' with the current year minus the birth year.",
+     "prompt_tr": "Tabloda doğum yılı ve güncel yıl var. Güncel yıl eksi doğum yılı olan yeni bir 'Age' sütunu ekle.",
+     "starter_code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['Asabeneh', 'David', 'John'], 'Birth Year': [1769, 1985, 1990]})\ndf['Current Year'] = 2020",
+     "tests": [
+      {
+       "code": "assert df['Age'].tolist() == [251, 35, 30]",
+       "visible": true,
+       "label_tr": "Yaşlar doğru hesaplanıyor"
+      },
+      {
+       "code": "assert df.columns.tolist() == ['Name', 'Birth Year', 'Current Year', 'Age']",
+       "visible": true,
+       "label_tr": "Sütun sırası doğru, Age en sonda"
+      },
+      {
+       "code": "assert df['Birth Year'].tolist() == [1769, 1985, 1990]",
+       "visible": false,
+       "failure_message": "Do not change the Birth Year column.",
+       "failure_message_tr": "Birth Year sütununu değiştirme."
+      },
+      {
+       "code": "__ns = {}\nexec(__source__.replace('[1769, 1985, 1990]', '[2000, 1990]').replace(\"['Asabeneh', 'David', 'John']\", \"['A', 'B']\"), __ns)\nassert __ns['df']['Age'].tolist() == [20, 30]",
+       "visible": false,
+       "failure_message": "The Age column must be computed from the other columns, not typed in. Keep the table lines as given and subtract the columns.",
+       "failure_message_tr": "Age sütunu diğer sütunlardan hesaplanmalı, elle yazılmamalı. Tablo satırlarını olduğu gibi bırak ve sütunları birbirinden çıkar."
+      }
+     ],
+     "hints": [
+      "You need a new column built from two existing ones.",
+      "df['Age'] = df['Current Year'] - df['Birth Year']",
+      "Last step: assign to the new column name 'Age' the difference of the two existing columns, current year first."
+     ],
+     "solution": {
+      "approach": "Subtract the two columns; pandas does it row by row.",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['Asabeneh', 'David', 'John'], 'Birth Year': [1769, 1985, 1990]})\ndf['Current Year'] = 2020\ndf['Age'] = df['Current Year'] - df['Birth Year']",
+      "approach_tr": "İki sütunu birbirinden çıkar; pandas bunu satır satır yapar."
+     },
+     "hints_tr": [
+      "İki mevcut sütundan kurulan yeni bir sütuna ihtiyacın var.",
+      "df['Age'] = df['Current Year'] - df['Birth Year']",
+      "Son adım: yeni 'Age' sütun adına, iki mevcut sütunun farkını ata; önce güncel yıl gelsin."
+     ]
+    }
+   ],
+   "concept_tr": "Sütunları değiştirme"
+  },
+  {
+   "id": "d25-b4",
+   "concept": "boolean-indexing",
+   "tags": [
+    "pandas",
+    "filtering",
+    "boolean-indexing"
+   ],
+   "worked_example": {
+    "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['A', 'B', 'C'], 'Ages': [251, 35, 30]})\nprint(df[df['Ages'] > 120]['Name'].tolist())\nprint(df[df['Ages'] < 120].shape)",
+    "notes": [
+     "df['Ages'] > 120 gives True/False for every row.",
+     "Putting that mask inside df[...] keeps only the True rows."
+    ],
+    "notes_tr": [
+     "df['Ages'] > 120 her satır için True/False verir.",
+     "Bu maskeyi df[...] içine koyarsan yalnızca True olan satırlar kalır."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d25-b4-e1",
+     "type": "predict",
+     "concept": "boolean-indexing",
+     "tags": [
+      "pandas",
+      "filtering",
+      "boolean-indexing"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import pandas as pd\ndf = pd.DataFrame({'Title': ['Python tips', 'Learn JavaScript', 'Python vs Java', 'Rust news'],\n                   'Score': [10, 55, 40, 7]})\nmask = df['Title'].str.contains('Python')\nprint(mask.tolist(), df[mask]['Score'].sum())",
+     "choices": [
+      "[True, False, True, False] 50",
+      "[True, False, True, False] 62",
+      "[False, True, False, True] 62",
+      "['Python tips', 'Python vs Java'] 50"
+     ],
+     "expected_output": "[True, False, True, False] 50",
+     "explanation": "contains('Python') is True for rows 0 and 2. df[mask] keeps those two rows, whose scores are 10 and 40, so the sum is 50.",
+     "misconceptions": {
+      "[True, False, True, False] 62": "The sum is only over the rows where the mask is True (10 + 40).",
+      "[False, True, False, True] 62": "The mask is True where the title contains 'Python', not where it does not.",
+      "['Python tips', 'Python vs Java'] 50": "mask holds True/False values, not the titles themselves."
+     },
+     "explanation_tr": "contains('Python') 0. ve 2. satırlar için True verir. df[mask] bu iki satırı tutar; puanları 10 ve 40 olduğundan toplam 50'dir.",
+     "misconceptions_tr": {
+      "[True, False, True, False] 62": "Toplam yalnızca maskenin True olduğu satırlar üzerindendir (10 + 40).",
+      "[False, True, False, True] 62": "Maske, başlığın 'Python' içerdiği yerde True olur, içermediği yerde değil.",
+      "['Python tips', 'Python vs Java'] 50": "mask başlıkları değil, True/False değerlerini tutar."
+     }
+    },
+    {
+     "id": "d25-b4-e2",
+     "type": "parsons",
+     "concept": "boolean-indexing",
+     "tags": [
+      "pandas",
+      "filtering",
+      "boolean-indexing"
+     ],
+     "prompt": "Put the lines in order: keep only the cities with more than one million people and print their names.",
+     "prompt_tr": "Satırları sırala: nüfusu bir milyondan fazla olan şehirleri tut ve adlarını yazdır.",
+     "lines": [
+      "big = df[df['Pop'] > 1000000]",
+      "import pandas as pd",
+      "print(big['City'].tolist())",
+      "df = pd.DataFrame({'City': ['Ankara', 'Izmir', 'Oslo'], 'Pop': [5700000, 4400000, 700000]})"
+     ],
+     "correct_order": [
+      1,
+      3,
+      0,
+      2
+     ],
+     "distractors": [
+      "big = df['Pop'] > 1000000"
+     ],
+     "expected_output": "['Ankara', 'Izmir']"
+    },
+    {
+     "id": "d25-b4-e3",
+     "type": "write",
+     "concept": "boolean-indexing",
+     "tags": [
+      "pandas",
+      "filtering",
+      "boolean-indexing"
+     ],
+     "prompt": "Write rows_above(df, column, limit). Return a DataFrame with only the rows where df[column] is strictly greater than limit.",
+     "prompt_tr": "rows_above(df, column, limit) yaz. Yalnızca df[column] değeri limit'ten kesinlikle büyük olan satırları içeren bir DataFrame döndür.",
+     "starter_code": "",
+     "signature": "def rows_above(df, column, limit):",
+     "tests": [
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['A', 'B', 'C'], 'Age': [25, 140, 31]})\nassert rows_above(df, 'Age', 30)['Name'].tolist() == ['B', 'C']",
+       "visible": true,
+       "label_tr": "30'dan büyük yaşlar seçiliyor"
+      },
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'x': [1, 2, 3]})\nassert rows_above(df, 'x', 2).shape == (1, 1)",
+       "visible": true,
+       "label_tr": "Tek satır kalıyor"
+      },
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'x': [1, 2, 3]})\nassert rows_above(df, 'x', 3).shape[0] == 0",
+       "visible": false,
+       "failure_message": "The comparison is strictly greater: a row equal to the limit must be left out.",
+       "failure_message_tr": "Karşılaştırma kesinlikle büyüktür: limite eşit satır dışarıda kalmalı."
+      },
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'a': [5, 1], 'b': [1, 5]})\nassert rows_above(df, 'b', 2)['a'].tolist() == [1]",
+       "visible": false,
+       "failure_message": "Use the column name that is passed in.",
+       "failure_message_tr": "Verilen sütun adını kullan."
+      }
+     ],
+     "hints": [
+      "Build a True/False mask first.",
+      "df[column] > limit is the mask; df[mask] keeps those rows.",
+      "Last step: put the comparison of df[column] with limit inside df[...] and return the result."
+     ],
+     "solution": {
+      "approach": "Filter with a boolean mask built from the chosen column.",
+      "code": "def rows_above(df, column, limit):\n    return df[df[column] > limit]",
+      "approach_tr": "Seçilen sütundan kurulan bir boolean maske ile filtrele."
+     },
+     "twin": "d25-b4-e4",
+     "hints_tr": [
+      "Önce bir True/False maskesi kur.",
+      "df[column] > limit maskedir; df[mask] o satırları tutar.",
+      "Son adım: df[column] ile limit'in karşılaştırmasını df[...] içine koy ve sonucu döndür."
+     ]
+    },
+    {
+     "id": "d25-b4-e4",
+     "type": "write",
+     "concept": "boolean-indexing",
+     "tags": [
+      "pandas",
+      "filtering",
+      "boolean-indexing"
+     ],
+     "prompt": "Write rows_below(df, column, limit). Return a DataFrame with only the rows where df[column] is strictly less than limit.",
+     "prompt_tr": "rows_below(df, column, limit) yaz. Yalnızca df[column] değeri limit'ten kesinlikle küçük olan satırları içeren bir DataFrame döndür.",
+     "starter_code": "",
+     "signature": "def rows_below(df, column, limit):",
+     "tests": [
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['A', 'B', 'C'], 'Age': [25, 140, 31]})\nassert rows_below(df, 'Age', 120)['Name'].tolist() == ['A', 'C']",
+       "visible": true,
+       "label_tr": "120'den küçük yaşlar seçiliyor"
+      },
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'x': [1, 2, 3]})\nassert rows_below(df, 'x', 2).shape == (1, 1)",
+       "visible": true,
+       "label_tr": "Tek satır kalıyor"
+      },
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'x': [1, 2, 3]})\nassert rows_below(df, 'x', 1).shape[0] == 0",
+       "visible": false,
+       "failure_message": "The comparison is strictly less: a row equal to the limit must be left out.",
+       "failure_message_tr": "Karşılaştırma kesinlikle küçüktür: limite eşit satır dışarıda kalmalı."
+      },
+      {
+       "code": "import pandas as pd\ndf = pd.DataFrame({'a': [5, 1], 'b': [1, 5]})\nassert rows_below(df, 'b', 2)['a'].tolist() == [5]",
+       "visible": false,
+       "failure_message": "Use the column name that is passed in.",
+       "failure_message_tr": "Verilen sütun adını kullan."
+      }
+     ],
+     "hints": [
+      "Same pattern as rows_above with the other comparison.",
+      "df[df[column] < limit]",
+      "Last step: same as rows_above, but the comparison inside df[...] uses the 'less than' operator."
+     ],
+     "solution": {
+      "approach": "Boolean mask with <, then df[mask].",
+      "code": "def rows_below(df, column, limit):\n    return df[df[column] < limit]",
+      "approach_tr": "< ile boolean maske kur, sonra df[maske] yap."
+     },
+     "twin": "d25-b4-e3",
+     "hints_tr": [
+      "rows_above ile aynı kalıp, yalnızca karşılaştırma ters.",
+      "df[df[column] < limit]",
+      "Son adım: rows_above ile aynı, ama df[...] içindeki karşılaştırma 'küçüktür' işlecini kullansın."
+     ]
+    },
+    {
+     "id": "d25-b4-e5",
+     "type": "debug",
+     "concept": "boolean-indexing",
+     "tags": [
+      "pandas",
+      "filtering",
+      "boolean-indexing"
+     ],
+     "prompt": "This should print the names of people older than 120 (['B']) but prints True/False values. Fix it.",
+     "prompt_tr": "Bu kod, 120'den yaşlı kişilerin adlarını (['B']) yazdırmalı ama True/False değerleri yazdırıyor. Düzelt.",
+     "starter_code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['A', 'B', 'C'], 'Age': [25, 140, 31]})\nnames = df['Age'] > 120\nprint(names.tolist())",
+     "hints": [
+      "Print names. Is it a list of names or a list of True/False?",
+      "A comparison only gives a mask. You must use the mask to select rows.",
+      "Last step: put the mask inside df[...], then select the Name column of the result."
+     ],
+     "solution": {
+      "approach": "Use the mask inside df[...] to keep matching rows, then select the Name column.",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['A', 'B', 'C'], 'Age': [25, 140, 31]})\nnames = df[df['Age'] > 120]['Name']\nprint(names.tolist())",
+      "approach_tr": "Eşleşen satırları tutmak için maskeyi df[...] içinde kullan, sonra Name sütununu seç."
+     },
+     "expected_output": "['B']",
+     "hints_tr": [
+      "names'i yazdır. Bu bir isim listesi mi, yoksa True/False listesi mi?",
+      "Karşılaştırma yalnızca bir maske verir. Satırları seçmek için maskeyi kullanmalısın.",
+      "Son adım: maskeyi df[...] içine koy, sonra sonucun Name sütununu seç."
+     ]
+    }
+   ],
+   "concept_tr": "Koşula göre satır seçme (boolean indexing)"
+  }
+ ],
+ "review_pool": [
+  "d25-b1-e1",
+  "d25-b1-e3",
+  "d25-b2-e1",
+  "d25-b2-e3",
+  "d25-b4-e1",
+  "d25-b4-e3"
+ ],
+ "title_tr": "Pandas"
+}

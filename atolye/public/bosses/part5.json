@@ -1,0 +1,230 @@
+{
+  "part": 5,
+  "title_tr": "Mahalle Hava İstasyonu",
+  "story_tr": "Mahallenin iki hava istasyonu (A ve B) günlerdir ham CSV metni gönderiyor; bazı ölçümler eksik, kimse bu veriyi okuyamıyor.\nNumPy ile istatistikleri çıkar, pandas ile istasyonları özetle ve eksik verileri temizle, sonra tüm bunları bir mini API'nin JSON isteklerine cevap veren hale getir.",
+  "reward_xp": 300,
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string __stdout__; the learner source is __source__. Boss stages are cumulative: each stage's starter_code is the previous stage's solution plus a comment marking where to add. Tests may call the learner's functions with brand-new inputs, may re-run __source__ with some top-level input lines replaced, and may create/remove their own files with open(). Hidden tests (visible:false) carry failure_message and failure_message_tr; tests with anti_hardcode:true fail on code that only prints or assigns the expected values.",
+  "stages": [
+    {
+      "id": "boss5-s1",
+      "title_tr": "NumPy ile sıcaklık istatistikleri",
+      "prompt_tr": "Mahallede iki hava istasyonu (A ve B) var ve veriler ham CSV metni olarak geliyor. `parse_temps` hazır; sıcaklık dizisini sen analiz et.\n- `temp_stats(values)`: ortalama (`mean`), ortanca (`median`), standart sapma (`std`, NumPy'ın varsayılanı) ve %90'lık yüzdelik (`p90`) değerlerini iki ondalığa yuvarlayıp bir sözlük olarak döndürsün.\n- `anomalies(values, z=1.5)`: ortalamadan `z` standart sapmadan fazla uzaktaki ölçümlerin İNDEKSLERİNİ liste olarak döndürsün. Döngü yok: NumPy vektör işlemleri kullan.\n- `temps = parse_temps(READINGS_CSV)` ve `print(temp_stats(temps))`.",
+      "prompt": "The neighbourhood has two weather stations (A and B) and the data arrives as raw CSV text. `parse_temps` is ready; you analyse the temperature array.\n- `temp_stats(values)`: return a dict with the mean (`mean`), median (`median`), standard deviation (`std`, NumPy's default) and 90th percentile (`p90`), each rounded to two decimals.\n- `anomalies(values, z=1.5)`: return, as a list, the INDEXES of readings farther than `z` standard deviations from the mean. No loops: use NumPy vectorised operations.\n- `temps = parse_temps(READINGS_CSV)` and `print(temp_stats(temps))`.",
+      "starter_code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert temp_stats([2, 4, 6, 8, 10]) == {\"mean\": 6.0, \"median\": 6.0, \"std\": 2.83, \"p90\": 9.2}",
+          "visible": true,
+          "failure_message": "temp_stats([2,4,6,8,10]) should be mean 6.0, median 6.0, std 2.83, p90 9.2.",
+          "failure_message_tr": "temp_stats([2,4,6,8,10]) mean 6.0, median 6.0, std 2.83, p90 9.2 vermeli.",
+          "label_tr": "İstatistikler doğru"
+        },
+        {
+          "code": "assert anomalies([10, 10, 10, 10, 100]) == [4] and anomalies([10, 10, 10, 10, 100], z=2.5) == []",
+          "visible": true,
+          "failure_message": "Only the 100 is more than 1.5 std away; with z=2.5 nothing is.",
+          "failure_message_tr": "Yalnız 100, 1.5 std'den uzak; z=2.5 ile hiçbiri uzak değil.",
+          "label_tr": "Aykırı ölçüm bulunuyor"
+        },
+        {
+          "code": "assert len(temps) == 7\nlines = __stdout__.splitlines()\nassert str(temp_stats(temps)) in lines",
+          "visible": false,
+          "failure_message": "Print temp_stats(temps) for the parsed CSV.",
+          "failure_message_tr": "Ayrıştırılan CSV için temp_stats(temps) sonucunu yazdır."
+        },
+        {
+          "code": "s = temp_stats([1.5, 2.5, 9.0, 3.0])\nassert s[\"mean\"] == 4.0 and s[\"median\"] == 2.75 and s[\"std\"] == 2.94 and s[\"p90\"] == 7.2\nassert isinstance(s[\"mean\"], float)\nassert anomalies(np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 50]), z=2) == [9]\nassert anomalies([5, 5, 5, 5, -40, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], z=3) == [4]",
+          "visible": false,
+          "failure_message": "Work for any input (lists too) and keep plain Python floats in the dict.",
+          "failure_message_tr": "Her girdiyle (liste de dahil) çalış; sözlükte düz Python float'ları olsun.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nfor _f in _t.body:\n    if isinstance(_f, ast.FunctionDef) and _f.name in (\"temp_stats\", \"anomalies\"):\n        assert not any(isinstance(n, (ast.For, ast.While, ast.ListComp, ast.GeneratorExp)) for n in ast.walk(_f)), _f.name + \" içinde döngü var\"\nassert \"np.\" in __source__",
+          "visible": false,
+          "failure_message": "No loops or comprehensions inside the two functions: use NumPy.",
+          "failure_message_tr": "İki fonksiyonun içinde döngü ya da liste üretimi olmasın: NumPy kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "A NumPy array has its own methods: `.mean()` for the mean, `.std()` for the standard deviation.",
+        "Median and percentile are functions: `np.median(arr)`, `np.percentile(arr, 90)`. Convert results with `float(...)` and apply `round(..., 2)`.",
+        "For anomalies use the z-score: `(arr - mean) / std` runs on the whole array at once. Compare its absolute value with `z`, get indexes with `np.where`, then `.tolist()`."
+      ],
+      "hints_tr": [
+        "NumPy dizisinin kendi metotları var: ortalama için `.mean()`, standart sapma için `.std()`.",
+        "Ortanca ve yüzdelik için fonksiyonlar kullan: `np.median(dizi)`, `np.percentile(dizi, 90)`. Sonuçları `float(...)` ile düz sayıya çevirip `round(..., 2)` uygula.",
+        "Aykırı değer için z-skoru: `(dizi - ortalama) / std` bütün diziye aynı anda uygulanır. Mutlak değerini `z` ile karşılaştır, `np.where` ile indeksleri al ve `.tolist()` yap."
+      ],
+      "solution": {
+        "code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n\ndef temp_stats(values):\n    arr = np.asarray(values, dtype=float)\n    return {\n        \"mean\": round(float(arr.mean()), 2),\n        \"median\": round(float(np.median(arr)), 2),\n        \"std\": round(float(arr.std()), 2),\n        \"p90\": round(float(np.percentile(arr, 90)), 2),\n    }\n\n\ndef anomalies(values, z=1.5):\n    arr = np.asarray(values, dtype=float)\n    scores = np.abs(arr - arr.mean()) / arr.std()\n    return np.where(scores > z)[0].tolist()\n\n\ntemps = parse_temps(READINGS_CSV)\nprint(temp_stats(temps))\n",
+        "approach_tr": "Vektör işlemleri döngüsüz ve hızlıdır: `arr - arr.mean()` bütün diziye uygulanır, karşılaştırma bir boolean dizisi verir, `np.where` onun indekslerini çıkarır."
+      }
+    },
+    {
+      "id": "boss5-s2",
+      "title_tr": "pandas ile istasyon özeti",
+      "prompt_tr": "Şimdi tablo hali. `df = pd.read_csv(io.StringIO(READINGS_CSV))` ile verileri bir DataFrame'e al, sonra iki fonksiyon yaz:\n- `station_summary(df)`: istasyon başına (`station`) sıcaklığın ortalamasını ve en yüksek değerini hesaplayan bir DataFrame döndürsün; sütunlar `mean` ve `max` olsun, değerler iki ondalığa yuvarlansın, satır indeksi istasyon adı olsun.\n- `hottest_day(df)`: en yüksek sıcaklığın ölçüldüğü günün adını (`str`) döndürsün.\nSonda `print(station_summary(df))` çalıştır.",
+      "prompt": "Now the table form. Load the data with `df = pd.read_csv(io.StringIO(READINGS_CSV))`, then write two functions:\n- `station_summary(df)`: return a DataFrame with the mean and maximum temperature per `station`; columns `mean` and `max`, values rounded to two decimals, row index is the station name.\n- `hottest_day(df)`: return the name (`str`) of the day on which the highest temperature was measured.\nAt the end run `print(station_summary(df))`.",
+      "starter_code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n\ndef temp_stats(values):\n    arr = np.asarray(values, dtype=float)\n    return {\n        \"mean\": round(float(arr.mean()), 2),\n        \"median\": round(float(np.median(arr)), 2),\n        \"std\": round(float(arr.std()), 2),\n        \"p90\": round(float(np.percentile(arr, 90)), 2),\n    }\n\n\ndef anomalies(values, z=1.5):\n    arr = np.asarray(values, dtype=float)\n    scores = np.abs(arr - arr.mean()) / arr.std()\n    return np.where(scores > z)[0].tolist()\n\n\ntemps = parse_temps(READINGS_CSV)\nprint(temp_stats(temps))\n\n# --- Aşama 2: pandas ile istasyon özeti (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "s = station_summary(df)\nassert isinstance(s, pd.DataFrame) and list(s.columns) == [\"mean\", \"max\"] and list(s.index) == [\"A\", \"B\"]\nassert s.loc[\"A\", \"mean\"] == 13.5 and s.loc[\"A\", \"max\"] == 16.5\nassert s.loc[\"B\", \"mean\"] == 13.1 and s.loc[\"B\", \"max\"] == 15.8",
+          "visible": true,
+          "failure_message": "A: mean 13.5 max 16.5; B (ignoring the missing value): mean 13.1 max 15.8.",
+          "failure_message_tr": "A: ort 13.5 maks 16.5; B (eksik değer yok sayılarak): ort 13.1 maks 15.8.",
+          "label_tr": "İstasyon özeti doğru"
+        },
+        {
+          "code": "assert hottest_day(df) == \"Çar\"",
+          "visible": true,
+          "failure_message": "The hottest reading (16.5) was on 'Çar'.",
+          "failure_message_tr": "En sıcak ölçüm (16.5) 'Çar' gününde.",
+          "label_tr": "En sıcak gün"
+        },
+        {
+          "code": "assert df.shape == (8, 4) and \"mean\" in __stdout__",
+          "visible": false,
+          "failure_message": "Load the whole CSV (8 rows, 4 columns) and print the summary.",
+          "failure_message_tr": "CSV'nin tamamını (8 satır, 4 sütun) yükle ve özeti yazdır."
+        },
+        {
+          "code": "d = pd.DataFrame({\"day\": [\"x\", \"y\", \"z\", \"w\"], \"station\": [\"P\", \"Q\", \"P\", \"Q\"], \"temp\": [1.0, 7.5, 5.0, 3.25], \"humidity\": [1, 2, 3, 4]})\ns = station_summary(d)\nassert s.loc[\"P\", \"mean\"] == 3.0 and s.loc[\"Q\", \"max\"] == 7.5 and s.loc[\"Q\", \"mean\"] == 5.38\nassert hottest_day(d) == \"y\"\nassert list(d.columns) == [\"day\", \"station\", \"temp\", \"humidity\"]",
+          "visible": false,
+          "failure_message": "Both functions must work on any DataFrame and not alter it.",
+          "failure_message_tr": "İki fonksiyon da her DataFrame ile çalışmalı ve onu değiştirmemeli.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Attribute) and n.attr == \"groupby\" for n in ast.walk(_t))\nassert not any(isinstance(n, ast.For) for f in _t.body if isinstance(f, ast.FunctionDef) for n in ast.walk(f))",
+          "visible": false,
+          "failure_message": "Use groupby, not a manual loop.",
+          "failure_message_tr": "Elle döngü değil, groupby kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "`pd.read_csv` wants a file; to treat your text like a file use `io.StringIO(text)`.",
+        "Group with `df.groupby(\"column\")`, pick a column, and pass `.agg([\"mean\", \"max\"])` for several summaries. Missing values (NaN) are ignored automatically.",
+        "`.idxmax()` gives the ROW label of the largest value; read that row's day with `df.loc[label, \"day\"]`. Use `.round(2)` on the table."
+      ],
+      "hints_tr": [
+        "`pd.read_csv` dosya ister; elindeki metni dosya gibi göstermek için `io.StringIO(metin)` kullan.",
+        "Gruplamak için `df.groupby(\"sütun\")`, sonra bir sütun seç ve birden çok özet için `.agg([\"mean\", \"max\"])` ver. Eksik değerler (NaN) otomatik yok sayılır.",
+        "En büyük değerin SATIR etiketini `.idxmax()` verir; o satırın gününü `df.loc[etiket, \"day\"]` ile al. Yuvarlamak için tabloya `.round(2)`."
+      ],
+      "solution": {
+        "code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n\ndef temp_stats(values):\n    arr = np.asarray(values, dtype=float)\n    return {\n        \"mean\": round(float(arr.mean()), 2),\n        \"median\": round(float(np.median(arr)), 2),\n        \"std\": round(float(arr.std()), 2),\n        \"p90\": round(float(np.percentile(arr, 90)), 2),\n    }\n\n\ndef anomalies(values, z=1.5):\n    arr = np.asarray(values, dtype=float)\n    scores = np.abs(arr - arr.mean()) / arr.std()\n    return np.where(scores > z)[0].tolist()\n\n\ntemps = parse_temps(READINGS_CSV)\nprint(temp_stats(temps))\n\ndf = pd.read_csv(io.StringIO(READINGS_CSV))\n\n\ndef station_summary(df):\n    return df.groupby(\"station\")[\"temp\"].agg([\"mean\", \"max\"]).round(2)\n\n\ndef hottest_day(df):\n    return df.loc[df[\"temp\"].idxmax(), \"day\"]\n\n\nprint(station_summary(df))\n",
+        "approach_tr": "`groupby` + `agg` tek satırda 'böl, uygula, birleştir' yapar ve NaN'ları atlar. `idxmax` değeri değil, satır etiketini verir; bu yüzden `loc` ile o satırdaki günü okuruz."
+      }
+    },
+    {
+      "id": "boss5-s3",
+      "title_tr": "Temizle ve yeni sütun ekle",
+      "prompt_tr": "Sensörler ölçüm kaçırmış (boş hücreler). Veriyi temizleyen bir fonksiyon yaz: `clean(df)`:\n- Orijinal DataFrame'i DEĞİŞTİRME; temizlenmiş yeni bir tablo (`copy`) döndür.\n- Eksik `temp` değerlerini o istasyonun sıcaklık ortalamasıyla doldur (`groupby` + `transform`).\n- Eksik `humidity` değerlerini nem sütununun ortancasıyla (`median`) doldur.\n- Yeni bir `feels_like` sütunu ekle: `temp + (humidity - 50) * 0.05`.\nSonra `clean_df = clean(df)` yaz ve `Eksik değer: 2 -> 0` biçiminde, temizlemeden önceki ve sonraki toplam eksik hücre sayısını yazdır.",
+      "prompt": "The sensors missed some readings (empty cells). Write a cleaning function `clean(df)`:\n- Do NOT change the original DataFrame; return a new cleaned table (`copy`).\n- Fill missing `temp` values with that station's mean temperature (`groupby` + `transform`).\n- Fill missing `humidity` values with the median of the humidity column (`median`).\n- Add a new column `feels_like`: `temp + (humidity - 50) * 0.05`.\nThen write `clean_df = clean(df)` and print the number of missing cells before and after like `Eksik değer: 2 -> 0`.",
+      "starter_code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n\ndef temp_stats(values):\n    arr = np.asarray(values, dtype=float)\n    return {\n        \"mean\": round(float(arr.mean()), 2),\n        \"median\": round(float(np.median(arr)), 2),\n        \"std\": round(float(arr.std()), 2),\n        \"p90\": round(float(np.percentile(arr, 90)), 2),\n    }\n\n\ndef anomalies(values, z=1.5):\n    arr = np.asarray(values, dtype=float)\n    scores = np.abs(arr - arr.mean()) / arr.std()\n    return np.where(scores > z)[0].tolist()\n\n\ntemps = parse_temps(READINGS_CSV)\nprint(temp_stats(temps))\n\ndf = pd.read_csv(io.StringIO(READINGS_CSV))\n\n\ndef station_summary(df):\n    return df.groupby(\"station\")[\"temp\"].agg([\"mean\", \"max\"]).round(2)\n\n\ndef hottest_day(df):\n    return df.loc[df[\"temp\"].idxmax(), \"day\"]\n\n\nprint(station_summary(df))\n\n# --- Aşama 3: Temizle ve yeni sütun ekle (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert clean_df.isna().sum().sum() == 0 and df.isna().sum().sum() == 2\nassert \"feels_like\" in clean_df.columns and \"feels_like\" not in df.columns",
+          "visible": true,
+          "failure_message": "clean_df has no missing cells; the original df keeps its 2 and has no new column.",
+          "failure_message_tr": "clean_df'de eksik hücre kalmamalı; orijinal df 2 eksiğini korumalı ve yeni sütun almamalı.",
+          "label_tr": "Eksikler dolduruldu, orijinal bozulmadı"
+        },
+        {
+          "code": "r = clean_df.set_index([\"day\", \"station\"])\nassert abs(r.loc[(\"Sal\", \"B\"), \"temp\"] - 13.1) < 1e-9\nassert abs(r.loc[(\"Çar\", \"B\"), \"humidity\"] - 58.0) < 1e-9\nassert abs(r.loc[(\"Çar\", \"B\"), \"feels_like\"] - 16.2) < 1e-9",
+          "visible": true,
+          "failure_message": "Sal/B temp = B's mean 13.1; Çar/B humidity = median 58; feels_like = 15.8 + 0.4 = 16.2.",
+          "failure_message_tr": "Sal/B sıcaklık = B ortalaması 13.1; Çar/B nem = ortanca 58; feels_like = 15.8 + 0.4 = 16.2.",
+          "label_tr": "Doldurulan değerler doğru"
+        },
+        {
+          "code": "\"Eksik değer: 2 -> 0\" in __stdout__.splitlines()",
+          "visible": false,
+          "failure_message": "Print 'Eksik değer: 2 -> 0'.",
+          "failure_message_tr": "'Eksik değer: 2 -> 0' satırını yazdır."
+        },
+        {
+          "code": "d = pd.DataFrame({\"day\": list(\"abcdef\"), \"station\": [\"P\", \"P\", \"P\", \"Q\", \"Q\", \"Q\"],\n                  \"temp\": [10.0, None, 20.0, 1.0, 3.0, None], \"humidity\": [50.0, 70.0, None, 50.0, 90.0, 10.0]})\nc = clean(d)\nassert c[\"temp\"].tolist() == [10.0, 15.0, 20.0, 1.0, 3.0, 2.0]\nassert c[\"humidity\"].tolist() == [50.0, 70.0, 50.0, 50.0, 90.0, 10.0]\nassert [round(x, 6) for x in c[\"feels_like\"].tolist()] == [10.0, 16.0, 20.0, 1.0, 5.0, 0.0]\nassert d[\"temp\"].isna().sum() == 2 and \"feels_like\" not in d.columns",
+          "visible": false,
+          "failure_message": "Clean any DataFrame: per-station means, global humidity median, original untouched.",
+          "failure_message_tr": "Her DataFrame'i temizle: istasyon ortalamaları, genel nem ortancası, orijinal sağlam.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\n_attrs = {n.attr for n in ast.walk(_t) if isinstance(n, ast.Attribute)}\nassert {\"transform\", \"fillna\"} <= _attrs and \"copy\" in _attrs",
+          "visible": false,
+          "failure_message": "Use fillna, groupby().transform and copy.",
+          "failure_message_tr": "fillna, groupby().transform ve copy kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "To protect the original, start with `out = df.copy()` and only work on `out`.",
+        "Per-station means come from `groupby(...)[...].transform(\"mean\")`, which writes each row's own group mean; then `fillna(...)` applies that series to the gaps.",
+        "For humidity use `fillna(column.median())`. The new column is plain column arithmetic (`out[\"temp\"] + ...`) in one line. No loop needed."
+      ],
+      "hints_tr": [
+        "Orijinali korumak için işe `out = df.copy()` ile başla ve yalnızca `out` üzerinde çalış.",
+        "İstasyon başına ortalama, her satıra kendi grubunun ortalamasını yazan `groupby(...)[...].transform(\"mean\")` ile elde edilir; sonra `fillna(...)` bu seriyi eksiklere uygular.",
+        "Nem için `fillna(sütun.median())`. Yeni sütun, sütunlar üzerinde doğrudan aritmetikle (`out[\"temp\"] + ...`) tek satırda yazılır. Döngü gerekmez."
+      ],
+      "solution": {
+        "code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n\ndef temp_stats(values):\n    arr = np.asarray(values, dtype=float)\n    return {\n        \"mean\": round(float(arr.mean()), 2),\n        \"median\": round(float(np.median(arr)), 2),\n        \"std\": round(float(arr.std()), 2),\n        \"p90\": round(float(np.percentile(arr, 90)), 2),\n    }\n\n\ndef anomalies(values, z=1.5):\n    arr = np.asarray(values, dtype=float)\n    scores = np.abs(arr - arr.mean()) / arr.std()\n    return np.where(scores > z)[0].tolist()\n\n\ntemps = parse_temps(READINGS_CSV)\nprint(temp_stats(temps))\n\ndf = pd.read_csv(io.StringIO(READINGS_CSV))\n\n\ndef station_summary(df):\n    return df.groupby(\"station\")[\"temp\"].agg([\"mean\", \"max\"]).round(2)\n\n\ndef hottest_day(df):\n    return df.loc[df[\"temp\"].idxmax(), \"day\"]\n\n\nprint(station_summary(df))\n\ndef clean(df):\n    out = df.copy()\n    out[\"temp\"] = out[\"temp\"].fillna(out.groupby(\"station\")[\"temp\"].transform(\"mean\"))\n    out[\"humidity\"] = out[\"humidity\"].fillna(out[\"humidity\"].median())\n    out[\"feels_like\"] = out[\"temp\"] + (out[\"humidity\"] - 50) * 0.05\n    return out\n\n\nclean_df = clean(df)\nprint(f\"Eksik değer: {int(df.isna().sum().sum())} -> {int(clean_df.isna().sum().sum())}\")\n",
+        "approach_tr": "`transform` grup ortalamasını orijinalle aynı uzunlukta bir seri olarak verir; bu yüzden `fillna` ile satır satır eşleşir. `copy()` ile orijinali korumak, istenmeyen yan etkileri önler."
+      }
+    },
+    {
+      "id": "boss5-s4",
+      "title_tr": "Mini API: JSON isteği, JSON cevabı",
+      "prompt_tr": "Mahalle uygulaması verileri JSON ile isteyecek. Ağ yok; `handle(request_text, data)` bir JSON METNİ alıp JSON METNİ döndüren mini bir API olsun (`json` modülü). `data` temizlenmiş DataFrame'dir.\nİstek `{\"path\": \"...\"}` biçiminde. Cevap her zaman `{\"status\": ..., ...}`:\n- `/stations` -> `{\"status\": 200, \"data\": [\"A\", \"B\"]}` (sıralı istasyon listesi)\n- `/stations/A` -> `{\"status\": 200, \"data\": {\"station\": \"A\", \"mean\": 13.5, \"max\": 16.5, \"count\": 4}}` (`station_summary` ve satır sayısı; sayılar düz Python `float`/`int` olsun)\n- `/hottest` -> `{\"status\": 200, \"data\": \"Çar\"}`\n- geçerli JSON ama `path` yok ya da JSON değil -> `{\"status\": 400, \"error\": \"...\"}`\n- bilinmeyen yol ya da istasyon -> `{\"status\": 404, \"error\": \"...\"}`\nSonda `print(handle('{\"path\": \"/stations/A\"}', clean_df))` çalıştır.",
+      "prompt": "The neighbourhood app will ask for data as JSON. No network: `handle(request_text, data)` is a mini API that takes a JSON TEXT and returns a JSON TEXT (`json` module). `data` is the cleaned DataFrame.\nA request looks like `{\"path\": \"...\"}`. The response is always `{\"status\": ..., ...}`:\n- `/stations` -> `{\"status\": 200, \"data\": [\"A\", \"B\"]}` (sorted station list)\n- `/stations/A` -> `{\"status\": 200, \"data\": {\"station\": \"A\", \"mean\": 13.5, \"max\": 16.5, \"count\": 4}}` (use `station_summary` and the row count; numbers must be plain Python `float`/`int`)\n- `/hottest` -> `{\"status\": 200, \"data\": \"Çar\"}`\n- invalid JSON, or valid JSON without a `path` -> `{\"status\": 400, \"error\": \"...\"}`\n- unknown path or station -> `{\"status\": 404, \"error\": \"...\"}`\nAt the end run `print(handle('{\"path\": \"/stations/A\"}', clean_df))`.",
+      "starter_code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n\ndef temp_stats(values):\n    arr = np.asarray(values, dtype=float)\n    return {\n        \"mean\": round(float(arr.mean()), 2),\n        \"median\": round(float(np.median(arr)), 2),\n        \"std\": round(float(arr.std()), 2),\n        \"p90\": round(float(np.percentile(arr, 90)), 2),\n    }\n\n\ndef anomalies(values, z=1.5):\n    arr = np.asarray(values, dtype=float)\n    scores = np.abs(arr - arr.mean()) / arr.std()\n    return np.where(scores > z)[0].tolist()\n\n\ntemps = parse_temps(READINGS_CSV)\nprint(temp_stats(temps))\n\ndf = pd.read_csv(io.StringIO(READINGS_CSV))\n\n\ndef station_summary(df):\n    return df.groupby(\"station\")[\"temp\"].agg([\"mean\", \"max\"]).round(2)\n\n\ndef hottest_day(df):\n    return df.loc[df[\"temp\"].idxmax(), \"day\"]\n\n\nprint(station_summary(df))\n\ndef clean(df):\n    out = df.copy()\n    out[\"temp\"] = out[\"temp\"].fillna(out.groupby(\"station\")[\"temp\"].transform(\"mean\"))\n    out[\"humidity\"] = out[\"humidity\"].fillna(out[\"humidity\"].median())\n    out[\"feels_like\"] = out[\"temp\"] + (out[\"humidity\"] - 50) * 0.05\n    return out\n\n\nclean_df = clean(df)\nprint(f\"Eksik değer: {int(df.isna().sum().sum())} -> {int(clean_df.isna().sum().sum())}\")\n\n# --- Aşama 4: Mini API: JSON isteği, JSON cevabı (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "import json as _j\nassert _j.loads(handle('{\"path\": \"/stations\"}', clean_df)) == {\"status\": 200, \"data\": [\"A\", \"B\"]}\nassert _j.loads(handle('{\"path\": \"/hottest\"}', clean_df)) == {\"status\": 200, \"data\": \"Çar\"}\nassert _j.loads(handle('{\"path\": \"/stations/A\"}', clean_df)) == {\"status\": 200, \"data\": {\"station\": \"A\", \"mean\": 13.5, \"max\": 16.5, \"count\": 4}}",
+          "visible": true,
+          "failure_message": "The three 200 endpoints must return the specified JSON.",
+          "failure_message_tr": "Üç 200 uç noktası belirtilen JSON'u döndürmeli.",
+          "label_tr": "Üç uç nokta çalışıyor"
+        },
+        {
+          "code": "import json as _j\nassert _j.loads(handle('{\"path\": \"/stations/Z\"}', clean_df))[\"status\"] == 404\nassert _j.loads(handle('{\"path\": \"/nope\"}', clean_df))[\"status\"] == 404\nfor bad in ['{\"path\": ', 'merhaba', '{\"yol\": \"/stations\"}', '[1, 2]']:\n    r = _j.loads(handle(bad, clean_df))\n    assert r[\"status\"] == 400 and \"error\" in r, bad",
+          "visible": true,
+          "failure_message": "Unknown station/path -> 404; invalid JSON or missing path -> 400 with an error message.",
+          "failure_message_tr": "Bilinmeyen istasyon/yol -> 404; geçersiz JSON ya da eksik path -> hata mesajlı 400.",
+          "label_tr": "Hata kodları"
+        },
+        {
+          "code": "assert isinstance(handle('{\"path\": \"/stations\"}', clean_df), str) and \"\\\"status\\\": 200\" in __stdout__ and \"\\\"count\\\": 4\" in __stdout__",
+          "visible": false,
+          "failure_message": "handle returns a JSON string; print the /stations/A response.",
+          "failure_message_tr": "handle bir JSON metni döndürmeli; /stations/A cevabını yazdır."
+        },
+        {
+          "code": "import json as _j\nd = pd.DataFrame({\"day\": [\"x\", \"y\", \"z\"], \"station\": [\"P\", \"Q\", \"P\"], \"temp\": [1.5, 9.25, 4.0], \"humidity\": [50.0, 60.0, 70.0]})\nassert _j.loads(handle('{\"path\": \"/stations\"}', d)) == {\"status\": 200, \"data\": [\"P\", \"Q\"]}\nassert _j.loads(handle('{\"path\": \"/hottest\"}', d))[\"data\"] == \"y\"\nassert _j.loads(handle('{\"path\": \"/stations/P\"}', d)) == {\"status\": 200, \"data\": {\"station\": \"P\", \"mean\": 2.75, \"max\": 4.0, \"count\": 2}}\nassert _j.loads(handle('{\"path\": \"/stations/A\"}', d))[\"status\"] == 404",
+          "visible": false,
+          "failure_message": "Use the `data` argument, not a global; numbers must be JSON-serialisable.",
+          "failure_message_tr": "Global değil, `data` argümanını kullan; sayılar JSON'a çevrilebilir olmalı.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Every response is a dict; at the very end turn it into text with `json.dumps(dict)` and return it. At the start use `json.loads(text)`.",
+        "Invalid JSON raises `json.JSONDecodeError`: catch it with `try/except` and return 400. A missing `path` is also 400. Then branch on `path` with `if/elif`: /stations, /hottest, /stations/<name>.",
+        "NumPy numbers (`numpy.int64`) do not serialise to JSON automatically: convert with `int(...)` / `float(...)`. Get the station name from the path with `path.split(\"/\")`; check it against `station_summary(data).index`."
+      ],
+      "hints_tr": [
+        "Her cevap bir sözlüktür; en sonda `json.dumps(sözlük)` ile metne çevirip döndür. Girişte `json.loads(metin)` kullan.",
+        "Geçersiz JSON `json.JSONDecodeError` fırlatır: `try/except` ile yakalayıp 400 döndür. `path` yoksa da 400. Sonra `path`'e göre `if/elif` ile dallan: /stations, /hottest, /stations/<ad>.",
+        "NumPy sayıları (`numpy.int64`) JSON'a otomatik çevrilmez: `int(...)` / `float(...)` ile düz sayıya çevir. İstasyon adını yoldan `path.split(\"/\")` ile al; `station_summary(data).index` içinde var mı bak."
+      ],
+      "solution": {
+        "code": "import io\nimport numpy as np\nimport pandas as pd\n\n# Mahalle hava istasyonlarından gelen ham CSV metni (boş hücre = sensör o ölçümü kaçırdı)\nREADINGS_CSV = \"\"\"day,station,temp,humidity\nPzt,A,12.5,60\nPzt,B,13.1,58\nSal,A,14.0,55\nSal,B,,57\nÇar,A,16.5,52\nÇar,B,15.8,\nPer,A,11.0,70\nPer,B,10.4,72\n\"\"\"\n\ndef parse_temps(csv_text):\n    \"\"\"Hazır: CSV metnindeki dolu sıcaklıkları NumPy dizisi olarak verir.\"\"\"\n    rows = [line.split(\",\") for line in csv_text.strip().splitlines()[1:]]\n    return np.array([float(r[2]) for r in rows if r[2] != \"\"])\n\n# --- Aşama 1: NumPy ile sıcaklık istatistikleri (buraya ekle) ---\n\ndef temp_stats(values):\n    arr = np.asarray(values, dtype=float)\n    return {\n        \"mean\": round(float(arr.mean()), 2),\n        \"median\": round(float(np.median(arr)), 2),\n        \"std\": round(float(arr.std()), 2),\n        \"p90\": round(float(np.percentile(arr, 90)), 2),\n    }\n\n\ndef anomalies(values, z=1.5):\n    arr = np.asarray(values, dtype=float)\n    scores = np.abs(arr - arr.mean()) / arr.std()\n    return np.where(scores > z)[0].tolist()\n\n\ntemps = parse_temps(READINGS_CSV)\nprint(temp_stats(temps))\n\ndf = pd.read_csv(io.StringIO(READINGS_CSV))\n\n\ndef station_summary(df):\n    return df.groupby(\"station\")[\"temp\"].agg([\"mean\", \"max\"]).round(2)\n\n\ndef hottest_day(df):\n    return df.loc[df[\"temp\"].idxmax(), \"day\"]\n\n\nprint(station_summary(df))\n\ndef clean(df):\n    out = df.copy()\n    out[\"temp\"] = out[\"temp\"].fillna(out.groupby(\"station\")[\"temp\"].transform(\"mean\"))\n    out[\"humidity\"] = out[\"humidity\"].fillna(out[\"humidity\"].median())\n    out[\"feels_like\"] = out[\"temp\"] + (out[\"humidity\"] - 50) * 0.05\n    return out\n\n\nclean_df = clean(df)\nprint(f\"Eksik değer: {int(df.isna().sum().sum())} -> {int(clean_df.isna().sum().sum())}\")\n\nimport json\n\n\ndef handle(request_text, data):\n    try:\n        req = json.loads(request_text)\n    except json.JSONDecodeError:\n        return json.dumps({\"status\": 400, \"error\": \"geçersiz JSON\"})\n    if not isinstance(req, dict) or \"path\" not in req:\n        return json.dumps({\"status\": 400, \"error\": \"path eksik\"})\n    path = req[\"path\"]\n    if path == \"/stations\":\n        body = {\"status\": 200, \"data\": sorted(data[\"station\"].unique().tolist())}\n    elif path == \"/hottest\":\n        body = {\"status\": 200, \"data\": str(hottest_day(data))}\n    elif path.startswith(\"/stations/\"):\n        name = path.split(\"/\")[2]\n        summary = station_summary(data)\n        if name not in summary.index:\n            body = {\"status\": 404, \"error\": \"istasyon yok\"}\n        else:\n            body = {\"status\": 200, \"data\": {\n                \"station\": name,\n                \"mean\": float(summary.loc[name, \"mean\"]),\n                \"max\": float(summary.loc[name, \"max\"]),\n                \"count\": int((data[\"station\"] == name).sum()),\n            }}\n    else:\n        body = {\"status\": 404, \"error\": \"yol yok\"}\n    return json.dumps(body)\n\n\nprint(handle('{\"path\": \"/stations/A\"}', clean_df))\n",
+        "approach_tr": "API'nin çekirdeği: metni `json.loads` ile aç, yola göre dallan, sözlüğü `json.dumps` ile geri metne çevir. Hataları (`400`/`404`) ayrı durum kodlarıyla bildirmek, istemcinin neyin yanlış gittiğini anlamasını sağlar."
+      }
+    }
+  ]
+}

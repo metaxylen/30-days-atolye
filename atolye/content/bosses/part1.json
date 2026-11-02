@@ -1,0 +1,243 @@
+{
+  "part": 1,
+  "title_tr": "Kafenin Kasası Çöktü",
+  "story_tr": "Kafe Lale'nin kasa programı bu sabah çöktü ve müşteriler kuyrukta bekliyor. Elinde yalnızca günün adisyon listesi ve fiyat etiketleri var.\nDeğişkenler, işlemler, metinler, listeler, demetler ve kümelerle kasayı sıfırdan ayağa kaldır: ara toplam, KDV, hesap bölüşme, fiş başlığı ve depo kontrolü.",
+  "reward_xp": 300,
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string __stdout__; the learner source is __source__. Boss stages are cumulative: each stage's starter_code is the previous stage's solution plus a comment marking where to add. Tests may call the learner's functions with brand-new inputs, may re-run __source__ with some top-level input lines replaced, and may create/remove their own files with open(). Hidden tests (visible:false) carry failure_message and failure_message_tr; tests with anti_hardcode:true fail on code that only prints or assigns the expected values.",
+  "stages": [
+    {
+      "id": "boss1-s1",
+      "title_tr": "Ara toplam",
+      "prompt_tr": "Kafe Lale'nin kasası çöktü ve elinde sadece bir adisyon listesi (`order`) ile fiyat değişkenleri var.\n`order` listesindeki her ürünün kaç kez geçtiğini `count()` ile say, fiyatla çarp, hepsini topla ve sonucu `subtotal` değişkenine ata.\nSonra tam olarak şunu yazdır: `Ara toplam: 150 TL` (sayı senin hesabından gelmeli; 150 yazan satırı elle yazmak yok).",
+      "prompt": "The cafe's till crashed; you only have the ticket list `order` and the price variables.\nCount how many times each product appears in `order` with `count()`, multiply by its price, add everything up and store it in `subtotal`.\nThen print exactly `Ara toplam: 150 TL` (the number must come from your calculation, never typed by hand).",
+      "starter_code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert subtotal == 150",
+          "visible": true,
+          "failure_message": "subtotal should be 150 for the given order.",
+          "failure_message_tr": "Verilen adisyon için subtotal 150 olmalı.",
+          "label_tr": "subtotal 150 TL"
+        },
+        {
+          "code": "assert \"Ara toplam: 150 TL\" in __stdout__.splitlines()",
+          "visible": true,
+          "failure_message": "Print the line Ara toplam: 150 TL.",
+          "failure_message_tr": "Ara toplam: 150 TL satırını yazdırmalısın.",
+          "label_tr": "Ara toplam satırı yazdırılıyor"
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(order=[\"su\", \"su\"])\nassert ns[\"subtotal\"] == 20\nassert \"Ara toplam: 20 TL\" in out.splitlines()",
+          "visible": false,
+          "failure_message": "Your program must work for any order list, not just the given one.",
+          "failure_message_tr": "Programın yalnız bu listeyle değil, her `order` listesiyle çalışmalı."
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(order=[], cay_fiyat=99)\nassert ns[\"subtotal\"] == 0\nns, out = _rerun(order=[\"çay\", \"çay\"], cay_fiyat=20)\nassert ns[\"subtotal\"] == 40",
+          "visible": false,
+          "failure_message": "Use the price variables and an empty order must give 0.",
+          "failure_message_tr": "Fiyat değişkenlerini kullan; boş adisyon 0 vermeli.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\nassert not any(isinstance(n, ast.Constant) and n.value == 150 for n in ast.walk(ast.parse(__source__)))",
+          "visible": false,
+          "failure_message": "Do not type the result (150) into the code.",
+          "failure_message_tr": "Sonucu (150) koda elle yazma; hesapla.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "You need one calculation per product: how many × price.",
+        "How many times does a list contain an item? `list.count(item)`. Four products give four products-of-count-and-price to add.",
+        "`order.count(\"çay\") * cay_fiyat` is the first term; add the other three the same way, then print with an f-string."
+      ],
+      "hints_tr": [
+        "Her ürün için tek bir hesap gerekiyor: kaç tane × fiyatı.",
+        "Bir liste kaç kez bir eleman içeriyor? `liste.count(eleman)` bunu verir. Dört ürün için dört çarpım toplanacak.",
+        "`order.count(\"çay\") * cay_fiyat` ilk parça; diğer üç ürünü de aynı şekilde ekle, sonucu f-string ile yazdır."
+      ],
+      "solution": {
+        "code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n\nsubtotal = (order.count(\"çay\") * cay_fiyat\n            + order.count(\"kahve\") * kahve_fiyat\n            + order.count(\"tost\") * tost_fiyat\n            + order.count(\"su\") * su_fiyat)\nprint(f\"Ara toplam: {subtotal} TL\")\n",
+        "approach_tr": "Her ürünün adedini `count()` ile bul, fiyatla çarp, dört sonucu topla. Girdi satırları değişince sonuç da değişmeli; bu yüzden hiçbir sayı elle yazılmaz."
+      }
+    },
+    {
+      "id": "boss1-s2",
+      "title_tr": "KDV ve hesabı bölüşme",
+      "prompt_tr": "Şimdi hesabı kapatalım. Kodun sonuna şunları ekle:\n- `people = 3` (hesabı bölüşecek kişi sayısı; bu satır tek başına, ayrı bir satırda dursun)\n- `tax`: ara toplamın %10'u (KDV)\n- `total`: ara toplam + KDV\n- `per_person`: toplam / kişi sayısı\n- Üç satır yazdır: `KDV: 15.00 TL`, `Toplam: 165.00 TL`, `Kişi başı: 55.00 TL` (iki ondalık basamakla, f-string içinde `:.2f`).",
+      "prompt": "Now close the bill. Add to the end of your code:\n- `people = 3` (how many people split the bill; keep it alone on its own line)\n- `tax`: 10% of the subtotal\n- `total`: subtotal + tax\n- `per_person`: total / people\n- Print three lines: `KDV: 15.00 TL`, `Toplam: 165.00 TL`, `Kişi başı: 55.00 TL` (two decimals, `:.2f` inside the f-string).",
+      "starter_code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n\nsubtotal = (order.count(\"çay\") * cay_fiyat\n            + order.count(\"kahve\") * kahve_fiyat\n            + order.count(\"tost\") * tost_fiyat\n            + order.count(\"su\") * su_fiyat)\nprint(f\"Ara toplam: {subtotal} TL\")\n\n# --- Aşama 2: KDV ve hesabı bölüşme (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert abs(tax - 15.0) < 1e-9 and abs(total - 165.0) < 1e-9",
+          "visible": true,
+          "failure_message": "tax should be 15.0 and total 165.0.",
+          "failure_message_tr": "tax 15.0, total 165.0 olmalı.",
+          "label_tr": "KDV 15 TL, toplam 165 TL"
+        },
+        {
+          "code": "assert abs(per_person - 55.0) < 1e-9",
+          "visible": true,
+          "failure_message": "per_person should be 55.0.",
+          "failure_message_tr": "per_person 55.0 olmalı.",
+          "label_tr": "Kişi başı 55 TL"
+        },
+        {
+          "code": "lines = __stdout__.splitlines()\nassert \"KDV: 15.00 TL\" in lines and \"Toplam: 165.00 TL\" in lines and \"Kişi başı: 55.00 TL\" in lines",
+          "visible": false,
+          "failure_message": "Print the three lines with two decimals.",
+          "failure_message_tr": "Üç satırı iki ondalıkla yazdırmalısın."
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(people=5)\nassert abs(ns[\"per_person\"] - 33.0) < 1e-9\nassert \"Kişi başı: 33.00 TL\" in out.splitlines()",
+          "visible": false,
+          "failure_message": "per_person must follow the people variable.",
+          "failure_message_tr": "per_person, people değişkenine bağlı olmalı."
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(order=[\"su\", \"su\"], people=4)\nassert abs(ns[\"total\"] - 22.0) < 1e-9\nassert \"Toplam: 22.00 TL\" in out.splitlines()\nassert \"Kişi başı: 5.50 TL\" in out.splitlines()",
+          "visible": false,
+          "failure_message": "Everything must be computed from the order, not typed in.",
+          "failure_message_tr": "Her değer adisyondan hesaplanmalı, elle yazılmamalı.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\nassert not any(isinstance(n, ast.Constant) and n.value == 165 for n in ast.walk(ast.parse(__source__)))",
+          "visible": false,
+          "failure_message": "Do not type the total (165) into the code.",
+          "failure_message_tr": "Toplamı (165) koda elle yazma.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Tax is ten percent of the subtotal: which number do you multiply by to get 10%?",
+        "Order matters: first `tax`, then `total` (subtotal + tax), then `per_person` (total / people).",
+        "`{variable:.2f}` prints two decimals. Three print lines, three variables."
+      ],
+      "hints_tr": [
+        "KDV, ara toplamın yüzde on'u: ara toplamı hangi sayıyla çarparsan %10 bulursun?",
+        "Sıra önemli: önce `tax`, sonra `total` (ara toplam + tax), sonra `per_person` (total / people).",
+        "Yazdırırken `{değişken:.2f}` iki ondalık basamak verir. Üç print satırı, üç değişken."
+      ],
+      "solution": {
+        "code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n\nsubtotal = (order.count(\"çay\") * cay_fiyat\n            + order.count(\"kahve\") * kahve_fiyat\n            + order.count(\"tost\") * tost_fiyat\n            + order.count(\"su\") * su_fiyat)\nprint(f\"Ara toplam: {subtotal} TL\")\n\npeople = 3\ntax = subtotal * 0.10\ntotal = subtotal + tax\nper_person = total / people\nprint(f\"KDV: {tax:.2f} TL\")\nprint(f\"Toplam: {total:.2f} TL\")\nprint(f\"Kişi başı: {per_person:.2f} TL\")\n",
+        "approach_tr": "Önce KDV'yi, sonra toplamı, sonra kişi başı payı hesapla. `/` ondalıklı bölme yapar; `:.2f` yalnızca gösterimi biçimlendirir, sayıyı değiştirmez."
+      }
+    },
+    {
+      "id": "boss1-s3",
+      "title_tr": "Fiş başlığı ve sipariş metni",
+      "prompt_tr": "Fişi güzelleştirelim. Kodun sonuna ekle:\n- `cafe_name = \"  kafe lale  \"` (ayrı satırda dursun)\n- `header`: `cafe_name`'in baştaki/sondaki boşlukları temizlenmiş, Her Kelimenin İlk Harfi Büyük hali, 24 karakter genişliğe `*` ile ortalanmış (`center`)\n- `order_text`: `order` içindeki ürünleri `\", \"` ile birleştiren metin\n- `receipt_no`: `\"FIS-\"` + ürün sayısının 4 haneye sıfırla doldurulmuş hali (6 ürün için `FIS-0006`)\n- Sırayla yazdır: `header`, 24 tane `-`, `Sipariş: ` + `order_text`, `receipt_no`.",
+      "prompt": "Make the receipt pretty. Add to the end:\n- `cafe_name = \"  kafe lale  \"` (on its own line)\n- `header`: `cafe_name` stripped, in Title Case, centered to width 24 with `*` (`center`)\n- `order_text`: the items of `order` joined with `\", \"`\n- `receipt_no`: `\"FIS-\"` + the number of items zero-padded to 4 digits (`FIS-0006` for 6 items)\n- Print in order: `header`, 24 `-` characters, `Sipariş: ` + `order_text`, `receipt_no`.",
+      "starter_code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n\nsubtotal = (order.count(\"çay\") * cay_fiyat\n            + order.count(\"kahve\") * kahve_fiyat\n            + order.count(\"tost\") * tost_fiyat\n            + order.count(\"su\") * su_fiyat)\nprint(f\"Ara toplam: {subtotal} TL\")\n\npeople = 3\ntax = subtotal * 0.10\ntotal = subtotal + tax\nper_person = total / people\nprint(f\"KDV: {tax:.2f} TL\")\nprint(f\"Toplam: {total:.2f} TL\")\nprint(f\"Kişi başı: {per_person:.2f} TL\")\n\n# --- Aşama 3: Fiş başlığı ve sipariş metni (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert header == \"Kafe Lale\".center(24, \"*\")",
+          "visible": true,
+          "failure_message": "header should be 'Kafe Lale' centered with * to width 24.",
+          "failure_message_tr": "header, 24 genişlikte `*` ile ortalanmış 'Kafe Lale' olmalı.",
+          "label_tr": "Başlık ortalanmış"
+        },
+        {
+          "code": "assert order_text == \"çay, tost, çay, su, kahve, çay\" and receipt_no == \"FIS-0006\"",
+          "visible": true,
+          "failure_message": "order_text or receipt_no is wrong.",
+          "failure_message_tr": "order_text ya da receipt_no yanlış.",
+          "label_tr": "Sipariş metni ve fiş no"
+        },
+        {
+          "code": "lines = __stdout__.splitlines()\nassert header in lines\nassert lines[lines.index(header) + 1] == \"-\" * 24\nassert \"Sipariş: çay, tost, çay, su, kahve, çay\" in lines\nassert lines[-1] == \"FIS-0006\"",
+          "visible": false,
+          "failure_message": "Print header, the dashes, the order line and the receipt number in that order (receipt number last).",
+          "failure_message_tr": "Sırayla başlık, çizgi, sipariş satırı ve fiş no yazdırılmalı (fiş no en sonda)."
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(cafe_name=\" cafe MAVI \", order=[\"su\", \"çay\"])\nassert ns[\"header\"] == \"Cafe Mavi\".center(24, \"*\")\nassert ns[\"order_text\"] == \"su, çay\"\nassert ns[\"receipt_no\"] == \"FIS-0002\"\nassert out.splitlines()[-1] == \"FIS-0002\"",
+          "visible": false,
+          "failure_message": "The strings must be built from cafe_name and order, not typed in.",
+          "failure_message_tr": "Metinler cafe_name ve order'dan üretilmeli, elle yazılmamalı.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(order=[\"su\"] * 12)\nassert ns[\"receipt_no\"] == \"FIS-0012\"",
+          "visible": false,
+          "failure_message": "receipt_no must zero-pad the item count to 4 digits.",
+          "failure_message_tr": "receipt_no, ürün sayısını 4 haneye sıfırla doldurmalı.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "String methods chain: each returns a new string that the next method works on.",
+        "Think in order: strip the spaces (`strip`), capitalise words (`title`), then center (`center`, 2nd argument is the fill character).",
+        "Joining uses `\", \".join(list)`, zero padding uses `str(number).zfill(4)`."
+      ],
+      "hints_tr": [
+        "Metin metotlarını zincirleyebilirsin: her metot yeni bir metin döndürür ve sonraki metot onun üzerinde çalışır.",
+        "Sırayla düşün: boşlukları kes (`strip`), baş harfleri büyüt (`title`), ortala (`center`, ikinci argüman dolgu karakteri).",
+        "Birleştirmek için `\", \".join(liste)`, sıfır doldurmak için `str(sayı).zfill(4)` kullanılır."
+      ],
+      "solution": {
+        "code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n\nsubtotal = (order.count(\"çay\") * cay_fiyat\n            + order.count(\"kahve\") * kahve_fiyat\n            + order.count(\"tost\") * tost_fiyat\n            + order.count(\"su\") * su_fiyat)\nprint(f\"Ara toplam: {subtotal} TL\")\n\npeople = 3\ntax = subtotal * 0.10\ntotal = subtotal + tax\nper_person = total / people\nprint(f\"KDV: {tax:.2f} TL\")\nprint(f\"Toplam: {total:.2f} TL\")\nprint(f\"Kişi başı: {per_person:.2f} TL\")\n\ncafe_name = \"  kafe lale  \"\nheader = cafe_name.strip().title().center(24, \"*\")\norder_text = \", \".join(order)\nreceipt_no = \"FIS-\" + str(len(order)).zfill(4)\nprint(header)\nprint(\"-\" * 24)\nprint(\"Sipariş: \" + order_text)\nprint(receipt_no)\n",
+        "approach_tr": "Metin metotları zincirlenir: `strip().title().center(24, \"*\")`. Liste -> metin için `join`, sayı -> dolgulu metin için `str(...).zfill(4)`."
+      }
+    },
+    {
+      "id": "boss1-s4",
+      "title_tr": "Kümeler ve özet demeti",
+      "prompt_tr": "Son olarak depo kontrolü. Kodun sonuna ekle:\n- `menu = {\"çay\", \"kahve\", \"tost\", \"su\", \"simit\"}` (bir küme)\n- `unique`: `order` içindeki farklı ürünler (küme)\n- `never_ordered`: menüde olup hiç sipariş edilmeyenler (küme farkı)\n- `unknown`: siparişte olup menüde olmayanlar\n- `summary`: `(ürün sayısı, farklı ürün sayısı, total)` demeti; ardından `n_items, n_kinds, grand_total = summary` ile aç\n- Yazdır: `Satılmayan: ['simit']` (sıralı liste) ve `Özet: 6 ürün, 4 çeşit, 165.00 TL`.",
+      "prompt": "Finally, a stock check. Add to the end:\n- `menu = {\"çay\", \"kahve\", \"tost\", \"su\", \"simit\"}` (a set)\n- `unique`: the distinct items in `order` (a set)\n- `never_ordered`: on the menu but never ordered (set difference)\n- `unknown`: ordered but not on the menu\n- `summary`: the tuple `(item count, distinct count, total)`, then unpack with `n_items, n_kinds, grand_total = summary`\n- Print: `Satılmayan: ['simit']` (a sorted list) and `Özet: 6 ürün, 4 çeşit, 165.00 TL`.",
+      "starter_code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n\nsubtotal = (order.count(\"çay\") * cay_fiyat\n            + order.count(\"kahve\") * kahve_fiyat\n            + order.count(\"tost\") * tost_fiyat\n            + order.count(\"su\") * su_fiyat)\nprint(f\"Ara toplam: {subtotal} TL\")\n\npeople = 3\ntax = subtotal * 0.10\ntotal = subtotal + tax\nper_person = total / people\nprint(f\"KDV: {tax:.2f} TL\")\nprint(f\"Toplam: {total:.2f} TL\")\nprint(f\"Kişi başı: {per_person:.2f} TL\")\n\ncafe_name = \"  kafe lale  \"\nheader = cafe_name.strip().title().center(24, \"*\")\norder_text = \", \".join(order)\nreceipt_no = \"FIS-\" + str(len(order)).zfill(4)\nprint(header)\nprint(\"-\" * 24)\nprint(\"Sipariş: \" + order_text)\nprint(receipt_no)\n\n# --- Aşama 4: Kümeler ve özet demeti (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert never_ordered == {\"simit\"} and unknown == set()",
+          "visible": true,
+          "failure_message": "never_ordered should be {'simit'} and unknown empty.",
+          "failure_message_tr": "never_ordered {'simit'}, unknown boş küme olmalı.",
+          "label_tr": "Küme farkları doğru"
+        },
+        {
+          "code": "assert isinstance(summary, tuple) and summary[:2] == (6, 4) and abs(summary[2] - 165.0) < 1e-9",
+          "visible": true,
+          "failure_message": "summary should be the tuple (6, 4, 165.0).",
+          "failure_message_tr": "summary demeti (6, 4, 165.0) olmalı.",
+          "label_tr": "Özet demeti"
+        },
+        {
+          "code": "lines = __stdout__.splitlines()\nassert \"Satılmayan: ['simit']\" in lines\nassert \"Özet: 6 ürün, 4 çeşit, 165.00 TL\" in lines",
+          "visible": false,
+          "failure_message": "Print the two summary lines.",
+          "failure_message_tr": "İki özet satırını yazdırmalısın."
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(order=[\"pasta\", \"su\", \"su\"])\nassert ns[\"unknown\"] == {\"pasta\"}\nassert ns[\"never_ordered\"] == {\"çay\", \"kahve\", \"tost\", \"simit\"}\nassert ns[\"summary\"][:2] == (3, 2)\nassert \"Satılmayan: ['kahve', 'simit', 'tost', 'çay']\" in out.splitlines()",
+          "visible": false,
+          "failure_message": "Sets must be computed from the order.",
+          "failure_message_tr": "Kümeler siparişten hesaplanmalı.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import re, io, contextlib\ndef _rerun(**over):\n    src = __source__\n    for k, v in over.items():\n        src, n = re.subn(r'(?m)^' + k + r' = .*$', lambda m: k + ' = ' + repr(v), src, count=1)\n        assert n == 1, k + ' satırı bulunamadı / line not found'\n    ns = {'__name__': '__main__'}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, '<rerun>', 'exec'), ns)\n    return ns, buf.getvalue()\nns, out = _rerun(order=[\"çay\", \"kahve\", \"tost\", \"su\", \"simit\"], people=2)\nassert ns[\"never_ordered\"] == set() and ns[\"n_kinds\"] == 5\nassert \"Satılmayan: []\" in out.splitlines()",
+          "visible": false,
+          "failure_message": "A full order leaves nothing unsold.",
+          "failure_message_tr": "Her ürün sipariş edilirse satılmayan kalmamalı.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Converting a list to a set drops duplicates: `set(order)`.",
+        "Set difference uses `-`: `a - b` means in a but not in b. Think about both directions.",
+        "A tuple is built with parentheses and unpacked with `a, b, c = tup`. Use `sorted(...)` when printing the unsold items."
+      ],
+      "hints_tr": [
+        "Liste → küme dönüşümü kopyaları atar: `set(order)`.",
+        "İki kümenin farkı `-` ile bulunur: `a - b`, a'da olup b'de olmayanlar demektir. İki yönü de düşün.",
+        "Demet normal parantezle kurulur ve `a, b, c = demet` ile açılır. Satılmayanları yazdırırken `sorted(...)` kullan."
+      ],
+      "solution": {
+        "code": "# Kafe Lale - fiyat listesi (TL). Bu satırlara dokunma, test bunları değiştirerek de deneyecek.\ncay_fiyat = 15\nkahve_fiyat = 40\ntost_fiyat = 55\nsu_fiyat = 10\norder = [\"çay\", \"tost\", \"çay\", \"su\", \"kahve\", \"çay\"]\n\n# --- Aşama 1: Ara toplam (buraya ekle) ---\n\nsubtotal = (order.count(\"çay\") * cay_fiyat\n            + order.count(\"kahve\") * kahve_fiyat\n            + order.count(\"tost\") * tost_fiyat\n            + order.count(\"su\") * su_fiyat)\nprint(f\"Ara toplam: {subtotal} TL\")\n\npeople = 3\ntax = subtotal * 0.10\ntotal = subtotal + tax\nper_person = total / people\nprint(f\"KDV: {tax:.2f} TL\")\nprint(f\"Toplam: {total:.2f} TL\")\nprint(f\"Kişi başı: {per_person:.2f} TL\")\n\ncafe_name = \"  kafe lale  \"\nheader = cafe_name.strip().title().center(24, \"*\")\norder_text = \", \".join(order)\nreceipt_no = \"FIS-\" + str(len(order)).zfill(4)\nprint(header)\nprint(\"-\" * 24)\nprint(\"Sipariş: \" + order_text)\nprint(receipt_no)\n\nmenu = {\"çay\", \"kahve\", \"tost\", \"su\", \"simit\"}\nunique = set(order)\nnever_ordered = menu - unique\nunknown = unique - menu\nsummary = (len(order), len(unique), total)\nn_items, n_kinds, grand_total = summary\nprint(f\"Satılmayan: {sorted(never_ordered)}\")\nprint(f\"Özet: {n_items} ürün, {n_kinds} çeşit, {grand_total:.2f} TL\")\n",
+        "approach_tr": "`set(order)` farklı ürünleri verir; menü kümesiyle iki yönlü fark alınır. Üç değeri bir demette topla ve tek satırda aç."
+      }
+    }
+  ]
+}

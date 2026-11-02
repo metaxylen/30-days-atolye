@@ -1,0 +1,659 @@
+{
+ "day": 22,
+ "title": "Web Scraping",
+ "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+ "blocks": [
+  {
+   "id": "d22-b1",
+   "concept": "response-status",
+   "tags": [
+    "web-scraping",
+    "http",
+    "status-codes"
+   ],
+   "worked_example": {
+    "code": "class FakeResponse:\n    def __init__(self, status_code, content):\n        self.status_code = status_code\n        self.content = content\n\nresponse = FakeResponse(200, '<html></html>')\nprint(response.status_code == 200)",
+    "notes": [
+     "requests.get() returns a response object with status_code and content. FakeResponse imitates it so we can practise offline.",
+     "Status 200 means the fetch worked."
+    ],
+    "notes_tr": [
+     "requests.get() bir yanıt nesnesi döndürür; içinde status_code ve content vardır. FakeResponse onu taklit eder, böylece internetsiz çalışabiliriz.",
+     "200 durum kodu, sayfanın başarıyla alındığı anlamına gelir."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d22-b1-e1",
+     "type": "predict",
+     "concept": "response-status",
+     "tags": [
+      "web-scraping",
+      "http",
+      "status-codes"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "class FakeResponse:\n    def __init__(self, status_code, content):\n        self.status_code = status_code\n        self.content = content\n\nr1 = FakeResponse(200, '<h1>Hi</h1>')\nr2 = FakeResponse(404, '')\nfor r in [r1, r2]:\n    if r.status_code == 200:\n        print('ok', len(r.content))\n    else:\n        print('failed', r.status_code)",
+     "choices": [
+      "ok 11\nfailed 404",
+      "ok 11\nok 0",
+      "failed 404\nok 11",
+      "ok 11"
+     ],
+     "expected_output": "ok 11\nfailed 404",
+     "explanation": "'<h1>Hi</h1>' has 11 characters. The second response has status 404, so the else branch prints failed 404.",
+     "misconceptions": {
+      "ok 11\nok 0": "Only status 200 counts as success; 404 goes to the else branch.",
+      "failed 404\nok 11": "The loop goes through r1 first, then r2.",
+      "ok 11": "The loop runs for both responses and the else branch prints for r2."
+     },
+     "explanation_tr": "'<h1>Hi</h1>' 11 karakterdir. İkinci yanıtın durumu 404 olduğu için else dalı çalışır ve failed 404 yazdırır.",
+     "misconceptions_tr": {
+      "ok 11\nok 0": "Yalnızca 200 durumu başarı sayılır; 404 else dalına gider.",
+      "failed 404\nok 11": "Döngü önce r1'i, sonra r2'yi dolaşır.",
+      "ok 11": "Döngü iki yanıt için de çalışır ve r2 için else dalı yazdırır."
+     }
+    },
+    {
+     "id": "d22-b1-e2",
+     "type": "fill_blank",
+     "concept": "response-status",
+     "tags": [
+      "web-scraping",
+      "http",
+      "status-codes"
+     ],
+     "prompt": "Complete page_text: return the content only when the status code is 200, otherwise None.",
+     "prompt_tr": "page_text fonksiyonunu tamamla: durum kodu 200 ise içeriği döndür, değilse None döndür.",
+     "starter_code": "class FakeResponse:\n    def __init__(self, status_code, content):\n        self.status_code = status_code\n        self.content = content\n\ndef page_text(response):\n    if response.status_code ___ 200:\n        return response.___\n    return None",
+     "blanks": [
+      {
+       "answer": [
+        "=="
+       ]
+      },
+      {
+       "answer": [
+        "content"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert page_text(FakeResponse(200, '<p>x</p>')) == '<p>x</p>'",
+       "visible": true,
+       "label_tr": "200 durumunda içerik döndürülüyor"
+      },
+      {
+       "code": "assert page_text(FakeResponse(404, 'not found')) is None",
+       "visible": true,
+       "label_tr": "404 durumunda None döndürülüyor"
+      }
+     ]
+    },
+    {
+     "id": "d22-b1-e3",
+     "type": "write",
+     "concept": "response-status",
+     "tags": [
+      "web-scraping",
+      "http",
+      "status-codes"
+     ],
+     "prompt": "Write status_label(code). It returns 'success' for 200, 'not found' for 404, 'server error' for 500 and 'unknown' for any other code.",
+     "prompt_tr": "status_label(code) yaz. 200 için 'success', 404 için 'not found', 500 için 'server error', diğer tüm kodlar için 'unknown' döndürsün.",
+     "starter_code": "",
+     "signature": "def status_label(code):",
+     "tests": [
+      {
+       "code": "assert status_label(200) == 'success'",
+       "visible": true,
+       "label_tr": "200 için 'success'"
+      },
+      {
+       "code": "assert status_label(404) == 'not found'",
+       "visible": true,
+       "label_tr": "404 için 'not found'"
+      },
+      {
+       "code": "assert status_label(500) == 'server error'",
+       "visible": false,
+       "failure_message": "500 must return 'server error'.",
+       "failure_message_tr": "500 için 'server error' döndürmelisin."
+      },
+      {
+       "code": "assert status_label(302) == 'unknown' and status_label(0) == 'unknown'",
+       "visible": false,
+       "failure_message": "Any code that is not 200, 404 or 500 must return 'unknown'.",
+       "failure_message_tr": "200, 404 ve 500 dışındaki her kod 'unknown' döndürmeli."
+      }
+     ],
+     "hints": [
+      "Think of three special cases and one default.",
+      "Use if / elif for 200, 404, 500 and a final return for everything else; or a dict with .get().",
+      "Last step: put the three code-to-text pairs in a dict and return labels.get(code, ___) so unknown codes get the default."
+     ],
+     "solution": {
+      "approach": "A dict lookup with a default value keeps the mapping in one place.",
+      "code": "def status_label(code):\n    labels = {200: 'success', 404: 'not found', 500: 'server error'}\n    return labels.get(code, 'unknown')",
+      "approach_tr": "Varsayılan değerli bir dict araması, eşlemeyi tek yerde tutar."
+     },
+     "twin": "d22-b1-e4",
+     "hints_tr": [
+      "Üç özel durum ve bir varsayılan durum düşün.",
+      "200, 404, 500 için if / elif kullan, geri kalan her şey için son bir return yaz; ya da .get() ile bir dict kullan.",
+      "Son adım: üç kod-metin çiftini bir dict'e koy ve labels.get(code, ___) döndür; böylece bilinmeyen kodlar varsayılanı alır."
+     ]
+    },
+    {
+     "id": "d22-b1-e4",
+     "type": "write",
+     "concept": "response-status",
+     "tags": [
+      "web-scraping",
+      "http",
+      "status-codes"
+     ],
+     "prompt": "Write status_line(code). It returns 'HTTP 200 OK', 'HTTP 404 Not Found' or 'HTTP 500 Server Error' for those codes, and 'HTTP <code>' (for example 'HTTP 302') for any other code.",
+     "prompt_tr": "status_line(code) yaz. 200, 404, 500 için sırasıyla 'HTTP 200 OK', 'HTTP 404 Not Found', 'HTTP 500 Server Error' döndürsün; diğer kodlarda 'HTTP <kod>' döndürsün (örneğin 'HTTP 302').",
+     "starter_code": "",
+     "signature": "def status_line(code):",
+     "tests": [
+      {
+       "code": "assert status_line(200) == 'HTTP 200 OK'",
+       "visible": true,
+       "label_tr": "200 için 'HTTP 200 OK'"
+      },
+      {
+       "code": "assert status_line(404) == 'HTTP 404 Not Found'",
+       "visible": true,
+       "label_tr": "404 için 'HTTP 404 Not Found'"
+      },
+      {
+       "code": "assert status_line(500) == 'HTTP 500 Server Error'",
+       "visible": false,
+       "failure_message": "500 must return 'HTTP 500 Server Error'.",
+       "failure_message_tr": "500 için 'HTTP 500 Server Error' döndürmelisin."
+      },
+      {
+       "code": "assert status_line(302) == 'HTTP 302' and status_line(418) == 'HTTP 418'",
+       "visible": false,
+       "failure_message": "For other codes return 'HTTP ' followed by the number (use an f-string).",
+       "failure_message_tr": "Diğer kodlarda 'HTTP ' ve ardından numarayı döndür (f-string kullan)."
+      }
+     ],
+     "hints": [
+      "Three known codes with a text each, and a default that contains the number.",
+      "A dict maps code to the reason text; the default can be built with an f-string.",
+      "Last step: if code is a key of your dict, return an f-string with the code and the reason; otherwise return f'HTTP {___}'."
+     ],
+     "solution": {
+      "approach": "Look the reason up in a dict; fall back to just the number.",
+      "code": "def status_line(code):\n    reasons = {200: 'OK', 404: 'Not Found', 500: 'Server Error'}\n    if code in reasons:\n        return f'HTTP {code} {reasons[code]}'\n    return f'HTTP {code}'",
+      "approach_tr": "Nedeni bir dict'ten ara; bulunamazsa yalnızca numarayı döndür."
+     },
+     "twin": "d22-b1-e3",
+     "hints_tr": [
+      "Metni olan üç bilinen kod ve numarayı içeren bir varsayılan durum var.",
+      "Bir dict kodu neden metnine eşler; varsayılan metin bir f-string ile kurulabilir.",
+      "Son adım: code dict'in anahtarıysa kod ve nedeni içeren bir f-string döndür; değilse f'HTTP {___}' döndür."
+     ]
+    }
+   ],
+   "concept_tr": "HTTP yanıt durumu (status code)"
+  },
+  {
+   "id": "d22-b2",
+   "concept": "html-tag-extraction",
+   "tags": [
+    "web-scraping",
+    "html",
+    "regex"
+   ],
+   "worked_example": {
+    "code": "import re\nhtml = '<title>UCI Data Sets</title>'\nmatch = re.search(r'<title>(.*?)</title>', html)\nprint(match.group(1))",
+    "notes": [
+     "The part inside ( ) is the group we want to extract.",
+     ".*? is non-greedy: it stops at the first closing tag."
+    ],
+    "notes_tr": [
+     "Parantez ( ) içindeki kısım, çıkarmak istediğimiz gruptur.",
+     ".*? açgözlü olmayan (non-greedy) kalıptır: ilk kapanış etiketinde durur."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d22-b2-e1",
+     "type": "predict",
+     "concept": "html-tag-extraction",
+     "tags": [
+      "web-scraping",
+      "html",
+      "regex"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import re\nhtml = '<a href=\"/a\">One</a> <a href=\"/b\">Two</a>'\nprint(re.findall(r'href=\"(.*?)\"', html))",
+     "choices": [
+      "['/a', '/b']",
+      "['One', 'Two']",
+      "['href=\"/a\"', 'href=\"/b\"']",
+      "['/a\">One</a> <a href=\"/b']"
+     ],
+     "expected_output": "['/a', '/b']",
+     "explanation": "findall returns what the group matched: the text between the quotes after href=. There are two links, so two items.",
+     "misconceptions": {
+      "['One', 'Two']": "The pattern captures the value of href, not the link text between the tags.",
+      "['href=\"/a\"', 'href=\"/b\"']": "Only the parentheses are returned, so 'href=' and the quotes are not part of the result.",
+      "['/a\">One</a> <a href=\"/b']": "That is what a greedy .* would do. With .*? each match stops at the first closing quote."
+     },
+     "explanation_tr": "findall grubun yakaladığını döndürür: href= sonrasında tırnaklar arasındaki metin. İki bağlantı olduğu için iki öğe çıkar.",
+     "misconceptions_tr": {
+      "['One', 'Two']": "Desen href değerini yakalar, etiketler arasındaki bağlantı metnini değil.",
+      "['href=\"/a\"', 'href=\"/b\"']": "Yalnızca parantez içi döndürülür; 'href=' ve tırnaklar sonuca girmez.",
+      "['/a\">One</a> <a href=\"/b']": "Bunu açgözlü (greedy) .* yapardı. .*? ile her eşleşme ilk kapanış tırnağında durur."
+     }
+    },
+    {
+     "id": "d22-b2-e2",
+     "type": "fill_blank",
+     "concept": "html-tag-extraction",
+     "tags": [
+      "web-scraping",
+      "html",
+      "regex"
+     ],
+     "prompt": "Complete the pattern so heading holds the text inside <h1>.",
+     "prompt_tr": "Deseni tamamla: heading değişkeni <h1> içindeki metni tutsun.",
+     "starter_code": "import re\nhtml = '<h1>Boston University</h1>'\nheading = re.search(r'<h1>(.___)</h1>', html).group(___)",
+     "blanks": [
+      {
+       "answer": [
+        "*?"
+       ]
+      },
+      {
+       "answer": [
+        "1"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert heading == 'Boston University'",
+       "visible": true,
+       "label_tr": "heading doğru metni tutuyor"
+      }
+     ]
+    },
+    {
+     "id": "d22-b2-e3",
+     "type": "write",
+     "concept": "html-tag-extraction",
+     "tags": [
+      "web-scraping",
+      "html",
+      "regex"
+     ],
+     "prompt": "Write get_title(html). It returns the text inside the first <title>...</title>, or None when the page has no title.",
+     "prompt_tr": "get_title(html) yaz. İlk <title>...</title> içindeki metni döndürsün; sayfada başlık yoksa None döndürsün.",
+     "starter_code": "",
+     "signature": "def get_title(html):",
+     "tests": [
+      {
+       "code": "assert get_title('<html><head><title>UCI Data Sets</title></head></html>') == 'UCI Data Sets'",
+       "visible": true,
+       "label_tr": "Başlık doğru çıkarılıyor"
+      },
+      {
+       "code": "assert get_title('<title>A &amp; B</title>') == 'A &amp; B'",
+       "visible": true,
+       "label_tr": "Özel karakterli başlık olduğu gibi döndürülüyor"
+      },
+      {
+       "code": "assert get_title('<html><body>No title</body></html>') is None",
+       "visible": false,
+       "failure_message": "Return None when there is no <title> tag (check the result of re.search before calling group).",
+       "failure_message_tr": "<title> yoksa None döndür (group'u çağırmadan önce re.search sonucunu kontrol et)."
+      },
+      {
+       "code": "assert get_title('<title>One</title><title>Two</title>') == 'One'",
+       "visible": false,
+       "failure_message": "Use a non-greedy pattern (.*?) so you stop at the first closing tag.",
+       "failure_message_tr": "İlk kapanış etiketinde durmak için açgözlü olmayan desen (.*?) kullan."
+      }
+     ],
+     "hints": [
+      "re.search returns None when nothing matches.",
+      "Pattern: r'<title>(.*?)</title>'. Call .group(1) only if the match exists.",
+      "Last step: store the re.search result in m, then return m.group(___) when m is not None, otherwise None."
+     ],
+     "solution": {
+      "approach": "Search with a non-greedy group and guard against no match.",
+      "code": "import re\n\ndef get_title(html):\n    m = re.search(r'<title>(.*?)</title>', html)\n    return m.group(1) if m else None",
+      "approach_tr": "Açgözlü olmayan bir grupla ara ve eşleşme yoksa durumu kontrol et."
+     },
+     "twin": "d22-b2-e4",
+     "hints_tr": [
+      "re.search hiçbir şey eşleşmezse None döndürür.",
+      "Desen: r'<title>(.*?)</title>'. .group(1)'i yalnızca eşleşme varsa çağır.",
+      "Son adım: re.search sonucunu m'ye ata; m None değilse m.group(___) döndür, değilse None döndür."
+     ]
+    },
+    {
+     "id": "d22-b2-e4",
+     "type": "write",
+     "concept": "html-tag-extraction",
+     "tags": [
+      "web-scraping",
+      "html",
+      "regex"
+     ],
+     "prompt": "Write get_links(html). It returns a list with the value of every href=\"...\" in the page, in order (an empty list if there are none).",
+     "prompt_tr": "get_links(html) yaz. Sayfadaki her href=\"...\" değerini sırayla içeren bir liste döndürsün (hiç yoksa boş liste).",
+     "starter_code": "",
+     "signature": "def get_links(html):",
+     "tests": [
+      {
+       "code": "assert get_links('<a href=\"/home\">Home</a><a href=\"/about\">About</a>') == ['/home', '/about']",
+       "visible": true,
+       "label_tr": "İki bağlantı sırayla bulunuyor"
+      },
+      {
+       "code": "assert get_links('<p>no links</p>') == []",
+       "visible": true,
+       "label_tr": "Bağlantı yoksa boş liste"
+      },
+      {
+       "code": "assert get_links('<a class=\"nav\" href=\"https://example.com\">x</a>') == ['https://example.com']",
+       "visible": false,
+       "failure_message": "href may come after other attributes; search for href=\"...\" anywhere inside the tag.",
+       "failure_message_tr": "href başka özelliklerden sonra da gelebilir; etiketin içinde her yerde href=\"...\" ara."
+      },
+      {
+       "code": "assert get_links('<a href=\"/a\">1</a> <a href=\"/b\">2</a> <a href=\"/c\">3</a>') == ['/a', '/b', '/c']",
+       "visible": false,
+       "failure_message": "Use re.findall with a non-greedy group so every link is returned separately.",
+       "failure_message_tr": "Her bağlantı ayrı dönsün diye açgözlü olmayan gruplu re.findall kullan."
+      }
+     ],
+     "hints": [
+      "You want all matches, not just the first.",
+      "re.findall(r'href=\"(.*?)\"', html) returns the group for every match.",
+      "Last step: return the result of re.findall with your pattern and the html argument."
+     ],
+     "solution": {
+      "approach": "findall with one group returns a list of the captured values.",
+      "code": "import re\n\ndef get_links(html):\n    return re.findall(r'href=\"(.*?)\"', html)",
+      "approach_tr": "Tek gruplu findall, yakalanan değerlerin listesini döndürür."
+     },
+     "twin": "d22-b2-e3",
+     "hints_tr": [
+      "Yalnızca ilkini değil, tüm eşleşmeleri istiyorsun.",
+      "re.findall(r'href=\"(.*?)\"', html) her eşleşmenin grubunu döndürür.",
+      "Son adım: desenin ve html argümanıyla re.findall sonucunu return et."
+     ]
+    },
+    {
+     "id": "d22-b2-e5",
+     "type": "debug",
+     "concept": "html-tag-extraction",
+     "tags": [
+      "web-scraping",
+      "html",
+      "regex"
+     ],
+     "prompt": "This should print ['Finland', 'Sweden', 'UK'] but prints one long string inside the list. Fix the pattern.",
+     "prompt_tr": "Bu kod ['Finland', 'Sweden', 'UK'] yazdırmalı ama listede tek uzun bir metin çıkıyor. Deseni düzelt.",
+     "starter_code": "import re\nhtml = '<td>Finland</td><td>Sweden</td><td>UK</td>'\ncells = re.findall(r'<td>(.*)</td>', html)\nprint(cells)",
+     "hints": [
+      "Print cells: how many items does the list have?",
+      "The .* is greedy: it runs to the LAST </td>. You need the non-greedy version.",
+      "Last step: in the pattern, the group (.*) needs a question mark after the star."
+     ],
+     "solution": {
+      "approach": "A greedy .* swallows as much as possible; .*? stops at the first closing tag.",
+      "code": "import re\nhtml = '<td>Finland</td><td>Sweden</td><td>UK</td>'\ncells = re.findall(r'<td>(.*?)</td>', html)\nprint(cells)",
+      "approach_tr": "Açgözlü .* mümkün olduğunca çok şey yutar; .*? ilk kapanış etiketinde durur."
+     },
+     "expected_output": "['Finland', 'Sweden', 'UK']",
+     "hints_tr": [
+      "cells'i yazdır: listede kaç öğe var?",
+      "Buradaki .* açgözlüdür (greedy): SON </td> etiketine kadar gider. Açgözlü olmayan sürümü gerekiyor.",
+      "Son adım: desendeki (.*) grubunda yıldızdan sonra bir soru işareti gerekiyor."
+     ]
+    }
+   ],
+   "concept_tr": "HTML etiketinden metin çıkarma (regex)"
+  },
+  {
+   "id": "d22-b3",
+   "concept": "table-to-json",
+   "tags": [
+    "web-scraping",
+    "json",
+    "tables"
+   ],
+   "worked_example": {
+    "code": "import re, json\nhtml = '<tr><td>Finland</td><td>Helsinki</td></tr>'\ncells = re.findall(r'<td>(.*?)</td>', html)\nprint(json.dumps({'country': cells[0], 'city': cells[1]}))",
+    "notes": [
+     "A table row is a list of <td> cells; findall gets them all.",
+     "json.dumps turns a dict into JSON text, the format the lesson saves to a file."
+    ],
+    "notes_tr": [
+     "Tablo satırı, <td> hücrelerinin listesidir; findall hepsini toplar.",
+     "json.dumps bir dict'i JSON metnine çevirir; ders bu biçimi dosyaya kaydeder."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d22-b3-e1",
+     "type": "predict",
+     "concept": "table-to-json",
+     "tags": [
+      "web-scraping",
+      "json",
+      "tables"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import json\nrows = [['Finland', 'Helsinki'], ['UK', 'London']]\nrecords = [{'country': r[0], 'city': r[1]} for r in rows]\nprint(json.dumps(records))",
+     "choices": [
+      "[{\"country\": \"Finland\", \"city\": \"Helsinki\"}, {\"country\": \"UK\", \"city\": \"London\"}]",
+      "[{'country': 'Finland', 'city': 'Helsinki'}, {'country': 'UK', 'city': 'London'}]",
+      "{\"country\": \"UK\", \"city\": \"London\"}",
+      "[[\"Finland\", \"Helsinki\"], [\"UK\", \"London\"]]"
+     ],
+     "expected_output": "[{\"country\": \"Finland\", \"city\": \"Helsinki\"}, {\"country\": \"UK\", \"city\": \"London\"}]",
+     "explanation": "The list comprehension builds one dict per row. json.dumps writes valid JSON, which uses double quotes.",
+     "misconceptions": {
+      "[{'country': 'Finland', 'city': 'Helsinki'}, {'country': 'UK', 'city': 'London'}]": "That is what print(records) would show. json.dumps produces JSON text with double quotes.",
+      "{\"country\": \"UK\", \"city\": \"London\"}": "The comprehension keeps every row, not just the last one.",
+      "[[\"Finland\", \"Helsinki\"], [\"UK\", \"London\"]]": "The comprehension turns each row into a dict, so keys like country appear."
+     },
+     "explanation_tr": "Liste kapsamı (list comprehension) her satır için bir dict kurar. json.dumps geçerli JSON yazar ve JSON çift tırnak kullanır.",
+     "misconceptions_tr": {
+      "[{'country': 'Finland', 'city': 'Helsinki'}, {'country': 'UK', 'city': 'London'}]": "Bunu print(records) gösterirdi. json.dumps çift tırnaklı JSON metni üretir.",
+      "{\"country\": \"UK\", \"city\": \"London\"}": "Liste kapsamı yalnızca son satırı değil, her satırı tutar.",
+      "[[\"Finland\", \"Helsinki\"], [\"UK\", \"London\"]]": "Liste kapsamı her satırı bir dict'e çevirir, bu yüzden country gibi anahtarlar görünür."
+     }
+    },
+    {
+     "id": "d22-b3-e2",
+     "type": "parsons",
+     "concept": "table-to-json",
+     "tags": [
+      "web-scraping",
+      "json",
+      "tables"
+     ],
+     "prompt": "Put the lines in order: read the table cells, pair them up and print the result as JSON.",
+     "prompt_tr": "Satırları sırala: tablo hücrelerini oku, ikişer ikişer eşle ve sonucu JSON olarak yazdır.",
+     "lines": [
+      "pairs = [(cells[i], int(cells[i + 1])) for i in range(0, len(cells), 2)]",
+      "import re, json",
+      "print(json.dumps(dict(pairs)))",
+      "html = '<tr><td>Ankara</td><td>5700000</td></tr><tr><td>Izmir</td><td>4400000</td></tr>'",
+      "cells = re.findall(r'<td>(.*?)</td>', html)"
+     ],
+     "correct_order": [
+      1,
+      3,
+      4,
+      0,
+      2
+     ],
+     "distractors": [
+      "cells = re.findall(r'<td>(.*)</td>', html)",
+      "print(dict(pairs))"
+     ],
+     "expected_output": "{\"Ankara\": 5700000, \"Izmir\": 4400000}"
+    },
+    {
+     "id": "d22-b3-e3",
+     "type": "write",
+     "concept": "table-to-json",
+     "tags": [
+      "web-scraping",
+      "json",
+      "tables"
+     ],
+     "prompt": "Write rows_from_table(html). It returns a list of rows; each row is the list of text values of the <td> cells inside one <tr>...</tr>.",
+     "prompt_tr": "rows_from_table(html) yaz. Satırlardan oluşan bir liste döndürsün; her satır, bir <tr>...</tr> içindeki <td> hücrelerinin metin listesi olsun.",
+     "starter_code": "",
+     "signature": "def rows_from_table(html):",
+     "tests": [
+      {
+       "code": "html = '<table><tr><td>Ankara</td><td>5700000</td></tr><tr><td>Izmir</td><td>4400000</td></tr></table>'\nassert rows_from_table(html) == [['Ankara', '5700000'], ['Izmir', '4400000']]",
+       "visible": true,
+       "label_tr": "İki satırlı tablo doğru ayrılıyor"
+      },
+      {
+       "code": "assert rows_from_table('<table></table>') == []",
+       "visible": true,
+       "label_tr": "Boş tablo boş liste veriyor"
+      },
+      {
+       "code": "assert rows_from_table('<tr><td>a</td><td>b</td><td>c</td></tr>') == [['a', 'b', 'c']]",
+       "visible": false,
+       "failure_message": "A row can have more than two cells; return all of them.",
+       "failure_message_tr": "Bir satırda ikiden fazla hücre olabilir; hepsini döndür."
+      },
+      {
+       "code": "assert rows_from_table('<tr><td>x</td></tr><tr><td>y</td></tr><tr><td>z</td></tr>') == [['x'], ['y'], ['z']]",
+       "visible": false,
+       "failure_message": "Return one inner list per <tr>, even when a row has a single cell.",
+       "failure_message_tr": "Satırda tek hücre olsa bile her <tr> için bir iç liste döndür."
+      }
+     ],
+     "hints": [
+      "Two steps: first split into rows, then each row into cells.",
+      "re.findall(r'<tr>(.*?)</tr>', html) gives the rows; then re.findall on each row for the <td> texts.",
+      "Last step: build the list of rows with one findall, then use a list comprehension that calls findall for the cells on each row."
+     ],
+     "solution": {
+      "approach": "Extract rows first, then extract cells inside each row.",
+      "code": "import re\n\ndef rows_from_table(html):\n    rows = re.findall(r'<tr>(.*?)</tr>', html)\n    return [re.findall(r'<td>(.*?)</td>', row) for row in rows]",
+      "approach_tr": "Önce satırları, sonra her satırın içindeki hücreleri çıkar."
+     },
+     "twin": "d22-b3-e4",
+     "hints_tr": [
+      "İki adım: önce satırlara, sonra her satırı hücrelere ayır.",
+      "re.findall(r'<tr>(.*?)</tr>', html) satırları verir; sonra her satırda <td> metinleri için tekrar re.findall kullan.",
+      "Son adım: satır listesini bir findall ile kur, sonra her satır için hücreleri findall ile alan bir liste kapsamı (list comprehension) yaz."
+     ]
+    },
+    {
+     "id": "d22-b3-e4",
+     "type": "write",
+     "concept": "table-to-json",
+     "tags": [
+      "web-scraping",
+      "json",
+      "tables"
+     ],
+     "prompt": "Write column_values(html, index). It returns the text of the <td> cell at position index in every row of the table (an empty list when there are no rows).",
+     "prompt_tr": "column_values(html, index) yaz. Tablodaki her satırda, index konumundaki <td> hücresinin metnini liste olarak döndürsün (satır yoksa boş liste).",
+     "starter_code": "",
+     "signature": "def column_values(html, index):",
+     "tests": [
+      {
+       "code": "html = '<tr><td>Ankara</td><td>5700000</td></tr><tr><td>Izmir</td><td>4400000</td></tr>'\nassert column_values(html, 1) == ['5700000', '4400000']",
+       "visible": true,
+       "label_tr": "İkinci sütun doğru çıkarılıyor"
+      },
+      {
+       "code": "assert column_values('<table></table>', 0) == []",
+       "visible": true,
+       "label_tr": "Boş tablo boş liste veriyor"
+      },
+      {
+       "code": "assert column_values('<tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr>', 0) == ['a', 'c']",
+       "visible": false,
+       "failure_message": "index 0 is the first cell of each row.",
+       "failure_message_tr": "index 0, her satırın ilk hücresidir."
+      },
+      {
+       "code": "assert column_values('<tr><td>x</td><td>y</td><td>z</td></tr>', 2) == ['z']",
+       "visible": false,
+       "failure_message": "Rows can have more than two cells; use the index you were given.",
+       "failure_message_tr": "Satırlarda ikiden fazla hücre olabilir; sana verilen index'i kullan."
+      }
+     ],
+     "hints": [
+      "Reuse the idea from rows_from_table: rows first, cells second.",
+      "For each row, take cells[index] and collect them in a list.",
+      "Last step: loop over the rows and, for each one, take the cell at position index from its findall result."
+     ],
+     "solution": {
+      "approach": "Split into rows, extract cells, and keep only the one at the given index.",
+      "code": "import re\n\ndef column_values(html, index):\n    rows = re.findall(r'<tr>(.*?)</tr>', html)\n    return [re.findall(r'<td>(.*?)</td>', row)[index] for row in rows]",
+      "approach_tr": "Satırlara ayır, hücreleri çıkar ve yalnızca verilen konumdakini tut."
+     },
+     "twin": "d22-b3-e3",
+     "hints_tr": [
+      "rows_from_table'daki fikri yeniden kullan: önce satırlar, sonra hücreler.",
+      "Her satır için cells[index] değerini al ve bir listede topla.",
+      "Son adım: satırlar üzerinde dön ve her birinin findall sonucundan index konumundaki hücreyi al."
+     ]
+    },
+    {
+     "id": "d22-b3-e5",
+     "type": "explain",
+     "concept": "table-to-json",
+     "tags": [
+      "web-scraping",
+      "json",
+      "tables"
+     ],
+     "prompt": "In your own words: why should a scraper check the status code before parsing, and why can it break when the website changes?",
+     "prompt_tr": "Kendi cümlelerinle anlat: bir scraper ayrıştırmadan (parse) önce neden durum kodunu kontrol etmeli ve site değişince neden bozulabilir?",
+     "model_answer": "A status code of 200 tells you the page was fetched successfully; without checking it you might parse an error page as if it were data. A scraper also depends on the structure of the HTML (tags, classes, ids), so when the site changes its layout the pattern no longer matches and the scraper breaks.",
+     "keywords": [
+      "200",
+      "structure",
+      "error"
+     ],
+     "model_answer_tr": "200 durum kodu sayfanın başarıyla alındığını söyler; kontrol etmezsen bir hata sayfasını veriymiş gibi ayrıştırabilirsin. Scraper ayrıca HTML'in yapısına (etiketler, class ve id'ler) bağlıdır; site düzenini değiştirince desen artık eşleşmez ve scraper bozulur.",
+     "keywords_tr": [
+      "200",
+      "yapı",
+      "hata"
+     ],
+     "min_words": 6
+    }
+   ],
+   "concept_tr": "Tablodan JSON'a"
+  }
+ ],
+ "review_pool": [
+  "d22-b1-e1",
+  "d22-b1-e3",
+  "d22-b2-e1",
+  "d22-b2-e3",
+  "d22-b3-e1",
+  "d22-b3-e3"
+ ],
+ "title_tr": "Web Scraping (Web'den Veri Çekme)"
+}

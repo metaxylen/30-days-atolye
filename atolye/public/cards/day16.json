@@ -1,0 +1,243 @@
+{
+  "day": 16,
+  "title_tr": "Tarih ve Saat (datetime)",
+  "title": "Date and Time (datetime)",
+  "est_minutes": 20,
+  "cards": [
+    {
+      "id": "d16-c01",
+      "type": "explain",
+      "section": "Python *datetime*",
+      "title_tr": "datetime modülü",
+      "title": "The datetime module",
+      "body_tr": "Tarih ve saat işleri için `datetime` modülü var. Dört ana parçası: `date`, `datetime`, `time`, `timedelta`. Hepsini sırayla göreceğiz.",
+      "body": "The `datetime` module handles dates and times. Its four main pieces: `date`, `datetime`, `time`, `timedelta`. We will meet each.",
+      "code": "import datetime\n\nprint('date' in dir(datetime), 'timedelta' in dir(datetime))",
+      "expected_output": "True True"
+    },
+    {
+      "id": "d16-c02",
+      "type": "explain",
+      "section": "Getting *datetime* Information",
+      "title_tr": "Şu anki zaman",
+      "title": "The current time",
+      "body_tr": "`datetime.now()` şu anı verir; `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second` ile parçalarına ulaşılır. `.timestamp()` 1 Ocak 1970 UTC'den beri geçen saniyedir. Sonuç her an değiştiği için burada türleri ve sınırları kontrol ediyoruz.",
+      "body": "`datetime.now()` gives the present moment; use `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second` for parts. `.timestamp()` is seconds since 1 Jan 1970 UTC. It changes every moment, so we check types and ranges.",
+      "code": "from datetime import datetime\n\nnow = datetime.now()\nprint(type(now).__name__)\nprint(now.year >= 2024, 1 <= now.month <= 12)\nprint(type(now.timestamp()).__name__)",
+      "expected_output": "datetime\nTrue True\nfloat"
+    },
+    {
+      "id": "d16-c03",
+      "type": "truefalse",
+      "section": "Getting *datetime* Information",
+      "statement_tr": "`timestamp()` 1 Ocak 1970'ten beri geçen saniyeyi verir.",
+      "statement": "`timestamp()` gives the seconds since 1 January 1970.",
+      "answer": true,
+      "why_tr": "Unix timestamp tam olarak budur.",
+      "why": "That is exactly a Unix timestamp."
+    },
+    {
+      "id": "d16-c04",
+      "type": "explain",
+      "section": "Formatting Date Output Using *strftime*",
+      "title_tr": "Belirli bir tarih oluştur",
+      "title": "Create a specific date",
+      "body_tr": "`datetime(yıl, ay, gün, saat, dakika, saniye)` ile kendi tarihini yaratırsın. Verilmeyen saat bilgileri 0 olur.",
+      "body": "`datetime(year, month, day, hour, minute, second)` builds your own date. Missing time parts default to 0.",
+      "code": "from datetime import datetime\n\nnew_year = datetime(2020, 1, 1)\nprint(new_year)\nprint(new_year.day, new_year.month, new_year.year, new_year.hour)",
+      "expected_output": "2020-01-01 00:00:00\n1 1 2020 0",
+      "hide_output": true
+    },
+    {
+      "id": "d16-c05",
+      "type": "explain",
+      "section": "Formatting Date Output Using *strftime*",
+      "title_tr": "strftime: tarihi yazıya çevir",
+      "title": "strftime: date to text",
+      "body_tr": "`strftime(biçim)` tarihi istediğin görünüme sokar. `%d` gün, `%m` ay, `%Y` yıl, `%H:%M:%S` saat:dakika:saniye. Aynı tarih, iki farklı sıra.",
+      "body": "`strftime(format)` renders a date your way. `%d` day, `%m` month, `%Y` year, `%H:%M:%S` time. Same date, two orders.",
+      "code": "from datetime import datetime\n\nt = datetime(2022, 6, 28, 18, 21, 40)\nprint(t.strftime('%H:%M:%S'))\nprint(t.strftime('%m/%d/%Y, %H:%M:%S'))\nprint(t.strftime('%d/%m/%Y, %H:%M:%S'))",
+      "expected_output": "18:21:40\n06/28/2022, 18:21:40\n28/06/2022, 18:21:40",
+      "trace": true
+    },
+    {
+      "id": "d16-c06",
+      "type": "predict",
+      "section": "Formatting Date Output Using *strftime*",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "from datetime import datetime\n\nprint(datetime(2024, 3, 9).strftime('%d.%m.%Y'))",
+      "choices": [
+        "09.03.2024",
+        "03.09.2024",
+        "2024.03.09",
+        "9.3.2024"
+      ],
+      "answer": "09.03.2024",
+      "why_tr": "`%d` gün (09), `%m` ay (03), `%Y` yıl.",
+      "why": "`%d` is the day (09), `%m` the month (03), `%Y` the year."
+    },
+    {
+      "id": "d16-c07",
+      "type": "fill",
+      "section": "Formatting Date Output Using *strftime*",
+      "prompt_tr": "Çıktı `2024-03-09` olsun.",
+      "code": "from datetime import datetime\n\nprint(datetime(2024, 3, 9).strftime('%___-%m-%d'))",
+      "answers": [
+        "Y"
+      ],
+      "expected_output": "2024-03-09",
+      "why_tr": "`%Y` dört haneli yıl verir.",
+      "why": "`%Y` gives the four-digit year."
+    },
+    {
+      "id": "d16-c08",
+      "type": "explain",
+      "section": "String to Time Using *strptime*",
+      "title_tr": "strptime: yazıdan tarihe",
+      "title": "strptime: text to date",
+      "body_tr": "`strptime(yazı, biçim)` ters yönde çalışır: yazıyı `datetime` nesnesine çevirir. Biçim yazıyla birebir uymalı. `%B` ay adı.",
+      "body": "`strptime(text, format)` goes the other way: text to a `datetime`. The format must match the text exactly. `%B` is the month name.",
+      "code": "from datetime import datetime\n\ndate_string = '5 December, 2019'\ndate_object = datetime.strptime(date_string, '%d %B, %Y')\nprint(date_object)",
+      "expected_output": "2019-12-05 00:00:00",
+      "trace": true
+    },
+    {
+      "id": "d16-c09",
+      "type": "predict",
+      "section": "String to Time Using *strptime*",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "from datetime import datetime\n\nd = datetime.strptime('2020-02-14', '%Y-%m-%d')\nprint(d.month)",
+      "choices": [
+        "2",
+        "14",
+        "2020",
+        "Hata verir"
+      ],
+      "answer": "2",
+      "why_tr": "Biçime göre ay 02'dir.",
+      "why": "By the format the month is 02."
+    },
+    {
+      "id": "d16-c10",
+      "type": "truefalse",
+      "section": "String to Time Using *strptime*",
+      "statement_tr": "`strftime` tarihi yazıya, `strptime` yazıyı tarihe çevirir.",
+      "statement": "`strftime` turns a date into text, `strptime` turns text into a date.",
+      "answer": true,
+      "why_tr": "f = format (biçimle yaz), p = parse (ayrıştır).",
+      "why": "f = format, p = parse."
+    },
+    {
+      "id": "d16-c11",
+      "type": "explain",
+      "section": "Using *date* from *datetime*",
+      "title_tr": "date: yalnız tarih",
+      "title": "date: date only",
+      "body_tr": "`date(yıl, ay, gün)` saat içermez. `date.today()` bugünü verir.",
+      "body": "`date(year, month, day)` has no time part. `date.today()` gives today.",
+      "code": "from datetime import date\n\nd = date(2020, 1, 1)\nprint(d)\ntoday = date.today()\nprint(today.year >= 2024)",
+      "expected_output": "2020-01-01\nTrue"
+    },
+    {
+      "id": "d16-c12",
+      "type": "explain",
+      "section": "Time Objects to Represent Time",
+      "title_tr": "time: yalnız saat",
+      "title": "time: time of day only",
+      "body_tr": "`time(saat, dakika, saniye, mikrosaniye)`; hepsi isteğe bağlı, verilmeyen 0 olur.",
+      "body": "`time(hour, minute, second, microsecond)`; all optional, missing ones are 0.",
+      "code": "from datetime import time\n\nprint(time())\nprint(time(10, 30, 50))\nprint(time(hour=10, minute=30, second=50))\nprint(time(10, 30, 50, 200555))",
+      "expected_output": "00:00:00\n10:30:50\n10:30:50\n10:30:50.200555"
+    },
+    {
+      "id": "d16-c13",
+      "type": "predict",
+      "section": "Time Objects to Represent Time",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "from datetime import time\n\nprint(time(7, 5))",
+      "choices": [
+        "07:05:00",
+        "7:5",
+        "07:05",
+        "7:05:00"
+      ],
+      "answer": "07:05:00",
+      "why_tr": "Eksik saniye 0 olur, her parça iki haneli yazılır.",
+      "why": "Missing seconds become 0 and each part is two digits."
+    },
+    {
+      "id": "d16-c14",
+      "type": "explain",
+      "section": "Difference Between Two Points in Time Using",
+      "title_tr": "İki tarih farkı",
+      "title": "Difference between two dates",
+      "body_tr": "İki tarihi çıkarırsan `timedelta` (süre) elde edersin. `date` farkı gün, `datetime` farkı gün ve saat verir.",
+      "body": "Subtracting two dates gives a `timedelta` (duration). A `date` difference gives days; a `datetime` difference gives days and time.",
+      "code": "from datetime import date, datetime\n\ntoday = date(2019, 12, 5)\nnew_year = date(2020, 1, 1)\nprint(new_year - today)\nt1 = datetime(2019, 12, 5, 0, 59, 0)\nt2 = datetime(2020, 1, 1, 0, 0, 0)\nprint(t2 - t1)",
+      "expected_output": "27 days, 0:00:00\n26 days, 23:01:00",
+      "trace": true
+    },
+    {
+      "id": "d16-c15",
+      "type": "predict",
+      "section": "Difference Between Two Points in Time Using",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "from datetime import date\n\nprint((date(2024, 3, 1) - date(2024, 2, 1)).days)",
+      "choices": [
+        "29",
+        "28",
+        "30",
+        "1"
+      ],
+      "answer": "29",
+      "why_tr": "2024 artık yıl, şubat 29 gün.",
+      "why": "2024 is a leap year; February has 29 days."
+    },
+    {
+      "id": "d16-c16",
+      "type": "explain",
+      "section": "Difference Between Two Points in Time Using *timedelta*",
+      "title_tr": "timedelta ile süre",
+      "title": "Durations with timedelta",
+      "body_tr": "`timedelta(weeks, days, hours, minutes, seconds...)` bir süre tanımlar; süreler çıkarılıp toplanabilir. Çıktıda gün ve saat ayrı gösterilir.",
+      "body": "`timedelta(weeks, days, hours, minutes, seconds...)` defines a duration; durations can be added and subtracted. Output shows days and time separately.",
+      "code": "from datetime import timedelta\n\nt1 = timedelta(weeks=12, days=10, hours=4, seconds=20)\nt2 = timedelta(days=7, hours=5, minutes=3, seconds=30)\nprint('t3 =', t1 - t2)",
+      "expected_output": "t3 = 86 days, 22:56:50"
+    },
+    {
+      "id": "d16-c17",
+      "type": "fill",
+      "section": "Difference Between Two Points in Time Using *timedelta*",
+      "prompt_tr": "Çıktı `2024-01-11 00:00:00` olsun.",
+      "code": "from datetime import datetime, timedelta\n\nstart = datetime(2024, 1, 1)\nprint(start + ___(days=10))",
+      "answers": [
+        "timedelta"
+      ],
+      "expected_output": "2024-01-11 00:00:00",
+      "why_tr": "Bir tarihe `timedelta` ekleyerek ileri gidersin.",
+      "why": "Add a `timedelta` to a date to move forward."
+    },
+    {
+      "id": "d16-c18",
+      "type": "recap",
+      "section": "Recap",
+      "title_tr": "Özet",
+      "title": "Summary",
+      "points_tr": [
+        "`datetime.now()` şu anı, `datetime(...)` verdiğin tarihi oluşturur.",
+        "`strftime` tarihi yazıya, `strptime` yazıyı tarihe çevirir.",
+        "`date` yalnız tarih, `time` yalnız saat taşır.",
+        "Tarih çıkarmak `timedelta` verir; `timedelta` ile tarih öteleyebilirsin."
+      ],
+      "points": [
+        "`datetime.now()` gives the present; `datetime(...)` builds a given date.",
+        "`strftime` formats a date as text; `strptime` parses text into a date.",
+        "`date` holds only the date, `time` only the time.",
+        "Subtracting dates gives a `timedelta`; you can shift dates with it."
+      ],
+      "link": "learn",
+      "link_label_tr": "Şimdi alıştırmalara geç",
+      "link_label": "Go to the exercises"
+    }
+  ]
+}

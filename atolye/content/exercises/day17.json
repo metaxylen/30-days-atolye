@@ -1,0 +1,848 @@
+{
+  "day": 17,
+  "title": "Exception handling",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "blocks": [
+    {
+      "id": "d17-b1",
+      "concept": "try-except",
+      "tags": [
+        "exceptions",
+        "try-except"
+      ],
+      "worked_example": {
+        "code": "try:\n    print(10 + '5')\nexcept TypeError:\n    print('Type error occurred')\nprint('The program goes on')",
+        "notes": [
+          "If an error happens in try, Python jumps to the matching except block.",
+          "After the except block the program continues instead of crashing."
+        ],
+        "notes_tr": [
+          "try içinde bir hata olursa Python eşleşen except bloğuna atlar.",
+          "except bloğundan sonra program çökmek yerine devam eder."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d17-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "def convert(text):\n    try:\n        return int(text)\n    except ValueError:\n        return -1\n\nprint(convert('42'), convert('4a2'), convert(''))",
+          "choices": [
+            "42 -1 error",
+            "42 None -1",
+            "42 -1 -1"
+          ],
+          "expected_output": "42 -1 -1",
+          "explanation": "int('42') works. int('4a2') and int('') both raise ValueError, which the except block catches and answers with -1.",
+          "misconceptions": {
+            "42 -1 error": "int('') raises a ValueError too, and it is caught.",
+            "42 None -1": "The except block returns -1, not None."
+          },
+          "explanation_tr": "int('42') çalışır. int('4a2') ve int('') ikisi de ValueError verir; except bloğu onları yakalar ve -1 döndürür.",
+          "misconceptions_tr": {
+            "42 -1 error": "int('') de ValueError verir ve yakalanır.",
+            "42 None -1": "except bloğu None değil -1 döndürür."
+          }
+        },
+        {
+          "id": "d17-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the function so it returns 0 when the text is not a valid integer.",
+          "prompt_tr": "Metin geçerli bir tam sayı değilse 0 döndürecek şekilde fonksiyonu tamamlayın.",
+          "starter_code": "def safe_int(text):\n    ___:\n        return int(text)\n    ___ ValueError:\n        return 0\n\nprint(safe_int('12'))\nprint(safe_int('12a'))",
+          "blanks": [
+            {
+              "answer": [
+                "try"
+              ]
+            },
+            {
+              "answer": [
+                "except"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert safe_int('12') == 12",
+              "visible": true,
+              "label_tr": "safe_int('12') 12 veriyor"
+            },
+            {
+              "code": "assert safe_int('12a') == 0",
+              "visible": true,
+              "label_tr": "safe_int('12a') 0 veriyor"
+            }
+          ],
+          "hints": [
+            "The risky code goes in a block that starts with this keyword.",
+            "The block that handles the named error starts with except."
+          ],
+          "hints_tr": [
+            "Riskli kod bu anahtar kelimeyle başlayan bir bloğa girer.",
+            "Adı verilen hatayı ele alan blok except ile başlar."
+          ]
+        },
+        {
+          "id": "d17-b1-e3",
+          "type": "write",
+          "prompt": "Write parse_number(text) that returns an int if text is a whole number like '5', a float if it is a decimal like '2.5', and None if it is neither.",
+          "prompt_tr": "text '5' gibi bir tam sayıysa int, '2.5' gibi ondalıklıysa float, ikisi de değilse None döndüren parse_number(text) yazın.",
+          "starter_code": "",
+          "signature": "def parse_number(text):",
+          "tests": [
+            {
+              "code": "assert parse_number('5') == 5 and isinstance(parse_number('5'), int)",
+              "visible": true,
+              "label_tr": "parse_number('5') int olarak 5 veriyor"
+            },
+            {
+              "code": "assert parse_number('2.5') == 2.5",
+              "visible": true,
+              "label_tr": "parse_number('2.5') 2.5 veriyor"
+            },
+            {
+              "code": "assert parse_number('abc') is None",
+              "visible": false,
+              "failure_message": "Text that is not a number gives None.",
+              "failure_message_tr": "Sayı olmayan metin None vermeli."
+            },
+            {
+              "code": "assert parse_number('-3') == -3",
+              "visible": false,
+              "failure_message": "Negative whole numbers are valid.",
+              "failure_message_tr": "Negatif tam sayılar geçerlidir."
+            },
+            {
+              "code": "assert parse_number('') is None",
+              "visible": false,
+              "failure_message": "An empty string is not a number.",
+              "failure_message_tr": "Boş string sayı değildir."
+            },
+            {
+              "code": "assert parse_number('42') == 42 and parse_number('3.75') == 3.75 and parse_number('x1') is None",
+              "visible": false,
+              "failure_message": "Convert the text given; do not hard-code results.",
+              "failure_message_tr": "Verilen metni dönüştür; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Try int first, then float, with try/except ValueError.",
+            "Nest a second try inside the first except.",
+            "First try: return int(text); nested try: return ___(text) (which conversion handles '2.5'?); last except: return None."
+          ],
+          "solution": {
+            "approach": "Try int; on ValueError try float; on ValueError return None.",
+            "code": "def parse_number(text):\n    try:\n        return int(text)\n    except ValueError:\n        try:\n            return float(text)\n        except ValueError:\n            return None",
+            "approach_tr": "Önce int dene; ValueError olursa float dene; yine ValueError olursa None döndür."
+          },
+          "twin": "d17-b1-e4",
+          "hints_tr": [
+            "Önce int, sonra float dene; try/except ValueError kullan.",
+            "İlk except'in içine ikinci bir try yerleştir.",
+            "İlk try: return int(text); iç içe try: return ___(text) (hangi dönüşüm '2.5'i çevirir?); son except: return None."
+          ]
+        },
+        {
+          "id": "d17-b1-e4",
+          "type": "write",
+          "prompt": "Write safe_get(items, index, default) that returns items[index], or default if that index does not exist.",
+          "prompt_tr": "items[index] değerini döndüren, o indeks yoksa default döndüren safe_get(items, index, default) yazın.",
+          "starter_code": "",
+          "signature": "def safe_get(items, index, default):",
+          "tests": [
+            {
+              "code": "assert safe_get(['a', 'b'], 1, 'x') == 'b'",
+              "visible": true,
+              "label_tr": "safe_get(['a', 'b'], 1, 'x') 'b' veriyor"
+            },
+            {
+              "code": "assert safe_get(['a', 'b'], 5, 'x') == 'x'",
+              "visible": true,
+              "label_tr": "safe_get(['a', 'b'], 5, 'x') 'x' veriyor"
+            },
+            {
+              "code": "assert safe_get([], 0, 'none') == 'none'",
+              "visible": false,
+              "failure_message": "An empty list has no index 0: return the default.",
+              "failure_message_tr": "Boş listede 0. indeks yoktur: default'u döndür."
+            },
+            {
+              "code": "assert safe_get([1, 2, 3], -1, 0) == 3",
+              "visible": false,
+              "failure_message": "Negative indexes that exist must work.",
+              "failure_message_tr": "Var olan negatif indeksler çalışmalı."
+            },
+            {
+              "code": "assert safe_get([1, 2, 3], -9, 'z') == 'z'",
+              "visible": false,
+              "failure_message": "A negative index that is too far back is an IndexError too.",
+              "failure_message_tr": "Çok geriye giden negatif indeks de IndexError'dır."
+            },
+            {
+              "code": "assert safe_get(['x', 'y', 'z'], 2, 'd') == 'z' and safe_get(['x', 'y', 'z'], 3, 'd') == 'd'",
+              "visible": false,
+              "failure_message": "Look the index up in the list given; do not hard-code results.",
+              "failure_message_tr": "İndeksi verilen listede ara; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Which error does a bad index raise?",
+            "Catch that error and return default.",
+            "try: return items[index] / except ___: return default (which error?)"
+          ],
+          "solution": {
+            "approach": "Wrap the lookup in try and catch IndexError.",
+            "code": "def safe_get(items, index, default):\n    try:\n        return items[index]\n    except IndexError:\n        return default",
+            "approach_tr": "Aramayı try içine al ve IndexError'ı yakala."
+          },
+          "twin": "d17-b1-e3",
+          "hints_tr": [
+            "Geçersiz bir indeks hangi hatayı verir?",
+            "O hatayı yakala ve default döndür.",
+            "try: return items[index] / except ___: return default (hangi hata?)"
+          ]
+        }
+      ],
+      "concept_tr": "try/except, hata çıkabilecek kodu korur: hata olursa program çökmez, except bloğu devreye girer."
+    },
+    {
+      "id": "d17-b2",
+      "concept": "else-finally-exception-as",
+      "tags": [
+        "exceptions",
+        "finally",
+        "else"
+      ],
+      "worked_example": {
+        "code": "try:\n    result = 10 / 2\nexcept ZeroDivisionError:\n    print('zero')\nelse:\n    print('ok', result)\nfinally:\n    print('done')",
+        "notes": [
+          "else runs only when no error happened; finally runs always.",
+          "except Exception as e catches almost any error and gives it to you as e."
+        ],
+        "notes_tr": [
+          "else sadece hata olmadığında, finally her zaman çalışır.",
+          "except Exception as e neredeyse her hatayı yakalar ve onu sana e olarak verir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d17-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "def run(x):\n    try:\n        value = 10 / x\n    except ZeroDivisionError:\n        print('error')\n    else:\n        print('value', value)\n    finally:\n        print('finally')\n\nrun(5)\nrun(0)",
+          "choices": [
+            "value 2.0\nerror\nfinally",
+            "value 2.0\nfinally\nvalue 0\nfinally",
+            "value 2.0\nfinally\nerror\nfinally"
+          ],
+          "expected_output": "value 2.0\nfinally\nerror\nfinally",
+          "explanation": "run(5): no error, so else prints 'value 2.0', then finally prints. run(0): ZeroDivisionError, so except prints 'error' (else is skipped), then finally prints again.",
+          "misconceptions": {
+            "value 2.0\nerror\nfinally": "finally runs after EACH call, not once at the end.",
+            "value 2.0\nfinally\nvalue 0\nfinally": "10 / 0 raises ZeroDivisionError, so the else block is skipped."
+          },
+          "explanation_tr": "run(5): hata yok, bu yüzden else 'value 2.0' yazdırır, sonra finally çalışır. run(0): ZeroDivisionError olur, except 'error' yazdırır (else atlanır), sonra finally yine çalışır.",
+          "misconceptions_tr": {
+            "value 2.0\nerror\nfinally": "finally en sonda bir kez değil, HER çağrıdan sonra çalışır.",
+            "value 2.0\nfinally\nvalue 0\nfinally": "10 / 0 ZeroDivisionError verir, bu yüzden else bloğu atlanır."
+          }
+        },
+        {
+          "id": "d17-b2-e2",
+          "type": "parsons",
+          "prompt": "Order the lines to catch any error and print its type name.",
+          "prompt_tr": "Herhangi bir hatayı yakalayıp tür adını yazdıracak şekilde satırları sıralayın.",
+          "lines": [
+            "    print(type(e).__name__)",
+            "try:",
+            "except Exception as e:",
+            "    age = 2019 - int('19x0')"
+          ],
+          "correct_order": [
+            1,
+            3,
+            2,
+            0
+          ],
+          "distractors": [
+            "except:"
+          ],
+          "expected_output": "ValueError"
+        },
+        {
+          "id": "d17-b2-e3",
+          "type": "write",
+          "prompt": "Write total_valid(values) that adds up all values that can be converted with float(). Skip values that cannot be converted (like 'x' or None). Example: total_valid([1, '2', 'x']) returns 3.0.",
+          "prompt_tr": "float() ile dönüştürülebilen tüm değerleri toplayan total_valid(values) yazın. Dönüştürülemeyenleri ('x' ya da None gibi) atlayın. Örnek: total_valid([1, '2', 'x']) sonucu 3.0 olur.",
+          "starter_code": "",
+          "signature": "def total_valid(values):",
+          "tests": [
+            {
+              "code": "assert total_valid([1, '2', 'x']) == 3.0",
+              "visible": true,
+              "label_tr": "total_valid([1, '2', 'x']) 3.0 veriyor"
+            },
+            {
+              "code": "assert total_valid(['1.5', '2.5']) == 4.0",
+              "visible": true,
+              "label_tr": "total_valid(['1.5', '2.5']) 4.0 veriyor"
+            },
+            {
+              "code": "assert total_valid([]) == 0",
+              "visible": false,
+              "failure_message": "An empty list adds up to 0.",
+              "failure_message_tr": "Boş liste 0 eder."
+            },
+            {
+              "code": "assert total_valid([None, 4]) == 4.0",
+              "visible": false,
+              "failure_message": "float(None) raises a TypeError, not a ValueError: catch both.",
+              "failure_message_tr": "float(None) ValueError değil TypeError verir: ikisini de yakala."
+            },
+            {
+              "code": "assert total_valid(['a', 'b']) == 0",
+              "visible": false,
+              "failure_message": "If nothing is valid the total is 0.",
+              "failure_message_tr": "Hiçbir değer geçerli değilse toplam 0'dır."
+            },
+            {
+              "code": "assert total_valid(['10', 5, 'no', None, '2.5']) == 17.5",
+              "visible": false,
+              "failure_message": "Add up the valid values of the list given; do not hard-code results.",
+              "failure_message_tr": "Verilen listedeki geçerli değerleri topla; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Loop over values and try float(value) for each.",
+            "Two error types can happen: ValueError for bad text and another one for None.",
+            "except (ValueError, ___): continue (which error does float(None) raise?)"
+          ],
+          "solution": {
+            "approach": "Try to convert each value; skip it on ValueError or TypeError.",
+            "code": "def total_valid(values):\n    total = 0\n    for v in values:\n        try:\n            total += float(v)\n        except (ValueError, TypeError):\n            continue\n    return total",
+            "approach_tr": "Her değeri dönüştürmeyi dene; ValueError ya da TypeError olursa atla."
+          },
+          "twin": "d17-b2-e4",
+          "hints_tr": [
+            "values üzerinde dolaş ve her biri için float(value) dene.",
+            "İki hata türü olabilir: kötü metin için ValueError, None için başka biri.",
+            "except (ValueError, ___): continue (float(None) hangi hatayı verir?)"
+          ]
+        },
+        {
+          "id": "d17-b2-e4",
+          "type": "write",
+          "prompt": "Write count_invalid(values) that returns how many values cannot be converted with int(). Example: count_invalid(['1', 'a', '2', 'b']) returns 2.",
+          "prompt_tr": "int() ile dönüştürülemeyen değerlerin sayısını döndüren count_invalid(values) yazın. Örnek: count_invalid(['1', 'a', '2', 'b']) sonucu 2 olur.",
+          "starter_code": "",
+          "signature": "def count_invalid(values):",
+          "tests": [
+            {
+              "code": "assert count_invalid(['1', 'a', '2', 'b']) == 2",
+              "visible": true,
+              "label_tr": "count_invalid(['1', 'a', '2', 'b']) 2 veriyor"
+            },
+            {
+              "code": "assert count_invalid(['5', '6']) == 0",
+              "visible": true,
+              "label_tr": "count_invalid(['5', '6']) 0 veriyor"
+            },
+            {
+              "code": "assert count_invalid([]) == 0",
+              "visible": false,
+              "failure_message": "An empty list has no invalid values.",
+              "failure_message_tr": "Boş listede geçersiz değer yoktur."
+            },
+            {
+              "code": "assert count_invalid([None, '3']) == 1",
+              "visible": false,
+              "failure_message": "int(None) raises a TypeError: catch it too.",
+              "failure_message_tr": "int(None) TypeError verir: onu da yakala."
+            },
+            {
+              "code": "assert count_invalid(['3.5']) == 1",
+              "visible": false,
+              "failure_message": "int('3.5') is a ValueError: it is not a whole-number text.",
+              "failure_message_tr": "int('3.5') ValueError'dır: tam sayı metni değil."
+            },
+            {
+              "code": "assert count_invalid(['7', 'x', None, '8', '9.9', '10']) == 3",
+              "visible": false,
+              "failure_message": "Count the invalid values in the list given; do not hard-code results.",
+              "failure_message_tr": "Verilen listedeki geçersiz değerleri say; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Count the failures instead of the successes.",
+            "Increase a counter inside the except block.",
+            "except (ValueError, TypeError): count ___ 1 (which operator adds to the counter?)"
+          ],
+          "solution": {
+            "approach": "Count one for every value whose conversion raises an error.",
+            "code": "def count_invalid(values):\n    count = 0\n    for v in values:\n        try:\n            int(v)\n        except (ValueError, TypeError):\n            count += 1\n    return count",
+            "approach_tr": "Dönüşümü hata veren her değer için bir say."
+          },
+          "twin": "d17-b2-e3",
+          "hints_tr": [
+            "Başarıları değil, başarısızlıkları say.",
+            "Sayacı except bloğunun içinde artır.",
+            "except (ValueError, TypeError): count ___ 1 (sayaca ekleyen operatör hangisi?)"
+          ]
+        }
+      ],
+      "concept_tr": "else hata olmadığında, finally ise her durumda çalışır. except Exception as e ile hatanın kendisini e adıyla alabilirsin."
+    },
+    {
+      "id": "d17-b3",
+      "concept": "packing-and-unpacking",
+      "tags": [
+        "unpacking",
+        "args",
+        "kwargs"
+      ],
+      "worked_example": {
+        "code": "def add_three(a, b, c):\n    return a + b + c\n\nlst = [1, 2, 3]\nprint(add_three(*lst))\nfirst, *rest = lst\nprint(first, rest)",
+        "notes": [
+          "*lst in a call spreads the items into separate arguments (unpacking).",
+          "A starred name on the left collects the leftover items into a list."
+        ],
+        "notes_tr": [
+          "Çağrıdaki *lst elemanları ayrı argümanlara açar (unpacking).",
+          "Solda yıldızlı bir isim, kalan elemanları bir listede toplar."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d17-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "countries = ['Finland', 'Sweden', 'Norway', 'Denmark', 'Iceland']\nfin, sw, *rest = countries\nprint(sw, rest)\none, *middle, last = [1, 2, 3, 4, 5, 6, 7]\nprint(one, middle, last)",
+          "choices": [
+            "Finland ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7",
+            "Sweden ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6, 7] 7",
+            "Sweden ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7"
+          ],
+          "expected_output": "Sweden ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7",
+          "explanation": "fin gets Finland, sw gets Sweden, and rest collects the remaining three. In the second line one gets 1, last gets 7 and middle collects everything between.",
+          "misconceptions": {
+            "Finland ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7": "The second name, sw, receives 'Sweden'; fin receives 'Finland'.",
+            "Sweden ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6, 7] 7": "last takes the final item, so middle does not include 7."
+          },
+          "explanation_tr": "fin 'Finland'ı, sw 'Sweden'ı alır, rest kalan üçünü toplar. İkinci satırda one 1'i, last 7'yi alır; middle aradaki her şeyi toplar.",
+          "misconceptions_tr": {
+            "Finland ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6] 7": "İkinci isim olan sw 'Sweden'ı alır; fin 'Finland'ı alır.",
+            "Sweden ['Norway', 'Denmark', 'Iceland']\n1 [2, 3, 4, 5, 6, 7] 7": "last son elemanı alır, bu yüzden middle 7'yi içermez."
+          }
+        },
+        {
+          "id": "d17-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Unpack the dictionary into keyword arguments and the list into positional arguments.",
+          "prompt_tr": "Sözlüğü anahtar kelime argümanlarına, listeyi konumsal argümanlara açın.",
+          "starter_code": "def person_info(name, city):\n    return f'{name} lives in {city}.'\n\ndata = {'name': 'Asabeneh', 'city': 'Helsinki'}\npair = ['Lidiya', 'Oslo']\nprint(person_info(___data))\nprint(person_info(___pair))",
+          "blanks": [
+            {
+              "answer": [
+                "**"
+              ]
+            },
+            {
+              "answer": [
+                "*"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.split('\\n')[0] == 'Asabeneh lives in Helsinki.'",
+              "visible": true,
+              "label_tr": "İlk satır 'Asabeneh lives in Helsinki.' olmalı"
+            },
+            {
+              "code": "assert __stdout__.split('\\n')[1] == 'Lidiya lives in Oslo.'",
+              "visible": true,
+              "label_tr": "İkinci satır 'Lidiya lives in Oslo.' olmalı"
+            }
+          ],
+          "hints": [
+            "A dictionary becomes keyword arguments with two stars.",
+            "A list becomes positional arguments with one star."
+          ],
+          "hints_tr": [
+            "Bir sözlük iki yıldızla isimli argümanlara açılır.",
+            "Bir liste tek yıldızla sıralı argümanlara açılır."
+          ]
+        },
+        {
+          "id": "d17-b3-e3",
+          "type": "write",
+          "prompt": "Write combine(*lists) that takes any number of lists and returns one new list with all their items in order. Example: combine([1], [2, 3]) returns [1, 2, 3].",
+          "prompt_tr": "İstenen sayıda liste alıp tüm öğelerini sırayla içeren tek bir yeni liste döndüren combine(*lists) yazın. Örnek: combine([1], [2, 3]) sonucu [1, 2, 3] olur.",
+          "starter_code": "",
+          "signature": "def combine(*lists):",
+          "tests": [
+            {
+              "code": "assert combine([1], [2, 3]) == [1, 2, 3]",
+              "visible": true,
+              "label_tr": "combine([1], [2, 3]) [1, 2, 3] veriyor"
+            },
+            {
+              "code": "assert combine(['a'], ['b'], ['c']) == ['a', 'b', 'c']",
+              "visible": true,
+              "label_tr": "combine(['a'], ['b'], ['c']) ['a', 'b', 'c'] veriyor"
+            },
+            {
+              "code": "assert combine() == []",
+              "visible": false,
+              "failure_message": "No lists given: return an empty list.",
+              "failure_message_tr": "Hiç liste verilmediyse boş liste döndür."
+            },
+            {
+              "code": "a = [1]\nb = combine(a, [2])\nassert a == [1]",
+              "visible": false,
+              "failure_message": "Do not change the lists that were passed in.",
+              "failure_message_tr": "Verilen listeleri değiştirme."
+            },
+            {
+              "code": "assert combine([], [0], []) == [0]",
+              "visible": false,
+              "failure_message": "Empty lists are fine.",
+              "failure_message_tr": "Boş listeler sorun değil."
+            },
+            {
+              "code": "assert combine([9, 8], [7], [6, 5]) == [9, 8, 7, 6, 5]",
+              "visible": false,
+              "failure_message": "Combine the lists given; do not hard-code results.",
+              "failure_message_tr": "Verilen listeleri birleştir; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "*lists collects the arguments into a tuple of lists.",
+            "Loop over the tuple and add every list's items to a result list.",
+            "for lst in lists: result.___(lst) (which list method adds all items of another list?)"
+          ],
+          "solution": {
+            "approach": "Loop over the packed lists and extend a new result list.",
+            "code": "def combine(*lists):\n    result = []\n    for lst in lists:\n        result.extend(lst)\n    return result",
+            "approach_tr": "Paketlenmiş listelerde dolaş ve yeni bir sonuç listesini extend ile genişlet."
+          },
+          "twin": "d17-b3-e4",
+          "hints_tr": [
+            "*lists argümanları bir liste tuple'ında toplar.",
+            "Tuple üzerinde dolaş ve her listenin elemanlarını bir sonuç listesine ekle.",
+            "for lst in lists: result.___(lst) (başka bir listenin tüm elemanlarını hangi liste metodu ekler?)"
+          ]
+        },
+        {
+          "id": "d17-b3-e4",
+          "type": "write",
+          "prompt": "Write describe_person(**kwargs) that returns all the given keyword arguments as 'key=value' pairs sorted by key and joined by ', '. Example: describe_person(name='Asab', age=3) returns 'age=3, name=Asab'.",
+          "prompt_tr": "Verilen tüm anahtar kelime argümanlarını, anahtara göre sıralı 'key=value' çiftleri olarak ', ' ile birleştirip döndüren describe_person(**kwargs) yazın. Örnek: describe_person(name='Asab', age=3) sonucu 'age=3, name=Asab' olur.",
+          "starter_code": "",
+          "signature": "def describe_person(**kwargs):",
+          "tests": [
+            {
+              "code": "assert describe_person(name='Asab', age=3) == 'age=3, name=Asab'",
+              "visible": true,
+              "label_tr": "describe_person(name='Asab', age=3) 'age=3, name=Asab' veriyor"
+            },
+            {
+              "code": "assert describe_person(city='Oslo') == 'city=Oslo'",
+              "visible": true,
+              "label_tr": "describe_person(city='Oslo') 'city=Oslo' veriyor"
+            },
+            {
+              "code": "assert describe_person() == ''",
+              "visible": false,
+              "failure_message": "No arguments: return an empty string.",
+              "failure_message_tr": "Argüman yoksa boş string döndür."
+            },
+            {
+              "code": "assert describe_person(b=2, a=1, c=3) == 'a=1, b=2, c=3'",
+              "visible": false,
+              "failure_message": "Sort the keys alphabetically.",
+              "failure_message_tr": "Anahtarları alfabetik sırala."
+            },
+            {
+              "code": "assert describe_person(x=None) == 'x=None'",
+              "visible": false,
+              "failure_message": "Convert values with f-strings so None and numbers work.",
+              "failure_message_tr": "None ve sayılar da çalışsın diye değerleri f-string ile çevir."
+            },
+            {
+              "code": "assert describe_person(z=26, m=13) == 'm=13, z=26'",
+              "visible": false,
+              "failure_message": "Build the text from the keyword arguments given; do not hard-code results.",
+              "failure_message_tr": "Metni verilen isimli argümanlardan oluştur; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "kwargs is a dictionary inside the function.",
+            "Loop over the sorted keys to get them in order.",
+            "', '.join(f'{k}={kwargs[k]}' for k in ___(kwargs)) (which built-in puts keys in order?)"
+          ],
+          "solution": {
+            "approach": "Build one text per sorted key and join them.",
+            "code": "def describe_person(**kwargs):\n    parts = []\n    for key in sorted(kwargs):\n        parts.append(f'{key}={kwargs[key]}')\n    return ', '.join(parts)",
+            "approach_tr": "Sıralı her anahtar için bir metin oluştur ve hepsini birleştir."
+          },
+          "twin": "d17-b3-e3",
+          "hints_tr": [
+            "kwargs fonksiyonun içinde bir sözlüktür.",
+            "Anahtarları sıralı almak için sıralanmış anahtarlarda dolaş.",
+            "', '.join(f'{k}={kwargs[k]}' for k in ___(kwargs)) (anahtarları hangi yerleşik fonksiyon sıralar?)"
+          ]
+        }
+      ],
+      "concept_tr": "* ve ** ile argümanlar paketlenir ve açılır: fonksiyon tanımında toplar, çağrıda listeyi ya da sözlüğü ayrı argümanlara açar."
+    },
+    {
+      "id": "d17-b4",
+      "concept": "enumerate-and-zip",
+      "tags": [
+        "enumerate",
+        "zip",
+        "loops"
+      ],
+      "worked_example": {
+        "code": "for index, item in enumerate(['a', 'b', 'c']):\n    print(index, item)\nfor f, v in zip(['banana', 'mango'], ['Tomato', 'Potato']):\n    print(f, v)",
+        "notes": [
+          "enumerate gives (index, item) pairs.",
+          "zip walks through several lists at the same time."
+        ],
+        "notes_tr": [
+          "enumerate (indeks, eleman) çiftleri verir.",
+          "zip birkaç listeyi aynı anda dolaşır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d17-b4-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "countries = ['Finland', 'Sweden', 'Norway']\nfor index, name in enumerate(countries):\n    if name == 'Sweden':\n        print(f'{name} is at index {index}')\nprint(list(zip([1, 2, 3], ['a', 'b'])))",
+          "choices": [
+            "Sweden is at index 2\n[(1, 'a'), (2, 'b'), (3, None)]",
+            "Sweden is at index 1\n[(1, 'a'), (2, 'b'), (3, None)]",
+            "Sweden is at index 1\n[(1, 'a'), (2, 'b')]"
+          ],
+          "expected_output": "Sweden is at index 1\n[(1, 'a'), (2, 'b')]",
+          "explanation": "Sweden is the second item, so its index is 1. zip pairs items until the shortest list runs out, so the 3 has no partner and is dropped.",
+          "misconceptions": {
+            "Sweden is at index 2\n[(1, 'a'), (2, 'b'), (3, None)]": "Indexes start at 0, and zip stops when the shortest list ends.",
+            "Sweden is at index 1\n[(1, 'a'), (2, 'b'), (3, None)]": "zip does not fill missing values; it stops at the shortest list."
+          },
+          "explanation_tr": "Sweden ikinci elemandır, indeksi 1'dir. zip en kısa liste bitene kadar eşleştirir; 3'ün eşi yoktur ve atılır.",
+          "misconceptions_tr": {
+            "Sweden is at index 2\n[(1, 'a'), (2, 'b'), (3, None)]": "İndeksler 0'dan başlar ve zip en kısa liste bitince durur.",
+            "Sweden is at index 1\n[(1, 'a'), (2, 'b'), (3, None)]": "zip eksik değerleri doldurmaz; en kısa listede durur."
+          }
+        },
+        {
+          "id": "d17-b4-e2",
+          "type": "parsons",
+          "prompt": "Order the lines to build a list of dictionaries by zipping two lists.",
+          "prompt_tr": "İki listeyi zip ile birleştirerek sözlük listesi oluşturacak şekilde satırları sıralayın.",
+          "lines": [
+            "pairs = []",
+            "for f, v in zip(fruits, vegetables):",
+            "print(pairs)",
+            "fruits = ['banana', 'orange']",
+            "    pairs.append({'fruit': f, 'veg': v})",
+            "vegetables = ['Tomato', 'Potato']"
+          ],
+          "correct_order": [
+            3,
+            5,
+            0,
+            1,
+            4,
+            2
+          ],
+          "distractors": [
+            "for f, v in enumerate(fruits, vegetables):"
+          ],
+          "expected_output": "[{'fruit': 'banana', 'veg': 'Tomato'}, {'fruit': 'orange', 'veg': 'Potato'}]"
+        },
+        {
+          "id": "d17-b4-e3",
+          "type": "write",
+          "prompt": "Write find_indexes(items, target) that returns a list of all the indexes where target appears in items. Use enumerate.",
+          "prompt_tr": "target değerinin items içinde göründüğü tüm indekslerin listesini döndüren find_indexes(items, target) yazın. enumerate kullanın.",
+          "starter_code": "",
+          "signature": "def find_indexes(items, target):",
+          "tests": [
+            {
+              "code": "assert find_indexes(['a', 'b', 'a'], 'a') == [0, 2]",
+              "visible": true,
+              "label_tr": "find_indexes(['a', 'b', 'a'], 'a') [0, 2] veriyor"
+            },
+            {
+              "code": "assert find_indexes([5, 6, 7], 6) == [1]",
+              "visible": true,
+              "label_tr": "find_indexes([5, 6, 7], 6) [1] veriyor"
+            },
+            {
+              "code": "assert find_indexes(['a', 'b'], 'z') == []",
+              "visible": false,
+              "failure_message": "If the target never appears, return an empty list.",
+              "failure_message_tr": "Hedef hiç yoksa boş liste döndür."
+            },
+            {
+              "code": "assert find_indexes([], 1) == []",
+              "visible": false,
+              "failure_message": "Handle an empty list.",
+              "failure_message_tr": "Boş listeyi ele al."
+            },
+            {
+              "code": "assert find_indexes([1, 1, 1], 1) == [0, 1, 2]",
+              "visible": false,
+              "failure_message": "Every occurrence counts, not only the first.",
+              "failure_message_tr": "Sadece ilk değil, her geçtiği yer sayılır."
+            },
+            {
+              "code": "assert find_indexes([3, 1, 3, 3, 2], 3) == [0, 2, 3]",
+              "visible": false,
+              "failure_message": "Search the list given; do not hard-code results.",
+              "failure_message_tr": "Verilen listede ara; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "enumerate gives you the index and the item together.",
+            "Collect the index whenever the item equals target.",
+            "for index, item in enumerate(items): if item ___ target: result.append(index) (which comparison?)"
+          ],
+          "solution": {
+            "approach": "Loop with enumerate and keep the index of each match.",
+            "code": "def find_indexes(items, target):\n    result = []\n    for index, item in enumerate(items):\n        if item == target:\n            result.append(index)\n    return result",
+            "approach_tr": "enumerate ile dolaş ve her eşleşmenin indeksini sakla."
+          },
+          "twin": "d17-b4-e4",
+          "hints_tr": [
+            "enumerate sana indeksi ve elemanı birlikte verir.",
+            "Eleman target'a eşit olduğunda indeksi topla.",
+            "for index, item in enumerate(items): if item ___ target: result.append(index) (hangi karşılaştırma?)"
+          ]
+        },
+        {
+          "id": "d17-b4-e4",
+          "type": "write",
+          "prompt": "Write make_dict(keys, values) that returns a dictionary pairing each key with the value at the same position. If the lists have different lengths, pair only as far as the shorter list goes. Use zip.",
+          "prompt_tr": "Her anahtarı aynı konumdaki değerle eşleyen bir sözlük döndüren make_dict(keys, values) yazın. Listelerin uzunlukları farklıysa kısa olan bitene kadar eşleyin. zip kullanın.",
+          "starter_code": "",
+          "signature": "def make_dict(keys, values):",
+          "tests": [
+            {
+              "code": "assert make_dict(['a', 'b'], [1, 2]) == {'a': 1, 'b': 2}",
+              "visible": true,
+              "label_tr": "make_dict(['a', 'b'], [1, 2]) {'a': 1, 'b': 2} veriyor"
+            },
+            {
+              "code": "assert make_dict(['name'], ['Asab']) == {'name': 'Asab'}",
+              "visible": true,
+              "label_tr": "make_dict(['name'], ['Asab']) {'name': 'Asab'} veriyor"
+            },
+            {
+              "code": "assert make_dict([], []) == {}",
+              "visible": false,
+              "failure_message": "Empty lists give an empty dictionary.",
+              "failure_message_tr": "Boş listeler boş sözlük verir."
+            },
+            {
+              "code": "assert make_dict(['a', 'b', 'c'], [1, 2]) == {'a': 1, 'b': 2}",
+              "visible": false,
+              "failure_message": "Stop at the shorter list; zip does that for you.",
+              "failure_message_tr": "Kısa olan listede dur; zip bunu senin için yapar."
+            },
+            {
+              "code": "assert make_dict(['a'], [1, 2, 3]) == {'a': 1}",
+              "visible": false,
+              "failure_message": "Extra values without a key are ignored.",
+              "failure_message_tr": "Anahtarı olmayan fazla değerler yok sayılır."
+            },
+            {
+              "code": "assert make_dict(['x', 'y', 'z'], [10, 20, 30]) == {'x': 10, 'y': 20, 'z': 30}",
+              "visible": false,
+              "failure_message": "Pair the lists given; do not hard-code results.",
+              "failure_message_tr": "Verilen listeleri eşleştir; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "zip pairs the items at the same position.",
+            "Loop over the pairs and fill a dictionary.",
+            "for k, v in ___(keys, values): result[k] = v (which function pairs two lists?)"
+          ],
+          "solution": {
+            "approach": "Zip the two lists and store every pair in a dictionary.",
+            "code": "def make_dict(keys, values):\n    result = {}\n    for k, v in zip(keys, values):\n        result[k] = v\n    return result",
+            "approach_tr": "İki listeyi zip ile eşleştir ve her çifti bir sözlüğe yaz."
+          },
+          "twin": "d17-b4-e3",
+          "hints_tr": [
+            "zip aynı sıradaki elemanları eşleştirir.",
+            "Çiftler üzerinde dolaş ve bir sözlük doldur.",
+            "for k, v in ___(keys, values): result[k] = v (iki listeyi hangi fonksiyon eşleştirir?)"
+          ]
+        },
+        {
+          "id": "d17-b4-e5",
+          "type": "debug",
+          "prompt": "This should print each name with its age, but it crashes. Fix it.",
+          "prompt_tr": "Bu kod her ismi yaşıyla birlikte yazdırmalı ama hata veriyor. Düzeltin.",
+          "starter_code": "names = ['Asabeneh', 'Lidiya']\nages = [250, 31]\nfor name, age in enumerate(names, ages):\n    print(name, age)",
+          "expected_output": "Asabeneh 250\nLidiya 31",
+          "hints": [
+            "Read the last line of the error message.",
+            "enumerate gives an index and ONE list; to walk two lists together you need another function.",
+            "Replace enumerate(names, ages) with ___(names, ages) (which function pairs two lists?)"
+          ],
+          "solution": {
+            "approach": "enumerate numbers the items of one list. To pair two lists, use zip.",
+            "code": "names = ['Asabeneh', 'Lidiya']\nages = [250, 31]\nfor name, age in zip(names, ages):\n    print(name, age)",
+            "approach_tr": "enumerate tek bir listenin elemanlarını numaralar. İki listeyi eşleştirmek için zip kullan."
+          },
+          "hints_tr": [
+            "Hata mesajının son satırını oku.",
+            "enumerate bir indeks ve TEK bir liste verir; iki listeyi birlikte dolaşmak için başka bir fonksiyon gerekir.",
+            "enumerate(names, ages) yerine ___(names, ages) yaz (iki listeyi hangi fonksiyon eşleştirir?)"
+          ]
+        },
+        {
+          "id": "d17-b4-e6",
+          "type": "explain",
+          "prompt": "In your own words: what does the * do in a function definition compared with a function call?",
+          "prompt_tr": "Kendi cümlelerinizle: * işareti bir fonksiyon tanımında ile bir fonksiyon çağrısında ne yapar, karşılaştırın.",
+          "model_answer": "In a definition, def f(*args) collects any extra positional arguments into a tuple (packing). In a call, f(*lst) spreads the items of a list into separate arguments (unpacking). The double star ** does the same for dictionaries and keyword arguments.",
+          "keywords": [
+            "tuple",
+            "unpack",
+            "dictionar"
+          ],
+          "model_answer_tr": "Tanımda def f(*args), fazladan gelen sıralı argümanları bir tuple içinde toplar (paketleme). Çağrıda f(*lst) bir listenin elemanlarını ayrı argümanlar olarak açar. Çift yıldız ** aynısını sözlük (dictionary) ve isimli argümanlar için yapar.",
+          "keywords_tr": [
+            "tuple",
+            "paketleme",
+            "açar",
+            "sözlük"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "enumerate eleman ve sırasını birlikte, zip ise birkaç listeyi aynı anda dolaşmanı sağlar."
+    }
+  ],
+  "review_pool": [
+    "d17-b1-e1",
+    "d17-b1-e3",
+    "d17-b2-e1",
+    "d17-b3-e1",
+    "d17-b4-e1",
+    "d17-b4-e3"
+  ],
+  "title_tr": "Hata yakalama"
+}

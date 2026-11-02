@@ -1,0 +1,326 @@
+{
+ "day": 22,
+ "title_tr": "Web Scraping (Web'den Veri Çekme)",
+ "title": "Web Scraping",
+ "est_minutes": 35,
+ "cards": [
+  {
+   "id": "d22-c01",
+   "type": "explain",
+   "title_tr": "Web scraping nedir?",
+   "title": "What is web scraping?",
+   "body_tr": "Web scraping, bir web sayfasının içindeki veriyi programla çekip kendi verine dönüştürmektir. Tarayıcı bir adrese istek (request) gönderir, sunucu sayfanın **HTML** metnini yollar ve tarayıcı onu görsel sayfaya çevirir. Scraping'de görsel kısmı atlarız: aynı HTML metnini alır, içinden istediğimiz parçaları ayıklarız. Yani iş üç adımdır: **iste, ayrıştır (parse), kaydet**. Fiyat takibi, haber toplama ve araştırma verisi derleme tipik kullanımlardır.",
+   "body": "Web scraping means pulling data out of a web page with a program and turning it into data of your own. A browser sends a request to an address, the server replies with the page's **HTML** text, and the browser renders it visually. In scraping we skip the visual part: we take the same HTML text and pick out the pieces we want. So the job has three steps: **request, parse, save**. Price tracking, news collection and gathering research data are typical uses.",
+   "code": "html = '<h1>Merhaba</h1><p>Fiyat: 25 TL</p>'\nprint(type(html))\nprint(len(html))\nprint(html[:12])",
+   "expected_output": "<class 'str'>\n35\n<h1>Merhaba<",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c02",
+   "type": "explain",
+   "title_tr": "HTML bir ağaçtır",
+   "title": "HTML is a tree",
+   "body_tr": "HTML, **etiketlerin** (tag) iç içe geçtiği bir metindir: `<ul>` içinde `<li>` öğeleri, `<body>` içinde `<ul>` bulunur. Etiketler `class` ve `id` gibi **attribute**'lar taşıyabilir; scraping'de aradığımız parçayı çoğunlukla bunlarla tarif ederiz (\"class'ı `book` olan her `li`\"). Düz bir string olarak görünse de yapısı ağaçtır, bu yüzden `find` ve dilimleme ile uğraşmak yerine bu yapıyı tanıyan bir ayrıştırıcı kullanırız.",
+   "body": "HTML is text in which **tags** nest inside one another: `<li>` items sit inside a `<ul>`, which sits inside `<body>`. Tags can carry **attributes** such as `class` and `id`; in scraping we usually describe the piece we want with them (\"every `li` whose class is `book`\"). It looks like a plain string, but its structure is a tree, which is why we use a parser that understands the structure instead of fiddling with `find` and slicing.",
+   "code": "page = \"<html>\\n<head><title>Kitap Listesi</title></head>\\n<body>\\n<ul id=\\\"books\\\">\\n<li class=\\\"book\\\">Sefiller</li>\\n<li class=\\\"book\\\">Suc ve Ceza</li>\\n</ul>\\n</body>\\n</html>\"\nprint(page.count('<li'))\nprint(page.find('<title>'))",
+   "expected_output": "2\n13",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c03",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "html = '<ul><li>a</li><li>b</li><li>c</li></ul>'\nprint(html.count('<li>'))",
+   "choices": [
+    "4",
+    "1",
+    "3",
+    "Error"
+   ],
+   "answer": "3",
+   "why_tr": "Üç `<li>` açılış etiketi var; `count` metindeki örtüşmeyen eşleşmeleri sayar.",
+   "why": "There are three `<li>` opening tags; `count` counts the non-overlapping matches in the text.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c04",
+   "type": "explain",
+   "title_tr": "Neden requests? Sahte bir yanıtla çalışacağız",
+   "title": "Why requests? We use a stand-in response",
+   "body_tr": "Gerçek derste `requests.get(url)` bir **response** nesnesi döndürür; bu nesnenin `status_code` (durum kodu) ve `content` (sayfa metni) attribute'ları vardır. Burada tarayıcıda çalıştığımız ve internet erişimi olmadığı için aynı şekli taşıyan küçük bir sınıf yazıyoruz. Önemli olan fikir: bir yanıt nesnesi \"ne oldu\" (kod) ile \"ne geldi\" (içerik) bilgisini ayrı tutar ve içeriğe dokunmadan önce koda bakarız. Sınıf yazmayı dün öğrendiğin için bu sana tanıdık gelecek.",
+   "body": "In the real lesson `requests.get(url)` returns a **response** object with `status_code` and `content` attributes. Because we run in the browser with no network access, we write a small class with the same shape. The idea is what matters: a response keeps \"what happened\" (the code) apart from \"what arrived\" (the content), and we check the code before touching the content. You learned to write classes just now, so this should look familiar.",
+   "code": "class Response:\n    def __init__(self, status_code, content):\n        self.status_code = status_code\n        self.content = content\n\nr = Response(200, '<title>Ana Sayfa</title>')\nprint(r.status_code)\nprint(r.content)",
+   "expected_output": "200\n<title>Ana Sayfa</title>",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c05",
+   "type": "explain",
+   "title_tr": "Durum kodları",
+   "title": "Status codes",
+   "body_tr": "Sunucu her yanıtın başına 3 haneli bir sayı koyar. **200** başarılı demektir. **404** aradığın sayfa yok, **403** erişim yasak, **500** sunucu kendi içinde hata yaptı demektir. İlk hane kaba kategoriyi verir: 2xx başarı, 3xx yönlendirme, 4xx senin hatan, 5xx sunucunun hatası. Scraper'ın ilk işi bu kodu kontrol etmektir; çünkü 404 sayfasının da bir HTML'i vardır ve onu veri sanırsan sessizce yanlış sonuç üretirsin.",
+   "body": "The server puts a 3-digit number at the head of every reply. **200** means success; **404** means the page does not exist, **403** access is forbidden, **500** the server failed internally. The first digit gives the broad category: 2xx success, 3xx redirect, 4xx your fault, 5xx the server's fault. A scraper's first job is checking this code, because even a 404 page has HTML, and if you mistake it for data you silently produce wrong results.",
+   "code": "def kategori(kod):\n    if 200 <= kod < 300:\n        return 'basari'\n    if 400 <= kod < 500:\n        return 'istemci hatasi'\n    if kod >= 500:\n        return 'sunucu hatasi'\n    return 'diger'\n\nfor k in (200, 404, 500, 301):\n    print(k, kategori(k))",
+   "expected_output": "200 basari\n404 istemci hatasi\n500 sunucu hatasi\n301 diger",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c06",
+   "type": "truefalse",
+   "statement_tr": "Status code 404 gelen bir yanıtın içeriği boştur, bu yüzden kontrol etmeden ayrıştırmak zararsızdır.",
+   "statement": "A response with status code 404 has empty content, so parsing it without checking is harmless.",
+   "answer": false,
+   "why_tr": "404 sayfaları da genelde bir hata sayfası HTML'i içerir. Kontrol etmezsen o sayfayı veri gibi ayrıştırır ve yanlış sonuç alırsın.",
+   "why": "A 404 page usually contains an error-page HTML. Without checking, you parse it as if it were data and get wrong results.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c07",
+   "type": "explain",
+   "title_tr": "Sık hata: durumu kontrol etmemek",
+   "title": "Common mistake: not checking the status",
+   "body_tr": "Aşağıdaki scraper fiyatı aramak için sayfa metnini böler. Sayfa bulunduğunda çalışır; ama sunucu 404 dönünce hata sayfasında \"Fiyat:\" geçmediği için `split(...)[1]` bir `IndexError` fırlatır. Hata mesajı (`list index out of range`) sorunun gerçek sebebini söylemez: asıl sorun sayfanın hiç gelmemiş olmasıdır. Kodu önce kontrol edersen hata anlamlı olur ve kendi mesajını yazabilirsin.",
+   "body": "The scraper below splits the page text to find a price. It works when the page exists; but when the server answers 404 the error page has no \"Fiyat:\", so `split(...)[1]` raises an `IndexError`. The message (`list index out of range`) does not tell the real cause: the page never arrived. If you check the code first, the failure becomes meaningful and you can write your own message.",
+   "code": "class Response:\n    def __init__(self, code, content):\n        self.status_code = code\n        self.content = content\n\nr = Response(404, '<h1>Sayfa bulunamadi</h1>')\ntry:\n    print(r.content.split('Fiyat:')[1])\nexcept IndexError as e:\n    print('IndexError:', e)\n\nif r.status_code != 200:\n    print('Sayfa alinamadi, kod:', r.status_code)",
+   "expected_output": "IndexError: list index out of range\nSayfa alinamadi, kod: 404",
+   "hide_output": true,
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c08",
+   "type": "explain",
+   "title_tr": "Ayrıştırıcı: HTMLParser",
+   "title": "A parser: HTMLParser",
+   "body_tr": "Python'un standart kütüphanesinde `html.parser.HTMLParser` adlı bir ayrıştırıcı vardır. HTML metnini `feed()` ile ona verirsin; o metni baştan sona okur ve her açılış etiketinde `handle_starttag`, her metin parçasında `handle_data` methodunu çağırır. Biz de sınıfı miras alıp bu methodları **override** ederek ilgilendiğimiz anları yakalarız. Dün öğrendiğin kalıtım burada gerçek bir iş görüyor. BeautifulSoup da aynı temel işi daha rahat bir arayüzle yapar.",
+   "body": "Python's standard library has a parser called `html.parser.HTMLParser`. You give it HTML text with `feed()`; it reads the text from start to end and calls `handle_starttag` at each opening tag and `handle_data` at each piece of text. We inherit from the class and **override** those methods to catch the moments we care about. The inheritance you learned yesterday does real work here. BeautifulSoup does the same core job with a friendlier interface.",
+   "code": "from html.parser import HTMLParser\n\nclass TitleFinder(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.inside = False\n        self.title = ''\n    def handle_starttag(self, tag, attrs):\n        if tag == 'title':\n            self.inside = True\n    def handle_endtag(self, tag):\n        if tag == 'title':\n            self.inside = False\n    def handle_data(self, data):\n        if self.inside:\n            self.title += data\n\np = TitleFinder()\np.feed('<html><head><title>Kitap Listesi</title></head></html>')\nprint(p.title)",
+   "expected_output": "Kitap Listesi",
+   "trace": true,
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c09",
+   "type": "fill",
+   "prompt_tr": "Metni ayrıştırıcıya ver.",
+   "prompt": "Hand the text to the parser.",
+   "code": "from html.parser import HTMLParser\n\nclass Tags(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.found = []\n    def handle_starttag(self, tag, attrs):\n        self.found.append(tag)\n\np = Tags()\np.___('<ul><li>a</li><li>b</li></ul>')\nprint(p.found)",
+   "answers": [
+    "feed"
+   ],
+   "expected_output": "['ul', 'li', 'li']",
+   "why_tr": "`feed()` HTML metnini ayrıştırıcıya verir ve olay methodlarının tetiklenmesini sağlar.",
+   "why": "`feed()` hands the HTML text to the parser and triggers the event methods.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c10",
+   "type": "explain",
+   "title_tr": "Attribute'ları okumak: bağlantıları toplamak",
+   "title": "Reading attributes: collecting links",
+   "body_tr": "`handle_starttag` ikinci parametre olarak etiketin attribute'larını `(isim, değer)` çiftlerinden oluşan bir liste olarak alır. Bunu `dict(attrs)` ile sözlüğe çevirmek işimizi kolaylaştırır; sonra `.get('href')` ile değeri güvenle okuruz. `.get` kullanmak önemlidir: her `<a>` etiketinde `href` olmayabilir ve `attrs['href']` o zaman `KeyError` verir.",
+   "body": "`handle_starttag` receives the tag's attributes as its second parameter, a list of `(name, value)` pairs. Converting it with `dict(attrs)` makes life easy; then `.get('href')` reads the value safely. Using `.get` matters: not every `<a>` has an `href`, and `attrs['href']` would then raise a `KeyError`.",
+   "code": "from html.parser import HTMLParser\n\nclass LinkFinder(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.links = []\n    def handle_starttag(self, tag, attrs):\n        if tag == 'a':\n            href = dict(attrs).get('href')\n            if href:\n                self.links.append(href)\n\np = LinkFinder()\np.feed('<a href=\"/urun/1\">Bir</a><a>Bos</a><a href=\"/urun/2\">Iki</a>')\nprint(p.links)",
+   "expected_output": "['/urun/1', '/urun/2']",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c11",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "attrs = [('class', 'book'), ('id', 'b1')]\nprint(dict(attrs).get('class'), dict(attrs).get('href'))",
+   "choices": [
+    "book b1",
+    "Error",
+    "book href",
+    "book None"
+   ],
+   "answer": "book None",
+   "why_tr": "Çift listesi sözlüğe çevrilir; 'class' vardır, 'href' yoktur ve `.get` hata yerine `None` verir.",
+   "why": "The pair list becomes a dict; 'class' exists, 'href' does not, and `.get` returns `None` instead of raising.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c12",
+   "type": "explain",
+   "title_tr": "Class ve id ile seçmek",
+   "title": "Selecting by class and id",
+   "body_tr": "Sayfada onlarca `li` olabilir ama bize yalnızca belirli bir sınıftakiler lazımdır. Çözüm: etiketi gördüğümüzde `class` attribute'una bakıp bayrak (flag) kaldırmak ve sonraki metni sadece bayrak kalkıkken toplamaktır. `id` sayfada tekil olduğu için en kesin seçicidir; `class` ise birden çok öğede tekrar eder. BeautifulSoup'un `find_all('li', {'class': 'book'})` çağrısı tam olarak bu mantığı sizin yerinize yapar.",
+   "body": "A page may have dozens of `li` elements but we need only those of a certain class. The approach: when we see the tag, check its `class` attribute and raise a flag, then collect the following text only while the flag is up. An `id` is unique on a page so it is the most precise selector; a `class` repeats across many elements. BeautifulSoup's `find_all('li', {'class': 'book'})` does exactly this logic for you.",
+   "code": "from html.parser import HTMLParser\n\nclass BookFinder(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.want = False\n        self.books = []\n    def handle_starttag(self, tag, attrs):\n        self.want = (tag == 'li' and dict(attrs).get('class') == 'book')\n    def handle_data(self, data):\n        if self.want:\n            self.books.append(data)\n            self.want = False\n\np = BookFinder()\np.feed('<ul><li class=\"book\">Sefiller</li><li class=\"ad\">Reklam</li><li class=\"book\">Suc ve Ceza</li></ul>')\nprint(p.books)",
+   "expected_output": "['Sefiller', 'Suc ve Ceza']",
+   "trace": true,
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c13",
+   "type": "truefalse",
+   "statement_tr": "Bir sayfada aynı `id` değerine sahip birden çok etiket olması beklenir; `class` ise tekil olmalıdır.",
+   "statement": "Several tags with the same `id` are expected on a page; `class` should be unique.",
+   "answer": false,
+   "why_tr": "Tersi doğrudur: `id` sayfada tekildir, `class` ise birçok öğede tekrar eder.",
+   "why": "It is the other way round: an `id` is unique on a page, while a `class` repeats across many elements.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c14",
+   "type": "explain",
+   "title_tr": "Gerçekçi örnek: ürün tablosu",
+   "title": "Realistic example: a product table",
+   "body_tr": "Gerçek sayfalarda veri tablo satırlarındadır: her `<tr>` içinde `<td>` hücreleri. Ayrıştırıcı hücre metinlerini sırayla toplar, satır bitince (`</tr>`) topladığımız hücreleri bir kayda çeviririz. Sonuç, daha önce çok kullandığın yapıdır: sözlüklerden oluşan bir liste. Veriyi bu forma getirdikten sonra scraping bitmiştir; gerisi sıralama, filtreleme ve kaydetme gibi sıradan Python işidir.",
+   "body": "On real pages data sits in table rows: `<td>` cells inside each `<tr>`. The parser collects cell texts in order, and when the row ends (`</tr>`) we turn the collected cells into a record. The result is a structure you have used many times: a list of dicts. Once the data has this form, scraping is finished; the rest is ordinary Python such as sorting, filtering and saving.",
+   "code": "from html.parser import HTMLParser\n\nclass Rows(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.cells, self.rows = [], []\n    def handle_data(self, data):\n        if data.strip():\n            self.cells.append(data.strip())\n    def handle_endtag(self, tag):\n        if tag == 'tr' and self.cells:\n            self.rows.append({'ad': self.cells[0], 'fiyat': self.cells[1]})\n            self.cells = []\n\np = Rows()\np.feed('<table><tr><td>Kalem</td><td>12.50</td></tr><tr><td>Defter</td><td>30.00</td></tr></table>')\nprint(p.rows)",
+   "expected_output": "[{'ad': 'Kalem', 'fiyat': '12.50'}, {'ad': 'Defter', 'fiyat': '30.00'}]",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c15",
+   "type": "explain",
+   "title_tr": "Veriyi temizlemek",
+   "title": "Cleaning the data",
+   "body_tr": "Scraping'den gelen her şey **string**'tir ve çoğunlukla kirlidir: boşluklar, para birimi simgeleri, binlik ayırıcılar. Hesap yapabilmek için önce temizleyip sayıya çevirmek gerekir: `strip()` kenar boşluklarını atar, `replace` simgeyi siler, Türkçe sayıda virgül ondalık ayırıcıdır ve `float`'tan önce noktaya çevrilmelidir. Dönüştürme adımını ayrı bir fonksiyona koymak, sayfa biçimi değişince tek yerde düzeltme yapmanı sağlar.",
+   "body": "Everything that comes from scraping is a **string**, and usually dirty: whitespace, currency symbols, thousands separators. To compute with it you must clean it and convert to a number: `strip()` removes edge whitespace, `replace` deletes the symbol, and a Turkish number uses a comma as the decimal separator, which must become a dot before `float`. Putting the conversion in a separate function means you fix it in one place when the page format changes.",
+   "code": "def fiyat_oku(metin):\n    temiz = metin.strip().replace('TL', '').replace('.', '').replace(',', '.')\n    return float(temiz)\n\nham = ['  1.250,50 TL ', '89,90 TL', ' 15 TL']\nsayilar = [fiyat_oku(x) for x in ham]\nprint(sayilar)\nprint(sum(sayilar))",
+   "expected_output": "[1250.5, 89.9, 15.0]\n1355.4",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c16",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "ham = ' 45,5 TL '\nprint(float(ham.strip().replace('TL', '').replace(',', '.')))",
+   "choices": [
+    "45.5",
+    "45,5",
+    "Error",
+    "455.0"
+   ],
+   "answer": "45.5",
+   "why_tr": "Temizlik adımları sırayla çalışır: kenar boşlukları gider, 'TL' silinir, virgül noktaya döner ve `float` 45.5 verir.",
+   "why": "The cleaning steps run in order: edge whitespace goes, 'TL' is removed, the comma becomes a dot and `float` gives 45.5.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c17",
+   "type": "explain",
+   "title_tr": "Sık hata: öğe bulunamayınca None",
+   "title": "Common mistake: None when nothing matches",
+   "body_tr": "BeautifulSoup'ta `soup.find(...)` eşleşme bulamazsa hata vermez, `None` döner; hata sonra, o `None` üzerinde `.text` istediğin satırda çıkar: `AttributeError: 'NoneType' object has no attribute ...`. Aynı davranışı bir sözlük araması ile gösterelim. Hatayı okurken \"hangi nesne None?\" diye sor ve bir önceki satırdaki arama sonucuna bak. Savunma: sonucu kullanmadan önce `if sonuc is not None` ile kontrol et.",
+   "body": "In BeautifulSoup `soup.find(...)` does not raise when nothing matches; it returns `None`, and the error appears later, on the line where you ask that `None` for `.text`: `AttributeError: 'NoneType' object has no attribute ...`. We show the same behaviour with a dict lookup. When reading the error ask \"which object is None?\" and look at the search result on the previous line. Defence: check with `if result is not None` before using it.",
+   "code": "sayfa = {'baslik': 'Kitaplar'}\nsonuc = sayfa.get('fiyat')\nprint(sonuc)\ntry:\n    print(sonuc.strip())\nexcept AttributeError as e:\n    print('AttributeError:', e)",
+   "expected_output": "None\nAttributeError: 'NoneType' object has no attribute 'strip'",
+   "hide_output": true,
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c18",
+   "type": "explain",
+   "title_tr": "Regex neden kırılgandır?",
+   "title": "Why regex is fragile",
+   "body_tr": "HTML'i `re` ile ayıklamak ilk bakışta kısa görünür, ama kalıp etiketin yazımına bağlıdır. Sayfa sahibi `class` ile `href` sırasını değiştirir ya da tek tırnak kullanırsa kalıp sessizce hiçbir şey bulamaz. Ayrıştırıcı ise etiketi anlamlı olarak okur ve bu farkları görmezden gelir. Kural: HTML için ayrıştırıcı, düz metin kalıpları için regex kullan.",
+   "body": "Extracting from HTML with `re` looks short at first, but the pattern depends on how the tag is written. If the site owner swaps the order of `class` and `href` or uses single quotes, the pattern silently finds nothing. A parser reads the tag by meaning and ignores such differences. Rule: use a parser for HTML, regex for plain-text patterns.",
+   "code": "import re\n\nA = '<a class=\"x\" href=\"/u/1\">Bir</a>'\nB = '<a href=\"/u/1\" class=\"x\">Bir</a>'\nkalip = r'<a class=\"x\" href=\"(.*?)\"'\nprint(re.findall(kalip, A))\nprint(re.findall(kalip, B))",
+   "expected_output": "['/u/1']\n[]",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c19",
+   "type": "explain",
+   "title_tr": "Saygılı scraping: robots.txt",
+   "title": "Polite scraping: robots.txt",
+   "body_tr": "Her site, botlara hangi yolların açık olduğunu `robots.txt` dosyasında yazar. Standart kütüphanedeki `urllib.robotparser`, bu satırları okuyup \"şu adres çekilebilir mi?\" sorusunu yanıtlar. Ayrıca sitenin kullanım şartlarını oku, çok sık istek atma (istekler arasında bekle) ve kişisel veriyi toplama. Scraping teknik olarak kolaydır; sorumluluk sende başlar.",
+   "body": "Every site states in its `robots.txt` which paths are open to bots. `urllib.robotparser` in the standard library reads those lines and answers \"may I fetch this address?\". Also read the site's terms of use, do not send requests too fast (wait between them) and do not collect personal data. Scraping is technically easy; the responsibility starts with you.",
+   "code": "from urllib.robotparser import RobotFileParser\n\nrp = RobotFileParser()\nrp.parse(['User-agent: *', 'Disallow: /admin', 'Allow: /'])\nprint(rp.can_fetch('*', '/urunler'))\nprint(rp.can_fetch('*', '/admin/panel'))",
+   "expected_output": "True\nFalse",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c20",
+   "type": "fill",
+   "prompt_tr": "Hangi kontrol sonucu olumsuz?",
+   "prompt": "Which check is negative?",
+   "code": "from urllib.robotparser import RobotFileParser\n\nrp = RobotFileParser()\nrp.parse(['User-agent: *', 'Disallow: /private'])\nprint(rp.can_fetch('*', '___'))",
+   "answers": [
+    "/private/data"
+   ],
+   "expected_output": "False",
+   "why_tr": "`Disallow: /private` ile başlayan yollar yasaktır; `can_fetch` bu yol için False döner.",
+   "why": "Paths beginning with `Disallow: /private` are forbidden; `can_fetch` returns False for this path.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c21",
+   "type": "explain",
+   "title_tr": "Sonucu kaydetmek: JSON ve CSV",
+   "title": "Saving the result: JSON and CSV",
+   "body_tr": "Ayıklanan veri bellekte kaybolmasın diye dosyaya yazılır. Sözlük listesi için en kolay biçim **JSON**'dur: `json.dumps` metne çevirir, `ensure_ascii=False` Türkçe harfleri korur. Tablo gibi düz veri için **CSV** uygundur ve `csv.DictWriter` başlık satırını kendisi yazar. Burada gerçek dosya yerine bellekteki `io.StringIO` kullanıyoruz; gerçek kullanımda `open(...)` ile aynı kod çalışır.",
+   "body": "Extracted data is written to a file so it does not vanish from memory. For a list of dicts the easiest format is **JSON**: `json.dumps` turns it into text and `ensure_ascii=False` preserves Turkish letters. For flat table-like data **CSV** fits, and `csv.DictWriter` writes the header row itself. We use an in-memory `io.StringIO` instead of a real file; with `open(...)` the same code works for real.",
+   "code": "import json, csv, io\n\nkayitlar = [{'ad': 'Kalem', 'fiyat': 12.5}, {'ad': 'Şemsiye', 'fiyat': 150.0}]\nprint(json.dumps(kayitlar, ensure_ascii=False))\n\ntampon = io.StringIO()\nw = csv.DictWriter(tampon, fieldnames=['ad', 'fiyat'], lineterminator='\\n')\nw.writeheader()\nw.writerows(kayitlar)\nprint(tampon.getvalue())",
+   "expected_output": "[{\"ad\": \"Kalem\", \"fiyat\": 12.5}, {\"ad\": \"Şemsiye\", \"fiyat\": 150.0}]\nad,fiyat\nKalem,12.5\nŞemsiye,150.0",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c22",
+   "type": "order",
+   "prompt_tr": "Scraping adımlarını sırala: iste, kontrol et, ayrıştır, yazdır.",
+   "prompt": "Order the scraping steps: request, check, parse, print.",
+   "lines": [
+    "r = {'code': 200, 'body': 'Sefiller;Suc ve Ceza'}",
+    "if r['code'] == 200:",
+    "    print(kitaplar)",
+    "    kitaplar = r['body'].split(';')"
+   ],
+   "correct_order": [
+    0,
+    1,
+    3,
+    2
+   ],
+   "expected_output": "['Sefiller', 'Suc ve Ceza']",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c23",
+   "type": "explain",
+   "title_tr": "BeautifulSoup ile eşleşme",
+   "title": "How this maps to BeautifulSoup",
+   "body_tr": "Gerçek derste `requests` ve `BeautifulSoup` kullanılır; yukarıda yaptığımız her adımın karşılığı vardır. `requests.get(url)` yanıtı getirir, `response.status_code` durumu söyler, `BeautifulSoup(response.content, 'html.parser')` ağacı kurar. Sonra `soup.title.get_text()` başlığı, `soup.find_all('li', {'class': 'book'})` seçili öğeleri verir. Kendi bilgisayarında `pip install requests beautifulsoup4` ile kurup deneyebilirsin; mantık bu derste öğrendiğinle aynıdır.",
+   "body": "The real lesson uses `requests` and `BeautifulSoup`; every step above has a counterpart. `requests.get(url)` fetches the response, `response.status_code` reports the state, `BeautifulSoup(response.content, 'html.parser')` builds the tree. Then `soup.title.get_text()` gives the title and `soup.find_all('li', {'class': 'book'})` the selected elements. On your own machine you can install with `pip install requests beautifulsoup4` and try it; the logic is the same as what you learned here.",
+   "code": "eslesme = {\n    'requests.get(url)': 'yaniti getirir',\n    'response.status_code': 'durum kodu',\n    'soup.find_all(...)': 'secilen ogeler',\n}\nfor kod, anlam in eslesme.items():\n    print(kod, '->', anlam)",
+   "expected_output": "requests.get(url) -> yaniti getirir\nresponse.status_code -> durum kodu\nsoup.find_all(...) -> secilen ogeler",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c24",
+   "type": "truefalse",
+   "statement_tr": "Web scraping'de ilk iş sayfanın status code değerine bakmaktır.",
+   "statement": "The first job in web scraping is looking at the page's status code.",
+   "answer": true,
+   "why_tr": "200 değilse elindeki içerik muhtemelen bir hata sayfasıdır ve ayrıştırmanın anlamı kalmaz.",
+   "why": "If it is not 200 the content is probably an error page and parsing it makes no sense.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c25",
+   "type": "recap",
+   "points_tr": [
+    "Scraping üç adımdır: iste, ayrıştır, kaydet; HTML etiketlerin iç içe geçtiği bir ağaçtır.",
+    "Önce `status_code` kontrol edilir; 200 dışı yanıt veri değildir.",
+    "Ayrıştırıcı etiket ve attribute'lara bakar; regex, yazım değişince kırılır. Bulunamayan öğe `None` olur.",
+    "Gelen metin temizlenip sayıya çevrilir, robots.txt ve kullanım şartlarına saygı gösterilir."
+   ],
+   "points": [
+    "Scraping is three steps: request, parse, save; HTML is a tree of nested tags.",
+    "Check `status_code` first; a non-200 reply is not data.",
+    "A parser works with tags and attributes; regex breaks when the writing changes. A missing element is `None`.",
+    "Incoming text is cleaned and converted to numbers, and robots.txt and terms of use are respected."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "What is Web Scrapping"
+  }
+ ]
+}

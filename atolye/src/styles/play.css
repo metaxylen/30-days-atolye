@@ -1,0 +1,686 @@
+/*
+ * Game feel and the three games (speed round, bug hunt, bosses), the combo, the play room on the home page.
+ * Flat palette, the chevron as the only shape, transform and opacity for motion. Reduced motion: colour and opacity only.
+ */
+
+/* ---- answer feedback ---- */
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 70;
+}
+dialog .fx-layer {
+  z-index: 1;
+}
+@keyframes fx-settle {
+  0% {
+    transform: scale(0.992);
+  }
+  55% {
+    transform: scale(1.005);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes fx-shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  45% {
+    transform: translateX(5px);
+  }
+  70% {
+    transform: translateX(-3px);
+  }
+  88% {
+    transform: translateX(2px);
+  }
+}
+.fx-ok {
+  animation: fx-settle 420ms var(--ease-out);
+}
+.fx-bad {
+  animation: fx-shake 240ms var(--ease-out);
+}
+@keyframes note-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.misconception,
+.feedback.is-bad {
+  animation: note-in 240ms var(--ease-out) both;
+}
+@keyframes flash-ok {
+  from {
+    background-color: color-mix(in srgb, var(--field-2) 45%, var(--cell));
+  }
+}
+@keyframes flash-bad {
+  from {
+    background-color: var(--negative-bg);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- HUD: counting XP, the combo, sound ---- */
+.hud-xp {
+  display: inline-block;
+}
+.hud-xp.is-bump {
+  color: var(--ink);
+  animation: xp-bump 420ms var(--ease-out);
+}
+@keyframes xp-bump {
+  35% {
+    transform: scale(1.16);
+  }
+}
+.hud-combo {
+  gap: 6px;
+}
+.hud-combo:not(.is-on) {
+  padding: 0;
+  min-width: 0;
+  gap: 0;
+}
+.combo-chevs {
+  display: flex;
+}
+.combo-chevs i {
+  width: 11px;
+  height: 20px;
+  margin-left: -3px;
+  background: var(--accent);
+  clip-path: var(--chev);
+  animation: combo-in 260ms var(--ease-out) both;
+}
+.combo-chevs i:first-child {
+  margin-left: 0;
+  background: var(--field-3);
+}
+.combo-chevs i:nth-child(2) {
+  background: var(--field-1);
+}
+@keyframes combo-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.6);
+  }
+}
+.hud-combo.is-on .hud-n {
+  color: var(--ink);
+  font-weight: 700;
+}
+.hud-sound {
+  min-width: 56px;
+  justify-content: center;
+}
+
+.note-toast {
+  position: fixed;
+  top: 16px;
+  left: 0;
+  right: 0;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin-inline: auto;
+  z-index: 60;
+  padding: 10px 18px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 500;
+  animation: toast-in 280ms var(--ease-out) both;
+}
+
+/* ---- level-up: three chevrons, then the name ---- */
+.levelup-chevs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.levelup-chevs i {
+  display: block;
+  width: clamp(30px, 6vw, 64px);
+  aspect-ratio: 54 / 64;
+  background: #000;
+  clip-path: var(--chev);
+  animation: lv-chev 520ms var(--ease-out) both;
+}
+.levelup-chevs i:nth-child(2) {
+  animation-delay: 110ms;
+  opacity: 0.7;
+}
+.levelup-chevs i:nth-child(3) {
+  animation-delay: 220ms;
+  opacity: 0.4;
+}
+@keyframes lv-chev {
+  from {
+    opacity: 0;
+    transform: translateX(-70px);
+  }
+}
+.levelup-name {
+  animation: lv-name 560ms var(--ease-out) 260ms both;
+}
+.levelup-line,
+.levelup-next {
+  animation: fade-in 400ms ease 620ms both;
+}
+@keyframes lv-name {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+/* ---- settings: snake skins ---- */
+.skins {
+  display: grid;
+  gap: 8px;
+}
+.skin {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 2px solid transparent;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.skin.is-on {
+  border-color: var(--ink);
+}
+.skin:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.skin small {
+  color: var(--muted);
+}
+.skin-chevs {
+  display: flex;
+}
+.skin-chevs i {
+  width: 14px;
+  height: 22px;
+  margin-left: -3px;
+  clip-path: var(--chev);
+}
+.skin-chevs i:first-child {
+  margin-left: 0;
+}
+.skin:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ---- the snake grows ---- */
+.snake-svg .seg-new {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: seg-grow 650ms var(--ease-out) both;
+}
+@keyframes seg-grow {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+/* ---- game pages ---- */
+.game-page .review-main {
+  max-width: 860px;
+}
+.chev-bar {
+  display: flex;
+  gap: 3px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.chev-bar li {
+  width: 26px;
+  height: 32px;
+  background: var(--active);
+  clip-path: var(--chev);
+}
+.chev-bar li.is-full {
+  background: var(--accent);
+}
+
+/* speed round */
+.speed-card {
+  display: grid;
+  gap: 14px;
+}
+.speed-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 22px;
+}
+.speed-secs {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.speed-clock {
+  display: flex;
+  gap: 3px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.speed-clock li {
+  flex: 1;
+  height: 30px;
+  background: var(--active);
+  clip-path: var(--chev);
+  transition: background-color 200ms ease;
+}
+.speed-clock li.is-full {
+  background: var(--accent);
+}
+.speed-choices {
+  display: grid;
+  gap: 8px;
+}
+.speed-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 16px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms var(--ease-out);
+}
+.speed-choice:active:not(:disabled) {
+  transform: scale(0.985);
+}
+.speed-choice:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .speed-choice:hover:not(:disabled) {
+    background: var(--active);
+  }
+}
+.speed-choice:disabled {
+  cursor: default;
+}
+.speed-choice kbd {
+  flex: none;
+  min-width: 28px;
+  padding: 2px 0;
+  background: var(--ink);
+  color: var(--bg);
+  font: 600 14px/1.4 var(--font-code);
+  text-align: center;
+}
+.speed-choice pre {
+  margin: 0;
+  font-family: var(--font-code);
+  font-size: 15px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.speed-choice.is-right {
+  background: color-mix(in srgb, var(--field-2) 45%, var(--cell));
+  border-color: var(--field-2);
+}
+.speed-choice.is-wrong {
+  background: var(--negative-bg);
+  border-color: var(--negative);
+}
+.speed-choice.is-dim {
+  opacity: 0.55;
+}
+.speed-best strong {
+  font-size: 22px;
+}
+.speed-miss-h {
+  font-size: 22px;
+}
+.speed-misses {
+  display: grid;
+  gap: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.speed-misses li {
+  display: grid;
+  gap: 6px;
+  padding-left: 14px;
+  border-left: 4px solid var(--negative);
+}
+.speed-why {
+  color: var(--muted);
+}
+
+/* bug hunt */
+.hunt-code {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 10px 0;
+  background: var(--surface);
+  overflow-x: auto;
+}
+.hunt-line {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  min-height: 32px;
+  padding: 2px 14px 2px 10px;
+  background: transparent;
+  color: var(--ink);
+  border: 0;
+  border-left: 4px solid transparent;
+  font: 14.5px/1.6 var(--font-code);
+  text-align: left;
+  white-space: pre;
+  cursor: pointer;
+}
+.hunt-line:disabled {
+  cursor: default;
+  color: var(--ink);
+}
+.hunt-line:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hunt-line:hover:not(:disabled) {
+    background: var(--active);
+    border-left-color: var(--accent);
+  }
+}
+.hunt-n {
+  width: 2em;
+  text-align: right;
+  color: var(--faint);
+}
+.hunt-line.is-picked {
+  background: var(--code-select);
+}
+.hunt-line.is-bug {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* boss */
+.boss-head {
+  display: grid;
+  gap: 14px;
+  padding: 20px clamp(16px, 3vw, 28px);
+  background: var(--surface);
+}
+.boss-story {
+  font-size: var(--t-lead);
+  line-height: 1.4;
+  max-width: 60ch;
+}
+.boss-hp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+.boss-win-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ---- the play room on the home page ---- */
+.play {
+  position: relative;
+  z-index: 1;
+  padding: clamp(64px, 9vw, 130px) var(--gutter);
+  background: var(--bg);
+}
+.play h2 {
+  font-size: var(--t-head);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.play-lead {
+  max-width: 56ch;
+  margin: 12px 0 32px;
+  color: var(--muted);
+  font-size: var(--t-lead);
+  line-height: 1.4;
+}
+.play-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.play-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 24px;
+  background: var(--fc, var(--surface));
+  color: #000;
+}
+.play-card h3 {
+  font-size: 26px;
+  letter-spacing: -0.015em;
+}
+.play-card .btn-chev,
+.play-card .btn-quiet {
+  justify-self: start;
+}
+.play-card .btn-quiet {
+  color: #000;
+}
+.play-meta {
+  font-size: var(--t-small);
+}
+.play-quests {
+  background: var(--surface);
+  color: var(--ink);
+}
+.play-quests ul {
+  display: grid;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.play-quests li {
+  display: grid;
+  gap: 6px;
+}
+.quest-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+.quest-bar {
+  display: block;
+  height: 6px;
+  background: var(--active);
+  overflow: hidden;
+}
+.quest-bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 400ms var(--ease-out);
+}
+.play-quests li.is-done .quest-bar i {
+  background: var(--field-2);
+}
+.quest-xp {
+  font-size: var(--t-small);
+  color: var(--muted);
+}
+.play-sub {
+  margin: 40px 0 14px;
+  font-size: 26px;
+}
+.boss-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.boss-tile {
+  display: grid;
+  align-content: space-between;
+  gap: 10px;
+  min-height: 128px;
+  padding: 16px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+.boss-tile.is-open {
+  background: var(--fc);
+  color: #000;
+}
+.boss-tile.is-won {
+  background: var(--ink);
+  color: var(--bg);
+}
+.boss-tile:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.boss-name {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.boss-state {
+  font-size: var(--t-small);
+}
+.boss-dots {
+  display: flex;
+  gap: 3px;
+}
+.boss-dots i {
+  width: 10px;
+  height: 14px;
+  background: currentColor;
+  opacity: 0.2;
+  clip-path: var(--chev);
+}
+.boss-dots i.is-done {
+  opacity: 1;
+}
+
+/* part folder tabs: the conquered state is solid */
+.part-boss {
+  order: 5;
+  font-size: var(--t-small);
+  font-weight: 500;
+  color: #000;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.part-flag {
+  margin-left: 14px;
+  padding: 3px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+.part-card.is-conquered .part-tab {
+  background: var(--ink);
+  color: var(--bg);
+}
+.part-card.is-conquered {
+  box-shadow: inset 0 0 0 4px var(--ink); /* taste-skill-ignore: a solid frame, not a glow */
+}
+
+@media (max-width: 900px) {
+  .play-grid {
+    grid-template-columns: 1fr;
+  }
+  .boss-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .speed-top {
+    font-size: 18px;
+  }
+  .speed-choice {
+    min-height: 64px;
+  }
+  .hud-sound {
+    display: none;
+  }
+}
+@media (max-width: 520px) {
+  .speed-clock li {
+    height: 24px;
+  }
+  .chev-bar li {
+    width: 20px;
+    height: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-ok {
+    animation: flash-ok 500ms ease;
+  }
+  .fx-bad {
+    animation: flash-bad 500ms ease;
+  }
+  .misconception,
+  .feedback.is-bad {
+    animation: fade-in 200ms ease both;
+  }
+  .hud-xp.is-bump,
+  .combo-chevs i,
+  .levelup-chevs i,
+  .levelup-name,
+  .snake-svg .seg-new {
+    animation: none;
+  }
+  .levelup-line,
+  .levelup-next {
+    animation: none;
+  }
+  .note-toast {
+    animation: fade-in 200ms ease both;
+  }
+  .speed-choice,
+  .quest-bar i {
+    transition: none;
+  }
+}

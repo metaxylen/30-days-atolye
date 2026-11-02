@@ -1,0 +1,204 @@
+{
+ "day": 22,
+ "title_tr": "Web Kazıma (Web Scraping)",
+ "title": "Web Scraping",
+ "est_minutes": 15,
+ "cards": [
+  {
+   "id": "d22-c01",
+   "type": "explain",
+   "title_tr": "Web scraping nedir?",
+   "title": "What is web scraping?",
+   "body_tr": "İnternet devasa bir veri deposu. **Web scraping**, bir sitedeki veriyi program yoluyla çekip kendi bilgisayarında ya da veritabanında saklamaktır. Elle kopyalamanın otomatik hali.",
+   "body": "The internet is a huge pile of data. **Web scraping** means pulling data out of a website with a program and storing it on your machine or in a database. It is copy-paste, automated.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c02",
+   "type": "truefalse",
+   "statement_tr": "Web scraping, bir sitedeki veriyi çekip kendi makinede saklama işidir.",
+   "statement": "Web scraping is pulling data from a site and storing it on your own machine.",
+   "answer": true,
+   "why_tr": "Tanım budur: veriyi çıkar, topla ve yerelde sakla.",
+   "why": "That is the definition: extract, collect and store locally.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c03",
+   "type": "explain",
+   "title_tr": "Araçlar: requests ve BeautifulSoup",
+   "title": "Tools: requests and BeautifulSoup",
+   "body_tr": "Derste iki paket var: `requests` sayfayı indirir, `beautifulsoup4` HTML'i ayrıştırır. İkisi de `pip install` ister ve ağ gerekir; bu tarayıcı ortamında çalışmaz. O yüzden sahte bir `Response` ile aynı mantığı çalıştırıyoruz. Gerçekte `requests.get(url).status_code` 200 dönerse indirme başarılıdır.",
+   "body": "The lesson uses two packages: `requests` downloads the page, `beautifulsoup4` parses the HTML. Both need `pip install` and a network, which this browser lab lacks. So we run the same logic with a fake `Response`. In real life, `requests.get(url).status_code` returning 200 means the download worked.",
+   "code": "class Response:\n    status_code = 200\n    content = '<html><title>UCI Data Sets</title></html>'\n\nresponse = Response()\nprint(response.status_code)",
+   "expected_output": "200",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c04",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "status = 404\nprint('OK' if status == 200 else 'Hata')",
+   "choices": [
+    "OK",
+    "Hata",
+    "404",
+    "Error"
+   ],
+   "answer": "Hata",
+   "why_tr": "Durum kodu 200 değilse (burada 404, sayfa bulunamadı) ifade `'Hata'` döner.",
+   "why": "When the status is not 200 (here 404, page not found), the expression gives `'Hata'`.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c05",
+   "type": "explain",
+   "title_tr": "HTML etiketleri ve hedef seçmek",
+   "title": "HTML tags and picking targets",
+   "body_tr": "Bir sayfadaki veriyi **etiket** (tag), **class** veya **id** ile hedefleriz. Örneğin `<td>` bir tablo hücresidir; `cellpadding='3'` ise tablonun bir özelliğidir. Derste `soup.find_all('table', {'cellpadding':'3'})` tam olarak bunu yapar.",
+   "body": "We target data on a page by **tag**, **class** or **id**. For example `<td>` is a table cell; `cellpadding='3'` is an attribute of the table. In the lesson, `soup.find_all('table', {'cellpadding':'3'})` does exactly this.",
+   "code": "html = \"<table cellpadding='3'><tr><td>Name</td><td>Type</td></tr></table>\"\nprint(html.count('<td>'))\nprint(\"cellpadding='3'\" in html)",
+   "expected_output": "2\nTrue",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c06",
+   "type": "explain",
+   "title_tr": "Başlığı çıkarmak: soup.title",
+   "title": "Getting the title: soup.title",
+   "body_tr": "`soup.title.get_text()` sayfanın başlığını verir. Aynı etkiyi küçük bir HTML metninde `re` (Gün 18) ile gösterelim. Gerçek sitelerde bunun için BeautifulSoup kullanılır; regex yalnızca gösterim içindir.",
+   "body": "`soup.title.get_text()` returns the page title. Let's show the same effect on a tiny HTML string with `re` (Day 18). On real sites you use BeautifulSoup; regex here is only an illustration.",
+   "code": "import re\nhtml = '<html><title>UCI Data Sets</title></html>'\nprint(re.search('<title>(.*?)</title>', html).group(1))",
+   "expected_output": "UCI Data Sets",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c07",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "html = '<ul><li>HTML</li><li>CSS</li><li>Python</li></ul>'\nprint(html.count('<li>'))",
+   "choices": [
+    "3",
+    "4",
+    "1",
+    "0"
+   ],
+   "answer": "3",
+   "why_tr": "Üç tane `<li>` etiketi açılıyor; `count` bunları sayar.",
+   "why": "Three `<li>` tags are opened; `count` counts them.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c08",
+   "type": "explain",
+   "title_tr": "find_all: hepsini bul",
+   "title": "find_all: find them all",
+   "body_tr": "`find_all`, eşleşen **tüm** öğeleri liste olarak verir. Aynı fikri `re.findall` ile görelim: parantez içindeki kısım yakalanır.",
+   "body": "`find_all` returns **every** matching element as a list. The same idea with `re.findall`: the part in parentheses is captured.",
+   "code": "import re\nhtml = '<li>HTML</li><li>CSS</li><li>Flask</li>'\nitems = re.findall('<li>(.*?)</li>', html)\nprint(items)",
+   "expected_output": "['HTML', 'CSS', 'Flask']",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c09",
+   "type": "fill",
+   "prompt_tr": "Yakalama grubunu tamamla.",
+   "prompt": "Complete the capture group.",
+   "code": "import re\nhtml = '<li>HTML</li><li>CSS</li>'\nprint(re.findall('<li>___</li>', html))",
+   "answers": [
+    "(.*?)",
+    "(.+?)"
+   ],
+   "expected_output": "['HTML', 'CSS']",
+   "why_tr": "`(.*?)` iki etiket arasındaki metni en kısa eşleşmeyle yakalar.",
+   "why": "`(.*?)` captures the text between the two tags using the shortest match.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c10",
+   "type": "explain",
+   "title_tr": "Tablonun ilk satırı: döngüyle hücreler",
+   "title": "First table row: looping over cells",
+   "body_tr": "`find_all('table', ...)` bir **liste** döner, o yüzden `tables[0]` ile ilk tabloyu alırız. Sonra satırdaki hücreleri döngüyle yazdırırız (derste `for td in ... find_all('td')`). Adım adım izle.",
+   "body": "`find_all('table', ...)` returns a **list**, so we take the first table with `tables[0]`. Then we loop over the cells of a row (in the lesson `for td in ... find_all('td')`). Step through it.",
+   "code": "tables = [[['Name', 'Type'], ['Iris', 'Flower']]]\ntable = tables[0]\nfirst_row = table[0]\nfor td in first_row:\n    print(td)",
+   "expected_output": "Name\nType",
+   "trace": true,
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c11",
+   "type": "truefalse",
+   "statement_tr": "find_all bir liste döndürdüğü için ilk tabloyu tables[0] ile alırız.",
+   "statement": "Because find_all returns a list, we get the first table with tables[0].",
+   "answer": true,
+   "why_tr": "Liste olduğu için indeksle erişilir; ilk öğe 0. indekstedir.",
+   "why": "It is a list, so we use an index; the first item is at index 0.",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c12",
+   "type": "explain",
+   "title_tr": "Hücreleri HTMLParser ile okumak",
+   "title": "Reading cells with HTMLParser",
+   "body_tr": "Python'un kendi `html.parser` modülü de HTML'i ayrıştırabilir. `handle_data` her metin parçası için çağrılır. BeautifulSoup'un 'html.parser' seçeneği bu motoru kullanır.",
+   "body": "Python's own `html.parser` module can parse HTML too. `handle_data` is called for every piece of text. BeautifulSoup's 'html.parser' option uses this engine.",
+   "code": "from html.parser import HTMLParser\n\nclass Cells(HTMLParser):\n    cells = []\n    def handle_data(self, data):\n        self.cells.append(data)\n\nc = Cells()\nc.feed('<tr><td>Name</td><td>Type</td></tr>')\nprint(c.cells)",
+   "expected_output": "['Name', 'Type']",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c13",
+   "type": "explain",
+   "title_tr": "Sonucu JSON olarak saklamak",
+   "title": "Storing the result as JSON",
+   "body_tr": "Alıştırmalar çekilen tabloyu JSON dosyasına çevirmeyi ister. Başlık ve satırı `zip` ile sözlüğe, `json.dumps` ile metne çeviririz.",
+   "body": "The exercises ask you to turn the scraped table into a JSON file. We build a dict from header and row with `zip`, then `json.dumps` turns it into text.",
+   "code": "import json\nheader = ['Name', 'Type']\nrow = ['Iris', 'Flower']\nprint(json.dumps(dict(zip(header, row))))",
+   "expected_output": "{\"Name\": \"Iris\", \"Type\": \"Flower\"}",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c14",
+   "type": "order",
+   "prompt_tr": "Küçük bir 'scraper'ı doğru sıraya diz.",
+   "prompt": "Put the mini scraper in order.",
+   "lines": [
+    "print(len(items))",
+    "items = re.findall('<li>(.*?)</li>', html)",
+    "html = '<li>HTML</li><li>CSS</li>'",
+    "import re"
+   ],
+   "correct_order": [
+    3,
+    2,
+    1,
+    0
+   ],
+   "expected_output": "2",
+   "section": "What is Web Scrapping"
+  },
+  {
+   "id": "d22-c15",
+   "type": "recap",
+   "points_tr": [
+    "Web scraping, siteden veriyi program yoluyla çekip saklamaktır.",
+    "`requests` sayfayı indirir (200 = başarılı), BeautifulSoup HTML'i ayrıştırır.",
+    "Veriyi etiket, class veya id ile hedeflersin; `find_all` bir liste döndürür.",
+    "Sonucu sözlük/JSON'a çevirerek saklarsın."
+   ],
+   "points": [
+    "Web scraping pulls data out of a site with a program and stores it.",
+    "`requests` downloads the page (200 = success), BeautifulSoup parses the HTML.",
+    "You target data by tag, class or id; `find_all` returns a list.",
+    "You store the result by turning it into a dict/JSON."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "What is Web Scrapping"
+  }
+ ]
+}

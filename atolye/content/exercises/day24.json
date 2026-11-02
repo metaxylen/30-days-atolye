@@ -1,0 +1,822 @@
+{
+ "day": 24,
+ "title": "Statistics (NumPy)",
+ "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+ "blocks": [
+  {
+   "id": "d24-b1",
+   "concept": "numpy-array-creation",
+   "tags": [
+    "numpy",
+    "arrays",
+    "shape",
+    "dtype"
+   ],
+   "worked_example": {
+    "code": "import numpy as np\narr = np.array([[1, 2, 3], [4, 5, 6]])\nprint(arr.shape, arr.size)",
+    "notes": [
+     "np.array(...) turns a (nested) list into a NumPy array.",
+     "shape is (rows, columns); size is the total number of items."
+    ],
+    "notes_tr": [
+     "np.array(...) (iç içe) bir listeyi NumPy dizisine çevirir.",
+     "shape (satır, sütun) demektir; size toplam öğe sayısıdır."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d24-b1-e1",
+     "type": "predict",
+     "concept": "numpy-array-creation",
+     "tags": [
+      "numpy",
+      "arrays",
+      "shape",
+      "dtype"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import numpy as np\na = np.array([1, 2, 3, 4], dtype=float)\nb = np.array([[1, 2], [3, 4], [5, 6]])\nprint(a.dtype, b.shape, b.size)",
+     "choices": [
+      "float64 (3, 2) 6",
+      "int64 (3, 2) 6",
+      "float64 (2, 3) 6",
+      "float64 (3, 2) 3"
+     ],
+     "expected_output": "float64 (3, 2) 6",
+     "explanation": "dtype=float makes a float64 array. b has 3 rows and 2 columns, so shape is (3, 2) and size is 6.",
+     "misconceptions": {
+      "int64 (3, 2) 6": "a was created with dtype=float, so its dtype is float64.",
+      "float64 (2, 3) 6": "shape lists rows first. b has 3 inner lists (rows) with 2 numbers each.",
+      "float64 (3, 2) 3": "size counts every item (3 * 2 = 6), not only the rows."
+     },
+     "explanation_tr": "dtype=float, float64 bir dizi yapar. b'nin 3 satırı ve 2 sütunu var; yani shape (3, 2), size ise 6'dır.",
+     "misconceptions_tr": {
+      "int64 (3, 2) 6": "a, dtype=float ile oluşturuldu, bu yüzden dtype'ı float64'tür.",
+      "float64 (2, 3) 6": "shape önce satırı yazar. b'nin her biri 2 sayılı 3 iç listesi (satırı) var.",
+      "float64 (3, 2) 3": "size her öğeyi sayar (3 * 2 = 6), yalnızca satırları değil."
+     }
+    },
+    {
+     "id": "d24-b1-e2",
+     "type": "fill_blank",
+     "concept": "numpy-array-creation",
+     "tags": [
+      "numpy",
+      "arrays",
+      "shape",
+      "dtype"
+     ],
+     "prompt": "Convert the list of lists to an array and read its number of rows and columns.",
+     "prompt_tr": "Liste listesini diziye çevir ve satır ile sütun sayısını oku.",
+     "starter_code": "import numpy as np\ndata = [[1, 2, 3], [4, 5, 6]]\ntable = np.___(data)\nrows, cols = table.___",
+     "blanks": [
+      {
+       "answer": [
+        "array"
+       ]
+      },
+      {
+       "answer": [
+        "shape"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert (rows, cols) == (2, 3)",
+       "visible": true,
+       "label_tr": "Satır ve sütun sayısı doğru okunuyor"
+      },
+      {
+       "code": "assert table.tolist() == data",
+       "visible": true,
+       "label_tr": "Dizi özgün verinin aynısını tutuyor"
+      }
+     ]
+    },
+    {
+     "id": "d24-b1-e3",
+     "type": "write",
+     "concept": "numpy-array-creation",
+     "tags": [
+      "numpy",
+      "arrays",
+      "shape",
+      "dtype"
+     ],
+     "prompt": "Write to_float_array(values). It returns a NumPy array made from values with dtype float.",
+     "prompt_tr": "to_float_array(values) yaz. values'tan dtype'ı float olan bir NumPy dizisi döndürsün.",
+     "starter_code": "",
+     "signature": "def to_float_array(values):",
+     "tests": [
+      {
+       "code": "import numpy as np\nr = to_float_array([1, 2, 3])\nassert isinstance(r, np.ndarray) and r.tolist() == [1.0, 2.0, 3.0]",
+       "visible": true,
+       "label_tr": "Sonuç float değerli bir NumPy dizisi"
+      },
+      {
+       "code": "import numpy as np\nassert to_float_array([5]).dtype == np.float64",
+       "visible": true,
+       "label_tr": "Tek öğeli dizinin türü float64"
+      },
+      {
+       "code": "import numpy as np\nassert to_float_array([[1, 2], [3, 4]]).shape == (2, 2)",
+       "visible": false,
+       "failure_message": "Keep the shape: a list of lists must become a 2D array.",
+       "failure_message_tr": "Şekli koru: liste listesi 2 boyutlu bir dizi olmalı."
+      },
+      {
+       "code": "import numpy as np\nassert to_float_array((1, 2)).dtype == np.float64",
+       "visible": false,
+       "failure_message": "It must also work for a tuple, and the dtype must be float64.",
+       "failure_message_tr": "Demet (tuple) ile de çalışmalı ve tür float64 olmalı."
+      }
+     ],
+     "hints": [
+      "You need np.array and a dtype argument.",
+      "np.array(values, dtype=float)",
+      "Last step: call np.array on values and pass the dtype keyword argument with the value ___ (the float type)."
+     ],
+     "solution": {
+      "approach": "Pass dtype=float to np.array.",
+      "code": "import numpy as np\n\ndef to_float_array(values):\n    return np.array(values, dtype=float)",
+      "approach_tr": "np.array'e dtype=float ver."
+     },
+     "twin": "d24-b1-e4",
+     "hints_tr": [
+      "np.array ve bir dtype argümanı gerekiyor.",
+      "np.array(values, dtype=float)",
+      "Son adım: values üzerinde np.array çağır ve dtype anahtar sözcüğüne ___ (float türü) değerini ver."
+     ]
+    },
+    {
+     "id": "d24-b1-e4",
+     "type": "write",
+     "concept": "numpy-array-creation",
+     "tags": [
+      "numpy",
+      "arrays",
+      "shape",
+      "dtype"
+     ],
+     "prompt": "Write to_bool_array(values). It returns a NumPy array made from values with dtype bool (0 becomes False, any other number True).",
+     "prompt_tr": "to_bool_array(values) yaz. values'tan dtype'ı bool olan bir NumPy dizisi döndürsün (0 False, diğer sayılar True olur).",
+     "starter_code": "",
+     "signature": "def to_bool_array(values):",
+     "tests": [
+      {
+       "code": "import numpy as np\nr = to_bool_array([0, 1, -1, 0])\nassert r.tolist() == [False, True, True, False]",
+       "visible": true,
+       "label_tr": "0 False, diğer sayılar True oluyor"
+      },
+      {
+       "code": "import numpy as np\nassert to_bool_array([2]).dtype == np.bool_",
+       "visible": true,
+       "label_tr": "Tek öğeli dizinin türü bool"
+      },
+      {
+       "code": "import numpy as np\nassert to_bool_array([[0, 3], [4, 0]]).tolist() == [[False, True], [True, False]]",
+       "visible": false,
+       "failure_message": "Keep the 2D shape and convert every item.",
+       "failure_message_tr": "2 boyutlu şekli koru ve her öğeyi dönüştür."
+      },
+      {
+       "code": "import numpy as np\nassert to_bool_array([]).size == 0",
+       "visible": false,
+       "failure_message": "An empty list must give an empty array.",
+       "failure_message_tr": "Boş liste boş dizi vermeli."
+      }
+     ],
+     "hints": [
+      "Same function as for floats, with a different dtype.",
+      "np.array(values, dtype=bool)",
+      "Last step: the same np.array call as before, but the dtype argument is the boolean type ___."
+     ],
+     "solution": {
+      "approach": "Pass dtype=bool to np.array.",
+      "code": "import numpy as np\n\ndef to_bool_array(values):\n    return np.array(values, dtype=bool)",
+      "approach_tr": "np.array'e dtype=bool ver."
+     },
+     "twin": "d24-b1-e3",
+     "hints_tr": [
+      "Float'taki fonksiyonun aynısı, yalnızca dtype farklı.",
+      "np.array(values, dtype=bool)",
+      "Son adım: önceki np.array çağrısının aynısı, ama dtype argümanı mantıksal tür ___ olsun."
+     ]
+    }
+   ],
+   "concept_tr": "NumPy dizisi (array) oluşturma"
+  },
+  {
+   "id": "d24-b2",
+   "concept": "vectorized-math",
+   "tags": [
+    "numpy",
+    "arrays",
+    "vectorization"
+   ],
+   "worked_example": {
+    "code": "import numpy as np\nnums = np.array([1, 2, 3, 4, 5])\nprint(nums * 10)\nprint(nums % 3)",
+    "notes": [
+     "The operator is applied to every item at once; no loop needed.",
+     "A Python list does not do this: [1, 2] * 10 repeats the list."
+    ],
+    "notes_tr": [
+     "İşleç (operator) tüm öğelere aynı anda uygulanır; döngü gerekmez.",
+     "Python listesi bunu yapmaz: [1, 2] * 10 listeyi tekrar eder."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d24-b2-e1",
+     "type": "predict",
+     "concept": "vectorized-math",
+     "tags": [
+      "numpy",
+      "arrays",
+      "vectorization"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import numpy as np\na = np.array([1, 2, 3])\nb = [1, 2, 3]\nprint(a * 2, b * 2)",
+     "choices": [
+      "[2 4 6] [1, 2, 3, 1, 2, 3]",
+      "[2 4 6] [2, 4, 6]",
+      "[1 2 3 1 2 3] [1, 2, 3, 1, 2, 3]",
+      "[2 4 6] Error"
+     ],
+     "expected_output": "[2 4 6] [1, 2, 3, 1, 2, 3]",
+     "explanation": "On an array * is element-wise multiplication. On a list * repeats the list.",
+     "misconceptions": {
+      "[2 4 6] [2, 4, 6]": "Lists do not multiply item by item; list * 2 repeats the whole list.",
+      "[1 2 3 1 2 3] [1, 2, 3, 1, 2, 3]": "That is list behaviour. NumPy arrays multiply each element.",
+      "[2 4 6] Error": "list * int is allowed in Python; it repeats the list."
+     },
+     "explanation_tr": "Dizide * öğe öğe çarpar. Listede * listeyi tekrarlar.",
+     "misconceptions_tr": {
+      "[2 4 6] [2, 4, 6]": "Listeler öğe öğe çarpılmaz; liste * 2 tüm listeyi tekrar eder.",
+      "[1 2 3 1 2 3] [1, 2, 3, 1, 2, 3]": "Bu liste davranışı. NumPy dizileri her öğeyi çarpar.",
+      "[2 4 6] Error": "list * int Python'da geçerlidir; listeyi tekrar eder."
+     }
+    },
+    {
+     "id": "d24-b2-e2",
+     "type": "fill_blank",
+     "concept": "vectorized-math",
+     "tags": [
+      "numpy",
+      "arrays",
+      "vectorization"
+     ],
+     "prompt": "Convert the temperatures from Celsius to Fahrenheit: multiply by 9, divide by 5, then add 32.",
+     "prompt_tr": "Sıcaklıkları Celsius'tan Fahrenheit'a çevir: 9 ile çarp, 5'e böl, 32 ekle.",
+     "starter_code": "import numpy as np\ncelsius = np.array([0, 10, 20, 30])\nfahrenheit = celsius * ___ / 5 + ___",
+     "blanks": [
+      {
+       "answer": [
+        "9"
+       ]
+      },
+      {
+       "answer": [
+        "32"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert fahrenheit.tolist() == [32.0, 50.0, 68.0, 86.0]",
+       "visible": true,
+       "label_tr": "Fahrenheit değerleri doğru hesaplanıyor"
+      }
+     ]
+    },
+    {
+     "id": "d24-b2-e3",
+     "type": "modify",
+     "concept": "vectorized-math",
+     "tags": [
+      "numpy",
+      "arrays",
+      "vectorization"
+     ],
+     "prompt": "The code subtracts 10 from every price. Change it so every price gets a 20% discount instead (multiply by 0.8).",
+     "prompt_tr": "Kod her fiyattan 10 çıkarıyor. Bunu her fiyata %20 indirim uygulayacak şekilde değiştir (0.8 ile çarp).",
+     "starter_code": "import numpy as np\nprices = np.array([100, 250, 80, 40])\ndiscounted = prices - 10",
+     "tests": [
+      {
+       "code": "import numpy as np\nassert np.allclose(discounted, [80, 200, 64, 32])",
+       "visible": true,
+       "label_tr": "İndirimli fiyatlar doğru"
+      },
+      {
+       "code": "assert prices.tolist() == [100, 250, 80, 40]",
+       "visible": true,
+       "failure_message": "Do not change prices itself, only discounted.",
+       "label_tr": "prices dizisinin kendisi değişmedi",
+       "failure_message_tr": "prices dizisini değiştirme, yalnızca discounted'ı değiştir."
+      },
+      {
+       "code": "assert len(discounted) == 4",
+       "visible": false,
+       "failure_message": "Keep one value per price.",
+       "failure_message_tr": "Fiyat başına bir değer tut."
+      },
+      {
+       "code": "import numpy as np\n__src = __source__.replace('[100, 250, 80, 40]', '[10, 20]')\nassert __src != __source__\n__ns = {}\nexec(__src, __ns)\nassert np.allclose(__ns['discounted'], [8, 16])",
+       "visible": false,
+       "failure_message": "The discount must be computed from prices, not typed in by hand. Keep the prices line as given and let NumPy do the multiplication.",
+       "failure_message_tr": "İndirimli fiyatlar elle yazılmış gibi görünüyor; hesaplamayı NumPy yapsın. prices satırını olduğu gibi bırak ve indirimi prices üzerinden hesapla."
+      }
+     ],
+     "hints": [
+      "Which operator is applied to every item at once?",
+      "A 20% discount means paying 80%, which is 0.8 of the price.",
+      "Last step: only the discounted line changes; swap the subtraction for a multiplication by ___."
+     ],
+     "solution": {
+      "approach": "Multiply the whole array by 0.8; NumPy applies it to every item.",
+      "code": "import numpy as np\nprices = np.array([100, 250, 80, 40])\ndiscounted = prices * 0.8",
+      "approach_tr": "Tüm diziyi 0.8 ile çarp; NumPy bunu her öğeye uygular."
+     },
+     "hints_tr": [
+      "Hangi işleç tüm öğelere aynı anda uygulanır?",
+      "%20 indirim, fiyatın %80'ini ödemek demektir; bu da fiyatın 0.8 katıdır.",
+      "Son adım: yalnızca discounted satırı değişir; çıkarmayı ___ ile çarpmaya çevir."
+     ]
+    },
+    {
+     "id": "d24-b2-e4",
+     "type": "debug",
+     "concept": "vectorized-math",
+     "tags": [
+      "numpy",
+      "arrays",
+      "vectorization"
+     ],
+     "prompt": "This should print the doubled prices as an array ([20 40 60]) but prints something else. Fix it.",
+     "prompt_tr": "Bu kod, ikiye katlanmış fiyatları dizi olarak ([20 40 60]) yazdırmalı ama başka bir şey yazdırıyor. Düzelt.",
+     "starter_code": "import numpy as np\nprices = [10, 20, 30]\ndoubled = prices * 2\nprint(doubled)",
+     "hints": [
+      "Print type(prices). What does * 2 do to a list?",
+      "A list repeats; an array multiplies every item. Convert the list first.",
+      "Last step: wrap prices with the NumPy function that builds an array before multiplying by 2."
+     ],
+     "solution": {
+      "approach": "Convert to an array so * is element-wise.",
+      "code": "import numpy as np\nprices = [10, 20, 30]\ndoubled = np.array(prices) * 2\nprint(doubled)",
+      "approach_tr": "Diziye çevir ki * öğe öğe çalışsın."
+     },
+     "expected_output": "[20 40 60]",
+     "hints_tr": [
+      "type(prices) değerini yazdır. * 2 bir listeye ne yapar?",
+      "Liste tekrar eder; dizi her öğeyi çarpar. Önce listeyi dönüştür.",
+      "Son adım: 2 ile çarpmadan önce prices'ı, dizi kuran NumPy fonksiyonuyla sar."
+     ]
+    },
+    {
+     "id": "d24-b2-e5",
+     "type": "explain",
+     "concept": "vectorized-math",
+     "tags": [
+      "numpy",
+      "arrays",
+      "vectorization"
+     ],
+     "prompt": "In your own words: why does array + 10 work on a NumPy array without a loop, while a Python list needs one?",
+     "prompt_tr": "Kendi cümlelerinle anlat: NumPy dizisinde dizi + 10 neden döngüye gerek kalmadan çalışır, Python listesi ise neden döngü ister?",
+     "model_answer": "NumPy arrays support vectorized operations: an operator is applied to every element at once, written in fast compiled code. A Python list has no element-wise arithmetic, so + or * work on the list itself and you need a loop or comprehension to change each item.",
+     "keywords": [
+      "vectorized",
+      "element",
+      "loop"
+     ],
+     "model_answer_tr": "NumPy dizileri vektörel (vectorized) işlemleri destekler: bir işleç tüm öğelere aynı anda, hızlı derlenmiş kodla uygulanır. Python listesinde öğe öğe aritmetik yoktur; + veya * listenin kendisi üzerinde çalışır, her öğeyi değiştirmek için döngü ya da liste kapsamı gerekir.",
+     "keywords_tr": [
+      "vektörel",
+      "öğe",
+      "döngü"
+     ],
+     "min_words": 6
+    }
+   ],
+   "concept_tr": "Vektörel işlemler"
+  },
+  {
+   "id": "d24-b3",
+   "concept": "array-indexing-slicing",
+   "tags": [
+    "numpy",
+    "indexing",
+    "slicing"
+   ],
+   "worked_example": {
+    "code": "import numpy as np\ngrid = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\nprint(grid[0])\nprint(grid[:, 1])\nprint(grid[0:2, 0:2])",
+    "notes": [
+     "grid[row, column]; a colon : means 'all'.",
+     "Slices work like list slices, once per dimension."
+    ],
+    "notes_tr": [
+     "grid[satır, sütun]; iki nokta üst üste : 'hepsi' demektir.",
+     "Dilimler liste dilimleri gibi çalışır, her boyut için bir kez."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d24-b3-e1",
+     "type": "predict",
+     "concept": "array-indexing-slicing",
+     "tags": [
+      "numpy",
+      "indexing",
+      "slicing"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import numpy as np\ngrid = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\nprint(grid[1, 2], grid[:, 0].tolist(), grid[::-1, 0].tolist())",
+     "choices": [
+      "6 [1, 4, 7] [7, 4, 1]",
+      "8 [1, 2, 3] [3, 2, 1]",
+      "6 [1, 2, 3] [7, 4, 1]",
+      "6 [1, 4, 7] [1, 4, 7]"
+     ],
+     "expected_output": "6 [1, 4, 7] [7, 4, 1]",
+     "explanation": "grid[1, 2] is row 1, column 2 = 6. grid[:, 0] is the first column [1, 4, 7]; reversing the rows with ::-1 gives [7, 4, 1].",
+     "misconceptions": {
+      "8 [1, 2, 3] [3, 2, 1]": "The first number is the ROW index, the second the COLUMN index. :, 0 selects a column, not a row.",
+      "6 [1, 2, 3] [7, 4, 1]": "grid[:, 0] means all rows, column 0 -> [1, 4, 7], not the first row.",
+      "6 [1, 4, 7] [1, 4, 7]": "::-1 on the row axis reverses the order of the rows, so the column is read from bottom to top."
+     },
+     "explanation_tr": "grid[1, 2] 1. satır, 2. sütun = 6'dır. grid[:, 0] ilk sütun [1, 4, 7]'dir; ::-1 ile satırları ters çevirince [7, 4, 1] olur.",
+     "misconceptions_tr": {
+      "8 [1, 2, 3] [3, 2, 1]": "İlk sayı SATIR, ikinci sayı SÜTUN indeksidir. :, 0 bir satırı değil, bir sütunu seçer.",
+      "6 [1, 2, 3] [7, 4, 1]": "grid[:, 0] tüm satırlar, 0. sütun demektir -> [1, 4, 7]; ilk satır değil.",
+      "6 [1, 4, 7] [1, 4, 7]": "Satır ekseninde ::-1 satırların sırasını tersine çevirir, bu yüzden sütun aşağıdan yukarı okunur."
+     }
+    },
+    {
+     "id": "d24-b3-e2",
+     "type": "parsons",
+     "concept": "array-indexing-slicing",
+     "tags": [
+      "numpy",
+      "indexing",
+      "slicing"
+     ],
+     "prompt": "Put the lines in order: take the top-left 2x2 block of the grid and print it as a list.",
+     "prompt_tr": "Satırları sırala: izgaranın (grid) sol üst 2x2 bloğunu al ve liste olarak yazdır.",
+     "lines": [
+      "print(corner.tolist())",
+      "corner = grid[0:2, 0:2]",
+      "import numpy as np",
+      "grid = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])"
+     ],
+     "correct_order": [
+      2,
+      3,
+      1,
+      0
+     ],
+     "distractors": [
+      "corner = grid[0:2][0:2]"
+     ],
+     "expected_output": "[[1, 2], [4, 5]]"
+    },
+    {
+     "id": "d24-b3-e3",
+     "type": "write",
+     "concept": "array-indexing-slicing",
+     "tags": [
+      "numpy",
+      "indexing",
+      "slicing"
+     ],
+     "prompt": "Write column(grid, i). grid is a list of lists of numbers. Return column number i as a plain Python list (use NumPy).",
+     "prompt_tr": "column(grid, i) yaz. grid, sayılardan oluşan bir liste listesidir. i numaralı sütunu düz bir Python listesi olarak döndür (NumPy kullan).",
+     "starter_code": "",
+     "signature": "def column(grid, i):",
+     "tests": [
+      {
+       "code": "assert column([[1, 2, 3], [4, 5, 6]], 1) == [2, 5]",
+       "visible": true,
+       "label_tr": "İkinci sütun doğru alınıyor"
+      },
+      {
+       "code": "assert column([[1, 2], [3, 4], [5, 6]], 0) == [1, 3, 5]",
+       "visible": true,
+       "label_tr": "İlk sütun doğru alınıyor"
+      },
+      {
+       "code": "assert column([[1, 2, 3], [4, 5, 6]], -1) == [3, 6]",
+       "visible": false,
+       "failure_message": "A negative index counts from the end, like in lists.",
+       "failure_message_tr": "Negatif indeks listelerdeki gibi sondan sayar."
+      },
+      {
+       "code": "assert isinstance(column([[1, 2], [3, 4]], 0), list)",
+       "visible": false,
+       "failure_message": "Return a Python list (use .tolist()), not a NumPy array.",
+       "failure_message_tr": "Python listesi döndür (.tolist() kullan), NumPy dizisi değil."
+      }
+     ],
+     "hints": [
+      "Convert the list of lists to an array first.",
+      "arr[:, i] selects column i; .tolist() converts it back.",
+      "Last step: build the array from grid, select all rows of column i with [:, ___], then call the method that turns it into a plain list."
+     ],
+     "solution": {
+      "approach": "Build the array, select every row of column i, convert to a list.",
+      "code": "import numpy as np\n\ndef column(grid, i):\n    return np.array(grid)[:, i].tolist()",
+      "approach_tr": "Diziyi kur, i. sütunun tüm satırlarını seç ve listeye çevir."
+     },
+     "twin": "d24-b3-e4",
+     "hints_tr": [
+      "Önce liste listesini diziye çevir.",
+      "arr[:, i] i. sütunu seçer; .tolist() onu tekrar listeye çevirir.",
+      "Son adım: grid'den diziyi kur, [:, ___] ile i. sütunun tüm satırlarını seç, sonra onu düz listeye çeviren metodu çağır."
+     ]
+    },
+    {
+     "id": "d24-b3-e4",
+     "type": "write",
+     "concept": "array-indexing-slicing",
+     "tags": [
+      "numpy",
+      "indexing",
+      "slicing"
+     ],
+     "prompt": "Write top_left(grid, n). grid is a list of lists of numbers. Return the top-left n by n block as a list of lists (use NumPy).",
+     "prompt_tr": "top_left(grid, n) yaz. grid, sayılardan oluşan bir liste listesidir. Sol üst n x n bloğu liste listesi olarak döndür (NumPy kullan).",
+     "starter_code": "",
+     "signature": "def top_left(grid, n):",
+     "tests": [
+      {
+       "code": "assert top_left([[1, 2, 3], [4, 5, 6], [7, 8, 9]], 2) == [[1, 2], [4, 5]]",
+       "visible": true,
+       "label_tr": "3x3'ten sol üst 2x2 blok alınıyor"
+      },
+      {
+       "code": "assert top_left([[1, 2], [3, 4]], 2) == [[1, 2], [3, 4]]",
+       "visible": true,
+       "label_tr": "2x2 bir tablonun tamamı döndürülüyor"
+      },
+      {
+       "code": "assert top_left([[1, 2, 3], [4, 5, 6], [7, 8, 9]], 1) == [[1]]",
+       "visible": false,
+       "failure_message": "n = 1 gives a single-item block, still as a list of lists.",
+       "failure_message_tr": "n = 1 tek öğeli bir blok verir; yine liste listesi olarak."
+      },
+      {
+       "code": "assert isinstance(top_left([[1, 2], [3, 4]], 1), list)",
+       "visible": false,
+       "failure_message": "Return a Python list (use .tolist()), not a NumPy array.",
+       "failure_message_tr": "Python listesi döndür (.tolist() kullan), NumPy dizisi değil."
+      }
+     ],
+     "hints": [
+      "Slice the first n rows AND the first n columns.",
+      "arr[0:n, 0:n] then .tolist().",
+      "Last step: build the array from grid, slice it with 0:___ on both axes, and convert the result to a list."
+     ],
+     "solution": {
+      "approach": "Slice both dimensions with 0:n and convert to a list.",
+      "code": "import numpy as np\n\ndef top_left(grid, n):\n    return np.array(grid)[0:n, 0:n].tolist()",
+      "approach_tr": "İki boyutu da 0:n ile dilimle ve listeye çevir."
+     },
+     "twin": "d24-b3-e3",
+     "hints_tr": [
+      "İlk n satırı VE ilk n sütunu dilimle.",
+      "arr[0:n, 0:n] ve sonra .tolist().",
+      "Son adım: grid'den diziyi kur, iki eksende de 0:___ ile dilimle ve sonucu listeye çevir."
+     ]
+    }
+   ],
+   "concept_tr": "Dizide indeksleme ve dilimleme (slicing)"
+  },
+  {
+   "id": "d24-b4",
+   "concept": "array-helpers-and-stats",
+   "tags": [
+    "numpy",
+    "reshape",
+    "statistics",
+    "axis"
+   ],
+   "worked_example": {
+    "code": "import numpy as np\nprint(np.arange(0, 10, 2).tolist())\nprint(np.linspace(1, 5, 5).tolist())\nprint(np.zeros((2, 2)).tolist())",
+    "notes": [
+     "arange(start, stop, step) is like range; linspace(start, stop, n) gives n evenly spaced values including stop.",
+     "zeros((rows, cols)) makes a table filled with 0.0."
+    ],
+    "notes_tr": [
+     "arange(başla, bitir, adım) range gibidir; linspace(başla, bitir, n) bitiş dahil eşit aralıklı n değer verir.",
+     "zeros((satır, sütun)) 0.0 ile dolu bir tablo yapar."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d24-b4-e1",
+     "type": "predict",
+     "concept": "array-helpers-and-stats",
+     "tags": [
+      "numpy",
+      "reshape",
+      "statistics",
+      "axis"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import numpy as np\nm = np.arange(1, 7).reshape(2, 3)\nprint(m.tolist(), m.sum(axis=0).tolist(), m.mean())",
+     "choices": [
+      "[[1, 2, 3], [4, 5, 6]] [5, 7, 9] 3.5",
+      "[[1, 2, 3], [4, 5, 6]] [6, 15] 3.5",
+      "[[1, 2], [3, 4], [5, 6]] [5, 7, 9] 3.5",
+      "[[1, 2, 3], [4, 5, 6]] [5, 7, 9] 21"
+     ],
+     "expected_output": "[[1, 2, 3], [4, 5, 6]] [5, 7, 9] 3.5",
+     "explanation": "arange(1, 7) is 1..6; reshape(2, 3) makes two rows of three. axis=0 adds down each column: [5, 7, 9]. The mean of all six numbers is 21 / 6 = 3.5.",
+     "misconceptions": {
+      "[[1, 2, 3], [4, 5, 6]] [6, 15] 3.5": "[6, 15] would be axis=1 (sums across each row). axis=0 sums down the columns.",
+      "[[1, 2], [3, 4], [5, 6]] [5, 7, 9] 3.5": "reshape(2, 3) means 2 rows and 3 columns, filled row by row.",
+      "[[1, 2, 3], [4, 5, 6]] [5, 7, 9] 21": "mean divides the total (21) by the number of items (6)."
+     },
+     "explanation_tr": "arange(1, 7) 1..6'dır; reshape(2, 3) üç sayılı iki satır yapar. axis=0 her sütunu aşağı doğru toplar: [5, 7, 9]. Altı sayının ortalaması 21 / 6 = 3.5'tir.",
+     "misconceptions_tr": {
+      "[[1, 2, 3], [4, 5, 6]] [6, 15] 3.5": "[6, 15] axis=1 olurdu (her satırı yatay toplar). axis=0 sütunları aşağı doğru toplar.",
+      "[[1, 2], [3, 4], [5, 6]] [5, 7, 9] 3.5": "reshape(2, 3), 2 satır ve 3 sütun demektir ve satır satır doldurulur.",
+      "[[1, 2, 3], [4, 5, 6]] [5, 7, 9] 21": "mean, toplamı (21) öğe sayısına (6) böler."
+     }
+    },
+    {
+     "id": "d24-b4-e2",
+     "type": "fill_blank",
+     "concept": "array-helpers-and-stats",
+     "tags": [
+      "numpy",
+      "reshape",
+      "statistics",
+      "axis"
+     ],
+     "prompt": "Build an evenly spaced array, reshape a range into a table, and take the mean of each column.",
+     "prompt_tr": "Eşit aralıklı bir dizi oluştur, bir aralık dizisini tabloya dönüştür (reshape) ve her sütunun ortalamasını al.",
+     "starter_code": "import numpy as np\nx = np.___(0, 1, 5)\ngrid = np.arange(12).___(3, 4)\ncol_means = grid.mean(axis=___)",
+     "blanks": [
+      {
+       "answer": [
+        "linspace"
+       ]
+      },
+      {
+       "answer": [
+        "reshape"
+       ]
+      },
+      {
+       "answer": [
+        "0"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert x.tolist() == [0.0, 0.25, 0.5, 0.75, 1.0]",
+       "visible": true,
+       "label_tr": "Eşit aralıklı dizi doğru"
+      },
+      {
+       "code": "assert grid.shape == (3, 4)",
+       "visible": true,
+       "label_tr": "Tablo 3 satır 4 sütun"
+      },
+      {
+       "code": "assert col_means.tolist() == [4.0, 5.0, 6.0, 7.0]",
+       "visible": true,
+       "label_tr": "Sütun ortalamaları doğru"
+      }
+     ]
+    },
+    {
+     "id": "d24-b4-e3",
+     "type": "write",
+     "concept": "array-helpers-and-stats",
+     "tags": [
+      "numpy",
+      "reshape",
+      "statistics",
+      "axis"
+     ],
+     "prompt": "Write column_means(grid). grid is a list of lists of numbers. Return the mean of each column as a plain Python list of floats.",
+     "prompt_tr": "column_means(grid) yaz. grid, sayılardan oluşan bir liste listesidir. Her sütunun ortalamasını float'lardan oluşan düz bir Python listesi olarak döndür.",
+     "starter_code": "",
+     "signature": "def column_means(grid):",
+     "tests": [
+      {
+       "code": "assert column_means([[1, 2], [3, 4]]) == [2.0, 3.0]",
+       "visible": true,
+       "label_tr": "2x2 tablonun sütun ortalamaları doğru"
+      },
+      {
+       "code": "assert column_means([[10, 20, 30]]) == [10.0, 20.0, 30.0]",
+       "visible": true,
+       "label_tr": "Tek satırlı tabloda ortalama doğru"
+      },
+      {
+       "code": "assert column_means([[1, 4], [2, 5], [3, 6]]) == [2.0, 5.0]",
+       "visible": false,
+       "failure_message": "Average down each column (axis=0), not across each row.",
+       "failure_message_tr": "Her satırın değil, her sütunun ortalamasını al (axis=0)."
+      },
+      {
+       "code": "assert isinstance(column_means([[1, 2], [3, 4]]), list)",
+       "visible": false,
+       "failure_message": "Return a Python list (use .tolist()), not a NumPy array.",
+       "failure_message_tr": "Python listesi döndür (.tolist() kullan), NumPy dizisi değil."
+      }
+     ],
+     "hints": [
+      "Use NumPy: the mean has an axis argument.",
+      "axis=0 works down the columns; finish with .tolist().",
+      "Last step: build the array from grid, call mean with axis set to ___, and convert the result to a list."
+     ],
+     "solution": {
+      "approach": "mean(axis=0) averages each column.",
+      "code": "import numpy as np\n\ndef column_means(grid):\n    return np.array(grid).mean(axis=0).tolist()",
+      "approach_tr": "mean(axis=0) her sütunun ortalamasını alır."
+     },
+     "twin": "d24-b4-e4",
+     "hints_tr": [
+      "NumPy kullan: mean fonksiyonunun bir axis argümanı var.",
+      "axis=0 sütunlar boyunca çalışır; sonda .tolist() ile bitir.",
+      "Son adım: grid'den diziyi kur, mean'i axis=___ ile çağır ve sonucu listeye çevir."
+     ]
+    },
+    {
+     "id": "d24-b4-e4",
+     "type": "write",
+     "concept": "array-helpers-and-stats",
+     "tags": [
+      "numpy",
+      "reshape",
+      "statistics",
+      "axis"
+     ],
+     "prompt": "Write row_totals(grid). grid is a list of lists of numbers. Return the sum of each row as a plain Python list.",
+     "prompt_tr": "row_totals(grid) yaz. grid, sayılardan oluşan bir liste listesidir. Her satırın toplamını Python listesi olarak döndür.",
+     "starter_code": "",
+     "signature": "def row_totals(grid):",
+     "tests": [
+      {
+       "code": "assert row_totals([[1, 2], [3, 4]]) == [3, 7]",
+       "visible": true,
+       "label_tr": "2x2 tablonun satır toplamları doğru"
+      },
+      {
+       "code": "assert row_totals([[5, 5, 5]]) == [15]",
+       "visible": true,
+       "label_tr": "Tek satırlı tabloda toplam doğru"
+      },
+      {
+       "code": "assert row_totals([[1, 4], [2, 5], [3, 6]]) == [5, 7, 9]",
+       "visible": false,
+       "failure_message": "Add across each row (axis=1), not down each column.",
+       "failure_message_tr": "Her satırı yatay topla (axis=1), sütunları değil."
+      },
+      {
+       "code": "assert isinstance(row_totals([[1, 2], [3, 4]]), list)",
+       "visible": false,
+       "failure_message": "Return a Python list (use .tolist()), not a NumPy array.",
+       "failure_message_tr": "Python listesi döndür (.tolist() kullan), NumPy dizisi değil."
+      }
+     ],
+     "hints": [
+      "Same idea as column_means, other direction and other function.",
+      "sum(axis=1) adds across each row.",
+      "Last step: build the array from grid, call sum with axis set to ___, and convert the result to a list."
+     ],
+     "solution": {
+      "approach": "sum(axis=1) adds across each row.",
+      "code": "import numpy as np\n\ndef row_totals(grid):\n    return np.array(grid).sum(axis=1).tolist()",
+      "approach_tr": "sum(axis=1) her satırı yatay toplar."
+     },
+     "twin": "d24-b4-e3",
+     "hints_tr": [
+      "column_means ile aynı fikir; yön ve fonksiyon farklı.",
+      "sum(axis=1) her satırı yatay toplar.",
+      "Son adım: grid'den diziyi kur, sum'ı axis=___ ile çağır ve sonucu listeye çevir."
+     ]
+    }
+   ],
+   "concept_tr": "Yardımcı fonksiyonlar ve istatistik"
+  }
+ ],
+ "review_pool": [
+  "d24-b1-e1",
+  "d24-b1-e3",
+  "d24-b3-e1",
+  "d24-b3-e3",
+  "d24-b4-e1",
+  "d24-b4-e3"
+ ],
+ "title_tr": "İstatistik (NumPy)"
+}

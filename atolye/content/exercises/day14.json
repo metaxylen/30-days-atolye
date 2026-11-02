@@ -1,0 +1,870 @@
+{
+  "day": 14,
+  "title": "Higher order functions",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "blocks": [
+    {
+      "id": "d14-b1",
+      "concept": "functions-as-values",
+      "tags": [
+        "higher-order",
+        "functions",
+        "return-function"
+      ],
+      "worked_example": {
+        "code": "def square(x):\n    return x ** 2\n\ndef apply(f, x):\n    return f(x)\n\nprint(apply(square, 4))",
+        "notes": [
+          "A function name without () is the function itself and can be passed around.",
+          "A function that takes or returns a function is a higher order function."
+        ],
+        "notes_tr": [
+          "Parantezsiz bir fonksiyon adı fonksiyonun kendisidir ve etrafta dolaştırılabilir.",
+          "Fonksiyon alan ya da döndüren fonksiyona higher order function denir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d14-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "def square(x):\n    return x ** 2\n\ndef cube(x):\n    return x ** 3\n\ndef pick(name):\n    if name == 'square':\n        return square\n    return cube\n\nf = pick('cube')\nprint(f(3))\nprint(pick('square')(4))",
+          "choices": [
+            "9\n16",
+            "27\n64",
+            "27\n16"
+          ],
+          "expected_output": "27\n16",
+          "explanation": "pick('cube') returns the function cube, so f(3) is 27. pick('square') returns square, which is then called with 4 to give 16.",
+          "misconceptions": {
+            "9\n16": "pick('cube') returns the cube function, so f(3) is 27.",
+            "27\n64": "The second call picks square, not cube."
+          },
+          "explanation_tr": "pick('cube') cube fonksiyonunu döndürür, yani f(3) = 27. pick('square') square fonksiyonunu döndürür ve 4 ile çağrılınca 16 çıkar.",
+          "misconceptions_tr": {
+            "9\n16": "pick('cube') cube fonksiyonunu döndürür, yani f(3) 27 olur.",
+            "27\n64": "İkinci çağrı cube'u değil square'i seçer."
+          }
+        },
+        {
+          "id": "d14-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Complete apply_to_all so it calls the function f on every item and returns the new list.",
+          "prompt_tr": "apply_to_all fonksiyonunu, f fonksiyonunu her öğeye uygulayıp yeni listeyi döndürecek şekilde tamamlayın.",
+          "starter_code": "def apply_to_all(f, items):\n    result = []\n    for item in items:\n        result.append(___(item))\n    return ___\n\nprint(apply_to_all(abs, [-1, 2, -3]))",
+          "blanks": [
+            {
+              "answer": [
+                "f"
+              ]
+            },
+            {
+              "answer": [
+                "result"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert apply_to_all(abs, [-1, 2, -3]) == [1, 2, 3]",
+              "visible": true,
+              "label_tr": "apply_to_all(abs, [-1, 2, -3]) [1, 2, 3] veriyor"
+            },
+            {
+              "code": "assert apply_to_all(len, ['ab', 'c']) == [2, 1]",
+              "visible": true,
+              "label_tr": "apply_to_all(len, ['ab', 'c']) [2, 1] veriyor"
+            }
+          ],
+          "hints": [
+            "f is the function that was passed in.",
+            "Return the list you built."
+          ],
+          "hints_tr": [
+            "f, dışarıdan verilen fonksiyondur.",
+            "Kurduğun listeyi döndür."
+          ]
+        },
+        {
+          "id": "d14-b1-e3",
+          "type": "write",
+          "prompt": "Write choose_operation(name) that returns a function: 'double' returns a function that doubles a number, 'square' one that squares it, 'negate' one that flips its sign. For any other name return a function that gives the number back unchanged.",
+          "prompt_tr": "Bir fonksiyon döndüren choose_operation(name) yazın: 'double' sayıyı ikiyle çarpan, 'square' karesini alan, 'negate' işaretini değiştiren bir fonksiyon döndürsün. Başka bir isim için sayıyı değiştirmeden veren bir fonksiyon döndürsün.",
+          "starter_code": "",
+          "signature": "def choose_operation(name):",
+          "tests": [
+            {
+              "code": "assert choose_operation('double')(4) == 8",
+              "visible": true,
+              "label_tr": "choose_operation('double')(4) 8 veriyor"
+            },
+            {
+              "code": "assert choose_operation('square')(5) == 25",
+              "visible": true,
+              "label_tr": "choose_operation('square')(5) 25 veriyor"
+            },
+            {
+              "code": "assert choose_operation('negate')(3) == -3",
+              "visible": false,
+              "failure_message": "'negate' must return a function that gives -x.",
+              "failure_message_tr": "'negate' işareti çeviren (-x) bir fonksiyon döndürmeli."
+            },
+            {
+              "code": "assert choose_operation('unknown')(7) == 7",
+              "visible": false,
+              "failure_message": "An unknown name must still return a function (it returns the number unchanged).",
+              "failure_message_tr": "Bilinmeyen isim de bir fonksiyon döndürmeli (sayıyı olduğu gibi verir)."
+            },
+            {
+              "code": "assert callable(choose_operation('double'))",
+              "visible": false,
+              "failure_message": "Return the function itself; do not call it.",
+              "failure_message_tr": "Fonksiyonun kendisini döndür; çağırma."
+            },
+            {
+              "code": "assert choose_operation('double')(21) == 42 and choose_operation('square')(12) == 144 and choose_operation('negate')(-9) == 9",
+              "visible": false,
+              "failure_message": "Build the operations from the name; do not hard-code results.",
+              "failure_message_tr": "İşlemleri isimden kur; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Return a function, not a number.",
+            "You can return a lambda from each branch of an if.",
+            "Each branch looks like: if name == 'double': return lambda x: ___ (what should the lambda compute?)"
+          ],
+          "solution": {
+            "approach": "Branch on the name and return a lambda for each case, with an identity function as the default.",
+            "code": "def choose_operation(name):\n    if name == 'double':\n        return lambda x: x * 2\n    elif name == 'square':\n        return lambda x: x * x\n    elif name == 'negate':\n        return lambda x: -x\n    return lambda x: x",
+            "approach_tr": "İsme göre dallan ve her durum için bir lambda döndür; varsayılan olarak sayıyı değiştirmeyen bir fonksiyon ver."
+          },
+          "twin": "d14-b1-e4",
+          "hints_tr": [
+            "Sayı değil, fonksiyon döndür.",
+            "if'in her dalından bir lambda döndürebilirsin.",
+            "Her dal şöyle görünür: if name == 'double': return lambda x: ___ (lambda ne hesaplamalı?)"
+          ]
+        },
+        {
+          "id": "d14-b1-e4",
+          "type": "write",
+          "prompt": "Write choose_greeting(language) that returns a function. The returned function takes a name and returns a greeting: 'en' gives 'Hello, <name>', 'nl' gives 'Hallo, <name>', 'tr' gives 'Merhaba, <name>'. For any other language it gives 'Hi, <name>'.",
+          "prompt_tr": "Bir fonksiyon döndüren choose_greeting(language) yazın. Dönen fonksiyon bir isim alıp selam döndürür: 'en' için 'Hello, <name>', 'nl' için 'Hallo, <name>', 'tr' için 'Merhaba, <name>'. Başka dillerde 'Hi, <name>' döndürsün.",
+          "starter_code": "",
+          "signature": "def choose_greeting(language):",
+          "tests": [
+            {
+              "code": "assert choose_greeting('en')('Lidiya') == 'Hello, Lidiya'",
+              "visible": true,
+              "label_tr": "choose_greeting('en')('Lidiya') 'Hello, Lidiya' veriyor"
+            },
+            {
+              "code": "assert choose_greeting('nl')('Eyob') == 'Hallo, Eyob'",
+              "visible": true,
+              "label_tr": "choose_greeting('nl')('Eyob') 'Hallo, Eyob' veriyor"
+            },
+            {
+              "code": "assert choose_greeting('tr')('Ermias') == 'Merhaba, Ermias'",
+              "visible": false,
+              "failure_message": "'tr' must give 'Merhaba, <name>'.",
+              "failure_message_tr": "'tr' için 'Merhaba, <name>' vermeli."
+            },
+            {
+              "code": "assert choose_greeting('xx')('Brook') == 'Hi, Brook'",
+              "visible": false,
+              "failure_message": "An unknown language must still return a function that gives 'Hi, <name>'.",
+              "failure_message_tr": "Bilinmeyen dil de 'Hi, <name>' veren bir fonksiyon döndürmeli."
+            },
+            {
+              "code": "assert callable(choose_greeting('en'))",
+              "visible": false,
+              "failure_message": "Return the function itself; do not call it.",
+              "failure_message_tr": "Fonksiyonun kendisini döndür; çağırma."
+            },
+            {
+              "code": "assert choose_greeting('en')('Zoe') == 'Hello, Zoe' and choose_greeting('nl')('Sem') == 'Hallo, Sem'",
+              "visible": false,
+              "failure_message": "Build the greeting from the language and the name; do not hard-code results.",
+              "failure_message_tr": "Selamı dil ve isimden kur; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Return a function, not a string.",
+            "Each branch can return a lambda that takes name.",
+            "Each branch looks like: if language == 'en': return lambda name: ___ + name (what text goes in the blank?)"
+          ],
+          "solution": {
+            "approach": "Branch on the language and return a matching lambda; use a default lambda at the end.",
+            "code": "def choose_greeting(language):\n    if language == 'en':\n        return lambda name: 'Hello, ' + name\n    elif language == 'nl':\n        return lambda name: 'Hallo, ' + name\n    elif language == 'tr':\n        return lambda name: 'Merhaba, ' + name\n    return lambda name: 'Hi, ' + name",
+            "approach_tr": "Dile göre dallan ve uygun lambda'yı döndür; en sonda varsayılan bir lambda kullan."
+          },
+          "twin": "d14-b1-e3",
+          "hints_tr": [
+            "String değil, fonksiyon döndür.",
+            "Her dal, name alan bir lambda döndürebilir.",
+            "Her dal şöyle görünür: if language == 'en': return lambda name: ___ + name (boşluğa hangi metin gelir?)"
+          ]
+        }
+      ],
+      "concept_tr": "Fonksiyonlar birer değerdir: bir değişkene konabilir, argüman olarak verilebilir ya da başka bir fonksiyondan döndürülebilir. Bunu yapan fonksiyona higher order function denir."
+    },
+    {
+      "id": "d14-b2",
+      "concept": "closures",
+      "tags": [
+        "closures",
+        "nested-functions"
+      ],
+      "worked_example": {
+        "code": "def add_ten():\n    ten = 10\n    def add(num):\n        return num + ten\n    return add\n\nprint(add_ten()(5))",
+        "notes": [
+          "The inner function remembers variables of the outer function (ten).",
+          "The outer function returns the inner function without calling it."
+        ],
+        "notes_tr": [
+          "İç fonksiyon dış fonksiyonun değişkenlerini (ten) hatırlar.",
+          "Dış fonksiyon iç fonksiyonu çağırmadan döndürür."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d14-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "def make_adder(start):\n    def add(step):\n        return start + step\n    return add\n\nadd_from_10 = make_adder(10)\nadd_from_100 = make_adder(100)\nprint(add_from_10(5), add_from_100(5))",
+          "choices": [
+            "15 15",
+            "5 5",
+            "15 105"
+          ],
+          "expected_output": "15 105",
+          "explanation": "add_from_10 remembers start = 10 and add_from_100 remembers start = 100. So the results are 15 and 105.",
+          "misconceptions": {
+            "15 15": "Each call of make_adder creates its own closure with its own start.",
+            "5 5": "start is remembered by the inner function; it is not lost."
+          },
+          "explanation_tr": "add_from_10 start = 10'u, add_from_100 ise start = 100'ü hatırlar. Sonuçlar 15 ve 105 olur.",
+          "misconceptions_tr": {
+            "15 15": "make_adder'ın her çağrısı kendi start değerine sahip ayrı bir closure oluşturur.",
+            "5 5": "start iç fonksiyon tarafından hatırlanır, kaybolmaz."
+          }
+        },
+        {
+          "id": "d14-b2-e2",
+          "type": "parsons",
+          "prompt": "Order the lines to build the closure and call it.",
+          "prompt_tr": "Closure'ı oluşturup çağıracak şekilde satırları sıralayın.",
+          "lines": [
+            "        return num + ten",
+            "print(closure_result(5))",
+            "closure_result = add_ten()",
+            "    def add(num):",
+            "def add_ten():",
+            "    return add",
+            "    ten = 10"
+          ],
+          "correct_order": [
+            4,
+            6,
+            3,
+            0,
+            5,
+            2,
+            1
+          ],
+          "distractors": [
+            "    return add()"
+          ],
+          "expected_output": "15"
+        },
+        {
+          "id": "d14-b2-e3",
+          "type": "write",
+          "prompt": "Write make_tax(rate) that returns a function. The returned function takes a price and returns the price plus tax, rounded to 2 decimals. Example: make_tax(0.5)(10) returns 15.0.",
+          "prompt_tr": "Bir fonksiyon döndüren make_tax(rate) yazın. Dönen fonksiyon bir fiyat alıp vergi eklenmiş fiyatı 2 ondalığa yuvarlayarak döndürsün. Örnek: make_tax(0.5)(10) sonucu 15.0 olur.",
+          "starter_code": "",
+          "signature": "def make_tax(rate):",
+          "tests": [
+            {
+              "code": "assert make_tax(0.5)(10) == 15.0",
+              "visible": true,
+              "label_tr": "make_tax(0.5)(10) 15.0 veriyor"
+            },
+            {
+              "code": "assert make_tax(0.1)(200) == 220.0",
+              "visible": true,
+              "label_tr": "make_tax(0.1)(200) 220.0 veriyor"
+            },
+            {
+              "code": "assert make_tax(0)(99) == 99",
+              "visible": false,
+              "failure_message": "A tax rate of 0 leaves the price unchanged.",
+              "failure_message_tr": "Vergi oranı 0 ise fiyat değişmez."
+            },
+            {
+              "code": "low = make_tax(0.1)\nhigh = make_tax(0.5)\nassert (low(100), high(100)) == (110.0, 150.0)",
+              "visible": false,
+              "failure_message": "Each tax function must remember its own rate.",
+              "failure_message_tr": "Her vergi fonksiyonu kendi oranını hatırlamalı."
+            },
+            {
+              "code": "assert make_tax(0.07)(19.99) == 21.39",
+              "visible": false,
+              "failure_message": "Round the result to 2 decimals with round(..., 2).",
+              "failure_message_tr": "Sonucu round(..., 2) ile 2 ondalığa yuvarla."
+            },
+            {
+              "code": "assert make_tax(0.25)(80) == 100.0 and make_tax(0.2)(45) == 54.0",
+              "visible": false,
+              "failure_message": "Use the rate and the price given; do not hard-code results.",
+              "failure_message_tr": "Verilen oranı ve fiyatı kullan; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "The outer function takes the rate; the inner takes the price.",
+            "Inner result: the price times (1 plus the rate), rounded to 2 decimals.",
+            "Inside the inner function: return round(price * (1 + rate), ___) (how many decimals?) then return the inner function."
+          ],
+          "solution": {
+            "approach": "A closure: the inner function uses rate from the enclosing call.",
+            "code": "def make_tax(rate):\n    def tax(price):\n        return round(price * (1 + rate), 2)\n    return tax",
+            "approach_tr": "Closure: iç fonksiyon, çevreleyen çağrıdaki rate değerini kullanır."
+          },
+          "twin": "d14-b2-e4",
+          "hints_tr": [
+            "Dış fonksiyon oranı, iç fonksiyon fiyatı alır.",
+            "İç fonksiyonun sonucu: fiyat çarpı (1 artı oran), 2 ondalığa yuvarlanmış.",
+            "İç fonksiyonda: return round(price * (1 + rate), ___) (kaç ondalık?) sonra iç fonksiyonu döndür."
+          ]
+        },
+        {
+          "id": "d14-b2-e4",
+          "type": "write",
+          "prompt": "Write make_greeter(greeting) that returns a function. The returned function takes a name and returns '<greeting>, <name>!'. Example: make_greeter('Hello')('Lidiya') returns 'Hello, Lidiya!'.",
+          "prompt_tr": "Bir fonksiyon döndüren make_greeter(greeting) yazın. Dönen fonksiyon bir isim alıp '<greeting>, <name>!' döndürsün. Örnek: make_greeter('Hello')('Lidiya') sonucu 'Hello, Lidiya!' olur.",
+          "starter_code": "",
+          "signature": "def make_greeter(greeting):",
+          "tests": [
+            {
+              "code": "assert make_greeter('Hello')('Lidiya') == 'Hello, Lidiya!'",
+              "visible": true,
+              "label_tr": "make_greeter('Hello')('Lidiya') 'Hello, Lidiya!' veriyor"
+            },
+            {
+              "code": "assert make_greeter('Hallo')('Eyob') == 'Hallo, Eyob!'",
+              "visible": true,
+              "label_tr": "make_greeter('Hallo')('Eyob') 'Hallo, Eyob!' veriyor"
+            },
+            {
+              "code": "a = make_greeter('Hi')\nb = make_greeter('Bye')\nassert (a('X'), b('X')) == ('Hi, X!', 'Bye, X!')",
+              "visible": false,
+              "failure_message": "Each greeter must remember its own greeting.",
+              "failure_message_tr": "Her greeter kendi selamını hatırlamalı."
+            },
+            {
+              "code": "assert callable(make_greeter('Hi'))",
+              "visible": false,
+              "failure_message": "Return the inner function itself; do not call it.",
+              "failure_message_tr": "İç fonksiyonun kendisini döndür; çağırma."
+            },
+            {
+              "code": "assert make_greeter('Hey')('') == 'Hey, !'",
+              "visible": false,
+              "failure_message": "Do not strip or skip an empty name.",
+              "failure_message_tr": "Boş ismi silme ya da atlama."
+            },
+            {
+              "code": "assert make_greeter('Merhaba')('Ayşe') == 'Merhaba, Ayşe!'",
+              "visible": false,
+              "failure_message": "Build the text from the greeting and the name; do not hard-code results.",
+              "failure_message_tr": "Metni selam ve isimden kur; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "The outer function takes the greeting; the inner takes the name.",
+            "Return a string made from the greeting, a comma and space, the name and an exclamation mark.",
+            "Inside the inner function: return greeting + ___ + name + '!' (what goes between greeting and name?) then return the inner function."
+          ],
+          "solution": {
+            "approach": "A closure that remembers greeting.",
+            "code": "def make_greeter(greeting):\n    def greet(name):\n        return greeting + ', ' + name + '!'\n    return greet",
+            "approach_tr": "greeting'i hatırlayan bir closure."
+          },
+          "twin": "d14-b2-e3",
+          "hints_tr": [
+            "Dış fonksiyon selamı, iç fonksiyon ismi alır.",
+            "Selam, virgül ve boşluk, isim ve ünlem işaretinden oluşan bir string döndür.",
+            "İç fonksiyonda: return greeting + ___ + name + '!' (selam ile isim arasına ne gelir?) sonra iç fonksiyonu döndür."
+          ]
+        }
+      ],
+      "concept_tr": "Closure, iç fonksiyonun dış fonksiyonun değişkenlerini hatırlamasıdır. Dış fonksiyon, iç fonksiyonu çağırmadan döndürür."
+    },
+    {
+      "id": "d14-b3",
+      "concept": "decorators",
+      "tags": [
+        "decorators",
+        "closures"
+      ],
+      "worked_example": {
+        "code": "def uppercase(function):\n    def wrapper():\n        return function().upper()\n    return wrapper\n@uppercase\ndef greeting(): return 'welcome'\nprint(greeting())",
+        "notes": [
+          "@uppercase above def greeting is the same as greeting = uppercase(greeting).",
+          "The wrapper runs instead of the original function and can change its result."
+        ],
+        "notes_tr": [
+          "def greeting'in üstündeki @uppercase, greeting = uppercase(greeting) ile aynıdır.",
+          "wrapper asıl fonksiyonun yerine çalışır ve sonucunu değiştirebilir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d14-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print? Decorators are applied from bottom to top.",
+          "prompt_tr": "Bu ne yazdırır? Dekoratörler alttan üste doğru uygulanır.",
+          "code": "def uppercase_decorator(function):\n    def wrapper():\n        return function().upper()\n    return wrapper\n\ndef split_string_decorator(function):\n    def wrapper():\n        return function().split()\n    return wrapper\n\n@split_string_decorator\n@uppercase_decorator\ndef greeting():\n    return 'Welcome to Python'\n\nprint(greeting())",
+          "choices": [
+            "WELCOME TO PYTHON",
+            "['Welcome', 'to', 'Python']",
+            "['WELCOME', 'TO', 'PYTHON']"
+          ],
+          "expected_output": "['WELCOME', 'TO', 'PYTHON']",
+          "explanation": "The decorator closest to the function (uppercase) runs first: 'WELCOME TO PYTHON'. Then split_string_decorator splits that string into a list of words.",
+          "misconceptions": {
+            "WELCOME TO PYTHON": "The last step is split(), so the result is a list, not a string.",
+            "['Welcome', 'to', 'Python']": "upper() is applied too (before the split)."
+          },
+          "explanation_tr": "Fonksiyona en yakın decorator (uppercase) önce çalışır: 'WELCOME TO PYTHON'. Sonra split_string_decorator bu string'i kelime listesine böler.",
+          "misconceptions_tr": {
+            "WELCOME TO PYTHON": "Son adım split() olduğu için sonuç string değil, listedir.",
+            "['Welcome', 'to', 'Python']": "upper() da uygulanır (bölmeden önce)."
+          }
+        },
+        {
+          "id": "d14-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the decorator so greeting() returns its text in upper case.",
+          "prompt_tr": "Dekoratörü, greeting() metni büyük harfle döndürecek şekilde tamamlayın.",
+          "starter_code": "def shout(function):\n    def wrapper():\n        return function().___()\n    return ___\n\n@shout\ndef greeting():\n    return 'welcome'\n\nprint(greeting())",
+          "blanks": [
+            {
+              "answer": [
+                "upper"
+              ]
+            },
+            {
+              "answer": [
+                "wrapper"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert greeting() == 'WELCOME'",
+              "visible": true,
+              "label_tr": "greeting() 'WELCOME' veriyor"
+            }
+          ],
+          "hints": [
+            "Which string method makes text upper case?",
+            "The decorator must return the inner function (not call it)."
+          ],
+          "hints_tr": [
+            "Hangi string metodu metni büyük harfe çevirir?",
+            "Decorator iç fonksiyonu döndürmeli (çağırmamalı)."
+          ]
+        },
+        {
+          "id": "d14-b3-e3",
+          "type": "write",
+          "prompt": "Write a decorator exclaim(function). A function decorated with it must return its original result with '!' added at the end.",
+          "prompt_tr": "exclaim(function) adlı bir dekoratör yazın. Bununla dekore edilen fonksiyon, özgün sonucunun sonuna '!' ekleyerek döndürmelidir.",
+          "starter_code": "",
+          "signature": "def exclaim(function):",
+          "tests": [
+            {
+              "code": "@exclaim\ndef hello():\n    return 'hello'\nassert hello() == 'hello!'",
+              "visible": true,
+              "label_tr": "@exclaim ile hello() 'hello!' veriyor"
+            },
+            {
+              "code": "@exclaim\ndef city():\n    return 'Helsinki'\nassert city() == 'Helsinki!'",
+              "visible": true,
+              "label_tr": "@exclaim ile city() 'Helsinki!' veriyor"
+            },
+            {
+              "code": "calls = []\n@exclaim\ndef f():\n    calls.append(1)\n    return 'x'\nf()\nassert len(calls) == 1",
+              "visible": false,
+              "failure_message": "The original function must be called exactly once per call.",
+              "failure_message_tr": "Asıl fonksiyon her çağrıda tam bir kez çağrılmalı."
+            },
+            {
+              "code": "@exclaim\ndef empty():\n    return ''\nassert empty() == '!'",
+              "visible": false,
+              "failure_message": "Even an empty string gets the '!'.",
+              "failure_message_tr": "Boş string bile '!' almalı."
+            },
+            {
+              "code": "@exclaim\ndef a():\n    return 'a'\n@exclaim\ndef b():\n    return 'b'\nassert (a(), b()) == ('a!', 'b!')",
+              "visible": false,
+              "failure_message": "The decorator must work for several functions.",
+              "failure_message_tr": "Decorator birden fazla fonksiyonla çalışmalı."
+            },
+            {
+              "code": "@exclaim\ndef zed():\n    return 'Zed ' + str(6 * 7)\nassert zed() == 'Zed 42!'",
+              "visible": false,
+              "failure_message": "The wrapper must call the original function and use its result; do not hard-code results.",
+              "failure_message_tr": "wrapper asıl fonksiyonu çağırıp sonucunu kullanmalı; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "A decorator takes a function and returns a new function (the wrapper).",
+            "The wrapper calls the original function and changes its result.",
+            "Inside wrapper: return function() + ___ (what text do you add?) then return wrapper from the decorator."
+          ],
+          "solution": {
+            "approach": "Define a wrapper that calls the original and adds '!', then return the wrapper.",
+            "code": "def exclaim(function):\n    def wrapper():\n        return function() + '!'\n    return wrapper",
+            "approach_tr": "Asıl fonksiyonu çağırıp sonuna '!' ekleyen bir wrapper tanımla ve onu döndür."
+          },
+          "twin": "d14-b3-e4",
+          "hints_tr": [
+            "Decorator bir fonksiyon alır ve yeni bir fonksiyon (wrapper) döndürür.",
+            "wrapper asıl fonksiyonu çağırır ve sonucunu değiştirir.",
+            "wrapper'ın içinde: return function() + ___ (ne ekliyorsun?) sonra decorator'dan wrapper'ı döndür."
+          ]
+        },
+        {
+          "id": "d14-b3-e4",
+          "type": "write",
+          "prompt": "Write a decorator double_result(function). The decorated function can take any positional arguments; it must return its original result multiplied by 2.",
+          "prompt_tr": "double_result(function) adlı bir dekoratör yazın. Dekore edilen fonksiyon istenen sayıda konumsal argüman alabilmeli ve özgün sonucunu 2 ile çarpıp döndürmelidir.",
+          "starter_code": "",
+          "signature": "def double_result(function):",
+          "tests": [
+            {
+              "code": "@double_result\ndef add(a, b):\n    return a + b\nassert add(2, 3) == 10",
+              "visible": true,
+              "label_tr": "add(2, 3) 10 veriyor"
+            },
+            {
+              "code": "@double_result\ndef five():\n    return 5\nassert five() == 10",
+              "visible": true,
+              "label_tr": "five() 10 veriyor"
+            },
+            {
+              "code": "@double_result\ndef total(*nums):\n    return sum(nums)\nassert total(1, 2, 3) == 12",
+              "visible": false,
+              "failure_message": "The wrapper must accept any number of arguments (*args) and pass them on.",
+              "failure_message_tr": "wrapper her sayıda argümanı (*args) kabul edip iletmeli."
+            },
+            {
+              "code": "@double_result\ndef word(w):\n    return w\nassert word('ab') == 'abab'",
+              "visible": false,
+              "failure_message": "Multiplying a string by 2 repeats it: use result * 2.",
+              "failure_message_tr": "String'i 2 ile çarpmak tekrar eder: result * 2 kullan."
+            },
+            {
+              "code": "@double_result\ndef neg(x):\n    return -x\nassert neg(4) == -8",
+              "visible": false,
+              "failure_message": "Do not change the sign or the arguments, only multiply the result.",
+              "failure_message_tr": "İşareti ya da argümanları değiştirme, yalnızca sonucu iki katına çıkar."
+            },
+            {
+              "code": "@double_result\ndef mix(a, b, c):\n    return a + b * c\nassert mix(1, 2, 3) == 14",
+              "visible": false,
+              "failure_message": "Forward the arguments and double the real result; do not hard-code results.",
+              "failure_message_tr": "Argümanları ilet ve gerçek sonucu iki katına çıkar; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "The wrapper needs *args to accept arguments.",
+            "Pass the arguments on to the original function and double what it returns.",
+            "Inside wrapper: return function(___) * 2 (which name forwards all the arguments?) then return wrapper."
+          ],
+          "solution": {
+            "approach": "A wrapper that forwards *args and doubles the result.",
+            "code": "def double_result(function):\n    def wrapper(*args):\n        return function(*args) * 2\n    return wrapper",
+            "approach_tr": "*args'ı ileten ve sonucu iki katına çıkaran bir wrapper."
+          },
+          "twin": "d14-b3-e3",
+          "hints_tr": [
+            "wrapper'ın argüman kabul etmesi için *args gerekir.",
+            "Argümanları asıl fonksiyona ilet ve dönenin iki katını al.",
+            "wrapper'ın içinde: return function(___) * 2 (tüm argümanları hangi isim iletir?) sonra wrapper'ı döndür."
+          ]
+        }
+      ],
+      "concept_tr": "Decorator, bir fonksiyonu alıp onu saran yeni bir fonksiyon döndürür; böylece asıl fonksiyonun davranışı değiştirilir."
+    },
+    {
+      "id": "d14-b4",
+      "concept": "map-filter-reduce",
+      "tags": [
+        "map",
+        "filter",
+        "reduce",
+        "lambda"
+      ],
+      "worked_example": {
+        "code": "numbers = [1, 2, 3, 4]\nprint(list(map(lambda x: x * 10, numbers)))\nprint(list(filter(lambda x: x > 2, numbers)))",
+        "notes": [
+          "map applies a function to every item; filter keeps items for which the function is True.",
+          "Both give an iterator, so wrap them in list() to see the items."
+        ],
+        "notes_tr": [
+          "map her elemana fonksiyon uygular; filter fonksiyonun True verdiği elemanları tutar.",
+          "İkisi de bir iterator verir; elemanları görmek için list() içine al."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d14-b4-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "names = ['Asabeneh', 'Lidiya', 'Ermias', 'Abraham']\nlong_names = filter(lambda name: len(name) > 7, names)\nprint(list(long_names))\nprint(list(map(len, names)))",
+          "choices": [
+            "['Asabeneh', 'Abraham']\n[8, 6, 6, 7]",
+            "['Asabeneh']\n[8, 6, 6, 8]",
+            "['Asabeneh']\n[8, 6, 6, 7]"
+          ],
+          "expected_output": "['Asabeneh']\n[8, 6, 6, 7]",
+          "explanation": "Only 'Asabeneh' (8 letters) is longer than 7. map(len, names) gives the length of each name: 8, 6, 6, 7.",
+          "misconceptions": {
+            "['Asabeneh', 'Abraham']\n[8, 6, 6, 7]": "len('Abraham') is 7, and 7 > 7 is False.",
+            "['Asabeneh']\n[8, 6, 6, 8]": "Count again: 'Abraham' has 7 letters."
+          },
+          "explanation_tr": "Yalnızca 'Asabeneh' (8 harf) 7'den uzun. map(len, names) her ismin uzunluğunu verir: 8, 6, 6, 7.",
+          "misconceptions_tr": {
+            "['Asabeneh', 'Abraham']\n[8, 6, 6, 7]": "len('Abraham') 7'dir ve 7 > 7 yanlıştır.",
+            "['Asabeneh']\n[8, 6, 6, 8]": "Yeniden say: 'Abraham' 7 harflidir."
+          }
+        },
+        {
+          "id": "d14-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Multiply all the numbers together with reduce.",
+          "prompt_tr": "reduce ile tüm sayıları birbiriyle çarpın.",
+          "starter_code": "from ___ import reduce\n\nnumbers = [1, 2, 3, 4, 5]\ntotal = ___(lambda x, y: x * y, numbers)\nprint(total)",
+          "blanks": [
+            {
+              "answer": [
+                "functools"
+              ]
+            },
+            {
+              "answer": [
+                "reduce"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert total == 120",
+              "visible": true,
+              "label_tr": "total 120 olmalı"
+            },
+            {
+              "code": "assert __stdout__.strip() == '120'",
+              "visible": true,
+              "label_tr": "Program 120 yazdırıyor"
+            }
+          ],
+          "hints": [
+            "reduce lives in a standard library module for function tools.",
+            "reduce takes a function with two parameters and an iterable."
+          ],
+          "hints_tr": [
+            "reduce, fonksiyon araçları için olan standart kütüphane modülündedir.",
+            "reduce, iki parametreli bir fonksiyon ve bir iterable alır."
+          ]
+        },
+        {
+          "id": "d14-b4-e3",
+          "type": "write",
+          "prompt": "Write squares_of_evens(numbers) that returns a list with the squares of the even numbers only. Use filter and map.",
+          "prompt_tr": "Yalnızca çift sayıların karelerini içeren bir liste döndüren squares_of_evens(numbers) yazın. filter ve map kullanın.",
+          "starter_code": "",
+          "signature": "def squares_of_evens(numbers):",
+          "tests": [
+            {
+              "code": "assert squares_of_evens([1, 2, 3, 4]) == [4, 16]",
+              "visible": true,
+              "label_tr": "squares_of_evens([1, 2, 3, 4]) [4, 16] veriyor"
+            },
+            {
+              "code": "assert squares_of_evens([1, 3, 5]) == []",
+              "visible": true,
+              "label_tr": "squares_of_evens([1, 3, 5]) boş liste veriyor"
+            },
+            {
+              "code": "assert squares_of_evens([]) == []",
+              "visible": false,
+              "failure_message": "Handle an empty list.",
+              "failure_message_tr": "Boş listeyi ele al."
+            },
+            {
+              "code": "assert squares_of_evens([-2, 0, 6]) == [4, 0, 36]",
+              "visible": false,
+              "failure_message": "Negative even numbers and zero count as even too.",
+              "failure_message_tr": "Negatif çift sayılar ve sıfır da çift sayılır."
+            },
+            {
+              "code": "assert isinstance(squares_of_evens([2]), list)",
+              "visible": false,
+              "failure_message": "map and filter return iterators; convert the result with list().",
+              "failure_message_tr": "map ve filter iterator döndürür; sonucu list() ile çevir."
+            },
+            {
+              "code": "assert squares_of_evens([10, 7, 12, 9, 14]) == [100, 144, 196]",
+              "visible": false,
+              "failure_message": "Filter and map the list given; do not hard-code results.",
+              "failure_message_tr": "Verilen listeyi filtrele ve map'le; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "First filter the evens, then map the square.",
+            "Nest the calls: map(square_function, filter(even_function, numbers)), then convert with list().",
+            "return list(map(lambda x: ___, filter(lambda x: x % 2 == 0, numbers))) (what does the map lambda compute?)"
+          ],
+          "solution": {
+            "approach": "filter keeps the evens, map squares them, list() makes the final list.",
+            "code": "def squares_of_evens(numbers):\n    return list(map(lambda x: x ** 2, filter(lambda x: x % 2 == 0, numbers)))",
+            "approach_tr": "filter çiftleri tutar, map karelerini alır, list() son listeyi yapar."
+          },
+          "twin": "d14-b4-e4",
+          "hints_tr": [
+            "Önce çiftleri filtrele, sonra karesini map ile al.",
+            "Çağrıları iç içe yaz: map(kare_fonksiyonu, filter(çift_fonksiyonu, numbers)), sonra list() ile çevir.",
+            "return list(map(lambda x: ___, filter(lambda x: x % 2 == 0, numbers))) (map'teki lambda ne hesaplar?)"
+          ]
+        },
+        {
+          "id": "d14-b4-e4",
+          "type": "write",
+          "prompt": "Write capitalize_long(words, n) that returns the words longer than n letters, each one capitalized (first letter upper case). Use filter and map. Example: capitalize_long(['lidiya', 'eyob'], 4) returns ['Lidiya'].",
+          "prompt_tr": "n harften uzun kelimeleri, her birini baş harfi büyük yaparak döndüren capitalize_long(words, n) yazın. filter ve map kullanın. Örnek: capitalize_long(['lidiya', 'eyob'], 4) sonucu ['Lidiya'] olur.",
+          "starter_code": "",
+          "signature": "def capitalize_long(words, n):",
+          "tests": [
+            {
+              "code": "assert capitalize_long(['lidiya', 'eyob'], 4) == ['Lidiya']",
+              "visible": true,
+              "label_tr": "capitalize_long(['lidiya', 'eyob'], 4) ['Lidiya'] veriyor"
+            },
+            {
+              "code": "assert capitalize_long(['ab', 'cd'], 5) == []",
+              "visible": true,
+              "label_tr": "capitalize_long(['ab', 'cd'], 5) boş liste veriyor"
+            },
+            {
+              "code": "assert capitalize_long(['ermias', 'abraham', 'asabeneh'], 6) == ['Abraham', 'Asabeneh']",
+              "visible": false,
+              "failure_message": "'longer than n' means len(word) > n, so 'ermias' (6 letters) is out.",
+              "failure_message_tr": "'n'den uzun' len(word) > n demektir; 'ermias' (6 harf) dışarıda kalır."
+            },
+            {
+              "code": "assert capitalize_long([], 1) == []",
+              "visible": false,
+              "failure_message": "Handle an empty list.",
+              "failure_message_tr": "Boş listeyi ele al."
+            },
+            {
+              "code": "assert isinstance(capitalize_long(['abc'], 1), list)",
+              "visible": false,
+              "failure_message": "Convert the final result with list().",
+              "failure_message_tr": "Son sonucu list() ile çevir."
+            },
+            {
+              "code": "assert capitalize_long(['kedi', 'aslan', 'fil'], 3) == ['Kedi', 'Aslan']",
+              "visible": false,
+              "failure_message": "Filter and capitalize the words given; do not hard-code results.",
+              "failure_message_tr": "Verilen kelimeleri filtrele ve baş harfini büyüt; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Filter first by length, then map capitalize.",
+            "str.capitalize is a method you can pass to map without calling it.",
+            "return list(map(___, filter(lambda w: len(w) > n, words))) (which function capitalizes a string?)"
+          ],
+          "solution": {
+            "approach": "Filter by length, map capitalize, wrap in list.",
+            "code": "def capitalize_long(words, n):\n    return list(map(str.capitalize, filter(lambda w: len(w) > n, words)))",
+            "approach_tr": "Uzunluğa göre filtrele, capitalize'ı map'le, list içine al."
+          },
+          "twin": "d14-b4-e3",
+          "hints_tr": [
+            "Önce uzunluğa göre filtrele, sonra capitalize'ı map'le.",
+            "str.capitalize, çağırmadan map'e verebileceğin bir metoddur.",
+            "return list(map(___, filter(lambda w: len(w) > n, words))) (bir string'in ilk harfini büyüten fonksiyon hangisi?)"
+          ]
+        },
+        {
+          "id": "d14-b4-e5",
+          "type": "debug",
+          "prompt": "This should print 15, but it crashes before printing. Fix it.",
+          "prompt_tr": "Bu kod 15 yazdırmalı ama yazdırmadan önce hata veriyor. Düzeltin.",
+          "starter_code": "numbers_str = ['1', '2', '3', '4', '5']\n\ndef add_two_nums(x, y):\n    return int(x) + int(y)\n\ntotal = reduce(add_two_nums, numbers_str)\nprint(total)",
+          "expected_output": "15",
+          "tests": [
+            {
+              "code": "assert total == 15",
+              "visible": true,
+              "label_tr": "total 15 olmalı"
+            }
+          ],
+          "hints": [
+            "Read the error message: which name is not defined?",
+            "reduce is not built in; it lives in the functools module.",
+            "Add an import line at the top: from ___ import reduce (which module?)"
+          ],
+          "solution": {
+            "approach": "reduce must be imported from functools before it is used.",
+            "code": "from functools import reduce\n\nnumbers_str = ['1', '2', '3', '4', '5']\n\ndef add_two_nums(x, y):\n    return int(x) + int(y)\n\ntotal = reduce(add_two_nums, numbers_str)\nprint(total)",
+            "approach_tr": "reduce kullanılmadan önce functools modülünden import edilmelidir."
+          },
+          "hints_tr": [
+            "Hata mesajını oku: hangi isim tanımlı değil?",
+            "reduce yerleşik değildir; functools modülünde bulunur.",
+            "En üste bir import satırı ekle: from ___ import reduce (hangi modül?)"
+          ]
+        },
+        {
+          "id": "d14-b4-e6",
+          "type": "explain",
+          "prompt": "In your own words: what do map, filter and reduce each return, and how do they differ?",
+          "prompt_tr": "Kendi cümlelerinizle: map, filter ve reduce ayrı ayrı ne döndürür ve birbirlerinden farkları nedir?",
+          "model_answer": "map applies a function to every item and gives back the same number of items, changed. filter keeps only the items for which the function returns True, so the result can be shorter. reduce combines all the items step by step into a single value.",
+          "keywords": [
+            "map",
+            "filter",
+            "reduce",
+            "single value"
+          ],
+          "model_answer_tr": "map her elemana bir fonksiyon uygular ve aynı sayıda, değiştirilmiş eleman verir. filter yalnızca fonksiyonun True döndürdüğü elemanları tutar, bu yüzden sonuç daha kısa olabilir. reduce ise tüm elemanları adım adım tek bir değerde birleştirir.",
+          "keywords_tr": [
+            "map",
+            "filter",
+            "reduce",
+            "tek bir değer"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "map her elemana bir fonksiyon uygular, filter şartı sağlayanları tutar, reduce tüm elemanları tek bir değerde birleştirir."
+    }
+  ],
+  "review_pool": [
+    "d14-b1-e1",
+    "d14-b1-e3",
+    "d14-b2-e1",
+    "d14-b3-e1",
+    "d14-b4-e1",
+    "d14-b4-e3"
+  ],
+  "title_tr": "Yüksek dereceli fonksiyonlar"
+}

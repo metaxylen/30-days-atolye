@@ -1,0 +1,658 @@
+{
+  "day": 16,
+  "title": "Python datetime",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "blocks": [
+    {
+      "id": "d16-b1",
+      "concept": "datetime-objects",
+      "tags": [
+        "datetime",
+        "date",
+        "time",
+        "attributes"
+      ],
+      "worked_example": {
+        "code": "from datetime import datetime\n\nnew_year = datetime(2020, 1, 1)\nprint(new_year)\nprint(new_year.year, new_year.month, new_year.day)",
+        "notes": [
+          "datetime(year, month, day, hour, minute, second): missing time parts default to 0.",
+          "Attributes like .year, .month and .day are plain numbers."
+        ],
+        "notes_tr": [
+          "datetime(yıl, ay, gün, saat, dakika, saniye): verilmeyen saat parçaları 0 olur.",
+          ".year, .month ve .day gibi özellikler düz sayılardır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d16-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "from datetime import datetime, date, time\n\ndt = datetime(2019, 12, 5, 7, 30)\nprint(dt)\nprint(dt.hour, dt.minute)\nprint(date(2020, 1, 1))\nprint(time(10, 30, 50))",
+          "choices": [
+            "2019-12-05 7:30\n7 30\n2020-01-01\n10:30:50",
+            "2019-12-05 07:30:00\n7 30\n2020-01-01 00:00:00\n10:30:50",
+            "2019-12-05 07:30:00\n7 30\n2020-01-01\n10:30:50"
+          ],
+          "expected_output": "2019-12-05 07:30:00\n7 30\n2020-01-01\n10:30:50",
+          "explanation": "datetime prints as 'YYYY-MM-DD HH:MM:SS' (seconds default to 0). .hour and .minute are plain numbers without padding. A date prints only the date, a time only the time.",
+          "misconceptions": {
+            "2019-12-05 7:30\n7 30\n2020-01-01\n10:30:50": "A datetime always prints the time as HH:MM:SS with leading zeros.",
+            "2019-12-05 07:30:00\n7 30\n2020-01-01 00:00:00\n10:30:50": "A date object has no time part, so it prints only the date."
+          },
+          "explanation_tr": "datetime 'YYYY-MM-DD HH:MM:SS' biçiminde yazdırılır (saniye varsayılan olarak 0). .hour ve .minute başında sıfır olmayan düz sayılardır. date sadece tarihi, time sadece saati yazdırır.",
+          "misconceptions_tr": {
+            "2019-12-05 7:30\n7 30\n2020-01-01\n10:30:50": "datetime saati her zaman sıfır dolgulu HH:MM:SS biçiminde yazdırır.",
+            "2019-12-05 07:30:00\n7 30\n2020-01-01 00:00:00\n10:30:50": "date nesnesinin saat kısmı yoktur, bu yüzden sadece tarih yazdırılır."
+          }
+        },
+        {
+          "id": "d16-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the program: import the right class and read the hour from the datetime.",
+          "prompt_tr": "Programı tamamlayın: doğru sınıfı içe aktarın ve datetime nesnesinden saati okuyun.",
+          "starter_code": "from datetime import ___\n\nlaunch = datetime(2021, 7, 8, 7, 38)\nhour = launch.___\nprint(hour)",
+          "blanks": [
+            {
+              "answer": [
+                "datetime"
+              ]
+            },
+            {
+              "answer": [
+                "hour"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert hour == 7",
+              "visible": true,
+              "label_tr": "hour 7 olmalı"
+            },
+            {
+              "code": "assert launch.minute == 38",
+              "visible": true,
+              "label_tr": "launch.minute 38 olmalı"
+            }
+          ],
+          "hints": [
+            "The class has the same name as the module.",
+            "The attribute for the hour is spelled like the word."
+          ],
+          "hints_tr": [
+            "Sınıfın adı modülün adıyla aynıdır.",
+            "Saat için özellik, kelimenin kendisi gibi yazılır."
+          ]
+        },
+        {
+          "id": "d16-b1-e3",
+          "type": "write",
+          "prompt": "Write date_parts(dt) that takes a datetime and returns its date as the text 'day/month/year' without leading zeros. Example: for 8 July 2021 it returns '8/7/2021'.",
+          "prompt_tr": "Bir datetime alıp tarihini başında sıfır olmadan 'gün/ay/yıl' metni olarak döndüren date_parts(dt) yazın. Örnek: 8 Temmuz 2021 için '8/7/2021' döndürür.",
+          "starter_code": "",
+          "signature": "def date_parts(dt):",
+          "tests": [
+            {
+              "code": "from datetime import datetime\nassert date_parts(datetime(2021, 7, 8, 7, 38)) == '8/7/2021'",
+              "visible": true,
+              "label_tr": "8 Temmuz 2021 için '8/7/2021' dönüyor"
+            },
+            {
+              "code": "from datetime import datetime\nassert date_parts(datetime(2020, 1, 1)) == '1/1/2020'",
+              "visible": true,
+              "label_tr": "1 Ocak 2020 için '1/1/2020' dönüyor"
+            },
+            {
+              "code": "from datetime import datetime\nassert date_parts(datetime(2019, 12, 25, 23, 59)) == '25/12/2019'",
+              "visible": false,
+              "failure_message": "The order is day, month, year, joined with '/'.",
+              "failure_message_tr": "Sıra gün, ay, yıl olmalı ve '/' ile birleştirilmeli."
+            },
+            {
+              "code": "from datetime import datetime\nassert date_parts(datetime(1999, 2, 3)) == '3/2/1999'",
+              "visible": false,
+              "failure_message": "Do not pad single digits with zeros (3, not 03).",
+              "failure_message_tr": "Tek haneli sayıları sıfırla doldurma (03 değil 3)."
+            },
+            {
+              "code": "from datetime import datetime\nassert isinstance(date_parts(datetime(2000, 1, 1)), str)",
+              "visible": false,
+              "failure_message": "Return a string, not a tuple or a date.",
+              "failure_message_tr": "Tuple ya da date değil, string döndür."
+            },
+            {
+              "code": "from datetime import datetime\nassert date_parts(datetime(2031, 11, 9, 5, 5)) == '9/11/2031'",
+              "visible": false,
+              "failure_message": "Read the parts from the datetime given; do not hard-code results.",
+              "failure_message_tr": "Parçaları verilen datetime'dan oku; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Use the attributes .day, .month and .year.",
+            "Build the text with an f-string and '/' between the parts.",
+            "return f'{dt.___}/{dt.month}/{dt.year}' (which attribute is the day?)"
+          ],
+          "solution": {
+            "approach": "Read the three attributes and join them with slashes.",
+            "code": "def date_parts(dt):\n    return f'{dt.day}/{dt.month}/{dt.year}'",
+            "approach_tr": "Üç özelliği oku ve aralarına eğik çizgi koyarak birleştir."
+          },
+          "twin": "d16-b1-e4",
+          "hints_tr": [
+            "Özellikleri kullan: .day, .month ve .year.",
+            "Metni bir f-string ile ve parçalar arasında '/' koyarak kur.",
+            "return f'{dt.___}/{dt.month}/{dt.year}' (gün hangi özelliktir?)"
+          ]
+        },
+        {
+          "id": "d16-b1-e4",
+          "type": "write",
+          "prompt": "Write is_new_year(d) that takes a date or datetime and returns True if it is the 1st of January, otherwise False.",
+          "prompt_tr": "Bir date ya da datetime alıp 1 Ocak ise True, değilse False döndüren is_new_year(d) yazın.",
+          "starter_code": "",
+          "signature": "def is_new_year(d):",
+          "tests": [
+            {
+              "code": "from datetime import date\nassert is_new_year(date(2020, 1, 1)) is True",
+              "visible": true,
+              "label_tr": "1 Ocak 2020 için True dönüyor"
+            },
+            {
+              "code": "from datetime import date\nassert is_new_year(date(2020, 1, 2)) is False",
+              "visible": true,
+              "label_tr": "2 Ocak 2020 için False dönüyor"
+            },
+            {
+              "code": "from datetime import datetime\nassert is_new_year(datetime(2021, 1, 1, 23, 59)) is True",
+              "visible": false,
+              "failure_message": "The time of day does not matter; check only month and day.",
+              "failure_message_tr": "Günün saati önemli değil; sadece ay ve güne bak."
+            },
+            {
+              "code": "from datetime import date\nassert is_new_year(date(2021, 2, 1)) is False",
+              "visible": false,
+              "failure_message": "Both the month and the day must be 1.",
+              "failure_message_tr": "Ay da gün de 1 olmalı."
+            },
+            {
+              "code": "from datetime import date\nassert is_new_year(date(2019, 12, 1)) is False",
+              "visible": false,
+              "failure_message": "Day 1 of another month is not New Year.",
+              "failure_message_tr": "Başka bir ayın 1. günü yılbaşı değildir."
+            },
+            {
+              "code": "from datetime import date, datetime\nassert is_new_year(date(2030, 1, 1)) is True and is_new_year(date(2030, 6, 1)) is False and is_new_year(datetime(1985, 1, 1, 3, 3)) is True",
+              "visible": false,
+              "failure_message": "Check the month and day of the date given; do not hard-code results.",
+              "failure_message_tr": "Verilen tarihin ay ve gününe bak; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Two attributes must both match.",
+            "Compare the month and the day, and join the two checks.",
+            "return d.month == 1 ___ d.day == 1 (which keyword joins two conditions?)"
+          ],
+          "solution": {
+            "approach": "Compare month and day with and.",
+            "code": "def is_new_year(d):\n    return d.month == 1 and d.day == 1",
+            "approach_tr": "Ay ve günü 'and' ile karşılaştır."
+          },
+          "twin": "d16-b1-e3",
+          "hints_tr": [
+            "İki özellik de eşleşmeli.",
+            "Ayı ve günü karşılaştır, iki kontrolü birleştir.",
+            "return d.month == 1 ___ d.day == 1 (iki şartı hangi anahtar kelime birleştirir?)"
+          ]
+        }
+      ],
+      "concept_tr": "datetime modülü tarih ve saatleri nesne olarak tutar: datetime, date ve time. Yıl, ay, gün gibi parçalarına özellik (attribute) olarak ulaşırsın."
+    },
+    {
+      "id": "d16-b2",
+      "concept": "strftime-and-strptime",
+      "tags": [
+        "datetime",
+        "formatting",
+        "parsing"
+      ],
+      "worked_example": {
+        "code": "from datetime import datetime\n\nd = datetime(2019, 12, 5, 1, 5, 1)\nprint(d.strftime('%d/%m/%Y, %H:%M:%S'))\nprint(datetime.strptime('5 December, 2019', '%d %B, %Y'))",
+        "notes": [
+          "strftime turns a datetime into text; strptime turns text into a datetime.",
+          "%d day, %m month number, %B month name, %Y year, %H hour, %M minute, %S second."
+        ],
+        "notes_tr": [
+          "strftime datetime'ı metne çevirir; strptime metni datetime'a çevirir.",
+          "%d gün, %m ay numarası, %B ay adı, %Y yıl, %H saat, %M dakika, %S saniye."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d16-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "from datetime import datetime\n\nd = datetime(2019, 12, 5, 1, 5, 1)\nprint(d.strftime('%m/%d/%Y, %H:%M:%S'))\nprint(d.strftime('%d/%m/%Y'))\nprint(d.strftime('%B %d'))",
+          "choices": [
+            "05/12/2019, 01:05:01\n12/05/2019\nDecember 5",
+            "12/05/2019, 01:05:01\n05/12/2019\nDec 05",
+            "12/05/2019, 01:05:01\n05/12/2019\nDecember 05"
+          ],
+          "expected_output": "12/05/2019, 01:05:01\n05/12/2019\nDecember 05",
+          "explanation": "%m/%d/%Y gives month first: 12/05/2019. %d/%m/%Y gives day first: 05/12/2019. %B is the full month name and %d is zero padded, so 'December 05'.",
+          "misconceptions": {
+            "05/12/2019, 01:05:01\n12/05/2019\nDecember 5": "%m is the month and comes first in the first format; %d is always zero padded (05).",
+            "12/05/2019, 01:05:01\n05/12/2019\nDec 05": "%B is the full month name; the short name is %b."
+          },
+          "explanation_tr": "%m/%d/%Y önce ayı yazar: 12/05/2019. %d/%m/%Y önce günü yazar: 05/12/2019. %B ayın tam adıdır ve %d sıfır dolguludur, yani 'December 05'.",
+          "misconceptions_tr": {
+            "05/12/2019, 01:05:01\n12/05/2019\nDecember 5": "İlk biçimde %m ay olarak önce gelir; %d her zaman sıfır dolguludur (05).",
+            "12/05/2019, 01:05:01\n05/12/2019\nDec 05": "%B ayın tam adıdır; kısa adı %b'dir."
+          }
+        },
+        {
+          "id": "d16-b2-e2",
+          "type": "parsons",
+          "prompt": "Order the lines to turn the text into a datetime object and print it.",
+          "prompt_tr": "Metni bir datetime nesnesine dönüştürüp yazdıracak şekilde satırları sıralayın.",
+          "lines": [
+            "print(date_object)",
+            "from datetime import datetime",
+            "date_object = datetime.strptime(date_string, '%d %B, %Y')",
+            "date_string = '5 December, 2019'"
+          ],
+          "correct_order": [
+            1,
+            3,
+            2,
+            0
+          ],
+          "distractors": [
+            "date_object = datetime.strftime(date_string, '%d %B, %Y')"
+          ],
+          "expected_output": "2019-12-05 00:00:00"
+        },
+        {
+          "id": "d16-b2-e3",
+          "type": "write",
+          "prompt": "Write to_iso(text) that converts a date written like '5 December, 2019' into the format 'YYYY-MM-DD' (here '2019-12-05'). Use strptime and strftime.",
+          "prompt_tr": "'5 December, 2019' gibi yazılmış bir tarihi 'YYYY-AA-GG' biçimine (burada '2019-12-05') dönüştüren to_iso(text) yazın. strptime ve strftime kullanın.",
+          "starter_code": "",
+          "signature": "def to_iso(text):",
+          "tests": [
+            {
+              "code": "assert to_iso('5 December, 2019') == '2019-12-05'",
+              "visible": true,
+              "label_tr": "to_iso('5 December, 2019') '2019-12-05' veriyor"
+            },
+            {
+              "code": "assert to_iso('25 January, 2021') == '2021-01-25'",
+              "visible": true,
+              "label_tr": "to_iso('25 January, 2021') '2021-01-25' veriyor"
+            },
+            {
+              "code": "assert to_iso('1 March, 2020') == '2020-03-01'",
+              "visible": false,
+              "failure_message": "Month and day need leading zeros: use %m and %d in strftime.",
+              "failure_message_tr": "Ay ve gün başında sıfır istiyor: strftime'da %m ve %d kullan."
+            },
+            {
+              "code": "assert to_iso('31 July, 1999') == '1999-07-31'",
+              "visible": false,
+              "failure_message": "The year comes first in the output.",
+              "failure_message_tr": "Çıktıda yıl en başta gelir."
+            },
+            {
+              "code": "assert to_iso('29 February, 2020') == '2020-02-29'",
+              "visible": false,
+              "failure_message": "Leap days are valid; parse with '%d %B, %Y'.",
+              "failure_message_tr": "29 Şubat geçerli bir gündür; '%d %B, %Y' ile oku."
+            },
+            {
+              "code": "assert to_iso('9 September, 2024') == '2024-09-09'",
+              "visible": false,
+              "failure_message": "Parse and format the text given; do not hard-code results.",
+              "failure_message_tr": "Verilen metni çözümle ve biçimlendir; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "First parse the text into a datetime, then format it.",
+            "strptime parses text with the INPUT pattern; strftime writes text with the OUTPUT pattern.",
+            "Chain datetime.strptime(text, '%d %B, %Y') with .strftime('___') (write the output pattern for 2019-12-05)."
+          ],
+          "solution": {
+            "approach": "Parse with strptime using the input pattern, then format with strftime using the output pattern.",
+            "code": "from datetime import datetime\n\ndef to_iso(text):\n    return datetime.strptime(text, '%d %B, %Y').strftime('%Y-%m-%d')",
+            "approach_tr": "Girdi kalıbıyla strptime ile oku, çıktı kalıbıyla strftime ile biçimlendir."
+          },
+          "twin": "d16-b2-e4",
+          "hints_tr": [
+            "Önce metni datetime'a çevir, sonra biçimlendir.",
+            "strptime metni GİRİŞ kalıbıyla okur; strftime ÇIKIŞ kalıbıyla yazar.",
+            "datetime.strptime(text, '%d %B, %Y') ifadesinin ardına .strftime('___') ekle (2019-12-05 için çıkış kalıbını yaz)."
+          ]
+        },
+        {
+          "id": "d16-b2-e4",
+          "type": "write",
+          "prompt": "Write european_format(us_text) that converts a date written as 'MM/DD/YYYY' (like '12/05/2019') into 'DD/MM/YYYY' (here '05/12/2019').",
+          "prompt_tr": "'AA/GG/YYYY' biçiminde yazılmış bir tarihi (örneğin '12/05/2019') 'GG/AA/YYYY' biçimine (burada '05/12/2019') dönüştüren european_format(us_text) yazın.",
+          "starter_code": "",
+          "signature": "def european_format(us_text):",
+          "tests": [
+            {
+              "code": "assert european_format('12/05/2019') == '05/12/2019'",
+              "visible": true,
+              "label_tr": "european_format('12/05/2019') '05/12/2019' veriyor"
+            },
+            {
+              "code": "assert european_format('01/31/2020') == '31/01/2020'",
+              "visible": true,
+              "label_tr": "european_format('01/31/2020') '31/01/2020' veriyor"
+            },
+            {
+              "code": "assert european_format('07/04/2021') == '04/07/2021'",
+              "visible": false,
+              "failure_message": "Day and month must swap places; keep the leading zeros.",
+              "failure_message_tr": "Gün ve ay yer değiştirmeli; baştaki sıfırları koru."
+            },
+            {
+              "code": "assert european_format('02/29/2020') == '29/02/2020'",
+              "visible": false,
+              "failure_message": "Parse with '%m/%d/%Y' so the order is read correctly.",
+              "failure_message_tr": "Sırayı doğru okumak için '%m/%d/%Y' ile çözümle."
+            },
+            {
+              "code": "assert european_format('11/11/1999') == '11/11/1999'",
+              "visible": false,
+              "failure_message": "Equal day and month stay the same.",
+              "failure_message_tr": "Gün ve ay eşitse aynı kalır."
+            },
+            {
+              "code": "assert european_format('03/17/2022') == '17/03/2022'",
+              "visible": false,
+              "failure_message": "Parse and format the text given; do not hard-code results.",
+              "failure_message_tr": "Verilen metni çözümle ve biçimlendir; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Parse with the US pattern, then format with the European one.",
+            "Read the text with month first, then write it out with day first.",
+            "Chain strptime(us_text, '%m/%d/%Y') with .strftime('___') (write the European pattern)."
+          ],
+          "solution": {
+            "approach": "Parse with month first, format with day first.",
+            "code": "from datetime import datetime\n\ndef european_format(us_text):\n    return datetime.strptime(us_text, '%m/%d/%Y').strftime('%d/%m/%Y')",
+            "approach_tr": "Önce ay gelecek şekilde oku, önce gün gelecek şekilde yaz."
+          },
+          "twin": "d16-b2-e3",
+          "hints_tr": [
+            "ABD kalıbıyla oku, sonra Avrupa kalıbıyla yaz.",
+            "Metni önce ay gelecek şekilde oku, sonra önce gün gelecek şekilde yaz.",
+            "strptime(us_text, '%m/%d/%Y') ifadesinin ardına .strftime('___') ekle (Avrupa kalıbını yaz)."
+          ]
+        }
+      ],
+      "concept_tr": "strftime bir tarihi metne, strptime ise metni tarihe çevirir. % ile başlayan kodlar hangi parçanın nasıl yazılacağını söyler."
+    },
+    {
+      "id": "d16-b3",
+      "concept": "differences-and-timedelta",
+      "tags": [
+        "datetime",
+        "timedelta",
+        "subtraction"
+      ],
+      "worked_example": {
+        "code": "from datetime import date, timedelta\n\ntoday = date(2019, 12, 5)\nnew_year = date(2020, 1, 1)\nprint(new_year - today)\nprint(today + timedelta(days=30))",
+        "notes": [
+          "Subtracting two dates gives a timedelta (a length of time).",
+          "Adding a timedelta to a date moves the date forward or backward."
+        ],
+        "notes_tr": [
+          "İki tarihi çıkarmak bir timedelta (süre uzunluğu) verir.",
+          "Bir tarihe timedelta eklemek tarihi ileri ya da geri taşır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d16-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "from datetime import datetime\n\nt1 = datetime(2019, 12, 5, 0, 59, 0)\nt2 = datetime(2020, 1, 1, 0, 0, 0)\ndiff = t2 - t1\nprint(diff)\nprint(diff.days)",
+          "choices": [
+            "27 days, 0:00:00\n27",
+            "26 days, 23:01:00\n27",
+            "26 days, 23:01:00\n26"
+          ],
+          "expected_output": "26 days, 23:01:00\n26",
+          "explanation": "From 5 Dec 00:59 to 1 Jan 00:00 is 26 full days and 23 hours 1 minute. .days gives only the full-days part: 26.",
+          "misconceptions": {
+            "27 days, 0:00:00\n27": "t1 is 59 minutes after midnight, so the gap is one hour shorter than a whole 27 days.",
+            "26 days, 23:01:00\n27": ".days counts only complete days, so it is 26 here."
+          },
+          "explanation_tr": "5 Aralık 00:59'dan 1 Ocak 00:00'a 26 tam gün ve 23 saat 1 dakika vardır. .days sadece tam gün kısmını verir: 26.",
+          "misconceptions_tr": {
+            "27 days, 0:00:00\n27": "t1 gece yarısından 59 dakika sonradır, bu yüzden fark tam 27 günden bir saat kısadır.",
+            "26 days, 23:01:00\n27": ".days yalnızca tamamlanmış günleri sayar, burada 26 olur."
+          }
+        },
+        {
+          "id": "d16-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the program that counts the days left until New Year.",
+          "prompt_tr": "Yeni yıla kalan gün sayısını bulan programı tamamlayın.",
+          "starter_code": "from datetime import date\n\ntoday = date(2019, 12, 5)\nnew_year = date(2020, 1, 1)\ndays_left = (new_year ___ today).___\nprint(days_left)",
+          "blanks": [
+            {
+              "answer": [
+                "-"
+              ]
+            },
+            {
+              "answer": [
+                "days"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert days_left == 27",
+              "visible": true,
+              "label_tr": "days_left 27 olmalı"
+            },
+            {
+              "code": "assert __stdout__.strip() == '27'",
+              "visible": true,
+              "label_tr": "Program 27 yazdırıyor"
+            }
+          ],
+          "hints": [
+            "To find a gap, subtract the earlier date from the later one.",
+            "A timedelta has an attribute that counts whole days."
+          ],
+          "hints_tr": [
+            "Aradaki farkı bulmak için erken tarihi geç tarihten çıkar.",
+            "timedelta'nın tam günleri sayan bir özelliği vardır."
+          ]
+        },
+        {
+          "id": "d16-b3-e3",
+          "type": "write",
+          "prompt": "Write days_between(d1, d2) that returns the number of days from date d1 to date d2 (negative if d2 is earlier).",
+          "prompt_tr": "d1 tarihinden d2 tarihine kadar geçen gün sayısını döndüren days_between(d1, d2) yazın (d2 daha eskiyse negatif).",
+          "starter_code": "",
+          "signature": "def days_between(d1, d2):",
+          "tests": [
+            {
+              "code": "from datetime import date\nassert days_between(date(2019, 12, 5), date(2020, 1, 1)) == 27",
+              "visible": true,
+              "label_tr": "5 Aralık 2019 ile 1 Ocak 2020 arası 27 gün"
+            },
+            {
+              "code": "from datetime import date\nassert days_between(date(2020, 1, 1), date(2020, 1, 11)) == 10",
+              "visible": true,
+              "label_tr": "1 Ocak ile 11 Ocak 2020 arası 10 gün"
+            },
+            {
+              "code": "from datetime import date\nassert days_between(date(2020, 1, 1), date(2020, 1, 1)) == 0",
+              "visible": false,
+              "failure_message": "The same day is 0 days apart.",
+              "failure_message_tr": "Aynı gün 0 gün farklıdır."
+            },
+            {
+              "code": "from datetime import date\nassert days_between(date(2020, 3, 1), date(2020, 1, 1)) == -60",
+              "visible": false,
+              "failure_message": "If d2 is earlier, the result is negative: compute d2 - d1.",
+              "failure_message_tr": "d2 daha erkense sonuç negatiftir: d2 - d1 hesapla."
+            },
+            {
+              "code": "from datetime import date\nassert days_between(date(2020, 2, 28), date(2020, 3, 1)) == 2",
+              "visible": false,
+              "failure_message": "2020 is a leap year; let datetime do the counting.",
+              "failure_message_tr": "2020 artık yıldır; saymayı datetime'a bırak."
+            },
+            {
+              "code": "from datetime import date\nassert days_between(date(2021, 3, 1), date(2021, 3, 31)) == 30",
+              "visible": false,
+              "failure_message": "Compute the gap between the dates given; do not hard-code results.",
+              "failure_message_tr": "Verilen tarihler arasındaki farkı hesapla; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "Subtract the two dates.",
+            "The result is a timedelta; ask it for .days.",
+            "return (d2 ___ d1).days (which operator gives the difference?)"
+          ],
+          "solution": {
+            "approach": "Subtract d1 from d2 and take the days of the timedelta.",
+            "code": "def days_between(d1, d2):\n    return (d2 - d1).days",
+            "approach_tr": "d1'i d2'den çıkar ve timedelta'nın günlerini al."
+          },
+          "twin": "d16-b3-e4",
+          "hints_tr": [
+            "İki tarihi birbirinden çıkar.",
+            "Sonuç bir timedelta; ondan .days iste.",
+            "return (d2 ___ d1).days (farkı hangi operatör verir?)"
+          ]
+        },
+        {
+          "id": "d16-b3-e4",
+          "type": "write",
+          "prompt": "Write add_days(d, n) that returns the date n days after date d (n can be negative to go back).",
+          "prompt_tr": "d tarihinden n gün sonraki tarihi döndüren add_days(d, n) yazın (geriye gitmek için n negatif olabilir).",
+          "starter_code": "",
+          "signature": "def add_days(d, n):",
+          "tests": [
+            {
+              "code": "from datetime import date\nassert add_days(date(2019, 12, 5), 30) == date(2020, 1, 4)",
+              "visible": true,
+              "label_tr": "5 Aralık 2019'a 30 gün eklenince 4 Ocak 2020 oluyor"
+            },
+            {
+              "code": "from datetime import date\nassert add_days(date(2020, 1, 1), 0) == date(2020, 1, 1)",
+              "visible": true,
+              "label_tr": "1 Ocak 2020'ye 0 gün eklenince aynı gün kalıyor"
+            },
+            {
+              "code": "from datetime import date\nassert add_days(date(2020, 2, 28), 2) == date(2020, 3, 1)",
+              "visible": false,
+              "failure_message": "2020 is a leap year: Feb 29 exists. Use timedelta and let datetime do the calendar.",
+              "failure_message_tr": "2020 artık yıl: 29 Şubat var. timedelta kullan ve takvimi datetime'a bırak."
+            },
+            {
+              "code": "from datetime import date\nassert add_days(date(2020, 1, 1), -1) == date(2019, 12, 31)",
+              "visible": false,
+              "failure_message": "A negative n goes back in time.",
+              "failure_message_tr": "Negatif n zamanda geriye gider."
+            },
+            {
+              "code": "from datetime import date\nassert add_days(date(2021, 12, 31), 1) == date(2022, 1, 1)",
+              "visible": false,
+              "failure_message": "The year must roll over automatically.",
+              "failure_message_tr": "Yıl otomatik olarak değişmeli."
+            },
+            {
+              "code": "from datetime import date\nassert add_days(date(2023, 6, 15), 100) == date(2023, 9, 23)",
+              "visible": false,
+              "failure_message": "Add the days to the date given; do not hard-code results.",
+              "failure_message_tr": "Verilen tarihe günleri ekle; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "A timedelta can be added to a date.",
+            "timedelta(days=n) is the amount to add.",
+            "return d ___ timedelta(days=n) (which operator moves the date?)"
+          ],
+          "solution": {
+            "approach": "Add a timedelta of n days to the date.",
+            "code": "from datetime import timedelta\n\ndef add_days(d, n):\n    return d + timedelta(days=n)",
+            "approach_tr": "Tarihe n günlük bir timedelta ekle."
+          },
+          "twin": "d16-b3-e3",
+          "hints_tr": [
+            "Bir tarihe timedelta eklenebilir.",
+            "timedelta(days=n) eklenecek süredir.",
+            "return d ___ timedelta(days=n) (tarihi hangi operatör kaydırır?)"
+          ]
+        },
+        {
+          "id": "d16-b3-e5",
+          "type": "debug",
+          "prompt": "This should print 'Days: 60' (days between two dates) but it crashes. Fix it.",
+          "prompt_tr": "Bu kod iki tarih arasındaki gün sayısı için 'Days: 60' yazdırmalı ama hata veriyor. Düzeltin.",
+          "starter_code": "from datetime import date\n\nstart = date(2020, 1, 1)\nend = date(2020, 3, 1)\nprint('Days:', end.days - start.days)",
+          "expected_output": "Days: 60",
+          "hints": [
+            "Read the error: which object has no attribute 'days'?",
+            "A date has no .days; the difference of two dates does.",
+            "Subtract first, then read the days: (end ___ start).days (which operator?)"
+          ],
+          "solution": {
+            "approach": "Only a timedelta has .days. Subtract the dates first, then read .days.",
+            "code": "from datetime import date\n\nstart = date(2020, 1, 1)\nend = date(2020, 3, 1)\nprint('Days:', (end - start).days)",
+            "approach_tr": "Yalnızca timedelta'nın .days özelliği var. Önce tarihleri çıkar, sonra .days oku."
+          },
+          "hints_tr": [
+            "Hatayı oku: hangi nesnede 'days' özelliği yok?",
+            "Bir date'in .days'i yoktur; iki tarihin farkının vardır.",
+            "Önce çıkar, sonra günleri oku: (end ___ start).days (hangi operatör?)"
+          ]
+        },
+        {
+          "id": "d16-b3-e6",
+          "type": "explain",
+          "prompt": "In your own words: what are the differences between date, datetime and timedelta?",
+          "prompt_tr": "Kendi cümlelerinizle: date, datetime ve timedelta arasındaki farklar nelerdir?",
+          "model_answer": "A date holds only year, month and day. A datetime holds the date plus the time of day. A timedelta is not a point in time but a length of time, such as the difference you get when you subtract two dates; you can add it to a date to move it.",
+          "keywords": [
+            "date",
+            "timedelta",
+            "difference"
+          ],
+          "model_answer_tr": "date yalnızca yıl, ay ve günü tutar. datetime tarihe ek olarak günün saatini de tutar. timedelta ise bir zaman noktası değil, bir süredir; iki tarihi çıkarınca elde edilen fark gibi. Onu bir tarihe ekleyerek tarihi kaydırabilirsin.",
+          "keywords_tr": [
+            "date",
+            "timedelta",
+            "fark",
+            "süre"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "İki tarihi çıkarınca timedelta (bir süre) elde edersin; bir tarihe timedelta ekleyerek tarihi ileri ya da geri oynatabilirsin."
+    }
+  ],
+  "review_pool": [
+    "d16-b1-e1",
+    "d16-b1-e3",
+    "d16-b2-e1",
+    "d16-b2-e3",
+    "d16-b3-e1",
+    "d16-b3-e3"
+  ],
+  "title_tr": "Python datetime"
+}

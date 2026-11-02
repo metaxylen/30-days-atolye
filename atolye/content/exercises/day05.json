@@ -1,0 +1,723 @@
+{
+  "day": 5,
+  "title": "Lists",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "blocks": [
+    {
+      "id": "d05-b1",
+      "concept": "list-access-slicing",
+      "tags": [
+        "lists",
+        "indexing",
+        "slicing"
+      ],
+      "worked_example": {
+        "code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nprint(fruits[0], fruits[-1])\nprint(fruits[1:3])",
+        "notes": [
+          "Lists use the same indexes and slices as strings.",
+          "A slice gives a NEW list; the stop index is excluded."
+        ],
+        "notes_tr": [
+          "Listeler, string'lerle aynı indeks ve dilimleri kullanır.",
+          "Dilim YENİ bir liste verir; bitiş indeksi dahil değildir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d05-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nfruits[1] = 'apple'\nprint(fruits[-2])\nprint(fruits[1:3])",
+          "choices": [
+            "mango\n['apple', 'mango']",
+            "apple\n['apple', 'mango']",
+            "mango\n['orange', 'mango']",
+            "mango\n['apple', 'mango', 'lemon']"
+          ],
+          "expected_output": "mango\n['apple', 'mango']",
+          "explanation": "Lists can be changed: index 1 is now 'apple'. fruits[-2] is the second-last item, 'mango'. The slice [1:3] holds indexes 1 and 2.",
+          "misconceptions": {
+            "apple\n['apple', 'mango']": "-2 counts from the end: -1 is 'lemon', -2 is 'mango'.",
+            "mango\n['orange', 'mango']": "fruits[1] was replaced by 'apple' before printing.",
+            "mango\n['apple', 'mango', 'lemon']": "The stop index 3 is excluded, so 'lemon' is not part of the slice."
+          },
+          "explanation_tr": "Liste değiştirilebilir: 1. indeks artık 'apple'. fruits[-2] sondan ikinci elemandır, yani 'mango'. [1:3] dilimi 1. ve 2. indeksleri alır.",
+          "misconceptions_tr": {
+            "apple\n['apple', 'mango']": "-2 sondan sayar: -1 'lemon', -2 'mango'dur.",
+            "mango\n['orange', 'mango']": "fruits[1] yazdırmadan önce 'apple' ile değiştirilmişti.",
+            "mango\n['apple', 'mango', 'lemon']": "Bitiş indeksi 3 dahil değildir, bu yüzden 'lemon' dilimde yoktur."
+          }
+        },
+        {
+          "id": "d05-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints the last fruit (lemon).",
+          "prompt_tr": "Programın son meyveyi (lemon) yazdırması için boşluğu doldur.",
+          "starter_code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nprint(fruits[___])",
+          "blanks": [
+            {
+              "answer": [
+                "-1",
+                "3"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'lemon'",
+              "visible": true,
+              "failure_message": "The program must print lemon.",
+              "failure_message_tr": "Program lemon yazdırmalı.",
+              "label_tr": "Program lemon yazdırıyor"
+            }
+          ],
+          "hints": [
+            "Which position in the list holds 'lemon'?",
+            "Python lets you count from the end of a list with a negative index.",
+            "Type -1 between the brackets: negative one means the last item."
+          ],
+          "hints_tr": [
+            "'lemon' listenin hangi sırasında?",
+            "Python'da negatif indeksle listeyi sondan sayabilirsin.",
+            "Köşeli parantezin içine -1 yaz: eksi bir, son elemandır."
+          ]
+        },
+        {
+          "id": "d05-b1-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints two lines: the first three countries as a list, then the last country (Denmark).",
+          "prompt_tr": "Programı iki satır yazdıracak şekilde değiştir: ilk üç ülke bir liste olarak, sonra son ülke (Denmark).",
+          "starter_code": "countries = ['Germany', 'France', 'Belgium', 'Sweden', 'Denmark']\nprint(countries[0])",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == [\"['Germany', 'France', 'Belgium']\", 'Denmark']",
+              "visible": true,
+              "failure_message": "Expected the list of the first three countries, then Denmark.",
+              "failure_message_tr": "İlk üç ülkenin listesini, sonra Denmark'ı yazdırmalısın.",
+              "label_tr": "İlk üç ülke liste olarak, sonra son ülke yazdırılıyor"
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Slice) for n in ast.walk(_t)) and sum(isinstance(n, ast.Subscript) for n in ast.walk(_t)) >= 2",
+              "visible": false,
+              "failure_message": "The output must come from the countries list (a slice and an index), not typed by hand.",
+              "failure_message_tr": "Çıktı elle yazılmamalı; countries listesinden bir dilim ve bir indeksle alınmalı.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "The first line needs several items, the second just one.",
+            "A slice [start:stop] gives several items and the stop index is excluded. A negative index picks from the end.",
+            "Line 1: slice countries from 0 up to 3 inside print(). Line 2: pick the item at index -1 inside print()."
+          ],
+          "solution": {
+            "approach": "Use a slice for the first three items and -1 for the last.",
+            "code": "countries = ['Germany', 'France', 'Belgium', 'Sweden', 'Denmark']\nprint(countries[0:3])\nprint(countries[-1])",
+            "approach_tr": "İlk üç ülke için dilim, son ülke için -1 indeksi kullan."
+          },
+          "hints_tr": [
+            "İlk satır birkaç eleman, ikinci satır tek eleman istiyor.",
+            "[başlangıç:bitiş] dilimi birkaç eleman verir ve bitiş indeksi dahil değildir. Negatif indeks sondan eleman seçer.",
+            "1. satır: print() içinde countries'i 0'dan 3'e kadar dilimle. 2. satır: print() içinde -1 indeksindeki elemanı yaz."
+          ]
+        },
+        {
+          "id": "d05-b1-e4",
+          "type": "type_it",
+          "prompt": "Study the snippet, then retype it from memory.",
+          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz.",
+          "code": "fruits = ['banana', 'orange', 'mango']\nfruits.append('lime')\nprint(len(fruits))\nprint(fruits[-1])",
+          "expected_output": "4\nlime"
+        }
+      ],
+      "concept_tr": "Liste elemanına erişim ve dilimleme"
+    },
+    {
+      "id": "d05-b2",
+      "concept": "list-add-remove",
+      "tags": [
+        "lists",
+        "append",
+        "insert",
+        "remove",
+        "pop"
+      ],
+      "worked_example": {
+        "code": "nums = [1, 2]\nnums.append(3)\nnums.insert(0, 0)\nprint(nums)",
+        "notes": [
+          "append adds at the end, insert(index, item) adds at a position.",
+          "These methods change the list itself and return None."
+        ],
+        "notes_tr": [
+          "append sona ekler, insert(indeks, eleman) belirli bir konuma ekler.",
+          "Bu metotlar listenin kendisini değiştirir ve None döndürür."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d05-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "fruits = ['banana', 'orange', 'mango', 'lemon', 'banana']\nfruits.remove('banana')\nlast = fruits.pop()\nprint(fruits, last)",
+          "choices": [
+            "['orange', 'mango', 'lemon'] banana",
+            "['orange', 'mango', 'lemon', 'banana'] banana",
+            "['orange', 'mango', 'lemon'] lemon",
+            "['banana', 'orange', 'mango'] banana"
+          ],
+          "expected_output": "['orange', 'mango', 'lemon'] banana",
+          "explanation": "remove deletes only the FIRST 'banana'. pop() then removes and returns the last item, which is the second 'banana'.",
+          "misconceptions": {
+            "['orange', 'mango', 'lemon', 'banana'] banana": "pop() ran too: it removed the last item from the list and stored it in last.",
+            "['orange', 'mango', 'lemon'] lemon": "After remove, the last item is the second 'banana', not 'lemon'.",
+            "['banana', 'orange', 'mango'] banana": "remove deletes the first 'banana', and pop() takes the last item off the end."
+          },
+          "explanation_tr": "remove yalnızca İLK 'banana'yı siler. pop() ise son elemanı çıkarır ve geri verir; bu da ikinci 'banana'dır.",
+          "misconceptions_tr": {
+            "['orange', 'mango', 'lemon', 'banana'] banana": "pop() de çalıştı: son elemanı listeden çıkardı ve last değişkenine koydu.",
+            "['orange', 'mango', 'lemon'] lemon": "remove'dan sonra listenin son elemanı 'lemon' değil, ikinci 'banana'dır.",
+            "['banana', 'orange', 'mango'] banana": "remove ilk 'banana'yı siler, pop() ise sondaki elemanı alır."
+          }
+        },
+        {
+          "id": "d05-b2-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints ['banana', 'lime', 'orange', 'mango'].",
+          "prompt_tr": "Satırları, program ['banana', 'lime', 'orange', 'mango'] yazdıracak şekilde sırala.",
+          "lines": [
+            "fruits.insert(1, 'lime')",
+            "fruits = ['banana', 'orange']",
+            "print(fruits)",
+            "fruits.append('mango')"
+          ],
+          "correct_order": [
+            1,
+            3,
+            0,
+            2
+          ],
+          "distractors": [
+            "fruits.add('mango')"
+          ],
+          "expected_output": "['banana', 'lime', 'orange', 'mango']"
+        },
+        {
+          "id": "d05-b2-e3",
+          "type": "write",
+          "prompt": "Start with queue = ['Ada', 'Bo', 'Cem']. Add 'Dan' at the end, insert 'Eve' at the front (index 0), then remove 'Bo' with remove(). Print queue.",
+          "prompt_tr": "queue = ['Ada', 'Bo', 'Cem'] ile başla. Sona 'Dan' ekle, başa (0. indeks) 'Eve' ekle, sonra remove() ile 'Bo'yu sil. queue'yu yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert queue == ['Eve', 'Ada', 'Cem', 'Dan']",
+              "visible": true,
+              "failure_message": "Expected ['Eve', 'Ada', 'Cem', 'Dan'].",
+              "failure_message_tr": "Beklenen sonuç ['Eve', 'Ada', 'Cem', 'Dan'].",
+              "label_tr": "Kuyruk doğru sırada"
+            },
+            {
+              "code": "assert 'Bo' not in queue",
+              "visible": true,
+              "failure_message": "'Bo' should be removed.",
+              "failure_message_tr": "'Bo' silinmeli.",
+              "label_tr": "'Bo' kuyruktan çıkarılmış"
+            },
+            {
+              "code": "assert queue[0] == 'Eve' and queue[-1] == 'Dan'",
+              "visible": false,
+              "failure_message": "'Eve' must be inserted at index 0 and 'Dan' appended at the end.",
+              "failure_message_tr": "'Eve' 0. indekse eklenmeli, 'Dan' sona eklenmeli."
+            },
+            {
+              "code": "assert len(queue) == 4",
+              "visible": false,
+              "failure_message": "The final list should have 4 names.",
+              "failure_message_tr": "Son listede 4 isim olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"['Eve', 'Ada', 'Cem', 'Dan']\"",
+              "visible": false,
+              "failure_message": "Print queue.",
+              "failure_message_tr": "queue'yu yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert {'append', 'insert', 'remove'} <= _used",
+              "visible": false,
+              "failure_message": "Use the list methods append, insert and remove instead of typing the final list by hand.",
+              "failure_message_tr": "Son listeyi elle yazma; append, insert ve remove metotlarını kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare queue first, then change it with one method per line.",
+            "Three methods: one adds at the end, one adds at a given position, one removes by value.",
+            "Use append for 'Dan', insert at index 0 for 'Eve', remove for 'Bo', then print queue."
+          ],
+          "solution": {
+            "approach": "Three list methods, one per requirement.",
+            "code": "queue = ['Ada', 'Bo', 'Cem']\nqueue.append('Dan')\nqueue.insert(0, 'Eve')\nqueue.remove('Bo')\nprint(queue)",
+            "approach_tr": "Her istek için bir liste metodu kullan."
+          },
+          "twin": "d05-b2-e4",
+          "hints_tr": [
+            "Önce queue'yu tanımla, sonra her satırda bir metotla değiştir.",
+            "Üç metot var: biri sona ekler, biri verilen konuma ekler, biri değere göre siler.",
+            "'Dan' için append, 'Eve' için 0. indekse insert, 'Bo' için remove kullan, sonra queue'yu yazdır."
+          ]
+        },
+        {
+          "id": "d05-b2-e4",
+          "type": "write",
+          "prompt": "Start with basket = ['milk', 'eggs', 'bread']. Append 'jam', insert 'tea' at index 1, then use pop() to take the last item off and keep it in removed. Print basket.",
+          "prompt_tr": "basket = ['milk', 'eggs', 'bread'] ile başla. 'jam' ekle, 1. indekse 'tea' ekle, sonra pop() ile son elemanı çıkarıp removed'da sakla. basket'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert basket == ['milk', 'tea', 'eggs', 'bread']",
+              "visible": true,
+              "failure_message": "Expected ['milk', 'tea', 'eggs', 'bread'].",
+              "failure_message_tr": "Beklenen sonuç ['milk', 'tea', 'eggs', 'bread'].",
+              "label_tr": "Sepet doğru sırada"
+            },
+            {
+              "code": "assert removed == 'jam'",
+              "visible": true,
+              "failure_message": "pop() returns the removed item, here 'jam'.",
+              "failure_message_tr": "pop() çıkarılan elemanı verir; burada 'jam'.",
+              "label_tr": "removed değişkeni çıkarılan elemanı tutuyor"
+            },
+            {
+              "code": "assert basket[1] == 'tea'",
+              "visible": false,
+              "failure_message": "'tea' must be inserted at index 1.",
+              "failure_message_tr": "'tea' 1. indekse eklenmeli."
+            },
+            {
+              "code": "assert 'jam' not in basket",
+              "visible": false,
+              "failure_message": "After pop(), 'jam' is no longer in basket.",
+              "failure_message_tr": "pop()'tan sonra 'jam' sepette olmamalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == \"['milk', 'tea', 'eggs', 'bread']\"",
+              "visible": false,
+              "failure_message": "Print basket.",
+              "failure_message_tr": "basket'i yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\nassert {'append', 'insert', 'pop'} <= _used",
+              "visible": false,
+              "failure_message": "Use the list methods append, insert and pop instead of typing the result by hand.",
+              "failure_message_tr": "Sonucu elle yazma; append, insert ve pop metotlarını kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare basket first.",
+            "append adds at the end, insert(index, item) adds at a position, and pop() removes the last item AND gives it back.",
+            "Keep the value pop() gives back in removed. One partial line: removed = basket.___()  Then print basket."
+          ],
+          "solution": {
+            "approach": "pop() both removes the last item and returns it.",
+            "code": "basket = ['milk', 'eggs', 'bread']\nbasket.append('jam')\nbasket.insert(1, 'tea')\nremoved = basket.pop()\nprint(basket)",
+            "approach_tr": "pop() son elemanı hem listeden çıkarır hem de geri verir."
+          },
+          "twin": "d05-b2-e3",
+          "hints_tr": [
+            "Önce basket'i tanımla.",
+            "append sona ekler, insert(indeks, eleman) belirli konuma ekler, pop() son elemanı hem siler hem geri verir.",
+            "pop()'un verdiği değeri removed'a koy. Kısmi satır: removed = basket.___()  Sonra basket'i yazdır."
+          ]
+        },
+        {
+          "id": "d05-b2-e5",
+          "type": "debug",
+          "prompt": "This should print ['banana', 'orange', 'mango'] but prints None. Fix it.",
+          "prompt_tr": "Bu ['banana', 'orange', 'mango'] yazdırmalı ama None yazdırıyor. Düzelt.",
+          "starter_code": "fruits = ['banana', 'orange']\nfruits = fruits.append('mango')\nprint(fruits)",
+          "expected_output": "['banana', 'orange', 'mango']",
+          "hints": [
+            "Print fruits right after line 2. What did you store in it?",
+            "append changes the list in place and returns None. Assigning its result destroys your list.",
+            "Delete the 'fruits = ' part of line 2 so that append is only called, not assigned."
+          ],
+          "solution": {
+            "approach": "append returns None; do not assign its result.",
+            "code": "fruits = ['banana', 'orange']\nfruits.append('mango')\nprint(fruits)",
+            "approach_tr": "append None döndürür; sonucunu bir değişkene atama."
+          },
+          "hints_tr": [
+            "2. satırdan hemen sonra fruits'i yazdır. İçine ne koydun?",
+            "append listeyi yerinde değiştirir ve None döndürür. Sonucu atarsan listeni kaybedersin.",
+            "2. satırdaki 'fruits = ' kısmını sil; append yalnızca çağrılsın, bir değişkene atanmasın."
+          ]
+        }
+      ],
+      "concept_tr": "Listeye ekleme ve silme"
+    },
+    {
+      "id": "d05-b3",
+      "concept": "copying-aliasing",
+      "tags": [
+        "lists",
+        "copy",
+        "references"
+      ],
+      "worked_example": {
+        "code": "a = [1, 2]\nb = a.copy()\nb.append(3)\nprint(a, b)",
+        "notes": [
+          "b = a would make a second NAME for the same list.",
+          "copy() makes a separate list with the same items."
+        ],
+        "notes_tr": [
+          "b = a yazmak aynı listeye ikinci bir AD vermektir.",
+          "copy() aynı elemanlarla ayrı bir liste yapar."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d05-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "a = [1, 2, 3]\nb = a\nb.append(4)\nprint(a)\nprint(len(b))",
+          "choices": [
+            "[1, 2, 3, 4]\n4",
+            "[1, 2, 3]\n4",
+            "[1, 2, 3]\n3",
+            "[1, 2, 3, 4]\n3"
+          ],
+          "expected_output": "[1, 2, 3, 4]\n4",
+          "explanation": "b = a does not copy anything: a and b are two names for ONE list, so appending through b changes a too.",
+          "misconceptions": {
+            "[1, 2, 3]\n4": "a and b are the same list, so a also shows the 4.",
+            "[1, 2, 3]\n3": "b = a only gives the same list a second name; the append is visible through both names.",
+            "[1, 2, 3, 4]\n3": "The list has four items after append, and len(b) counts them."
+          },
+          "explanation_tr": "b = a hiçbir şeyi kopyalamaz: a ve b TEK bir listenin iki adıdır. Bu yüzden b üzerinden ekleme yapmak a'yı da değiştirir.",
+          "misconceptions_tr": {
+            "[1, 2, 3]\n4": "a ve b aynı listedir, bu yüzden a'da da 4 görünür.",
+            "[1, 2, 3]\n3": "b = a yalnızca aynı listeye ikinci bir ad verir; ekleme iki adda da görünür.",
+            "[1, 2, 3, 4]\n3": "append'den sonra listede dört eleman vardır ve len(b) hepsini sayar."
+          }
+        },
+        {
+          "id": "d05-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so that original stays ['a', 'b'] after the copy is changed.",
+          "prompt_tr": "Kopya değiştirildikten sonra original'ın ['a', 'b'] kalması için boşluğu doldur.",
+          "starter_code": "original = ['a', 'b']\nduplicate = original.___()\nduplicate.append('c')\nprint(original)",
+          "blanks": [
+            {
+              "answer": [
+                "copy"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"['a', 'b']\"",
+              "visible": true,
+              "failure_message": "original must stay ['a', 'b'].",
+              "failure_message_tr": "original ['a', 'b'] olarak kalmalı.",
+              "label_tr": "original değişmeden kalıyor"
+            }
+          ],
+          "hints": [
+            "You need a method that makes a separate list.",
+            "Its name is a synonym for 'duplicate'.",
+            "The method is spelled c-o-p-y; call it with empty parentheses after original."
+          ],
+          "hints_tr": [
+            "Ayrı bir liste oluşturan bir metot lazım.",
+            "Adı 'duplicate' (çoğaltmak) ile aynı anlamda bir kelime.",
+            "Metodun adı c-o-p-y diye yazılır; original'ın ardından boş parantezle çağır."
+          ]
+        },
+        {
+          "id": "d05-b3-e3",
+          "type": "write",
+          "prompt": "Start with original = [3, 1, 2]. Make backup a real copy of it, then append 4 to original only. Print backup.",
+          "prompt_tr": "original = [3, 1, 2] ile başla. backup'ı gerçek bir kopya yap, sonra yalnızca original'a 4 ekle. backup'ı yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert original == [3, 1, 2, 4]",
+              "visible": true,
+              "failure_message": "original should end as [3, 1, 2, 4].",
+              "failure_message_tr": "original [3, 1, 2, 4] olmalı.",
+              "label_tr": "original'a 4 eklenmiş"
+            },
+            {
+              "code": "assert backup == [3, 1, 2]",
+              "visible": true,
+              "failure_message": "backup must keep the old items [3, 1, 2].",
+              "failure_message_tr": "backup eski elemanlarını [3, 1, 2] korumalı.",
+              "label_tr": "backup eski elemanları koruyor"
+            },
+            {
+              "code": "assert backup is not original",
+              "visible": false,
+              "failure_message": "backup must be a separate list: use backup = original.copy().",
+              "failure_message_tr": "backup ayrı bir liste olmalı: copy kullan."
+            },
+            {
+              "code": "assert len(backup) == 3 and len(original) == 4",
+              "visible": false,
+              "failure_message": "Only original should get the new item.",
+              "failure_message_tr": "Yalnızca original yeni eleman almalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == '[3, 1, 2]'",
+              "visible": false,
+              "failure_message": "Print backup.",
+              "failure_message_tr": "backup'ı yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\n_slice = any(isinstance(n, ast.Slice) for n in ast.walk(_t))\n_lst = 'list' in {n.func.id for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert 'append' in _used and ('copy' in _used or _slice or _lst)",
+              "visible": false,
+              "failure_message": "Make the copy with a real copy step (copy(), a full slice or list()) and use append; do not type the lists by hand.",
+              "failure_message_tr": "Kopyayı gerçekten oluştur (copy(), tam dilim ya da list()) ve append kullan; listeleri elle yazma.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare original first.",
+            "One list method makes a separate list; do it BEFORE changing original.",
+            "Order: create original, copy it into backup with that method, append 4 to original, then print backup."
+          ],
+          "solution": {
+            "approach": "copy() before the change.",
+            "code": "original = [3, 1, 2]\nbackup = original.copy()\noriginal.append(4)\nprint(backup)",
+            "approach_tr": "Değişiklikten önce copy() ile kopyala."
+          },
+          "twin": "d05-b3-e4",
+          "hints_tr": [
+            "Önce original'ı tanımla.",
+            "Bir liste metodu ayrı bir liste yapar; bunu original'ı değiştirmeden ÖNCE yap.",
+            "Sıra: original'ı oluştur, o metotla backup'a kopyala, original'a 4 ekle, sonra backup'ı yazdır."
+          ]
+        },
+        {
+          "id": "d05-b3-e4",
+          "type": "write",
+          "prompt": "Start with morning = ['tea', 'toast']. Create evening as a copy of morning, add 'soup' to evening only, then create full_day by joining morning + evening with the + operator. Print full_day.",
+          "prompt_tr": "morning = ['tea', 'toast'] ile başla. evening'i morning'in kopyası olarak oluştur, yalnızca evening'e 'soup' ekle, sonra + ile morning + evening birleştirip full_day oluştur. full_day'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert full_day == ['tea', 'toast', 'tea', 'toast', 'soup']",
+              "visible": true,
+              "failure_message": "Expected ['tea', 'toast', 'tea', 'toast', 'soup'].",
+              "failure_message_tr": "Beklenen sonuç ['tea', 'toast', 'tea', 'toast', 'soup'].",
+              "label_tr": "full_day doğru"
+            },
+            {
+              "code": "assert morning == ['tea', 'toast']",
+              "visible": true,
+              "failure_message": "morning must stay unchanged.",
+              "failure_message_tr": "morning değişmemeli.",
+              "label_tr": "morning değişmeden kalıyor"
+            },
+            {
+              "code": "assert evening is not morning",
+              "visible": false,
+              "failure_message": "evening must be a copy, not another name for morning.",
+              "failure_message_tr": "evening bir kopya olmalı, morning'in ikinci adı değil."
+            },
+            {
+              "code": "assert evening == ['tea', 'toast', 'soup']",
+              "visible": false,
+              "failure_message": "evening should have 'soup' appended.",
+              "failure_message_tr": "evening'e 'soup' eklenmiş olmalı."
+            },
+            {
+              "code": "assert __stdout__.strip() == str(full_day)",
+              "visible": false,
+              "failure_message": "Print full_day.",
+              "failure_message_tr": "full_day'i yazdırmalısın."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_used = {n.func.attr for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}\n_slice = any(isinstance(n, ast.Slice) for n in ast.walk(_t))\n_lst = 'list' in {n.func.id for n in ast.walk(_t) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}\nassert 'append' in _used and ('copy' in _used or _slice or _lst) and any(isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add) for n in ast.walk(_t))",
+              "visible": false,
+              "failure_message": "Build the lists with a copy step, append, and the + operator instead of typing the result by hand.",
+              "failure_message_tr": "Sonucu elle yazma; kopyalama, append ve + operatörünü kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Declare morning first.",
+            "evening must be a copy (otherwise 'soup' also lands in morning); + joins two lists into a new one.",
+            "Order: copy morning into evening, append 'soup' to evening only, join morning and evening with + into full_day, and print full_day."
+          ],
+          "solution": {
+            "approach": "Copy, append to the copy, join with +.",
+            "code": "morning = ['tea', 'toast']\nevening = morning.copy()\nevening.append('soup')\nfull_day = morning + evening\nprint(full_day)",
+            "approach_tr": "Kopyala, kopyaya ekle, + ile birleştir."
+          },
+          "twin": "d05-b3-e3",
+          "hints_tr": [
+            "Önce morning'i tanımla.",
+            "evening bir kopya olmalı (yoksa 'soup' morning'e de girer); + iki listeyi birleştirip yeni liste yapar.",
+            "Sıra: morning'i evening'e kopyala, yalnızca evening'e 'soup' ekle, morning ile evening'i + ile full_day'de birleştir ve full_day'i yazdır."
+          ]
+        },
+        {
+          "id": "d05-b3-e5",
+          "type": "explain",
+          "prompt": "In your own words: why does list2 = list1 not give you an independent copy, and how do you make one?",
+          "prompt_tr": "Kendi cümlelerinle: list2 = list1 neden bağımsız bir kopya oluşturmaz ve nasıl oluşturursun?",
+          "model_answer": "list2 = list1 only gives the same list a second name, so both names point to one list in memory and a change through either name shows up in both. To get an independent list you call list1.copy().",
+          "keywords": [
+            "same list",
+            "reference",
+            "name",
+            "copy",
+            "both"
+          ],
+          "model_answer_tr": "list2 = list1 yalnızca aynı listeye ikinci bir ad verir; iki ad da bellekteki tek listeyi gösterir ve birinden yapılan değişiklik ikisinde de görünür. Bağımsız bir liste için list1.copy() çağırırsın.",
+          "keywords_tr": [
+            "aynı liste",
+            "referans",
+            "isim",
+            "kopya",
+            "ikisi"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "Kopyalama ve aynı listeye iki ad verme"
+    },
+    {
+      "id": "d05-b4",
+      "concept": "sort-reverse-unpack",
+      "tags": [
+        "lists",
+        "sort",
+        "sorted",
+        "unpacking"
+      ],
+      "worked_example": {
+        "code": "ages = [22, 19, 24]\nages.sort()\nprint(ages)\nprint(sorted(ages, reverse=True))",
+        "notes": [
+          "sort() changes the list and returns None; sorted() returns a new list.",
+          "reverse=True sorts from largest to smallest."
+        ],
+        "notes_tr": [
+          "sort() listeyi değiştirir ve None döndürür; sorted() yeni bir liste döndürür.",
+          "reverse=True büyükten küçüğe sıralar."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d05-b4-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "nums = [3, 1, 2]\nresult = nums.sort()\nprint(result)\nprint(sorted(nums, reverse=True))\nprint(nums)",
+          "choices": [
+            "None\n[3, 2, 1]\n[1, 2, 3]",
+            "[1, 2, 3]\n[3, 2, 1]\n[1, 2, 3]",
+            "None\n[3, 2, 1]\n[3, 1, 2]",
+            "None\n[1, 2, 3]\n[1, 2, 3]"
+          ],
+          "expected_output": "None\n[3, 2, 1]\n[1, 2, 3]",
+          "explanation": "sort() changes nums in place and returns None, so result is None. sorted(..., reverse=True) returns a new descending list. nums itself stays sorted ascending.",
+          "misconceptions": {
+            "[1, 2, 3]\n[3, 2, 1]\n[1, 2, 3]": "sort() returns None. The sorted list is stored in nums, not in result.",
+            "None\n[3, 2, 1]\n[3, 1, 2]": "nums.sort() already changed nums to [1, 2, 3] on line 2.",
+            "None\n[1, 2, 3]\n[1, 2, 3]": "reverse=True sorts from the largest to the smallest."
+          },
+          "explanation_tr": "sort() nums'u yerinde değiştirir ve None döndürür, bu yüzden result None olur. sorted(..., reverse=True) yeni bir azalan liste döndürür. nums ise artan sıralı kalır.",
+          "misconceptions_tr": {
+            "[1, 2, 3]\n[3, 2, 1]\n[1, 2, 3]": "sort() None döndürür. Sıralı liste result'ta değil, nums'ta durur.",
+            "None\n[3, 2, 1]\n[3, 1, 2]": "nums.sort() 2. satırda nums'u zaten [1, 2, 3] yaptı.",
+            "None\n[1, 2, 3]\n[1, 2, 3]": "reverse=True büyükten küçüğe sıralar."
+          }
+        },
+        {
+          "id": "d05-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank to print the items left after the first one: [20, 30, 40].",
+          "prompt_tr": "İlk elemandan sonra kalanları yazdırmak için boşluğu doldur: [20, 30, 40].",
+          "starter_code": "first, *rest = [10, 20, 30, 40]\nprint(___)",
+          "blanks": [
+            {
+              "answer": [
+                "rest"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '[20, 30, 40]'",
+              "visible": true,
+              "failure_message": "The program must print [20, 30, 40].",
+              "failure_message_tr": "Program [20, 30, 40] yazdırmalı.",
+              "label_tr": "Kalan elemanlar yazdırılıyor"
+            }
+          ],
+          "hints": [
+            "Which variable collected the remaining items?",
+            "It is the one with the star in front of its name.",
+            "That variable is called rest; put just that name inside print()."
+          ],
+          "hints_tr": [
+            "Kalan elemanları hangi değişken topladı?",
+            "Adının önünde yıldız olan değişken.",
+            "O değişkenin adı rest; sadece o adı print() içine yaz."
+          ]
+        },
+        {
+          "id": "d05-b4-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints three lines: the smallest age, the largest age, and the ages sorted from largest to smallest.",
+          "prompt_tr": "Programı üç satır yazdıracak şekilde değiştir: en küçük yaş, en büyük yaş ve yaşların büyükten küçüğe sıralı hali.",
+          "starter_code": "ages = [22, 19, 24, 25, 26, 24, 25, 24]\nprint(ages.count(24))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['19', '26', '[26, 25, 25, 24, 24, 24, 22, 19]']",
+              "visible": true,
+              "failure_message": "Expected 19, 26 and the descending list.",
+              "failure_message_tr": "19, 26 ve azalan sıralı listeyi bekliyorum.",
+              "label_tr": "En küçük, en büyük ve azalan sıralı liste yazdırılıyor"
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_names = {n.id for n in ast.walk(_t) if isinstance(n, ast.Name)}\nassert {'min', 'max', 'sorted'} <= _names",
+              "visible": false,
+              "failure_message": "Compute the values with min, max and sorted instead of typing them by hand.",
+              "failure_message_tr": "Değerleri elle yazma; min, max ve sorted ile hesapla.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Three print lines; two built-in functions and one sorting helper.",
+            "min() and max() take the list; sorted() returns a new list, and reverse=True makes it descending.",
+            "Replace the count line with three print calls that use min, max and sorted(..., reverse=True) on ages."
+          ],
+          "solution": {
+            "approach": "Use min, max and sorted with reverse=True.",
+            "code": "ages = [22, 19, 24, 25, 26, 24, 25, 24]\nprint(min(ages))\nprint(max(ages))\nprint(sorted(ages, reverse=True))",
+            "approach_tr": "min, max ve reverse=True ile sorted kullan."
+          },
+          "hints_tr": [
+            "Üç print satırı; iki yerleşik fonksiyon ve bir sıralama yardımcısı.",
+            "min() ve max() listeyi alır; sorted() yeni bir liste döndürür, reverse=True ile azalan olur.",
+            "count satırını, ages üzerinde min, max ve sorted(..., reverse=True) kullanan üç print çağrısıyla değiştir."
+          ]
+        }
+      ],
+      "concept_tr": "Sıralama, ters çevirme ve açma (unpacking)"
+    }
+  ],
+  "review_pool": [
+    "d05-b1-e1",
+    "d05-b2-e1",
+    "d05-b2-e3",
+    "d05-b3-e1",
+    "d05-b3-e3",
+    "d05-b4-e1"
+  ],
+  "title_tr": "Listeler"
+}

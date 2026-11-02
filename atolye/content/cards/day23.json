@@ -1,0 +1,158 @@
+{
+ "day": 23,
+ "title_tr": "Sanal Ortam (Virtual Environment)",
+ "title": "Virtual Environment",
+ "est_minutes": 12,
+ "cards": [
+  {
+   "id": "d23-c01",
+   "type": "explain",
+   "title_tr": "Neden sanal ortam?",
+   "title": "Why a virtual environment?",
+   "body_tr": "Her projenin kendi paket sürümlerine ihtiyacı olabilir: biri Flask 1.1.1 ister, diğeri 2.0.0. **Sanal ortam** (virtual environment) projeye özel, yalıtılmış bir paket alanı verir, böylece sürümler birbirine karışmaz. Terminal komutları bu tarayıcı ortamında çalışmaz; mantığı sözlüklerle canlandırıyoruz.",
+   "body": "Each project may need its own package versions: one wants Flask 1.1.1, another 2.0.0. A **virtual environment** gives a project its own isolated package space, so versions never clash. Terminal commands can't run in this browser lab, so we mimic the logic with dicts.",
+   "code": "project_a = {'Flask': '1.1.1'}\nproject_b = {'Flask': '2.0.0'}\nprint(project_a['Flask'], project_b['Flask'])",
+   "expected_output": "1.1.1 2.0.0",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c02",
+   "type": "truefalse",
+   "statement_tr": "Sanal ortam kullanırsak her projenin kendi, birbirinden bağımsız paket seti olur.",
+   "statement": "With a virtual environment each project gets its own independent set of packages.",
+   "answer": true,
+   "why_tr": "Yalıtım tam olarak budur: projeler arasında bağımlılık çakışması olmaz.",
+   "why": "That is exactly isolation: no dependency conflicts between projects.",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c03",
+   "type": "explain",
+   "title_tr": "Ortamı kurmak ve oluşturmak",
+   "title": "Installing and creating the environment",
+   "body_tr": "Önce `pip install virtualenv`. Sonra proje klasöründe Mac/Linux'ta `virtualenv venv`, Windows'ta `python -m venv venv` yazarız. `venv` sadece bir klasör adı; başka isim de olur. `ls` ile bakınca klasörü görürsün.",
+   "body": "First `pip install virtualenv`. Then in the project folder run `virtualenv venv` on Mac/Linux or `python -m venv venv` on Windows. `venv` is just a folder name; any name works. `ls` shows the new folder.",
+   "code": "project = []\nproject.append('venv/')   # virtualenv venv\nprint(project)            # ls",
+   "expected_output": "['venv/']",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c04",
+   "type": "explain",
+   "title_tr": "Aktive etmek",
+   "title": "Activating it",
+   "body_tr": "Ortamı kullanmak için **activate** edersin: Mac/Linux'ta `source venv/bin/activate`. Başarılı olunca komut satırının başında `(venv)` belirir. Windows PowerShell'de `venv\\Scripts\\activate`, Git Bash'te `venv\\Scripts\\. activate` kullanılır.",
+   "body": "To use the environment you **activate** it: `source venv/bin/activate` on Mac/Linux. When it works, `(venv)` appears at the start of the prompt. On Windows PowerShell use `venv\\Scripts\\activate`, in Git Bash `venv\\Scripts\\. activate`.",
+   "code": "prompt = '$'\nvenv_active = True\nif venv_active:\n    prompt = '(venv) ' + prompt\nprint(prompt)",
+   "expected_output": "(venv) $",
+   "trace": true,
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c05",
+   "type": "predict",
+   "prompt_tr": "Yeni oluşturulmuş boş ortamda `pip freeze` ne gösterir? Sözlükle canlandıralım.",
+   "prompt": "What does `pip freeze` show in a brand-new empty environment? Let's mimic it with a dict.",
+   "code": "venv = {}\nprint(list(venv))",
+   "choices": [
+    "[]",
+    "['Flask']",
+    "None",
+    "{}"
+   ],
+   "answer": "[]",
+   "why_tr": "Henüz paket kurulmadığı için liste boştur; derste de `pip freeze` ilk başta hiçbir şey göstermez.",
+   "why": "No package is installed yet, so the list is empty; in the lesson `pip freeze` shows nothing at first.",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c06",
+   "type": "explain",
+   "title_tr": "pip install ve pip freeze",
+   "title": "pip install and pip freeze",
+   "body_tr": "`pip install Flask` paketi (ve ihtiyaç duyduğu paketleri) ortama ekler. `pip freeze` kurulu her paketi `isim==sürüm` biçiminde listeler. Adım adım izle.",
+   "body": "`pip install Flask` adds the package (and what it depends on) to the environment. `pip freeze` lists every installed package as `name==version`. Step through it.",
+   "code": "venv = {}\nvenv['Flask'] = '1.1.1'\nvenv['Click'] = '7.0'\nfor name in sorted(venv):\n    print(f'{name}=={venv[name]}')",
+   "expected_output": "Click==7.0\nFlask==1.1.1",
+   "trace": true,
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c07",
+   "type": "fill",
+   "prompt_tr": "`pip freeze` biçimini tamamla.",
+   "prompt": "Complete the `pip freeze` format.",
+   "code": "name, version = 'Flask', '1.1.1'\nprint(f'{name}___{version}')",
+   "answers": [
+    "=="
+   ],
+   "expected_output": "Flask==1.1.1",
+   "why_tr": "`pip freeze` çıktısı `paket==sürüm` biçimindedir.",
+   "why": "`pip freeze` output looks like `package==version`.",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c08",
+   "type": "explain",
+   "title_tr": "Bitince: deactivate",
+   "title": "When you're done: deactivate",
+   "body_tr": "İşin bitince `deactivate` yazarak ortamdan çıkarsın; satır başındaki `(venv)` kaybolur. Paketler ortamın içinde kalır, genel kurulumunu etkilemez.",
+   "body": "When you finish, type `deactivate` to leave the environment; the `(venv)` prefix disappears. The packages stay inside the environment and don't touch your global install.",
+   "code": "venv = {'Flask': '1.1.1'}\nvenv_active = False        # deactivate\nprompt = '(venv) $' if venv_active else '$'\nprint(prompt, list(venv))",
+   "expected_output": "$ ['Flask']",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c09",
+   "type": "truefalse",
+   "statement_tr": "venv klasörünü de GitHub'a göndermeliyiz ki herkesin paketleri aynı olsun.",
+   "statement": "We should push the venv folder to GitHub too, so everyone has the same packages.",
+   "answer": false,
+   "why_tr": "venv klasörü büyüktür ve makineye özeldir; `.gitignore` dosyasına eklenir. Paket listesi (requirements.txt, Gün 26) paylaşılır.",
+   "why": "The venv folder is large and machine-specific; it goes into `.gitignore`. The package list (requirements.txt, Day 26) is shared instead.",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c10",
+   "type": "order",
+   "prompt_tr": "Akışı doğru sıraya diz: ortam oluştur, aktive et, paketi kur.",
+   "prompt": "Order the flow: create the environment, activate it, install the package.",
+   "lines": [
+    "if active:",
+    "env = {}",
+    "print(env)",
+    "active = True",
+    "    env['Flask'] = '1.1.1'"
+   ],
+   "correct_order": [
+    1,
+    3,
+    0,
+    4,
+    2
+   ],
+   "expected_output": "{'Flask': '1.1.1'}",
+   "section": "Setting up Virtual Environments"
+  },
+  {
+   "id": "d23-c11",
+   "type": "recap",
+   "points_tr": [
+    "Sanal ortam, projeye özel yalıtılmış paket alanıdır.",
+    "Oluştur (`virtualenv venv`), aktive et (`source venv/bin/activate`), sonra paket kur.",
+    "`pip freeze` kurulu paketleri `isim==sürüm` olarak listeler.",
+    "İşin bitince `deactivate`; `venv` klasörünü `.gitignore`'a ekle."
+   ],
+   "points": [
+    "A virtual environment is an isolated package space for one project.",
+    "Create (`virtualenv venv`), activate (`source venv/bin/activate`), then install packages.",
+    "`pip freeze` lists installed packages as `name==version`.",
+    "Run `deactivate` when done; add the `venv` folder to `.gitignore`."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "Setting up Virtual Environments"
+  }
+ ]
+}

@@ -1,0 +1,231 @@
+{
+  "part": 3,
+  "title_tr": "Log Dosyasındaki Saldırgan",
+  "story_tr": "Şirketin web sunucusu gece boyunca garip davrandı. Güvenlik ekibi uyuyor, elinde yalnızca ham günlük satırları var ve içinde parola deneyen bir saldırgan saklanıyor.\nDüzenli ifadeler, hata yönetimi, liste üretimi, yüksek dereceli fonksiyonlar ve tarih-saat ile günlüğü ayrıştır, şüphelileri sırala ve hangisinin kısa sürede saldırdığını yakala.",
+  "reward_xp": 300,
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string __stdout__; the learner source is __source__. Boss stages are cumulative: each stage's starter_code is the previous stage's solution plus a comment marking where to add. Tests may call the learner's functions with brand-new inputs, may re-run __source__ with some top-level input lines replaced, and may create/remove their own files with open(). Hidden tests (visible:false) carry failure_message and failure_message_tr; tests with anti_hardcode:true fail on code that only prints or assigns the expected values.",
+  "stages": [
+    {
+      "id": "boss3-s1",
+      "title_tr": "Satırı ayrıştır (regex)",
+      "prompt_tr": "Sunucunun günlüğünde bir saldırgan var ve onu bulacak olan sensin. Önce her satırı anlamlı veriye çevir.\n`parse_line(line)` yaz: bir günlük satırını düzenli ifade (`re`) ile ayrıştırıp şu anahtarlarla bir sözlük döndürsün:\n`ip` (str), `time` (`datetime` nesnesi), `method` (str), `path` (str), `status` (int).\nSatır biçime uymuyorsa `ValueError` fırlatsın (örneğin `\"bozuk satır !!\"`).",
+      "prompt": "There is an attacker in the server log and you will find them. First turn each line into meaningful data.\nWrite `parse_line(line)`: parse one log line with a regular expression (`re`) and return a dict with the keys\n`ip` (str), `time` (a `datetime` object), `method` (str), `path` (str), `status` (int).\nIf the line does not match the format, raise `ValueError` (for example for `\"bozuk satır !!\"`).",
+      "starter_code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "from datetime import datetime as _dt\ne = parse_line(LOG_LINES[1])\nassert e == {\"ip\": \"203.0.113.9\", \"time\": _dt(2024, 3, 5, 14, 22, 7), \"method\": \"POST\", \"path\": \"/login\", \"status\": 401}",
+          "visible": true,
+          "failure_message": "parse_line should return ip, time (datetime), method, path and status (int).",
+          "failure_message_tr": "parse_line ip, time (datetime), method, path ve status (int) içeren sözlük döndürmeli.",
+          "label_tr": "Geçerli satır ayrışıyor"
+        },
+        {
+          "code": "try:\n    parse_line(\"bozuk satır !!\")\n    raised = False\nexcept ValueError:\n    raised = True\nassert raised",
+          "visible": true,
+          "failure_message": "A malformed line must raise ValueError.",
+          "failure_message_tr": "Bozuk satır ValueError fırlatmalı.",
+          "label_tr": "Bozuk satır ValueError verir"
+        },
+        {
+          "code": "from datetime import datetime as _dt\ne = parse_line(\"2025-12-31 23:59:59 1.2.3.4 DELETE /api/x 500\")\nassert e[\"ip\"] == \"1.2.3.4\" and e[\"method\"] == \"DELETE\" and e[\"path\"] == \"/api/x\"\nassert e[\"time\"] == _dt(2025, 12, 31, 23, 59, 59) and e[\"status\"] == 500 and isinstance(e[\"status\"], int)",
+          "visible": false,
+          "failure_message": "Do not hard-code the sample lines; parse any valid line.",
+          "failure_message_tr": "Örnek satırları ezberleme; her geçerli satırı ayrıştır.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "for bad in [\"\", \"2024-03-05 25:99 1.1.1.1 GET / 200\", \"2024-03-05 14:22:07 10.0.0.5 GET /x\", \"x 2024-03-05 14:22:07 10.0.0.5 GET /x 200\"]:\n    try:\n        parse_line(bad)\n    except ValueError:\n        continue\n    raise AssertionError(\"no ValueError for \" + repr(bad))",
+          "visible": false,
+          "failure_message": "Reject every line that does not match the whole format.",
+          "failure_message_tr": "Biçime tam uymayan her satırı reddet."
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == \"re\" for n in ast.walk(_t))\nassert any(isinstance(n, ast.Raise) for n in ast.walk(_t))",
+          "visible": false,
+          "failure_message": "Use the re module and raise the error yourself.",
+          "failure_message_tr": "re modülünü kullan ve hatayı kendin fırlat.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Capture the fields that come in order with one pattern: date+time, IP, method, path, status code.",
+        "Build a pattern with `re.compile`, name the groups `(?P<name>...)`, and try `pattern.match(line)`. No match returns `None`.",
+        "No match: `raise ValueError(...)`. Otherwise convert time with `datetime.strptime(text, \"%Y-%m-%d %H:%M:%S\")` and status with `int(...)`."
+      ],
+      "hints_tr": [
+        "Sırayla gelen alanları tek bir desenle yakala: tarih+saat, IP, yöntem, yol, durum kodu.",
+        "`re.compile` ile bir desen kur, alanlara `(?P<ad>...)` ile isim ver, `desen.match(satır)` ile dene. Eşleşmezse sonuç `None` olur.",
+        "Eşleşme yoksa `raise ValueError(...)`. Varsa zamanı `datetime.strptime(metin, \"%Y-%m-%d %H:%M:%S\")`, durumu `int(...)` ile çevir."
+      ],
+      "solution": {
+        "code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n\nLINE_RE = re.compile(\n    r\"^(?P<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"(?P<method>[A-Z]+) (?P<path>\\S+) (?P<status>\\d{3})$\"\n)\n\ndef parse_line(line):\n    m = LINE_RE.match(line.strip())\n    if m is None:\n        raise ValueError(f\"Geçersiz satır: {line!r}\")\n    return {\n        \"ip\": m[\"ip\"],\n        \"time\": datetime.strptime(m[\"time\"], \"%Y-%m-%d %H:%M:%S\"),\n        \"method\": m[\"method\"],\n        \"path\": m[\"path\"],\n        \"status\": int(m[\"status\"]),\n    }\n",
+        "approach_tr": "Desen satırın tamamını (`^...$`) kapsar; adlandırılmış gruplar kodu okunur yapar. Eşleşmeyi `None` kontrolüyle yakalayıp kendi hatamızı fırlatırız, böylece sonraki aşama bunu `try/except` ile yönetebilir."
+      }
+    },
+    {
+      "id": "boss3-s2",
+      "title_tr": "Bozuk satırlara dayanıklı oku",
+      "prompt_tr": "Günlük her zaman temiz değildir. İki fonksiyon ekle:\n- `parse_all(lines)`: tüm satırları `parse_line` ile ayrıştırsın; `ValueError` veren satırı atlayıp sayısını tutsun. `(girdiler_listesi, bozuk_sayısı)` demeti döndürsün (`try/except` kullan).\n- `failed_logins(entries)`: `/login` yoluna yapılmış ve durumu `401` olan girdileri liste üretimiyle (list comprehension) döndürsün.\nSonra `entries, bad_count = parse_all(LOG_LINES)` satırını yaz.",
+      "prompt": "A log is never clean. Add two functions:\n- `parse_all(lines)`: parse every line with `parse_line`; skip lines that raise `ValueError` and count them. Return the tuple `(entries_list, bad_count)` (use `try/except`).\n- `failed_logins(entries)`: return, with a list comprehension, the entries whose path is `/login` and whose status is `401`.\nThen write the line `entries, bad_count = parse_all(LOG_LINES)`.",
+      "starter_code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n\nLINE_RE = re.compile(\n    r\"^(?P<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"(?P<method>[A-Z]+) (?P<path>\\S+) (?P<status>\\d{3})$\"\n)\n\ndef parse_line(line):\n    m = LINE_RE.match(line.strip())\n    if m is None:\n        raise ValueError(f\"Geçersiz satır: {line!r}\")\n    return {\n        \"ip\": m[\"ip\"],\n        \"time\": datetime.strptime(m[\"time\"], \"%Y-%m-%d %H:%M:%S\"),\n        \"method\": m[\"method\"],\n        \"path\": m[\"path\"],\n        \"status\": int(m[\"status\"]),\n    }\n\n# --- Aşama 2: Bozuk satırlara dayanıklı oku (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert len(entries) == 10 and bad_count == 1",
+          "visible": true,
+          "failure_message": "The sample log has 10 valid lines and 1 bad line.",
+          "failure_message_tr": "Örnek günlükte 10 geçerli, 1 bozuk satır var.",
+          "label_tr": "10 geçerli, 1 bozuk satır"
+        },
+        {
+          "code": "f = failed_logins(entries)\nassert len(f) == 7\nassert sorted({e[\"ip\"] for e in f}) == [\"10.0.0.5\", \"198.51.100.4\", \"203.0.113.9\"]",
+          "visible": true,
+          "failure_message": "There are 7 failed logins from 3 IPs.",
+          "failure_message_tr": "3 IP'den toplam 7 başarısız giriş olmalı.",
+          "label_tr": "7 başarısız giriş"
+        },
+        {
+          "code": "good, bad = parse_all([\"x\", \"2024-01-01 00:00:00 9.9.9.9 GET /login 401\", \"y\", \"z\"])\nassert len(good) == 1 and bad == 3 and good[0][\"ip\"] == \"9.9.9.9\"\nassert parse_all([]) == ([], 0)",
+          "visible": false,
+          "failure_message": "parse_all must skip bad lines, count them, and handle an empty list.",
+          "failure_message_tr": "parse_all bozuk satırları atlamalı, saymalı ve boş listeyi işlemeli.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "fake = [{\"path\": \"/login\", \"status\": 401, \"ip\": \"a\"}, {\"path\": \"/login\", \"status\": 200, \"ip\": \"a\"},\n        {\"path\": \"/home\", \"status\": 401, \"ip\": \"b\"}, {\"path\": \"/login\", \"status\": 401, \"ip\": \"c\"}]\nassert [e[\"ip\"] for e in failed_logins(fake)] == [\"a\", \"c\"]",
+          "visible": false,
+          "failure_message": "Filter on path AND status.",
+          "failure_message_tr": "Hem yola hem duruma göre süz."
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Try) for n in ast.walk(_t))\nassert any(isinstance(n, ast.ListComp) for n in ast.walk(_t))",
+          "visible": false,
+          "failure_message": "Use try/except and a list comprehension as the task asks.",
+          "failure_message_tr": "İstendiği gibi try/except ve liste üretimi kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "One bad line must not stop the program: put the call that may fail inside `try`.",
+        "`parse_all`: make a result list and a counter; for each line `try: ... except ValueError: ...` either append or bump the counter. Return both as a tuple.",
+        "`failed_logins` is one line: `[e for e in entries if <condition>]`. Join the two checks with `and`."
+      ],
+      "hints_tr": [
+        "Bir satır hata verince tüm program durmamalı: hata verebilecek çağrıyı `try` içine al.",
+        "`parse_all`: sonuç listesi ve sayaç kur, her satırda `try: ... except ValueError: ...` ile ya listeye ekle ya da sayacı artır. Sonda ikisini demet olarak döndür.",
+        "`failed_logins` tek satırlık: `[e for e in entries if <koşul>]`. Koşulda iki şeyi `and` ile bağla."
+      ],
+      "solution": {
+        "code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n\nLINE_RE = re.compile(\n    r\"^(?P<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"(?P<method>[A-Z]+) (?P<path>\\S+) (?P<status>\\d{3})$\"\n)\n\ndef parse_line(line):\n    m = LINE_RE.match(line.strip())\n    if m is None:\n        raise ValueError(f\"Geçersiz satır: {line!r}\")\n    return {\n        \"ip\": m[\"ip\"],\n        \"time\": datetime.strptime(m[\"time\"], \"%Y-%m-%d %H:%M:%S\"),\n        \"method\": m[\"method\"],\n        \"path\": m[\"path\"],\n        \"status\": int(m[\"status\"]),\n    }\n\ndef parse_all(lines):\n    entries, bad = [], 0\n    for line in lines:\n        try:\n            entries.append(parse_line(line))\n        except ValueError:\n            bad += 1\n    return entries, bad\n\ndef failed_logins(entries):\n    return [e for e in entries if e[\"path\"] == \"/login\" and e[\"status\"] == 401]\n\nentries, bad_count = parse_all(LOG_LINES)\n",
+        "approach_tr": "`try/except ValueError` yalnızca beklediğimiz hatayı yakalar (başka hatalar sessizce yutulmaz). Filtreleme için liste üretimi, döngü+if'in kısa ve okunur hali."
+      }
+    },
+    {
+      "id": "boss3-s3",
+      "title_tr": "Şüpheli IP'leri bul",
+      "prompt_tr": "Şimdi saldırgan adaylarını çıkaralım. `suspects(entries, threshold=3)` yaz:\n- başarısız girişleri (`failed_logins`) IP'ye göre say (sözlük kullan)\n- sayısı `threshold` ya da daha fazla olan IP'leri `(ip, sayı)` demetleri olarak döndür\n- sıralama: önce sayıya göre azalan, eşitse IP'ye göre artan (`sorted` + `key` + `lambda`)\nÖrnek günlük için sonuç `[(\"198.51.100.4\", 3), (\"203.0.113.9\", 3)]` olmalı.",
+      "prompt": "Now find attacker candidates. Write `suspects(entries, threshold=3)`:\n- count the failed logins (`failed_logins`) per IP (use a dict)\n- return the IPs with `threshold` or more failures as `(ip, count)` tuples\n- order: by count descending, then by IP ascending (`sorted` + `key` + `lambda`)\nFor the sample log the result must be `[(\"198.51.100.4\", 3), (\"203.0.113.9\", 3)]`.",
+      "starter_code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n\nLINE_RE = re.compile(\n    r\"^(?P<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"(?P<method>[A-Z]+) (?P<path>\\S+) (?P<status>\\d{3})$\"\n)\n\ndef parse_line(line):\n    m = LINE_RE.match(line.strip())\n    if m is None:\n        raise ValueError(f\"Geçersiz satır: {line!r}\")\n    return {\n        \"ip\": m[\"ip\"],\n        \"time\": datetime.strptime(m[\"time\"], \"%Y-%m-%d %H:%M:%S\"),\n        \"method\": m[\"method\"],\n        \"path\": m[\"path\"],\n        \"status\": int(m[\"status\"]),\n    }\n\ndef parse_all(lines):\n    entries, bad = [], 0\n    for line in lines:\n        try:\n            entries.append(parse_line(line))\n        except ValueError:\n            bad += 1\n    return entries, bad\n\ndef failed_logins(entries):\n    return [e for e in entries if e[\"path\"] == \"/login\" and e[\"status\"] == 401]\n\nentries, bad_count = parse_all(LOG_LINES)\n\n# --- Aşama 3: Şüpheli IP'leri bul (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert suspects(entries) == [(\"198.51.100.4\", 3), (\"203.0.113.9\", 3)]",
+          "visible": true,
+          "failure_message": "Default threshold 3 should give the two IPs with 3 failures each.",
+          "failure_message_tr": "Varsayılan eşik 3 ile, üçer başarısız girişi olan iki IP gelmeli.",
+          "label_tr": "Varsayılan eşikle iki şüpheli"
+        },
+        {
+          "code": "assert suspects(entries, threshold=4) == []\nassert suspects(entries, threshold=1) == [(\"198.51.100.4\", 3), (\"203.0.113.9\", 3), (\"10.0.0.5\", 1)]",
+          "visible": true,
+          "failure_message": "threshold is a parameter; ties are ordered by IP, lower counts come later.",
+          "failure_message_tr": "threshold parametre olmalı; eşitlikte IP'ye göre, düşük sayılar sonra sıralanmalı.",
+          "label_tr": "Eşik parametresi çalışıyor"
+        },
+        {
+          "code": "fake = [{\"path\": \"/login\", \"status\": 401, \"ip\": ip} for ip in [\"z\", \"a\", \"a\", \"m\", \"m\", \"m\", \"z\", \"z\", \"z\", \"z\"]]\nassert suspects(fake, 2) == [(\"z\", 5), (\"m\", 3), (\"a\", 2)]\nassert suspects([], 1) == []",
+          "visible": false,
+          "failure_message": "Sort by count descending, then IP; work on any entries.",
+          "failure_message_tr": "Sayıya göre azalan, sonra IP'ye göre sırala; her girdi listesiyle çalış.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Lambda) for n in ast.walk(_t))\nassert \"sorted(\" in __source__",
+          "visible": false,
+          "failure_message": "Use sorted with a lambda key.",
+          "failure_message_tr": "`sorted` ve `lambda` anahtarı kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Count with a dict: key is the IP, value is how many times it appeared.",
+        "The pattern `counts[ip] = counts.get(ip, 0) + 1` starts at 0 on first sight. Then filter by the threshold.",
+        "A `key` may return a tuple; negate the count for descending order: `key=lambda p: (-p[1], p[0])`."
+      ],
+      "hints_tr": [
+        "Sayma için sözlük kullan: anahtar IP, değer kaç kez geçtiği.",
+        "`counts[ip] = counts.get(ip, 0) + 1` kalıbı, ilk görüşte 0 ile başlar. Sonra eşiği geçenleri süz.",
+        "Sıralamada `key` bir demet döndürebilir; azalan sıra için sayıyı eksi ile çevir: `key=lambda p: (-p[1], p[0])`."
+      ],
+      "solution": {
+        "code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n\nLINE_RE = re.compile(\n    r\"^(?P<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"(?P<method>[A-Z]+) (?P<path>\\S+) (?P<status>\\d{3})$\"\n)\n\ndef parse_line(line):\n    m = LINE_RE.match(line.strip())\n    if m is None:\n        raise ValueError(f\"Geçersiz satır: {line!r}\")\n    return {\n        \"ip\": m[\"ip\"],\n        \"time\": datetime.strptime(m[\"time\"], \"%Y-%m-%d %H:%M:%S\"),\n        \"method\": m[\"method\"],\n        \"path\": m[\"path\"],\n        \"status\": int(m[\"status\"]),\n    }\n\ndef parse_all(lines):\n    entries, bad = [], 0\n    for line in lines:\n        try:\n            entries.append(parse_line(line))\n        except ValueError:\n            bad += 1\n    return entries, bad\n\ndef failed_logins(entries):\n    return [e for e in entries if e[\"path\"] == \"/login\" and e[\"status\"] == 401]\n\nentries, bad_count = parse_all(LOG_LINES)\n\ndef suspects(entries, threshold=3):\n    counts = {}\n    for e in failed_logins(entries):\n        counts[e[\"ip\"]] = counts.get(e[\"ip\"], 0) + 1\n    hits = [(ip, n) for ip, n in counts.items() if n >= threshold]\n    return sorted(hits, key=lambda pair: (-pair[1], pair[0]))\n",
+        "approach_tr": "Sözlükle sayım, liste üretimiyle eşik süzmesi, `sorted(..., key=lambda ...)` ile çok anahtarlı sıralama. Sayıyı eksi yapmak, tek `sorted` çağrısında hem azalan hem artan sıralamanın sırrıdır."
+      }
+    },
+    {
+      "id": "boss3-s4",
+      "title_tr": "Kısa sürede saldırı mı?",
+      "prompt_tr": "Üç hatalı giriş bir günde olabilir; saldırgan ise bunu dakikalar içinde yapar. Son parçaları ekle:\n- `burst(entries, ip, n=3, minutes=2)`: o IP'nin başarısız girişleri arasında, `minutes` dakikalık bir pencereye sığan `n` ardışık giriş varsa `True`, yoksa `False` (`datetime.timedelta` kullan).\n- `attackers`: `suspects(entries)` içindeki IP'lerden `burst` olanların listesi (liste üretimi).\n- Yazdır: `Saldırgan IP: 203.0.113.9` (birden çoksa virgülle birleştir).",
+      "prompt": "Three bad logins can be spread over a day; an attacker does it within minutes. Add the final pieces:\n- `burst(entries, ip, n=3, minutes=2)`: `True` if that IP has `n` consecutive failed logins that fit inside a window of `minutes` minutes, else `False` (use `datetime.timedelta`).\n- `attackers`: the IPs from `suspects(entries)` for which `burst` is true (list comprehension).\n- Print: `Saldırgan IP: 203.0.113.9` (join with commas if there are several).",
+      "starter_code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n\nLINE_RE = re.compile(\n    r\"^(?P<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"(?P<method>[A-Z]+) (?P<path>\\S+) (?P<status>\\d{3})$\"\n)\n\ndef parse_line(line):\n    m = LINE_RE.match(line.strip())\n    if m is None:\n        raise ValueError(f\"Geçersiz satır: {line!r}\")\n    return {\n        \"ip\": m[\"ip\"],\n        \"time\": datetime.strptime(m[\"time\"], \"%Y-%m-%d %H:%M:%S\"),\n        \"method\": m[\"method\"],\n        \"path\": m[\"path\"],\n        \"status\": int(m[\"status\"]),\n    }\n\ndef parse_all(lines):\n    entries, bad = [], 0\n    for line in lines:\n        try:\n            entries.append(parse_line(line))\n        except ValueError:\n            bad += 1\n    return entries, bad\n\ndef failed_logins(entries):\n    return [e for e in entries if e[\"path\"] == \"/login\" and e[\"status\"] == 401]\n\nentries, bad_count = parse_all(LOG_LINES)\n\ndef suspects(entries, threshold=3):\n    counts = {}\n    for e in failed_logins(entries):\n        counts[e[\"ip\"]] = counts.get(e[\"ip\"], 0) + 1\n    hits = [(ip, n) for ip, n in counts.items() if n >= threshold]\n    return sorted(hits, key=lambda pair: (-pair[1], pair[0]))\n\n# --- Aşama 4: Kısa sürede saldırı mı? (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert burst(entries, \"203.0.113.9\") is True and burst(entries, \"198.51.100.4\") is False",
+          "visible": true,
+          "failure_message": "203.0.113.9 fails 3 times within 8 seconds, 198.51.100.4 does not.",
+          "failure_message_tr": "203.0.113.9 8 saniyede 3 kez hata yapmış; 198.51.100.4 yapmamış.",
+          "label_tr": "Pencere kontrolü doğru"
+        },
+        {
+          "code": "assert attackers == [\"203.0.113.9\"] and \"Saldırgan IP: 203.0.113.9\" in __stdout__.splitlines()",
+          "visible": true,
+          "failure_message": "attackers should be ['203.0.113.9'] and be printed.",
+          "failure_message_tr": "attackers ['203.0.113.9'] olmalı ve yazdırılmalı.",
+          "label_tr": "Saldırgan bulundu ve yazdırıldı"
+        },
+        {
+          "code": "assert burst(entries, \"198.51.100.4\", minutes=40) is True\nassert burst(entries, \"198.51.100.4\", n=2, minutes=1) is True\nassert burst(entries, \"10.0.0.5\", n=1) is True\nassert burst(entries, \"9.9.9.9\") is False",
+          "visible": false,
+          "failure_message": "n and minutes are parameters; unknown IPs give False.",
+          "failure_message_tr": "n ve minutes parametre olmalı; bilinmeyen IP False vermeli."
+        },
+        {
+          "code": "from datetime import datetime as _dt\ndef _f(sec):\n    return {\"path\": \"/login\", \"status\": 401, \"ip\": \"q\", \"time\": _dt(2024, 1, 1, 0, 0, 0) + __import__(\"datetime\").timedelta(seconds=sec)}\nseq = [_f(s) for s in (500, 0, 60, 119, 3000)]\nassert burst(seq, \"q\") is True\nassert burst([_f(0), _f(60), _f(121)], \"q\") is False\nassert burst([_f(0), _f(60), _f(120)], \"q\") is True",
+          "visible": false,
+          "failure_message": "The window includes exactly `minutes` minutes; unsorted entries must still work.",
+          "failure_message_tr": "Pencere tam `minutes` dakikayı kapsar (dahil); sırasız girdilerle de çalışmalı.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Attribute) and n.attr == \"timedelta\" or isinstance(n, ast.Name) and n.id == \"timedelta\" for n in ast.walk(_t))",
+          "visible": false,
+          "failure_message": "Use datetime.timedelta for the window.",
+          "failure_message_tr": "Pencere için datetime.timedelta kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "First collect and sort that IP's failed-login times; after that you only look at times.",
+        "It is enough that the first and last of `n` consecutive logins are within the window. Subtracting two `datetime`s gives a `timedelta`.",
+        "Build the window with `timedelta(minutes=minutes)`; in a sliding `for i in range(len(times) - n + 1)` loop compare `times[i + n - 1] - times[i]` with it."
+      ],
+      "hints_tr": [
+        "Önce o IP'nin başarısız giriş zamanlarını topla ve sırala; sonra yalnızca zamanlara bakacaksın.",
+        "`n` ardışık girişin ilk ve sonuncusu arasındaki fark pencereden küçük ya da eşitse yeter. İki `datetime`'ın farkı bir `timedelta` verir.",
+        "Pencereyi `timedelta(minutes=minutes)` ile kur; kaydırmalı bir `for i in range(len(times) - n + 1)` döngüsünde `times[i + n - 1] - times[i]` değerini pencereyle karşılaştır."
+      ],
+      "solution": {
+        "code": "import re\nfrom datetime import datetime\n\n# Sunucu erişim günlüğü: \"tarih saat ip yöntem yol durum\"\nLOG_LINES = [\n    \"2024-03-05 14:22:01 10.0.0.5 GET /home 200\",\n    \"2024-03-05 14:22:07 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:09 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:22:12 10.0.0.7 GET /about 200\",\n    \"bozuk satır !!\",\n    \"2024-03-05 14:22:15 203.0.113.9 POST /login 401\",\n    \"2024-03-05 14:23:40 10.0.0.5 POST /login 401\",\n    \"2024-03-05 14:25:00 203.0.113.9 POST /login 200\",\n    \"2024-03-05 14:30:11 198.51.100.4 POST /login 401\",\n    \"2024-03-05 14:30:50 198.51.100.4 POST /login 401\",\n    \"2024-03-05 15:02:33 198.51.100.4 POST /login 401\",\n]\n\n# --- Aşama 1: Satırı ayrıştır (buraya ekle) ---\n\nLINE_RE = re.compile(\n    r\"^(?P<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"(?P<method>[A-Z]+) (?P<path>\\S+) (?P<status>\\d{3})$\"\n)\n\ndef parse_line(line):\n    m = LINE_RE.match(line.strip())\n    if m is None:\n        raise ValueError(f\"Geçersiz satır: {line!r}\")\n    return {\n        \"ip\": m[\"ip\"],\n        \"time\": datetime.strptime(m[\"time\"], \"%Y-%m-%d %H:%M:%S\"),\n        \"method\": m[\"method\"],\n        \"path\": m[\"path\"],\n        \"status\": int(m[\"status\"]),\n    }\n\ndef parse_all(lines):\n    entries, bad = [], 0\n    for line in lines:\n        try:\n            entries.append(parse_line(line))\n        except ValueError:\n            bad += 1\n    return entries, bad\n\ndef failed_logins(entries):\n    return [e for e in entries if e[\"path\"] == \"/login\" and e[\"status\"] == 401]\n\nentries, bad_count = parse_all(LOG_LINES)\n\ndef suspects(entries, threshold=3):\n    counts = {}\n    for e in failed_logins(entries):\n        counts[e[\"ip\"]] = counts.get(e[\"ip\"], 0) + 1\n    hits = [(ip, n) for ip, n in counts.items() if n >= threshold]\n    return sorted(hits, key=lambda pair: (-pair[1], pair[0]))\n\nfrom datetime import timedelta\n\ndef burst(entries, ip, n=3, minutes=2):\n    times = sorted(e[\"time\"] for e in failed_logins(entries) if e[\"ip\"] == ip)\n    window = timedelta(minutes=minutes)\n    for i in range(len(times) - n + 1):\n        if times[i + n - 1] - times[i] <= window:\n            return True\n    return False\n\nattackers = [ip for ip, _ in suspects(entries) if burst(entries, ip)]\nprint(\"Saldırgan IP: \" + \", \".join(attackers))\n",
+        "approach_tr": "Zamanları sıralayıp `n` elemanlık kayan pencere gez: pencerenin ilk ve son zamanının farkı `timedelta(minutes=...)`'ten büyük değilse saldırı penceresi bulunmuştur. Sıralamak, sırasız günlükte de çalışmasını sağlar."
+      }
+    }
+  ]
+}

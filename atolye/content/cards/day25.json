@@ -1,0 +1,403 @@
+{
+ "day": 25,
+ "title_tr": "Pandas ile Tablo Verisi",
+ "title": "Table Data with Pandas",
+ "est_minutes": 40,
+ "cards": [
+  {
+   "id": "d25-c01",
+   "type": "explain",
+   "title_tr": "Pandas: Series ve DataFrame",
+   "title": "Pandas: Series and DataFrame",
+   "body_tr": "**Pandas** tablo benzeri veriyle çalışmak için iki yapı sunar: **Series** (tek bir sütun) ve **DataFrame** (Series'lerden oluşan çok sütunlu tablo). Kurulum: `pip install pandas` (Anaconda'da hazırdır). Bu tarayıcı ortamında pandas hazır geliyor.",
+   "body": "**Pandas** gives you two structures for table-like data: **Series** (a single column) and **DataFrame** (a multi-column table made of Series). Install with `pip install pandas` (Anaconda ships it). In this browser lab pandas is ready.",
+   "code": "import pandas as pd\nprint(type(pd.Series([1])).__name__)\nprint(type(pd.DataFrame({'a': [1]})).__name__)",
+   "expected_output": "Series\nDataFrame",
+   "section": "Installing Pandas"
+  },
+  {
+   "id": "d25-c02",
+   "type": "truefalse",
+   "statement_tr": "Bir DataFrame, Series'lerden oluşan bir koleksiyondur; Series ise tek bir sütundur.",
+   "statement": "A DataFrame is a collection of Series; a Series is a single column.",
+   "answer": true,
+   "why_tr": "Tam olarak derste anlatılan ilişki bu: DataFrame = birden çok sütun (Series).",
+   "why": "That is exactly the relationship in the lesson: DataFrame = several columns (Series).",
+   "section": "Installing Pandas"
+  },
+  {
+   "id": "d25-c03",
+   "type": "explain",
+   "title_tr": "İçe aktarma",
+   "title": "Importing",
+   "body_tr": "Konvansiyon: `import pandas as pd` ve çoğu zaman yanına `import numpy as np`. Pandas, NumPy üzerine kuruludur.",
+   "body": "Convention: `import pandas as pd`, usually together with `import numpy as np`. Pandas is built on top of NumPy.",
+   "code": "import pandas as pd\nimport numpy as np\nprint(pd.Series(np.array([1, 2])).to_string())",
+   "expected_output": "0    1\n1    2",
+   "section": "Importing Pandas"
+  },
+  {
+   "id": "d25-c04",
+   "type": "explain",
+   "title_tr": "Series ve varsayılan index",
+   "title": "A Series and its default index",
+   "body_tr": "Listeden Series yapınca solda otomatik bir **index** (0, 1, 2...) belirir. Gerçek çıktıda en altta bir `dtype` satırı da olur; biz `to_string()` kullanarak sadece değerleri gösteriyoruz.",
+   "body": "Building a Series from a list adds an automatic **index** (0, 1, 2...) on the left. A real print also ends with a `dtype` line; we use `to_string()` to show just the values.",
+   "code": "import pandas as pd\nnums = [1, 2, 3, 4, 5]\ns = pd.Series(nums)\nprint(s.to_string())",
+   "expected_output": "0    1\n1    2\n2    3\n3    4\n4    5",
+   "section": "Creating Pandas Series with Default Index"
+  },
+  {
+   "id": "d25-c05",
+   "type": "explain",
+   "title_tr": "Kendi index'ini vermek",
+   "title": "Giving your own index",
+   "body_tr": "`index=` parametresiyle etiketleri kendin seçersin. Artık satırlara 0 yerine bu etiketlerle ulaşırsın.",
+   "body": "The `index=` parameter lets you pick the labels yourself. Rows are now reached by those labels instead of 0, 1, 2.",
+   "code": "import pandas as pd\nfruits = pd.Series(['Orange', 'Banana', 'Mango'], index=[1, 2, 3])\nprint(fruits.to_string())",
+   "expected_output": "1    Orange\n2    Banana\n3     Mango",
+   "section": "Creating  Pandas Series with custom index"
+  },
+  {
+   "id": "d25-c06",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import pandas as pd\ns = pd.Series([5, 6, 7], index=[1, 2, 3])\nprint(s[2])",
+   "choices": [
+    "7",
+    "5",
+    "Error",
+    "6"
+   ],
+   "answer": "6",
+   "why_tr": "`s[2]` etiketle arar: index etiketi 2 olan değer 6'dır (konum değil, etiket).",
+   "why": "`s[2]` looks up by label: the value with index label 2 is 6 (label, not position).",
+   "section": "Creating  Pandas Series with custom index"
+  },
+  {
+   "id": "d25-c07",
+   "type": "explain",
+   "title_tr": "Sözlükten Series",
+   "title": "A Series from a dictionary",
+   "body_tr": "Sözlük verirsen anahtarlar index, değerler Series'in değerleri olur.",
+   "body": "Pass a dictionary and the keys become the index, the values become the Series values.",
+   "code": "import pandas as pd\ndct = {'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'}\ns = pd.Series(dct)\nprint(s.to_string())",
+   "expected_output": "name       Asabeneh\ncountry     Finland\ncity       Helsinki",
+   "section": "Creating Pandas Series from a Dictionary"
+  },
+  {
+   "id": "d25-c08",
+   "type": "explain",
+   "title_tr": "Sabit Series ve linspace",
+   "title": "Constant Series and linspace",
+   "body_tr": "Tek bir değer verip `index=` listesi eklersen o değer her etikete kopyalanır. `np.linspace(başla, bit, adet)` ile eşit aralıklı sayılardan da Series yapılır.",
+   "body": "Give a single value plus an `index=` list and it is copied to every label. A Series can also come from evenly spaced numbers via `np.linspace(start, end, count)`.",
+   "code": "import pandas as pd\nimport numpy as np\nprint(pd.Series(10, index=[1, 2, 3]).to_string())\nprint(pd.Series(np.linspace(5, 20, 4)).to_string())",
+   "expected_output": "1    10\n2    10\n3    10\n0     5.0\n1    10.0\n2    15.0\n3    20.0",
+   "section": "Creating a Constant Pandas Series",
+   "also_sections": [
+    "Creating a  Pandas Series Using Linspace"
+   ]
+  },
+  {
+   "id": "d25-c09",
+   "type": "fill",
+   "prompt_tr": "Sözlüğü Series'e ver.",
+   "prompt": "Pass the dictionary to the Series.",
+   "code": "import pandas as pd\ndct = {'a': 1, 'b': 2}\nprint(pd.Series(___).to_string())",
+   "answers": [
+    "dct"
+   ],
+   "expected_output": "a    1\nb    2",
+   "why_tr": "`pd.Series(sözlük)` anahtarları index, değerleri veri yapar.",
+   "why": "`pd.Series(dict)` makes the keys the index and the values the data.",
+   "section": "Creating Pandas Series from a Dictionary"
+  },
+  {
+   "id": "d25-c10",
+   "type": "explain",
+   "title_tr": "Liste listesinden DataFrame",
+   "title": "A DataFrame from a list of lists",
+   "body_tr": "İç içe listenin her iç listesi bir **satır** olur. Sütun adlarını `columns=` ile verirsin.",
+   "body": "Each inner list becomes a **row**. You give the column names with `columns=`.",
+   "code": "import pandas as pd\ndata = [['Asabeneh', 'Finland', 'Helsinki'],\n        ['David', 'UK', 'London'],\n        ['John', 'Sweden', 'Stockholm']]\ndf = pd.DataFrame(data, columns=['Names', 'Country', 'City'])\nprint(df)",
+   "expected_output": "      Names  Country       City\n0  Asabeneh  Finland   Helsinki\n1     David       UK     London\n2      John   Sweden  Stockholm",
+   "section": "Creating DataFrames from List of Lists"
+  },
+  {
+   "id": "d25-c11",
+   "type": "explain",
+   "title_tr": "Sözlükten DataFrame",
+   "title": "A DataFrame from a dictionary",
+   "body_tr": "Burada tersi geçerli: her **anahtar** bir sütun adı, her **liste** o sütunun değerleridir.",
+   "body": "Here it's the other way round: each **key** is a column name and each **list** holds that column's values.",
+   "code": "import pandas as pd\ndata = {'Name': ['Asabeneh', 'David', 'John'],\n        'Country': ['Finland', 'UK', 'Sweden']}\ndf = pd.DataFrame(data)\nprint(df)",
+   "expected_output": "       Name  Country\n0  Asabeneh  Finland\n1     David       UK\n2      John   Sweden",
+   "section": "Creating DataFrame Using Dictionary"
+  },
+  {
+   "id": "d25-c12",
+   "type": "explain",
+   "title_tr": "Sözlük listesinden DataFrame",
+   "title": "A DataFrame from a list of dictionaries",
+   "body_tr": "Her sözlük bir **satırdır**; anahtarlar sütun adlarını belirler. JSON/API verisi çoğu zaman bu biçimde gelir.",
+   "body": "Each dictionary is a **row**; the keys define the column names. JSON/API data often arrives in this shape.",
+   "code": "import pandas as pd\ndata = [{'Name': 'Asabeneh', 'City': 'Helsinki'},\n        {'Name': 'David', 'City': 'London'}]\ndf = pd.DataFrame(data)\nprint(df)",
+   "expected_output": "       Name      City\n0  Asabeneh  Helsinki\n1     David    London",
+   "section": "Creating DataFrames from a List of Dictionaries"
+  },
+  {
+   "id": "d25-c13",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import pandas as pd\ndata = {'Name': ['A', 'B', 'C'], 'Age': [30, 25, 41]}\nprint(pd.DataFrame(data).shape)",
+   "choices": [
+    "(3, 2)",
+    "(2, 3)",
+    "(2, 2)",
+    "(3, 3)"
+   ],
+   "answer": "(3, 2)",
+   "why_tr": "3 değer olduğu için 3 satır, 2 anahtar olduğu için 2 sütun var: (3, 2).",
+   "why": "There are 3 values so 3 rows, and 2 keys so 2 columns: (3, 2).",
+   "section": "Creating DataFrame Using Dictionary"
+  },
+  {
+   "id": "d25-c14",
+   "type": "explain",
+   "title_tr": "CSV dosyası okumak",
+   "title": "Reading a CSV file",
+   "body_tr": "`pd.read_csv('dosya.csv')` bir CSV'yi DataFrame'e çevirir. Derste dosya `curl` ile indirilir; bu ortamda dosya sistemi ve ağ yok. Bu yüzden CSV metnini `io.StringIO` ile sanki dosyaymış gibi veriyoruz.",
+   "body": "`pd.read_csv('file.csv')` turns a CSV into a DataFrame. In the lesson the file is downloaded with `curl`; here we have no file system or network. So we hand over the CSV text through `io.StringIO`, as if it were a file.",
+   "code": "import io\nimport pandas as pd\ncsv = 'Gender,Height,Weight\\nMale,73.8,241.9\\nFemale,61.9,113.6\\n'\ndf = pd.read_csv(io.StringIO(csv))\nprint(df)",
+   "expected_output": "   Gender  Height  Weight\n0    Male    73.8   241.9\n1  Female    61.9   113.6",
+   "section": "Reading CSV File Using Pandas"
+  },
+  {
+   "id": "d25-c15",
+   "type": "explain",
+   "title_tr": "head, tail, shape, columns",
+   "title": "head, tail, shape, columns",
+   "body_tr": "Büyük tabloyu keşfetmenin ilk adımları: `head(n)` ilk n satır, `tail(n)` son n satır, `shape` (satır, sütun), `columns` sütun adları. Varsayılan n değeri 5'tir.",
+   "body": "First steps to explore a big table: `head(n)` first n rows, `tail(n)` last n rows, `shape` (rows, columns), `columns` the column names. The default n is 5.",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Gender': ['M', 'M', 'F', 'F'], 'Height': [73.8, 68.8, 66.2, 61.9]})\nprint(df.head(2))\nprint(df.tail(2))\nprint(df.shape)\nprint(list(df.columns))",
+   "expected_output": "  Gender  Height\n0      M    73.8\n1      M    68.8\n  Gender  Height\n2      F    66.2\n3      F    61.9\n(4, 2)\n['Gender', 'Height']",
+   "section": "Data Exploration"
+  },
+  {
+   "id": "d25-c16",
+   "type": "explain",
+   "title_tr": "Sütun almak ve describe()",
+   "title": "Picking a column and describe()",
+   "body_tr": "`df['Height']` tek bir sütunu **Series** olarak verir. `describe()` sayı, ortalama, standart sapma, min, çeyrekler ve max'ı tek seferde çıkarır.",
+   "body": "`df['Height']` returns a single column as a **Series**. `describe()` gives count, mean, standard deviation, min, quartiles and max in one go.",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Height': [60.0, 62.0, 64.0, 70.0]})\nheights = df['Height']\nprint(type(heights).__name__)\nprint(heights.describe().round(2).to_string())",
+   "expected_output": "Series\ncount     4.00\nmean     64.00\nstd       4.32\nmin      60.00\n25%      61.50\n50%      63.00\n75%      65.50\nmax      70.00",
+   "section": "Data Exploration"
+  },
+  {
+   "id": "d25-c17",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Height': [60, 70]})\nprint(df['Height'].mean())",
+   "choices": [
+    "130",
+    "65",
+    "60.0",
+    "65.0"
+   ],
+   "answer": "65.0",
+   "why_tr": "Ortalama (60+70)/2 = 65; `mean()` her zaman float döndürür: 65.0.",
+   "why": "The mean is (60+70)/2 = 65; `mean()` always returns a float: 65.0.",
+   "section": "Data Exploration"
+  },
+  {
+   "id": "d25-c18",
+   "type": "explain",
+   "title_tr": "Yeni sütun eklemek",
+   "title": "Adding a new column",
+   "body_tr": "Yeni sütun eklemek sözlüğe yeni anahtar eklemek gibidir: `df['Weight'] = [...]`. Liste uzunluğu satır sayısıyla aynı olmalı.",
+   "body": "Adding a column is like adding a key to a dictionary: `df['Weight'] = [...]`. The list length must equal the number of rows.",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['Asabeneh', 'David', 'John']})\ndf['Weight'] = [74, 78, 69]\ndf['Height'] = [173, 175, 169]\nprint(df)",
+   "expected_output": "       Name  Weight  Height\n0  Asabeneh      74     173\n1     David      78     175\n2      John      69     169",
+   "section": "Adding a New Column",
+   "also_sections": [
+    "Creating a DataFrame"
+   ]
+  },
+  {
+   "id": "d25-c19",
+   "type": "explain",
+   "title_tr": "Sütun değerlerini değiştirmek",
+   "title": "Changing column values",
+   "body_tr": "Bir sütunu tek ifadeyle topluca değiştirebilirsin; döngü gerekmez. Boyu cm'den metreye çevirelim. (Derste `* 0.01` var; `/ 100` küçük ondalık hataları önler.)",
+   "body": "You can change a whole column with one expression; no loop needed. Let's convert heights from cm to metres. (The lesson uses `* 0.01`; `/ 100` avoids tiny float noise.)",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Height': [173, 175, 169]})\ndf['Height'] = df['Height'] / 100\nprint(df)",
+   "expected_output": "   Height\n0    1.73\n1    1.75\n2    1.69",
+   "section": "Modifying column values"
+  },
+  {
+   "id": "d25-c20",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Height': [173, 175]})\ndf['Height'] = df['Height'] / 100\nprint(df['Height'].tolist())",
+   "choices": [
+    "[1.73, 1.75]",
+    "[173, 175]",
+    "[17300, 17500]",
+    "[1, 2]"
+   ],
+   "answer": "[1.73, 1.75]",
+   "why_tr": "Her değer 100'e bölünür: 1.73 ve 1.75.",
+   "why": "Each value is divided by 100: 1.73 and 1.75.",
+   "section": "Modifying column values"
+  },
+  {
+   "id": "d25-c21",
+   "type": "explain",
+   "title_tr": "BMI'yı döngüyle hesaplamak",
+   "title": "Calculating BMI with a loop",
+   "body_tr": "Derste BMI (kilo / boy²), sütunlardan `zip` ile ikişer ikişer okunup bir fonksiyonda döngüyle hesaplanır. Önce aynı mantığı düz listelerle adım adım izle.",
+   "body": "In the lesson BMI (weight / height²) is computed in a function by looping over the columns with `zip`. First follow the same logic with plain lists, step by step.",
+   "code": "weights = [74, 78, 69]\nheights = [1.73, 1.75, 1.69]\nbmi = []\nfor w, h in zip(weights, heights):\n    bmi.append(w / (h * h))\nprint(bmi)",
+   "expected_output": "[24.725182932941294, 25.46938775510204, 24.158817968558527]",
+   "trace": true,
+   "section": "Modifying column values"
+  },
+  {
+   "id": "d25-c22",
+   "type": "explain",
+   "title_tr": "Sütunu biçimlendirmek: round",
+   "title": "Formatting a column: round",
+   "body_tr": "BMI değerlerinde çok fazla basamak var. `round(sütun, 1)` bir basamağa yuvarlar. Üstelik pandas'ta döngüsüz yapabilirsin: `df['Weight'] / df['Height'] ** 2`.",
+   "body": "BMI values have too many digits. `round(column, 1)` rounds to one decimal. And in pandas you can skip the loop: `df['Weight'] / df['Height'] ** 2`.",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Weight': [74, 78, 69], 'Height': [1.73, 1.75, 1.69]})\ndf['BMI'] = df['Weight'] / df['Height'] ** 2\ndf['BMI'] = round(df['BMI'], 1)\nprint(df)",
+   "expected_output": "   Weight  Height   BMI\n0      74    1.73  24.7\n1      78    1.75  25.5\n2      69    1.69  24.2",
+   "section": "Formatting DataFrame columns"
+  },
+  {
+   "id": "d25-c23",
+   "type": "fill",
+   "prompt_tr": "BMI'yı bir basamağa yuvarla.",
+   "prompt": "Round BMI to one decimal.",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'BMI': [24.725183, 25.469388]})\ndf['BMI'] = ___(df['BMI'], 1)\nprint(df['BMI'].tolist())",
+   "answers": [
+    "round"
+   ],
+   "expected_output": "[24.7, 25.5]",
+   "why_tr": "`round(sütun, 1)` her değeri bir ondalık basamağa yuvarlar.",
+   "why": "`round(column, 1)` rounds every value to one decimal place.",
+   "section": "Formatting DataFrame columns"
+  },
+  {
+   "id": "d25-c24",
+   "type": "explain",
+   "title_tr": "Veri tipini kontrol etmek ve değiştirmek",
+   "title": "Checking and changing data types",
+   "body_tr": "Doğum yılı tırnak içinde yazılmışsa metindir, onunla hesap yapamazsın. `astype('int')` onu tam sayıya çevirir. (Tamsayı tipinin adı sisteme göre değişir; biz `is_integer_dtype` ile soruyoruz.)",
+   "body": "If the birth year is written in quotes it's text, and you can't calculate with it. `astype('int')` converts it to an integer. (The integer type's name varies by system, so we ask with `is_integer_dtype`.)",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Birth Year': ['1769', '1985', '1990']})\nprint(type(df['Birth Year'][0]).__name__)\ndf['Birth Year'] = df['Birth Year'].astype('int')\nprint(pd.api.types.is_integer_dtype(df['Birth Year']))",
+   "expected_output": "str\nTrue",
+   "section": "Checking data types of Column values"
+  },
+  {
+   "id": "d25-c25",
+   "type": "predict",
+   "prompt_tr": "Yaş sütunu: Current Year - Birth Year. Çıktı ne olur?",
+   "prompt": "Ages: Current Year - Birth Year. What is printed?",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Birth Year': [1769, 1985], 'Current Year': [2020, 2020]})\nprint((df['Current Year'] - df['Birth Year']).tolist())",
+   "choices": [
+    "[3789, 4005]",
+    "[251, 35]",
+    "[-251, -35]",
+    "[2020, 2020]"
+   ],
+   "answer": "[251, 35]",
+   "why_tr": "Sütunlar eleman eleman çıkarılır: 2020-1769 = 251 ve 2020-1985 = 35.",
+   "why": "Columns are subtracted element by element: 2020-1769 = 251 and 2020-1985 = 35.",
+   "section": "Checking data types of Column values"
+  },
+  {
+   "id": "d25-c26",
+   "type": "explain",
+   "title_tr": "Koşulla satır süzmek",
+   "title": "Filtering rows with a condition",
+   "body_tr": "`df[df['Ages'] > 120]` önce her satır için True/False üretir, sonra yalnızca True olanları verir. 251 yaşı gerçekçi değil; aykırı değeri çıkarıp kalanların ortalamasını alırız: (35 + 30) / 2.",
+   "body": "`df[df['Ages'] > 120]` first makes a True/False per row, then returns only the True rows. An age of 251 is unrealistic; we drop the outlier and average the rest: (35 + 30) / 2.",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['Asabeneh', 'David', 'John'], 'Ages': [251, 35, 30]})\nprint(df[df['Ages'] > 120])\nprint(df[df['Ages'] < 120])\nprint('Mean:', (35 + 30) / 2)",
+   "expected_output": "       Name  Ages\n0  Asabeneh   251\n    Name  Ages\n1  David    35\n2   John    30\nMean: 32.5",
+   "section": "Boolean Indexing"
+  },
+  {
+   "id": "d25-c27",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import pandas as pd\ndf = pd.DataFrame({'Name': ['A', 'B', 'C'], 'Ages': [251, 35, 30]})\nprint(df[df['Ages'] > 31]['Name'].tolist())",
+   "choices": [
+    "['A']",
+    "['A', 'B']",
+    "['B', 'C']",
+    "[251, 35]"
+   ],
+   "answer": "['A', 'B']",
+   "why_tr": "31'den büyük yaşlar 251 ve 35; bunlar A ve B satırlarında.",
+   "why": "Ages above 31 are 251 and 35; they sit in rows A and B.",
+   "section": "Boolean Indexing"
+  },
+  {
+   "id": "d25-c28",
+   "type": "truefalse",
+   "statement_tr": "`df[df['Ages'] > 120]` yazmak df'nin kendisinden satırları siler.",
+   "statement": "Writing `df[df['Ages'] > 120]` deletes rows from df itself.",
+   "answer": false,
+   "why_tr": "Süzme yeni bir DataFrame döndürür; df olduğu gibi kalır (sonucu bir değişkene atamazsan kaybolur).",
+   "why": "Filtering returns a new DataFrame; df stays as it is (and the result is lost unless you assign it).",
+   "section": "Boolean Indexing"
+  },
+  {
+   "id": "d25-c29",
+   "type": "order",
+   "prompt_tr": "Satırları doğru sıraya diz.",
+   "prompt": "Put the lines in the right order.",
+   "lines": [
+    "import pandas as pd",
+    "print(df[df['b'] > 2])",
+    "df['b'] = df['a'] * 2",
+    "df = pd.DataFrame({'a': [1, 2, 3]})"
+   ],
+   "correct_order": [
+    0,
+    3,
+    2,
+    1
+   ],
+   "expected_output": "   a  b\n1  2  4\n2  3  6",
+   "section": "Boolean Indexing"
+  },
+  {
+   "id": "d25-c30",
+   "type": "recap",
+   "points_tr": [
+    "Series tek sütun, DataFrame çok sütunlu tablodur.",
+    "DataFrame listeden, sözlükten, sözlük listesinden veya CSV'den kurulur.",
+    "`head`, `tail`, `shape`, `columns`, `describe` ile tabloyu keşfedersin.",
+    "Sütun ekler/değiştirir, `astype` ile tipi çevirir, `df[koşul]` ile satır süzersin."
+   ],
+   "points": [
+    "A Series is one column, a DataFrame is a multi-column table.",
+    "A DataFrame is built from a list, a dict, a list of dicts or a CSV.",
+    "You explore a table with `head`, `tail`, `shape`, `columns` and `describe`.",
+    "You add/change columns, convert types with `astype`, and filter rows with `df[condition]`."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "Boolean Indexing"
+  }
+ ]
+}

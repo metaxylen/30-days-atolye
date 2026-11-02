@@ -1,0 +1,668 @@
+{
+ "day": 29,
+ "title": "Building an API",
+ "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+ "blocks": [
+  {
+   "id": "d29-b1",
+   "concept": "json-responses",
+   "tags": [
+    "api",
+    "json",
+    "flask",
+    "responses"
+   ],
+   "worked_example": {
+    "code": "import json\nstudents = [{'name': 'Asabeneh', 'country': 'Finland'}]\nbody = json.dumps(students)\nresponse = {'body': body, 'mimetype': 'application/json'}\nprint(response['body'])",
+    "notes": [
+     "An API view returns JSON text plus a mimetype that tells the client how to read it.",
+     "Flask's Response(json.dumps(data), mimetype='application/json') does this."
+    ],
+    "notes_tr": [
+     "Bir API view'ı JSON metni ve istemciye nasıl okuyacağını söyleyen bir mimetype döndürür.",
+     "Flask'ta Response(json.dumps(data), mimetype='application/json') bunu yapar."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d29-b1-e1",
+     "type": "predict",
+     "concept": "json-responses",
+     "tags": [
+      "api",
+      "json",
+      "flask",
+      "responses"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "import json\ndef json_response(data, status=200):\n    return {'body': json.dumps(data), 'mimetype': 'application/json', 'status': status}\n\nr = json_response({'name': 'Sami'})\nprint(r['status'], r['body'], json.loads(r['body'])['name'])",
+     "choices": [
+      "200 {\"name\": \"Sami\"} Sami",
+      "200 {'name': 'Sami'} Sami",
+      "200 {\"name\": \"Sami\"} {\"name\": \"Sami\"}",
+      "200 {\"name\": \"Sami\"} name"
+     ],
+     "expected_output": "200 {\"name\": \"Sami\"} Sami",
+     "explanation": "status defaults to 200. r['body'] is JSON text with double quotes. json.loads turns it back into a dict, whose 'name' is Sami.",
+     "misconceptions": {
+      "200 {'name': 'Sami'} Sami": "json.dumps writes JSON text, which uses double quotes.",
+      "200 {\"name\": \"Sami\"} {\"name\": \"Sami\"}": "json.loads(...) gives a dict and ['name'] selects the value 'Sami'.",
+      "200 {\"name\": \"Sami\"} name": "['name'] on the loaded dict returns the value, not the key."
+     },
+     "explanation_tr": "status varsayılan olarak 200'dür. r['body'] çift tırnaklı JSON metnidir. json.loads onu tekrar dict yapar ve 'name' değeri Sami'dir.",
+     "misconceptions_tr": {
+      "200 {'name': 'Sami'} Sami": "json.dumps JSON metni yazar ve JSON çift tırnak kullanır.",
+      "200 {\"name\": \"Sami\"} {\"name\": \"Sami\"}": "json.loads(...) bir dict verir ve ['name'] 'Sami' değerini seçer.",
+      "200 {\"name\": \"Sami\"} name": "Yüklenen dict'te ['name'] anahtarı değil değeri döndürür."
+     }
+    },
+    {
+     "id": "d29-b1-e2",
+     "type": "fill_blank",
+     "concept": "json-responses",
+     "tags": [
+      "api",
+      "json",
+      "flask",
+      "responses"
+     ],
+     "prompt": "Complete students_view so it returns the list as JSON text with the right mimetype.",
+     "prompt_tr": "students_view fonksiyonunu tamamla: listeyi doğru mimetype ile JSON metni olarak döndürsün.",
+     "starter_code": "import json\ndef students_view():\n    student_list = [{'name': 'Asabeneh'}, {'name': 'David'}]\n    return {'body': json.___(student_list), 'mimetype': ___}",
+     "blanks": [
+      {
+       "answer": [
+        "dumps"
+       ]
+      },
+      {
+       "answer": [
+        "'application/json'"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "r = students_view()\nassert json.loads(r['body'])[1]['name'] == 'David'",
+       "visible": true,
+       "label_tr": "JSON gövdesi doğru çözülüyor"
+      },
+      {
+       "code": "assert students_view()['mimetype'] == 'application/json'",
+       "visible": true,
+       "label_tr": "Mimetype application/json"
+      }
+     ]
+    },
+    {
+     "id": "d29-b1-e3",
+     "type": "write",
+     "concept": "json-responses",
+     "tags": [
+      "api",
+      "json",
+      "flask",
+      "responses"
+     ],
+     "prompt": "Write json_response(data, status=200). Return a dict {'body': <data as JSON text>, 'mimetype': 'application/json', 'status': status}.",
+     "prompt_tr": "json_response(data, status=200) yaz. {'body': <data'nın JSON metni>, 'mimetype': 'application/json', 'status': status} biçiminde bir dict döndür.",
+     "starter_code": "",
+     "signature": "def json_response(data, status=200):",
+     "tests": [
+      {
+       "code": "import json\nr = json_response({'a': 1})\nassert json.loads(r['body']) == {'a': 1} and r['status'] == 200",
+       "visible": true,
+       "label_tr": "Gövde JSON olarak çözülebiliyor, durum 200"
+      },
+      {
+       "code": "assert json_response([1, 2])['mimetype'] == 'application/json'",
+       "visible": true,
+       "label_tr": "Mimetype application/json"
+      },
+      {
+       "code": "assert json_response({}, 201)['status'] == 201",
+       "visible": false,
+       "failure_message": "The status argument must be stored in the result; 200 is only the default.",
+       "failure_message_tr": "status argümanı sonuçta saklanmalı; 200 yalnızca varsayılandır."
+      },
+      {
+       "code": "assert isinstance(json_response([1])['body'], str)",
+       "visible": false,
+       "failure_message": "The body must be JSON TEXT (a str), so use json.dumps.",
+       "failure_message_tr": "Gövde JSON METNİ (str) olmalı, bu yüzden json.dumps kullan."
+      }
+     ],
+     "hints": [
+      "You need the json module to turn data into text.",
+      "{'body': json.dumps(data), 'mimetype': ..., 'status': status}",
+      "Last step: import json, then return a dict with three keys; the body value must be the result of json.dumps on data, and the other two keys hold the mimetype text and the status argument."
+     ],
+     "solution": {
+      "approach": "Dump the data to JSON text and package it with the mimetype and status.",
+      "code": "import json\n\ndef json_response(data, status=200):\n    return {'body': json.dumps(data), 'mimetype': 'application/json', 'status': status}",
+      "approach_tr": "Veriyi JSON metnine çevir ve mimetype ile status ile birlikte paketle."
+     },
+     "twin": "d29-b1-e4",
+     "hints_tr": [
+      "Veriyi metne çevirmek için json modülü gerekiyor.",
+      "{'body': json.dumps(data), 'mimetype': ..., 'status': status}",
+      "Son adım: json'u içe aktar, sonra üç anahtarlı bir dict döndür; body değeri data üzerinde json.dumps sonucu olsun, diğer iki anahtar mimetype metnini ve status argümanını tutsun."
+     ]
+    },
+    {
+     "id": "d29-b1-e4",
+     "type": "write",
+     "concept": "json-responses",
+     "tags": [
+      "api",
+      "json",
+      "flask",
+      "responses"
+     ],
+     "prompt": "Write error_response(message, status=404). Return a dict {'body': <JSON text of {'error': message}>, 'mimetype': 'application/json', 'status': status}.",
+     "prompt_tr": "error_response(message, status=404) yaz. {'body': <{'error': message} dict'inin JSON metni>, 'mimetype': 'application/json', 'status': status} biçiminde bir dict döndür.",
+     "starter_code": "",
+     "signature": "def error_response(message, status=404):",
+     "tests": [
+      {
+       "code": "import json\nr = error_response('Not found')\nassert json.loads(r['body']) == {'error': 'Not found'} and r['status'] == 404",
+       "visible": true,
+       "label_tr": "Hata mesajı JSON gövdede, durum 404"
+      },
+      {
+       "code": "assert error_response('x')['mimetype'] == 'application/json'",
+       "visible": true,
+       "label_tr": "Mimetype application/json"
+      },
+      {
+       "code": "assert error_response('bad', 400)['status'] == 400",
+       "visible": false,
+       "failure_message": "The status argument must be stored; 404 is only the default.",
+       "failure_message_tr": "status argümanı saklanmalı; 404 yalnızca varsayılandır."
+      },
+      {
+       "code": "import json\nassert json.loads(error_response('boom', 500)['body'])['error'] == 'boom'",
+       "visible": false,
+       "failure_message": "The message goes under the key 'error' in the JSON body.",
+       "failure_message_tr": "Mesaj JSON gövdesinde 'error' anahtarının altında olmalı."
+      }
+     ],
+     "hints": [
+      "Build the data dict first: {'error': message}.",
+      "Then dump it and add the mimetype and status.",
+      "Last step: the same package as json_response, but the data you dump is a dict with the single key 'error'."
+     ],
+     "solution": {
+      "approach": "Same package as json_response, with the data {'error': message}.",
+      "code": "import json\n\ndef error_response(message, status=404):\n    return {'body': json.dumps({'error': message}), 'mimetype': 'application/json', 'status': status}",
+      "approach_tr": "json_response ile aynı paket, veri olarak {'error': message} kullan."
+     },
+     "twin": "d29-b1-e3",
+     "hints_tr": [
+      "Önce veri dict'ini kur: {'error': message}.",
+      "Sonra onu metne çevir ve mimetype ile status ekle.",
+      "Son adım: json_response ile aynı paket, ama metne çevirdiğin veri yalnızca 'error' anahtarı olan bir dict olsun."
+     ]
+    },
+    {
+     "id": "d29-b1-e5",
+     "type": "explain",
+     "concept": "json-responses",
+     "tags": [
+      "api",
+      "json",
+      "flask",
+      "responses"
+     ],
+     "prompt": "In your own words: why does an API return JSON instead of an HTML page, and what is the mimetype for?",
+     "prompt_tr": "Kendi cümlelerinle anlat: bir API neden HTML sayfası yerine JSON döndürür ve mimetype ne işe yarar?",
+     "model_answer": "JSON is plain structured data that any client (a browser script, a mobile app, another server) can parse easily, while HTML is made for showing a page. The mimetype, sent as the Content-Type header, tells the client that the body is JSON so it knows how to read it.",
+     "keywords": [
+      "json",
+      "client",
+      "mimetype"
+     ],
+     "model_answer_tr": "JSON, her istemcinin (tarayıcıdaki bir betik, mobil uygulama, başka bir sunucu) kolayca ayrıştırabildiği düz yapılandırılmış veridir; HTML ise sayfa göstermek için yapılmıştır. Content-Type başlığı olarak gönderilen mimetype, istemciye gövdenin JSON olduğunu söyler, böylece onu nasıl okuyacağını bilir.",
+     "keywords_tr": [
+      "json",
+      "istemci",
+      "mimetype"
+     ],
+     "min_words": 6
+    }
+   ],
+   "concept_tr": "JSON yanıtları"
+  },
+  {
+   "id": "d29-b2",
+   "concept": "path-parameters",
+   "tags": [
+    "api",
+    "routes",
+    "lookup"
+   ],
+   "worked_example": {
+    "code": "path = '/api/v1.0/students/5df68a21'\nstudent_id = path.split('/')[-1]\nprint(student_id)",
+    "notes": [
+     "In /students/<id> the last part of the path is the id.",
+     "The view looks the document up by that id and answers 404 when it does not exist."
+    ],
+    "notes_tr": [
+     "/students/<id> içinde yolun son parçası id'dir.",
+     "View, dokümanı bu id ile arar ve yoksa 404 yanıtı verir."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d29-b2-e1",
+     "type": "predict",
+     "concept": "path-parameters",
+     "tags": [
+      "api",
+      "routes",
+      "lookup"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "students = [{'_id': '1', 'name': 'Asabeneh'}, {'_id': '2', 'name': 'David'}]\n\ndef single_student(student_id):\n    for s in students:\n        if s['_id'] == student_id:\n            return {'status': 200, 'student': s['name']}\n    return {'status': 404}\n\nprint(single_student('2'), single_student('9'))",
+     "choices": [
+      "{'status': 200, 'student': 'David'} {'status': 404}",
+      "{'status': 200, 'student': 'Asabeneh'} {'status': 404}",
+      "{'status': 200, 'student': 'David'} {'status': 200, 'student': 'David'}",
+      "{'status': 404} {'status': 404}"
+     ],
+     "expected_output": "{'status': 200, 'student': 'David'} {'status': 404}",
+     "explanation": "Id '2' belongs to David, so the first call returns status 200. No student has id '9', so the loop ends and the function returns the 404 dict.",
+     "misconceptions": {
+      "{'status': 200, 'student': 'Asabeneh'} {'status': 404}": "Asabeneh has id '1'. The call asks for id '2'.",
+      "{'status': 200, 'student': 'David'} {'status': 200, 'student': 'David'}": "Id '9' does not exist, so the loop finishes without a return and the 404 line runs.",
+      "{'status': 404} {'status': 404}": "Id '2' exists, so the first call returns 200."
+     },
+     "explanation_tr": "'2' id'si David'e aittir, bu yüzden ilk çağrı 200 durumunu döndürür. '9' id'li öğrenci yoktur; döngü biter ve fonksiyon 404 dict'ini döndürür.",
+     "misconceptions_tr": {
+      "{'status': 200, 'student': 'Asabeneh'} {'status': 404}": "Asabeneh'in id'si '1'. Çağrı '2' id'sini istiyor.",
+      "{'status': 200, 'student': 'David'} {'status': 200, 'student': 'David'}": "'9' id'si yok, bu yüzden döngü return olmadan biter ve 404 satırı çalışır.",
+      "{'status': 404} {'status': 404}": "'2' id'si var, bu yüzden ilk çağrı 200 döndürür."
+     }
+    },
+    {
+     "id": "d29-b2-e2",
+     "type": "parsons",
+     "concept": "path-parameters",
+     "tags": [
+      "api",
+      "routes",
+      "lookup"
+     ],
+     "prompt": "Put the lines in order: split the path and print the resource name and the id.",
+     "prompt_tr": "Satırları sırala: yolu böl ve kaynak adıyla id'yi yazdır.",
+     "lines": [
+      "student_id = parts[-1]",
+      "path = '/api/v1.0/students/2'",
+      "print(parts[-2], student_id)",
+      "parts = path.split('/')"
+     ],
+     "correct_order": [
+      1,
+      3,
+      0,
+      2
+     ],
+     "distractors": [
+      "student_id = parts[0]"
+     ],
+     "expected_output": "students 2"
+    },
+    {
+     "id": "d29-b2-e3",
+     "type": "write",
+     "concept": "path-parameters",
+     "tags": [
+      "api",
+      "routes",
+      "lookup"
+     ],
+     "prompt": "Write single_student(students, student_id). students is a list of dicts with an '_id' key. Return {'status': 200, 'student': <the dict>} for the matching id, or {'status': 404} when no student has that id.",
+     "prompt_tr": "single_student(students, student_id) yaz. students, '_id' anahtarı olan dict'lerin listesidir. Eşleşen id için {'status': 200, 'student': <dict>} döndür; hiçbir öğrencinin o id'si yoksa {'status': 404} döndür.",
+     "starter_code": "",
+     "signature": "def single_student(students, student_id):",
+     "tests": [
+      {
+       "code": "s = [{'_id': '1', 'name': 'A'}, {'_id': '2', 'name': 'B'}]\nassert single_student(s, '2') == {'status': 200, 'student': {'_id': '2', 'name': 'B'}}",
+       "visible": true,
+       "label_tr": "Var olan id öğrenciyi 200 ile döndürüyor"
+      },
+      {
+       "code": "assert single_student([], '1') == {'status': 404}",
+       "visible": true,
+       "label_tr": "Boş listede 404 dönüyor"
+      },
+      {
+       "code": "s = [{'_id': '1'}]\nassert single_student(s, '9') == {'status': 404}",
+       "visible": false,
+       "failure_message": "When no student matches, return exactly {'status': 404}.",
+       "failure_message_tr": "Hiçbir öğrenci eşleşmezse tam olarak {'status': 404} döndür."
+      },
+      {
+       "code": "s = [{'_id': '1', 'n': 'a'}, {'_id': '1', 'n': 'b'}]\nassert single_student(s, '1')['student']['n'] == 'a'",
+       "visible": false,
+       "failure_message": "Return the first matching student.",
+       "failure_message_tr": "İlk eşleşen öğrenciyi döndür."
+      }
+     ],
+     "hints": [
+      "Loop through the list and compare the ids.",
+      "Return the 200 dict as soon as the id matches; after the loop return the 404 dict.",
+      "Last step: loop over students and compare each '_id' with student_id; return the 200 dict inside the loop on a match, and the 404 dict after the loop."
+     ],
+     "solution": {
+      "approach": "Linear search by _id, with a 404 fallback.",
+      "code": "def single_student(students, student_id):\n    for s in students:\n        if s['_id'] == student_id:\n            return {'status': 200, 'student': s}\n    return {'status': 404}",
+      "approach_tr": "_id ile doğrusal arama yap ve bulunamazsa 404 döndür."
+     },
+     "twin": "d29-b2-e4",
+     "hints_tr": [
+      "Listede dön ve id'leri karşılaştır.",
+      "id eşleşince hemen 200 dict'ini döndür; döngüden sonra 404 dict'ini döndür.",
+      "Son adım: students üzerinde dön ve her '_id'yi student_id ile karşılaştır; eşleşince döngü içinde 200 dict'ini, döngüden sonra 404 dict'ini döndür."
+     ]
+    },
+    {
+     "id": "d29-b2-e4",
+     "type": "write",
+     "concept": "path-parameters",
+     "tags": [
+      "api",
+      "routes",
+      "lookup"
+     ],
+     "prompt": "Write delete_student(students, student_id). Remove the student whose '_id' equals student_id from the list and return {'status': 200}. If there is no such student return {'status': 404} and leave the list unchanged.",
+     "prompt_tr": "delete_student(students, student_id) yaz. '_id' değeri student_id olan öğrenciyi listeden sil ve {'status': 200} döndür. Böyle bir öğrenci yoksa {'status': 404} döndür ve listeyi değiştirme.",
+     "starter_code": "",
+     "signature": "def delete_student(students, student_id):",
+     "tests": [
+      {
+       "code": "s = [{'_id': '1'}, {'_id': '2'}]\nassert delete_student(s, '1') == {'status': 200} and s == [{'_id': '2'}]",
+       "visible": true,
+       "label_tr": "Öğrenci siliniyor ve 200 dönüyor"
+      },
+      {
+       "code": "s = [{'_id': '1'}]\nassert delete_student(s, '5') == {'status': 404} and s == [{'_id': '1'}]",
+       "visible": true,
+       "label_tr": "Olmayan id için 404 dönüyor, liste aynı kalıyor"
+      },
+      {
+       "code": "s = []\nassert delete_student(s, '1') == {'status': 404}",
+       "visible": false,
+       "failure_message": "An empty list has no student, so the answer is 404.",
+       "failure_message_tr": "Boş listede öğrenci yoktur, yanıt 404 olur."
+      },
+      {
+       "code": "s = [{'_id': '1'}, {'_id': '2'}, {'_id': '3'}]\ndelete_student(s, '2')\nassert [d['_id'] for d in s] == ['1', '3']",
+       "visible": false,
+       "failure_message": "Only the matching student is removed; the others stay in order.",
+       "failure_message_tr": "Yalnızca eşleşen öğrenci silinir; diğerleri aynı sırayla kalır."
+      }
+     ],
+     "hints": [
+      "Look for the student like in single_student.",
+      "When found, students.remove(s) and return the 200 dict immediately.",
+      "Last step: in the same loop as single_student, call the list method that removes the matching student and return the 200 dict at once; after the loop return the 404 dict."
+     ],
+     "solution": {
+      "approach": "Find the student, remove it and answer 200, or answer 404.",
+      "code": "def delete_student(students, student_id):\n    for s in students:\n        if s['_id'] == student_id:\n            students.remove(s)\n            return {'status': 200}\n    return {'status': 404}",
+      "approach_tr": "Öğrenciyi bul, sil ve 200 yanıtı ver; yoksa 404 ver."
+     },
+     "twin": "d29-b2-e3",
+     "hints_tr": [
+      "Öğrenciyi single_student'taki gibi ara.",
+      "Bulunca students.remove(s) yap ve hemen 200 dict'ini döndür.",
+      "Son adım: single_student'taki döngünün aynısında, eşleşen öğrenciyi silen liste metodunu çağır ve hemen 200 dict'ini döndür; döngüden sonra 404 dict'ini döndür."
+     ]
+    }
+   ],
+   "concept_tr": "Yol parametreleri (path parameters)"
+  },
+  {
+   "id": "d29-b3",
+   "concept": "create-and-update",
+   "tags": [
+    "api",
+    "forms",
+    "post-put",
+    "set"
+   ],
+   "worked_example": {
+    "code": "form = {'name': 'Ada', 'skills': 'Python, SQL'}\nstudent = {'name': form['name'], 'skills': form['skills'].split(', ')}\nprint(student)",
+    "notes": [
+     "POST sends form fields; the view turns them into a document before inserting it.",
+     "A PUT must change fields, not replace the whole document; MongoDB uses $set."
+    ],
+    "notes_tr": [
+     "POST form alanlarını gönderir; view onları eklemeden önce bir dokümana çevirir.",
+     "PUT tüm dokümanı değiştirmemeli, yalnızca alanları değiştirmelidir; MongoDB bunun için $set kullanır."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d29-b3-e1",
+     "type": "predict",
+     "concept": "create-and-update",
+     "tags": [
+      "api",
+      "forms",
+      "post-put",
+      "set"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "form = {'name': 'Ada', 'skills': 'Python, SQL, Flask'}\nstudent = {'name': form['name'], 'skills': form['skills'].split(', ')}\nprint(student['skills'], len(student['skills']))",
+     "choices": [
+      "['Python', 'SQL', 'Flask'] 3",
+      "['Python, SQL, Flask'] 1",
+      "'Python, SQL, Flask' 18",
+      "['Python', 'SQL', 'Flask'] 18"
+     ],
+     "expected_output": "['Python', 'SQL', 'Flask'] 3",
+     "explanation": "split(', ') cuts the text at every comma+space, giving a list of 3 skills.",
+     "misconceptions": {
+      "['Python, SQL, Flask'] 1": "split(', ') separates at each ', ', so there are three items.",
+      "'Python, SQL, Flask' 18": "student['skills'] is the list produced by split, not the original text.",
+      "['Python', 'SQL', 'Flask'] 18": "len of the list counts items (3), not characters."
+     },
+     "explanation_tr": "split(', ') metni her virgül+boşlukta keser ve 3 becerilik bir liste verir.",
+     "misconceptions_tr": {
+      "['Python, SQL, Flask'] 1": "split(', ') her ', ' işaretinde ayırır, bu yüzden üç öğe olur.",
+      "'Python, SQL, Flask' 18": "student['skills'] özgün metin değil, split'in ürettiği listedir.",
+      "['Python', 'SQL', 'Flask'] 18": "Listenin len değeri öğeleri sayar (3), karakterleri değil."
+     }
+    },
+    {
+     "id": "d29-b3-e2",
+     "type": "fill_blank",
+     "concept": "create-and-update",
+     "tags": [
+      "api",
+      "forms",
+      "post-put",
+      "set"
+     ],
+     "prompt": "Turn the form into a student document: split the skills text into a list.",
+     "prompt_tr": "Formu bir öğrenci dokümanına çevir: beceri metnini listeye böl.",
+     "starter_code": "form = {'name': 'Ada', 'skills': 'Python, SQL'}\nskills = form['skills'].___(', ')\nstudent = {'name': form[___], 'skills': skills}",
+     "blanks": [
+      {
+       "answer": [
+        "split"
+       ]
+      },
+      {
+       "answer": [
+        "'name'"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert student == {'name': 'Ada', 'skills': ['Python', 'SQL']}",
+       "visible": true,
+       "label_tr": "Öğrenci dokümanı doğru kuruluyor"
+      }
+     ]
+    },
+    {
+     "id": "d29-b3-e3",
+     "type": "write",
+     "concept": "create-and-update",
+     "tags": [
+      "api",
+      "forms",
+      "post-put",
+      "set"
+     ],
+     "prompt": "Write build_student(form). form is a dict with the keys name, country, city, birthyear, skills (comma+space separated text) and bio. Return a dict with the same keys, where skills is a list.",
+     "prompt_tr": "build_student(form) yaz. form; name, country, city, birthyear, skills (virgül+boşlukla ayrılmış metin) ve bio anahtarlarına sahip bir dict'tir. Aynı anahtarlara sahip, ama skills'in liste olduğu bir dict döndür.",
+     "starter_code": "",
+     "signature": "def build_student(form):",
+     "tests": [
+      {
+       "code": "f = {'name': 'Ada', 'country': 'UK', 'city': 'London', 'birthyear': '1990', 'skills': 'Python, SQL', 'bio': 'Hi'}\nassert build_student(f) == {'name': 'Ada', 'country': 'UK', 'city': 'London', 'birthyear': '1990', 'skills': ['Python', 'SQL'], 'bio': 'Hi'}",
+       "visible": true,
+       "label_tr": "Altı alan doğru, beceriler liste oldu"
+      },
+      {
+       "code": "f = {'name': 'B', 'country': 'FI', 'city': 'Espoo', 'birthyear': '2000', 'skills': 'CSS', 'bio': ''}\nassert build_student(f)['skills'] == ['CSS']",
+       "visible": true,
+       "label_tr": "Tek becerili form doğru dönüşüyor"
+      },
+      {
+       "code": "f = {'name': 'C', 'country': 'x', 'city': 'y', 'birthyear': '1999', 'skills': 'a, b, c, d', 'bio': 'z'}\nassert build_student(f)['skills'] == ['a', 'b', 'c', 'd']",
+       "visible": false,
+       "failure_message": "Split on ', ' so every skill becomes its own list item.",
+       "failure_message_tr": "Her beceri ayrı bir liste öğesi olsun diye ', ' ile böl."
+      },
+      {
+       "code": "f = {'name': 'D', 'country': 'x', 'city': 'y', 'birthyear': '1999', 'skills': 'a', 'bio': 'z'}\nr = build_student(f)\nassert set(r) == {'name', 'country', 'city', 'birthyear', 'skills', 'bio'}",
+       "visible": false,
+       "failure_message": "Return exactly the six keys; do not add or drop any.",
+       "failure_message_tr": "Tam olarak altı anahtar döndür; ekleme ya da çıkarma yapma."
+      }
+     ],
+     "hints": [
+      "Copy most fields and convert only one.",
+      "dict(form) copies the form; then replace the 'skills' value with the split list. Or build the dict by hand.",
+      "Last step: make a copy of form, then assign to its 'skills' key the result of splitting the original skills text on a comma and a space, and return the copy."
+     ],
+     "solution": {
+      "approach": "Copy the form and turn the skills text into a list.",
+      "code": "def build_student(form):\n    student = dict(form)\n    student['skills'] = form['skills'].split(', ')\n    return student",
+      "approach_tr": "Formu kopyala ve beceri metnini listeye çevir."
+     },
+     "twin": "d29-b3-e4",
+     "hints_tr": [
+      "Alanların çoğunu kopyala, yalnızca birini dönüştür.",
+      "dict(form) formu kopyalar; sonra 'skills' değerini bölünmüş listeyle değiştir. Ya da dict'i elle kur.",
+      "Son adım: form'un bir kopyasını yap, 'skills' anahtarına özgün beceri metnini virgül ve boşluktan bölmenin sonucunu ata ve kopyayı döndür."
+     ]
+    },
+    {
+     "id": "d29-b3-e4",
+     "type": "write",
+     "concept": "create-and-update",
+     "tags": [
+      "api",
+      "forms",
+      "post-put",
+      "set"
+     ],
+     "prompt": "Write build_book(form). form is a dict with the keys title, authors (comma+space separated text) and year. Return a dict with the same keys, where authors is a list.",
+     "prompt_tr": "build_book(form) yaz. form; title, authors (virgül+boşlukla ayrılmış metin) ve year anahtarlarına sahip bir dict'tir. Aynı anahtarlara sahip, ama authors'ın liste olduğu bir dict döndür.",
+     "starter_code": "",
+     "signature": "def build_book(form):",
+     "tests": [
+      {
+       "code": "assert build_book({'title': 'Dune', 'authors': 'Frank Herbert', 'year': '1965'}) == {'title': 'Dune', 'authors': ['Frank Herbert'], 'year': '1965'}",
+       "visible": true,
+       "label_tr": "Tek yazarlı kitap doğru dönüşüyor"
+      },
+      {
+       "code": "assert build_book({'title': 'X', 'authors': 'A, B', 'year': '2000'})['authors'] == ['A', 'B']",
+       "visible": true,
+       "label_tr": "İki yazar iki liste öğesi oluyor"
+      },
+      {
+       "code": "assert build_book({'title': 'T', 'authors': 'a, b, c', 'year': '1'})['authors'] == ['a', 'b', 'c']",
+       "visible": false,
+       "failure_message": "Split on ', ' so every author becomes its own list item.",
+       "failure_message_tr": "Her yazar ayrı bir liste öğesi olsun diye ', ' ile böl."
+      },
+      {
+       "code": "r = build_book({'title': 'T', 'authors': 'a', 'year': '1'})\nassert set(r) == {'title', 'authors', 'year'}",
+       "visible": false,
+       "failure_message": "Return exactly the three keys; do not add or drop any.",
+       "failure_message_tr": "Tam olarak üç anahtar döndür; ekleme ya da çıkarma yapma."
+      }
+     ],
+     "hints": [
+      "Same idea as build_student.",
+      "Copy the form, then replace the 'authors' value by its split list.",
+      "Last step: copy form, assign to its 'authors' key the split of the original authors text on a comma and a space, and return the copy."
+     ],
+     "solution": {
+      "approach": "Copy the form and split the authors text.",
+      "code": "def build_book(form):\n    book = dict(form)\n    book['authors'] = form['authors'].split(', ')\n    return book",
+      "approach_tr": "Formu kopyala ve yazar metnini böl."
+     },
+     "twin": "d29-b3-e3",
+     "hints_tr": [
+      "build_student ile aynı fikir.",
+      "Formu kopyala, sonra 'authors' değerini bölünmüş listeyle değiştir.",
+      "Son adım: form'u kopyala, 'authors' anahtarına özgün yazar metnini virgül ve boşluktan bölmenin sonucunu ata ve kopyayı döndür."
+     ]
+    },
+    {
+     "id": "d29-b3-e5",
+     "type": "debug",
+     "concept": "create-and-update",
+     "tags": [
+      "api",
+      "forms",
+      "post-put",
+      "set"
+     ],
+     "prompt": "The age should change to 38 while the other fields stay, but the whole student is replaced. Fix it (this is why MongoDB needs $set).",
+     "prompt_tr": "Yaş 38 olmalı ve diğer alanlar kalmalı, ama bütün öğrenci kaydı değiştiriliyor. Düzelt (MongoDB'nin $set'e neden ihtiyaç duyduğu budur).",
+     "starter_code": "student = {'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nchanges = {'age': 38}\nstudent = changes\nprint(student)",
+     "hints": [
+      "Print student after the assignment. What is left of the name?",
+      "student = changes throws the old dict away. You want to merge the new values INTO it.",
+      "Last step: replace the assignment line by a call to the dict method that merges another dict into it."
+     ],
+     "solution": {
+      "approach": "Merge the changes into the existing dict (like $set) instead of replacing it.",
+      "code": "student = {'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nchanges = {'age': 38}\nstudent.update(changes)\nprint(student)",
+      "approach_tr": "Kaydı değiştirmek yerine değişiklikleri mevcut dict'e birleştir ($set gibi)."
+     },
+     "expected_output": "{'name': 'Asabeneh', 'country': 'Finland', 'age': 38}",
+     "hints_tr": [
+      "Atamadan sonra student'ı yazdır. Addan geriye ne kaldı?",
+      "student = changes eski dict'i atar. Yeni değerleri onun İÇİNE birleştirmek istiyorsun.",
+      "Son adım: atama satırını, başka bir dict'i içine birleştiren dict metodunun çağrısıyla değiştir."
+     ]
+    }
+   ],
+   "concept_tr": "Oluşturma (POST) ve güncelleme (PUT)"
+  }
+ ],
+ "review_pool": [
+  "d29-b1-e1",
+  "d29-b1-e3",
+  "d29-b2-e1",
+  "d29-b2-e3",
+  "d29-b3-e1",
+  "d29-b3-e3"
+ ],
+ "title_tr": "API Geliştirme"
+}

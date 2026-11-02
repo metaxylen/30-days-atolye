@@ -1,0 +1,228 @@
+{
+  "part": 2,
+  "title_tr": "Hasan Amca'nın Bakkal Defteri",
+  "story_tr": "Hasan Amca'nın kalın stok defteri bir çay bardağının altında kaldı ve okunmaz oldu. Mahalle bakkalının sözlüklerle tutulan stoğunu ve fiyatlarını bilgisayara geçirmek sana kaldı.\nKoşullar, döngüler, fonksiyonlar ve modüllerle azalan ürünleri bul, satış yap, sepeti indirimle hesapla ve tedarikçiye kasa siparişi hazırla.",
+  "reward_xp": 300,
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string __stdout__; the learner source is __source__. Boss stages are cumulative: each stage's starter_code is the previous stage's solution plus a comment marking where to add. Tests may call the learner's functions with brand-new inputs, may re-run __source__ with some top-level input lines replaced, and may create/remove their own files with open(). Hidden tests (visible:false) carry failure_message and failure_message_tr; tests with anti_hardcode:true fail on code that only prints or assigns the expected values.",
+  "stages": [
+    {
+      "id": "boss2-s1",
+      "title_tr": "Azalan ürünler",
+      "prompt_tr": "Hasan Amca'nın defteri kayboldu; elinde yalnızca `stock` (ürün: adet) ve `prices` (ürün: fiyat) sözlükleri var.\n`low_stock(stock, limit=10)` fonksiyonunu yaz: adedi `limit`'ten KÜÇÜK olan ürünlerin adlarını alfabetik sıralı bir liste olarak döndürsün. Sözlüğü değiştirmesin.\nSonra `print(low_stock(stock))` ile sonucu yazdır.",
+      "prompt": "Uncle Hasan's ledger is lost; you only have `stock` (item: quantity) and `prices` (item: price).\nWrite `low_stock(stock, limit=10)`: return the names of items whose quantity is LESS than `limit` as an alphabetically sorted list. It must not change the dictionary.\nThen print `low_stock(stock)`.",
+      "starter_code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert low_stock(stock) == [\"çay\", \"şeker\"]",
+          "visible": true,
+          "failure_message": "low_stock(stock) should be ['çay', 'şeker'].",
+          "failure_message_tr": "low_stock(stock) ['çay', 'şeker'] döndürmeli.",
+          "label_tr": "Varsayılan limitle azalanlar"
+        },
+        {
+          "code": "assert \"['çay', 'şeker']\" in __stdout__",
+          "visible": true,
+          "failure_message": "Print low_stock(stock).",
+          "failure_message_tr": "low_stock(stock) sonucunu yazdırmalısın.",
+          "label_tr": "Sonuç yazdırılıyor"
+        },
+        {
+          "code": "d = {\"b\": 1, \"a\": 9, \"c\": 50, \"d\": 10}\nassert low_stock(d) == [\"a\", \"b\"]\nassert low_stock(d, limit=11) == [\"a\", \"b\", \"d\"]\nassert low_stock(d, limit=1) == []\nassert d == {\"b\": 1, \"a\": 9, \"c\": 50, \"d\": 10}",
+          "visible": false,
+          "failure_message": "The limit is exclusive, limit is a parameter, the result is sorted and the dict is unchanged.",
+          "failure_message_tr": "Limit dahil değil (<), limit parametre olmalı, sonuç sıralı olmalı ve sözlük değişmemeli."
+        },
+        {
+          "code": "assert low_stock({}) == []\nassert low_stock({\"x\": 0, \"y\": 0}, 5) == [\"x\", \"y\"]",
+          "visible": false,
+          "failure_message": "Handle an empty dict and zero quantities.",
+          "failure_message_tr": "Boş sözlüğü ve sıfır adetleri de işle.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "`.items()` gives you each key and value together.",
+        "Loop over the items with `for`, compare the quantity to the limit with `if`, collect the matches in a list.",
+        "Start with an empty list before the loop, `append` matching names, return `sorted(...)` at the end. Make limit a default parameter."
+      ],
+      "hints_tr": [
+        "Sözlüğün hem anahtarına hem değerine aynı anda bakmak için `.items()` var.",
+        "Bir `for` döngüsüyle her ürünü dolaş, `if` ile adedi limitle karşılaştır, uyanları bir listede topla.",
+        "Listeyi döngüden önce boş kur, uyan ürün adını `append` et, sonda `sorted(...)` döndür. Limiti varsayılan parametre yap."
+      ],
+      "solution": {
+        "code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n\ndef low_stock(stock, limit=10):\n    names = []\n    for name, qty in stock.items():\n        if qty < limit:\n            names.append(name)\n    return sorted(names)\n\nprint(low_stock(stock))\n",
+        "approach_tr": "`.items()` ile dolaş, `qty < limit` olanları listeye ekle, sıralı döndür. Orijinal sözlüğe hiç yazmadığın için değişmez."
+      }
+    },
+    {
+      "id": "boss2-s2",
+      "title_tr": "Satış yap",
+      "prompt_tr": "Şimdi satış fonksiyonu. `sell(stock, item, qty)` yaz:\n- ürün stokta yoksa, ya da `qty` 0 veya negatifse, ya da stoktan fazlaysa: hiçbir şeyi değiştirme ve `False` döndür\n- aksi halde stoktan `qty` kadar düş ve `True` döndür\nSözlük fonksiyonun içinde yerinde değişmeli (yeni sözlük döndürme). Sonda `print(sell(stock, \"simit\", 1))` çalıştır (bu çağrı `False` yazdırır, stoğu bozmaz).",
+      "prompt": "Now the selling function. Write `sell(stock, item, qty)`:\n- if the item is not in stock, or `qty` is 0 or negative, or `qty` is more than what is in stock: change nothing and return `False`\n- otherwise subtract `qty` from the stock and return `True`\nThe dictionary must be changed in place inside the function (do not return a new dict). At the end run `print(sell(stock, \"simit\", 1))` (prints `False`, leaves stock untouched).",
+      "starter_code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n\ndef low_stock(stock, limit=10):\n    names = []\n    for name, qty in stock.items():\n        if qty < limit:\n            names.append(name)\n    return sorted(names)\n\nprint(low_stock(stock))\n\n# --- Aşama 2: Satış yap (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "d = {\"ekmek\": 5}\nassert sell(d, \"ekmek\", 2) is True\nassert d == {\"ekmek\": 3}",
+          "visible": true,
+          "failure_message": "A valid sale returns True and lowers the stock in place.",
+          "failure_message_tr": "Geçerli satış True döndürmeli ve stoğu yerinde düşürmeli.",
+          "label_tr": "Geçerli satış stoğu düşürür"
+        },
+        {
+          "code": "d = {\"ekmek\": 5}\nassert sell(d, \"simit\", 1) is False\nassert sell(d, \"ekmek\", 6) is False\nassert d == {\"ekmek\": 5}",
+          "visible": true,
+          "failure_message": "Unknown items and too-large quantities return False and change nothing.",
+          "failure_message_tr": "Olmayan ürün ve fazla adet False döndürmeli, stoğa dokunmamalı.",
+          "label_tr": "Geçersiz satış reddedilir"
+        },
+        {
+          "code": "d = {\"a\": 3}\nassert sell(d, \"a\", 0) is False and sell(d, \"a\", -2) is False\nassert d == {\"a\": 3}\nassert sell(d, \"a\", 3) is True and d == {\"a\": 0}\nassert sell(d, \"a\", 1) is False",
+          "visible": false,
+          "failure_message": "Zero/negative quantities are rejected; selling exactly what is left is allowed.",
+          "failure_message_tr": "0 ve negatif adet reddedilmeli; kalan kadarını satmak serbest olmalı."
+        },
+        {
+          "code": "assert stock == {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nassert __stdout__.splitlines()[-1] == \"False\"",
+          "visible": false,
+          "failure_message": "Run print(sell(stock, 'simit', 1)) last; the shared stock must stay untouched.",
+          "failure_message_tr": "Sonda print(sell(stock, \"simit\", 1)) çalıştır; ortak stok bozulmamalı."
+        },
+        {
+          "code": "d = {\"x\": 10, \"y\": 1}\nresults = [sell(d, \"x\", 4), sell(d, \"x\", 4), sell(d, \"x\", 4), sell(d, \"y\", 1)]\nassert results == [True, True, False, True]\nassert d == {\"x\": 2, \"y\": 0}",
+          "visible": false,
+          "failure_message": "Repeated sales must keep using the updated stock.",
+          "failure_message_tr": "Ardışık satışlar güncel stoğu kullanmalı.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Handle the bad cases first with early `return False`.",
+        "Three invalid cases: item not in the dict, quantity 0 or negative, quantity above stock. Any of them means False.",
+        "If valid: `stock[item] -= qty` and `return True`. The function mutates `stock`; it does not build a new dict."
+      ],
+      "hints_tr": [
+        "Önce hatalı durumları ele: `if` ile erken `return False`.",
+        "Üç geçersizlik var: ürün sözlükte yok, adet 0 veya eksi, adet stoktan fazla. Bunlardan biri varsa False.",
+        "Geçerliyse `stock[item] -= qty` ve `return True`. Fonksiyonun kendisi `stock`'u değiştirir, yeni sözlük üretmez."
+      ],
+      "solution": {
+        "code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n\ndef low_stock(stock, limit=10):\n    names = []\n    for name, qty in stock.items():\n        if qty < limit:\n            names.append(name)\n    return sorted(names)\n\nprint(low_stock(stock))\n\ndef sell(stock, item, qty):\n    if item not in stock:\n        return False\n    if qty <= 0 or qty > stock[item]:\n        return False\n    stock[item] -= qty\n    return True\n\nprint(sell(stock, \"simit\", 1))\n",
+        "approach_tr": "Önce korumalı çıkışlar (`return False`), sonra asıl iş. Sözlük değiştirilebilir bir nesne olduğu için fonksiyon içindeki `-=` dışarıdaki sözlüğü de değiştirir."
+      }
+    },
+    {
+      "id": "boss2-s3",
+      "title_tr": "Sepet toplamı ve indirim",
+      "prompt_tr": "Kasaya sepet toplamı lazım. `basket_total(basket, prices)` yaz; `basket` `[(\"ekmek\", 2), (\"süt\", 1)]` gibi (ürün, adet) çiftlerinden oluşan bir liste.\n- Her ürünün fiyatını `prices` sözlüğünden alıp adetle çarp ve topla. Fiyat listesinde olmayan ürünleri atla.\n- Toplam 200 TL'den BÜYÜKSE %20, 100 TL'den BÜYÜKSE %10 indirim uygula (`if / elif`). Tam 100 ya da tam 200 indirimsizdir/alt kademedir.\n- Sonucu `round(..., 2)` ile döndür. Sonda `print(basket_total([(\"ekmek\", 2), (\"süt\", 1)], prices))` yazdır.",
+      "prompt": "The till needs a basket total. Write `basket_total(basket, prices)`; `basket` is a list of (item, quantity) pairs like `[(\"ekmek\", 2), (\"süt\", 1)]`.\n- Multiply each item's price from `prices` by the quantity and add up. Skip items that are not in the price list.\n- If the total is GREATER than 200 TL apply a 20% discount, if GREATER than 100 TL apply 10% (`if / elif`). Exactly 100 gets no discount; exactly 200 gets the 10% tier.\n- Return the result with `round(..., 2)`. At the end print `basket_total([(\"ekmek\", 2), (\"süt\", 1)], prices)`.",
+      "starter_code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n\ndef low_stock(stock, limit=10):\n    names = []\n    for name, qty in stock.items():\n        if qty < limit:\n            names.append(name)\n    return sorted(names)\n\nprint(low_stock(stock))\n\ndef sell(stock, item, qty):\n    if item not in stock:\n        return False\n    if qty <= 0 or qty > stock[item]:\n        return False\n    stock[item] -= qty\n    return True\n\nprint(sell(stock, \"simit\", 1))\n\n# --- Aşama 3: Sepet toplamı ve indirim (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert basket_total([(\"ekmek\", 2), (\"süt\", 1)], prices) == 50",
+          "visible": true,
+          "failure_message": "2 ekmek + 1 süt = 50 TL, no discount.",
+          "failure_message_tr": "2 ekmek + 1 süt = 50 TL, indirim yok.",
+          "label_tr": "Küçük sepet, indirimsiz"
+        },
+        {
+          "code": "assert basket_total([(\"çay\", 1), (\"süt\", 1)], prices) == 108.0\nassert basket_total([(\"çay\", 3), (\"şeker\", 1)], prices) == 248.0",
+          "visible": true,
+          "failure_message": "120 TL -> 108.0 (10%), 310 TL -> 248.0 (20%).",
+          "failure_message_tr": "120 TL -> 108.0 (%10), 310 TL -> 248.0 (%20) olmalı.",
+          "label_tr": "İndirim kademeleri"
+        },
+        {
+          "code": "assert basket_total([(\"çay\", 1), (\"ekmek\", 1)], prices) == 100\nassert basket_total([(\"çay\", 2), (\"ekmek\", 2)], prices) == 180.0",
+          "visible": false,
+          "failure_message": "Boundaries: exactly 100 -> no discount, exactly 200 -> 10% tier.",
+          "failure_message_tr": "Sınırlar: tam 100 indirimsiz, tam 200 %10 kademesinde."
+        },
+        {
+          "code": "assert basket_total([(\"simit\", 5), (\"ekmek\", 1)], prices) == 10\nassert basket_total([], prices) == 0",
+          "visible": false,
+          "failure_message": "Unknown items are skipped; an empty basket is 0.",
+          "failure_message_tr": "Bilinmeyen ürünler atlanmalı; boş sepet 0 olmalı."
+        },
+        {
+          "code": "p = {\"a\": 7, \"b\": 49.5}\nassert basket_total([(\"a\", 3), (\"b\", 1), (\"a\", 1)], p) == 77.5\nassert basket_total([(\"b\", 3)], p) == 133.65\nassert basket_total([(\"b\", 5)], p) == 198.0\nassert basket_total([(\"b\", 6), (\"a\", 1)], p) == 243.2",
+          "visible": false,
+          "failure_message": "Use the prices dict that is passed in, and the same item may appear twice.",
+          "failure_message_tr": "Parametre olarak gelen fiyat sözlüğünü kullan; aynı ürün iki kez gelebilir.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Two jobs: accumulate the total first, apply the discount after the total is known.",
+        "Unpack each `(item, qty)` pair with `for item, qty in basket:`. Check membership in the price dict with `in`.",
+        "Check the bigger threshold first: `if total > 200 ... elif total > 100 ...`. Return `round(total, 2)`."
+      ],
+      "hints_tr": [
+        "İki iş var: önce toplamı biriktir, sonra indirimi uygula. İndirim toplam bilindikten sonra gelir.",
+        "Sepetteki her `(ürün, adet)` çiftini `for ürün, adet in sepet:` ile aç. `in` ile fiyat sözlüğünde var mı diye bak.",
+        "İndirim için büyük eşiği önce kontrol et: `if total > 200 ... elif total > 100 ...`. Sonda `round(total, 2)` döndür."
+      ],
+      "solution": {
+        "code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n\ndef low_stock(stock, limit=10):\n    names = []\n    for name, qty in stock.items():\n        if qty < limit:\n            names.append(name)\n    return sorted(names)\n\nprint(low_stock(stock))\n\ndef sell(stock, item, qty):\n    if item not in stock:\n        return False\n    if qty <= 0 or qty > stock[item]:\n        return False\n    stock[item] -= qty\n    return True\n\nprint(sell(stock, \"simit\", 1))\n\ndef basket_total(basket, prices):\n    total = 0\n    for item, qty in basket:\n        if item in prices:\n            total += prices[item] * qty\n    if total > 200:\n        total = total * 0.80\n    elif total > 100:\n        total = total * 0.90\n    return round(total, 2)\n\nprint(basket_total([(\"ekmek\", 2), (\"süt\", 1)], prices))\n",
+        "approach_tr": "Döngüyle toplamı biriktir; indirim kademelerini `if/elif` ile büyükten küçüğe kontrol et. Büyük eşik önce gelmezse 300 TL'lik sepete yanlışlıkla %10 uygularsın."
+      }
+    },
+    {
+      "id": "boss2-s4",
+      "title_tr": "Kasa siparişi (math modülü)",
+      "prompt_tr": "Tedarikçi ürünleri kasayla gönderiyor (varsayılan kasa = 6 adet). `math` modülünü içe aktar ve şunları yaz:\n- `crates_needed(qty, per_crate=6)`: `qty` adedi için gereken kasa sayısı, yukarı yuvarlanmış (`math.ceil`). 0 adet için 0 kasa.\n- `order_plan(stock, limit=10, target=24, per_crate=6)`: `low_stock` ile azalan ürünleri bul; her biri için stoğu `target`'a çıkarmak üzere eksik adedi hesapla ve `crates_needed` ile `{ürün: kasa}` sözlüğü döndür.\nSonda `print(order_plan(stock))` çalıştır.",
+      "prompt": "The supplier ships in crates (default crate = 6 pieces). Import the `math` module and write:\n- `crates_needed(qty, per_crate=6)`: crates required for `qty` pieces, rounded UP (`math.ceil`). 0 pieces need 0 crates.\n- `order_plan(stock, limit=10, target=24, per_crate=6)`: use `low_stock` to find the low items; for each, compute the missing amount to bring stock up to `target` and return a `{item: crates}` dict using `crates_needed`.\nAt the end run `print(order_plan(stock))`.",
+      "starter_code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n\ndef low_stock(stock, limit=10):\n    names = []\n    for name, qty in stock.items():\n        if qty < limit:\n            names.append(name)\n    return sorted(names)\n\nprint(low_stock(stock))\n\ndef sell(stock, item, qty):\n    if item not in stock:\n        return False\n    if qty <= 0 or qty > stock[item]:\n        return False\n    stock[item] -= qty\n    return True\n\nprint(sell(stock, \"simit\", 1))\n\ndef basket_total(basket, prices):\n    total = 0\n    for item, qty in basket:\n        if item in prices:\n            total += prices[item] * qty\n    if total > 200:\n        total = total * 0.80\n    elif total > 100:\n        total = total * 0.90\n    return round(total, 2)\n\nprint(basket_total([(\"ekmek\", 2), (\"süt\", 1)], prices))\n\n# --- Aşama 4: Kasa siparişi (math modülü) (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "assert crates_needed(13) == 3 and crates_needed(12) == 2 and crates_needed(0) == 0",
+          "visible": true,
+          "failure_message": "13 pieces -> 3 crates, 12 -> 2, 0 -> 0.",
+          "failure_message_tr": "13 adet -> 3 kasa, 12 -> 2, 0 -> 0 olmalı.",
+          "label_tr": "Kasa sayısı yukarı yuvarlanır"
+        },
+        {
+          "code": "assert order_plan(stock) == {\"çay\": 4, \"şeker\": 3}",
+          "visible": true,
+          "failure_message": "order_plan(stock) should be {'çay': 4, 'şeker': 3}.",
+          "failure_message_tr": "order_plan(stock) {'çay': 4, 'şeker': 3} olmalı.",
+          "label_tr": "Varsayılan sipariş planı"
+        },
+        {
+          "code": "assert \"{'çay': 4, 'şeker': 3}\" in __stdout__",
+          "visible": false,
+          "failure_message": "Print order_plan(stock).",
+          "failure_message_tr": "order_plan(stock) sonucunu yazdırmalısın."
+        },
+        {
+          "code": "s = {\"a\": 1, \"b\": 20, \"c\": 23, \"d\": 0}\nassert order_plan(s) == {\"a\": 4, \"d\": 4}\nassert order_plan(s, limit=24, target=30, per_crate=5) == {\"a\": 6, \"b\": 2, \"c\": 2, \"d\": 6}\nassert crates_needed(7, per_crate=3) == 3",
+          "visible": false,
+          "failure_message": "Every parameter (limit, target, per_crate) must be honoured.",
+          "failure_message_tr": "limit, target ve per_crate parametrelerinin hepsi kullanılmalı.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\n_imp = any(isinstance(n, ast.Import) and any(a.name == \"math\" for a in n.names) or isinstance(n, ast.ImportFrom) and n.module == \"math\" for n in ast.walk(_t))\nassert _imp\nassert \"// \" not in __source__.split(\"def crates_needed\")[1].split(\"def order_plan\")[0]",
+          "visible": false,
+          "failure_message": "Import and use the math module for the rounding (no manual // tricks).",
+          "failure_message_tr": "Yuvarlama için math modülünü içe aktar ve kullan (elle // numarası yok).",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Rounding up is not `round`; there is a function in the `math` module for it.",
+        "`import math`, then `math.ceil(number)` rounds up. Divide with `/`.",
+        "Inside `order_plan` get the items from `low_stock(...)`, compute `target - stock[item]` for each and pass it to `crates_needed`."
+      ],
+      "hints_tr": [
+        "Yukarı yuvarlama için `round` değil, `math` modülündeki bir fonksiyon gerekiyor.",
+        "`import math` ile içe aktar; `math.ceil(sayı)` küsuratı yukarı yuvarlar. Bölmeyi `/` ile yap.",
+        "`order_plan` içinde önce `low_stock(...)` ile ürünleri al, her biri için `target - stock[ürün]` eksiğini bulup `crates_needed`'e ver."
+      ],
+      "solution": {
+        "code": "# Hasan Amca'nın bakkalı: stok ve fiyat defteri. Bu iki sözlüğe dokunma.\nstock = {\"ekmek\": 20, \"süt\": 12, \"yumurta\": 30, \"çay\": 5, \"şeker\": 8}\nprices = {\"ekmek\": 10, \"süt\": 30, \"yumurta\": 5, \"çay\": 90, \"şeker\": 40}\n\n# --- Aşama 1: Azalan ürünler (buraya ekle) ---\n\ndef low_stock(stock, limit=10):\n    names = []\n    for name, qty in stock.items():\n        if qty < limit:\n            names.append(name)\n    return sorted(names)\n\nprint(low_stock(stock))\n\ndef sell(stock, item, qty):\n    if item not in stock:\n        return False\n    if qty <= 0 or qty > stock[item]:\n        return False\n    stock[item] -= qty\n    return True\n\nprint(sell(stock, \"simit\", 1))\n\ndef basket_total(basket, prices):\n    total = 0\n    for item, qty in basket:\n        if item in prices:\n            total += prices[item] * qty\n    if total > 200:\n        total = total * 0.80\n    elif total > 100:\n        total = total * 0.90\n    return round(total, 2)\n\nprint(basket_total([(\"ekmek\", 2), (\"süt\", 1)], prices))\n\nimport math\n\ndef crates_needed(qty, per_crate=6):\n    return math.ceil(qty / per_crate)\n\ndef order_plan(stock, limit=10, target=24, per_crate=6):\n    plan = {}\n    for name in low_stock(stock, limit):\n        missing = target - stock[name]\n        plan[name] = crates_needed(missing, per_crate)\n    return plan\n\nprint(order_plan(stock))\n",
+        "approach_tr": "Kasa hesabı `math.ceil(qty / per_crate)`. `order_plan` önceki aşamadaki `low_stock`'u yeniden kullanır; böylece aynı mantık iki yerde yazılmaz."
+      }
+    }
+  ]
+}

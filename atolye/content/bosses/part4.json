@@ -1,0 +1,231 @@
+{
+  "part": 4,
+  "title_tr": "Kütüphanenin Ödünç Sistemi",
+  "story_tr": "Mahalle kütüphanesinin eski defteri dağıldı ve gönüllü kütüphaneci senden yardım istiyor. Kitaplar, üyeler ve ödünçler için nesne tabanlı bir sistem kuracaksın.\nSınıflar ve kalıtımla kitap ve kütüphaneyi modelle, durumu metin dosyasına kaydedip geri yükle, sonra kütüphanenin \"yeni gelenler\" sayfasının ham metninden kitapları ayıkla.",
+  "reward_xp": 300,
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string __stdout__; the learner source is __source__. Boss stages are cumulative: each stage's starter_code is the previous stage's solution plus a comment marking where to add. Tests may call the learner's functions with brand-new inputs, may re-run __source__ with some top-level input lines replaced, and may create/remove their own files with open(). Hidden tests (visible:false) carry failure_message and failure_message_tr; tests with anti_hardcode:true fail on code that only prints or assigns the expected values.",
+  "stages": [
+    {
+      "id": "boss4-s1",
+      "title_tr": "Book sınıfı",
+      "prompt_tr": "Mahalle kütüphanesinin defteri dağıldı; ödünç sistemini nesnelerle yeniden kuruyoruz. Önce kitabın kendisi.\n`Book` sınıfını yaz:\n- `__init__(self, isbn, title, author)`: üç değeri sakla; `available` özelliği başta `True`\n- `borrow()`: kitap rafta ise `available`'ı `False` yapıp `True` döndür; zaten ödünçteyse hiçbir şey yapmadan `False` döndür\n- `give_back()`: `available`'ı `True` yap\n- `__str__`: raftaysa `Sefiller - Hugo (rafta)`, ödünçteyse `Sefiller - Hugo (ödünçte)` biçiminde metin",
+      "prompt": "The neighbourhood library's ledger fell apart; we rebuild the lending system with objects. First, the book itself.\nWrite the `Book` class:\n- `__init__(self, isbn, title, author)`: store the three values; `available` starts as `True`\n- `borrow()`: if on the shelf set `available` to `False` and return `True`; if already out, do nothing and return `False`\n- `give_back()`: set `available` to `True`\n- `__str__`: `Sefiller - Hugo (rafta)` when on the shelf, `Sefiller - Hugo (ödünçte)` when out",
+      "starter_code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "b = Book(\"1\", \"Sefiller\", \"Hugo\")\nassert (b.isbn, b.title, b.author, b.available) == (\"1\", \"Sefiller\", \"Hugo\", True)\nassert str(b) == \"Sefiller - Hugo (rafta)\"",
+          "visible": true,
+          "failure_message": "A new Book keeps its data, is available, and prints as 'Sefiller - Hugo (rafta)'.",
+          "failure_message_tr": "Yeni Book verisini saklamalı, rafta olmalı ve 'Sefiller - Hugo (rafta)' yazmalı.",
+          "label_tr": "Yeni kitap rafta"
+        },
+        {
+          "code": "b = Book(\"1\", \"Sefiller\", \"Hugo\")\nassert b.borrow() is True and b.available is False\nassert b.borrow() is False\nassert str(b) == \"Sefiller - Hugo (ödünçte)\"",
+          "visible": true,
+          "failure_message": "Borrowing works once; a second borrow returns False.",
+          "failure_message_tr": "Ödünç alma bir kez çalışmalı; ikincisi False vermeli.",
+          "label_tr": "Ödünç alma bir kez çalışır"
+        },
+        {
+          "code": "a, c = Book(\"1\", \"A\", \"x\"), Book(\"2\", \"C\", \"y\")\na.borrow()\nassert c.available is True and c.borrow() is True\na.give_back()\nassert a.available is True and a.borrow() is True",
+          "visible": false,
+          "failure_message": "Each Book has its own state; give_back puts it on the shelf again.",
+          "failure_message_tr": "Her Book'un kendi durumu olmalı; give_back kitabı rafa koymalı.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "b = Book(\"77\", \"Kürk Mantolu Madonna\", \"Sabahattin Ali\")\nassert str(b) == \"Kürk Mantolu Madonna - Sabahattin Ali (rafta)\"\nb.borrow(); b.give_back()\nassert str(b).endswith(\"(rafta)\")",
+          "visible": false,
+          "failure_message": "Do not hard-code the text; build it from the title and author.",
+          "failure_message_tr": "Metni elle yazma; başlık ve yazardan üret.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "A class starts with `__init__`: bind the data to the object with `self.attribute = value`.",
+        "`available` is a flag: `borrow` checks it first, returns `False` if the book is out, otherwise flips the flag.",
+        "`__str__` must return text (not print it). Pick the status text from the flag: \"rafta\" when available, else \"ödünçte\"."
+      ],
+      "hints_tr": [
+        "Bir sınıfın ilk işi `__init__`: verileri `self.özellik = değer` ile nesneye bağla.",
+        "`available` bir bayrak: `borrow` önce bayrağa bakar, rafta değilse `False` döndürüp çıkar; rafta ise bayrağı çevirir.",
+        "`__str__` metin döndürmeli (yazdırmamalı). Durum metnini bayrağa göre seç: raftaysa \"rafta\", değilse \"ödünçte\"."
+      ],
+      "solution": {
+        "code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n\nclass Book:\n    def __init__(self, isbn, title, author):\n        self.isbn = isbn\n        self.title = title\n        self.author = author\n        self.available = True\n\n    def borrow(self):\n        if not self.available:\n            return False\n        self.available = False\n        return True\n\n    def give_back(self):\n        self.available = True\n\n    def __str__(self):\n        status = \"rafta\" if self.available else \"ödünçte\"\n        return f\"{self.title} - {self.author} ({status})\"\n",
+        "approach_tr": "Her nesne kendi `available` bayrağını taşır; metotlar `self` üzerinden o bayrağı okur ve değiştirir. `__str__` yazdırmaz, metin döndürür."
+      }
+    },
+    {
+      "id": "boss4-s2",
+      "title_tr": "Kalıtım ve Library",
+      "prompt_tr": "Şimdi kütüphanenin kendisi.\n- `ReferenceBook`: `Book`'tan türesin (kalıtım) ve ödünç ALINAMASIN: `borrow()` her zaman `False` döndürsün (ansiklopediler yalnız okunur).\n- `Library` sınıfı: `__init__(self, loan_limit=2)` ile `self.books` (isbn -> kitap sözlüğü), `self.loans` (üye adı -> ödünç alınan isbn listesi) ve `self.loan_limit` kursun.\n- `add_book(book)`: kitabı isbn anahtarıyla ekle.\n- `checkout(member, isbn)`: kitap yoksa, üyenin limiti dolmuşsa ya da kitap ödünç alınamıyorsa `False`; aksi halde kitabı ödünç al, üyenin listesine isbn'yi ekle, `True` döndür. Başarısız denemeler hiçbir şeyi değiştirmemeli.\n- `return_book(member, isbn)`: üye o kitabı gerçekten almışsa iade al (`give_back`, listeden çıkar) ve `True`; değilse `False`.",
+      "prompt": "Now the library itself.\n- `ReferenceBook`: inherits from `Book` and CANNOT be borrowed: `borrow()` always returns `False` (encyclopedias are read-only).\n- `Library` class: `__init__(self, loan_limit=2)` sets `self.books` (isbn -> book dict), `self.loans` (member name -> list of borrowed isbns) and `self.loan_limit`.\n- `add_book(book)`: store the book by its isbn.\n- `checkout(member, isbn)`: `False` if the book does not exist, the member reached the limit, or the book cannot be borrowed; otherwise borrow it, add the isbn to the member's list, return `True`. Failed attempts must change nothing.\n- `return_book(member, isbn)`: if the member really borrowed that book, take it back (`give_back`, remove from the list) and return `True`; otherwise `False`.",
+      "starter_code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n\nclass Book:\n    def __init__(self, isbn, title, author):\n        self.isbn = isbn\n        self.title = title\n        self.author = author\n        self.available = True\n\n    def borrow(self):\n        if not self.available:\n            return False\n        self.available = False\n        return True\n\n    def give_back(self):\n        self.available = True\n\n    def __str__(self):\n        status = \"rafta\" if self.available else \"ödünçte\"\n        return f\"{self.title} - {self.author} ({status})\"\n\n# --- Aşama 2: Kalıtım ve Library (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "r = ReferenceBook(\"9\", \"Ansiklopedi\", \"Kolektif\")\nassert isinstance(r, Book) and r.borrow() is False and r.available is True\nassert str(r) == \"Ansiklopedi - Kolektif (rafta)\"",
+          "visible": true,
+          "failure_message": "ReferenceBook inherits from Book but can never be borrowed.",
+          "failure_message_tr": "ReferenceBook, Book'tan türemeli ama asla ödünç alınamamalı.",
+          "label_tr": "ReferenceBook ödünç alınamaz"
+        },
+        {
+          "code": "lib = Library()\nlib.add_book(Book(\"1\", \"A\", \"x\")); lib.add_book(Book(\"2\", \"B\", \"y\")); lib.add_book(ReferenceBook(\"3\", \"R\", \"z\")); lib.add_book(Book(\"4\", \"D\", \"w\"))\nassert lib.checkout(\"ayşe\", \"1\") is True\nassert lib.checkout(\"veli\", \"1\") is False\nassert lib.checkout(\"ayşe\", \"3\") is False\nassert lib.checkout(\"ayşe\", \"zzz\") is False\nassert lib.loans == {\"ayşe\": [\"1\"]}",
+          "visible": true,
+          "failure_message": "Checkout: success, already out, reference book, unknown isbn.",
+          "failure_message_tr": "checkout: başarılı, zaten ödünçte, danışma kitabı, bilinmeyen isbn.",
+          "label_tr": "Ödünç verme kuralları"
+        },
+        {
+          "code": "lib = Library(loan_limit=2)\nfor i in \"abc\":\n    lib.add_book(Book(i, i.upper(), \"x\"))\nassert lib.checkout(\"m\", \"a\") and lib.checkout(\"m\", \"b\")\nassert lib.checkout(\"m\", \"c\") is False and lib.books[\"c\"].available is True\nassert lib.return_book(\"m\", \"a\") is True\nassert lib.return_book(\"m\", \"a\") is False and lib.return_book(\"n\", \"b\") is False\nassert lib.checkout(\"m\", \"c\") is True\nassert lib.loans[\"m\"] == [\"b\", \"c\"]",
+          "visible": false,
+          "failure_message": "The limit blocks the 3rd loan; returns free a slot; only the borrower can return.",
+          "failure_message_tr": "Limit 3. ödüncü engellemeli; iade yer açmalı; yalnız ödünç alan iade edebilmeli."
+        },
+        {
+          "code": "lib = Library(loan_limit=1)\nlib.add_book(Book(\"1\", \"A\", \"x\")); lib.add_book(Book(\"2\", \"B\", \"y\"))\nassert lib.checkout(\"a\", \"1\") and not lib.checkout(\"a\", \"2\")\nassert lib.checkout(\"b\", \"2\")\nother = Library()\nassert other.books == {} and other.loans == {} and other.loan_limit == 2",
+          "visible": false,
+          "failure_message": "State belongs to each Library instance, and loan_limit is a parameter.",
+          "failure_message_tr": "Durum her Library nesnesine ait olmalı ve loan_limit parametre olmalı.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "lib = Library()\nlib.add_book(Book(\"1\", \"A\", \"x\"))\nlib.checkout(\"a\", \"nope\"); lib.checkout(\"a\", \"1\"); lib.checkout(\"b\", \"1\")\nassert lib.loans == {\"a\": [\"1\"]}",
+          "visible": false,
+          "failure_message": "Failed attempts must not leave empty entries or change anything.",
+          "failure_message_tr": "Başarısız denemeler boş kayıt bırakmamalı, hiçbir şeyi değiştirmemeli.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "Inheritance: `class ReferenceBook(Book):` brings everything from `Book`; rewrite only the changed method.",
+        "Order inside `checkout`: does the book exist, is the limit reached, did `borrow()` succeed? Only update the member's list when all pass.",
+        "`self.loans.get(member, [])` gives an empty list for a new member without adding an empty entry. Store with `self.loans[member] = ...` on success."
+      ],
+      "hints_tr": [
+        "Kalıtım: `class ReferenceBook(Book):` yazarsan `Book`'un her şeyi gelir; yalnızca değişen metodu yeniden yaz.",
+        "`checkout` sırası: kitap var mı, limit dolu mu, kitap `borrow()` ile alınabildi mi? Üyenin listesini yalnızca hepsi geçince güncelle.",
+        "`self.loans.get(member, [])` üye yeniyse boş liste verir ve sözlüğe boş kayıt eklemez. Başarılı olunca `self.loans[member] = ...` ile kaydet."
+      ],
+      "solution": {
+        "code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n\nclass Book:\n    def __init__(self, isbn, title, author):\n        self.isbn = isbn\n        self.title = title\n        self.author = author\n        self.available = True\n\n    def borrow(self):\n        if not self.available:\n            return False\n        self.available = False\n        return True\n\n    def give_back(self):\n        self.available = True\n\n    def __str__(self):\n        status = \"rafta\" if self.available else \"ödünçte\"\n        return f\"{self.title} - {self.author} ({status})\"\n\nclass ReferenceBook(Book):\n    def borrow(self):\n        return False\n\n\nclass Library:\n    def __init__(self, loan_limit=2):\n        self.books = {}\n        self.loans = {}\n        self.loan_limit = loan_limit\n\n    def add_book(self, book):\n        self.books[book.isbn] = book\n\n    def checkout(self, member, isbn):\n        book = self.books.get(isbn)\n        if book is None:\n            return False\n        borrowed = self.loans.get(member, [])\n        if len(borrowed) >= self.loan_limit or not book.borrow():\n            return False\n        self.loans[member] = borrowed + [isbn]\n        return True\n\n    def return_book(self, member, isbn):\n        borrowed = self.loans.get(member, [])\n        if isbn not in borrowed:\n            return False\n        self.books[isbn].give_back()\n        borrowed.remove(isbn)\n        return True\n",
+        "approach_tr": "`ReferenceBook` yalnızca `borrow`'u ezer (override). `Library` nesneleri `Book` nesnelerini sözlükte tutar (kompozisyon). Kontrolleri önce yap, durumu en son değiştir; böylece başarısız denemeler iz bırakmaz."
+      }
+    },
+    {
+      "id": "boss4-s3",
+      "title_tr": "Dosyaya kaydet ve geri yükle",
+      "prompt_tr": "Elektrik kesilince veriler kaybolmasın. Metin dosyasına yaz/oku (`open` ve `with` kullan). İki fonksiyon:\n- `save_library(lib, path)`: kitap başına bir satır yaz: `B|isbn|başlık|yazar|1` (`ReferenceBook` için `R|...`, son alan raftaysa `1` değilse `0`); ardından her ödünç için `L|üye|isbn` satırı.\n- `load_library(path, loan_limit=2)`: dosyayı okuyup aynı kitap türleri, durumları ve ödünçlerle yeni bir `Library` döndürsün.\nDosya UTF-8 olmalı (Türkçe karakterler bozulmasın). Test kendi dosyasını oluşturup silecek.",
+      "prompt": "Data must survive a power cut. Write/read a text file (use `open` and `with`). Two functions:\n- `save_library(lib, path)`: one line per book: `B|isbn|title|author|1` (`R|...` for a `ReferenceBook`; the last field is `1` if on the shelf, else `0`); then one `L|member|isbn` line per loan.\n- `load_library(path, loan_limit=2)`: read the file and return a new `Library` with the same book types, states and loans.\nThe file must be UTF-8 (Turkish characters must survive). The test creates and removes its own file.",
+      "starter_code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n\nclass Book:\n    def __init__(self, isbn, title, author):\n        self.isbn = isbn\n        self.title = title\n        self.author = author\n        self.available = True\n\n    def borrow(self):\n        if not self.available:\n            return False\n        self.available = False\n        return True\n\n    def give_back(self):\n        self.available = True\n\n    def __str__(self):\n        status = \"rafta\" if self.available else \"ödünçte\"\n        return f\"{self.title} - {self.author} ({status})\"\n\nclass ReferenceBook(Book):\n    def borrow(self):\n        return False\n\n\nclass Library:\n    def __init__(self, loan_limit=2):\n        self.books = {}\n        self.loans = {}\n        self.loan_limit = loan_limit\n\n    def add_book(self, book):\n        self.books[book.isbn] = book\n\n    def checkout(self, member, isbn):\n        book = self.books.get(isbn)\n        if book is None:\n            return False\n        borrowed = self.loans.get(member, [])\n        if len(borrowed) >= self.loan_limit or not book.borrow():\n            return False\n        self.loans[member] = borrowed + [isbn]\n        return True\n\n    def return_book(self, member, isbn):\n        borrowed = self.loans.get(member, [])\n        if isbn not in borrowed:\n            return False\n        self.books[isbn].give_back()\n        borrowed.remove(isbn)\n        return True\n\n# --- Aşama 3: Dosyaya kaydet ve geri yükle (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "import os\nlib = Library()\nlib.add_book(Book(\"1\", \"Sefiller\", \"Hugo\")); lib.add_book(ReferenceBook(\"2\", \"Sözlük\", \"TDK\"))\nlib.checkout(\"ayşe\", \"1\")\nsave_library(lib, \"kutuphane_test.txt\")\nlines = open(\"kutuphane_test.txt\", encoding=\"utf-8\").read().splitlines()\nos.remove(\"kutuphane_test.txt\")\nassert lines == [\"B|1|Sefiller|Hugo|0\", \"R|2|Sözlük|TDK|1\", \"L|ayşe|1\"]",
+          "visible": true,
+          "failure_message": "The file must contain the book lines followed by the loan lines in the given format.",
+          "failure_message_tr": "Dosyada önce kitap satırları, sonra ödünç satırları, verilen biçimde olmalı.",
+          "label_tr": "Dosya biçimi doğru"
+        },
+        {
+          "code": "import os\nlib = Library()\nlib.add_book(Book(\"1\", \"Sefiller\", \"Hugo\")); lib.add_book(ReferenceBook(\"2\", \"Sözlük\", \"TDK\")); lib.add_book(Book(\"3\", \"Çalıkuşu\", \"Güntekin\"))\nlib.checkout(\"ayşe\", \"1\")\nsave_library(lib, \"rt_test.txt\")\nback = load_library(\"rt_test.txt\")\nos.remove(\"rt_test.txt\")\nassert sorted(back.books) == [\"1\", \"2\", \"3\"]\nassert isinstance(back.books[\"2\"], ReferenceBook) and type(back.books[\"1\"]) is Book\nassert back.books[\"1\"].available is False and back.books[\"3\"].available is True\nassert back.books[\"3\"].title == \"Çalıkuşu\"\nassert back.loans == {\"ayşe\": [\"1\"]}",
+          "visible": true,
+          "failure_message": "Saving and loading must round-trip types, states, Turkish text and loans.",
+          "failure_message_tr": "Kaydet-yükle turu tür, durum, Türkçe metin ve ödünçleri korumalı.",
+          "label_tr": "Kaydet-yükle turu"
+        },
+        {
+          "code": "import os\nempty = Library(); save_library(empty, \"bos_test.txt\")\nback = load_library(\"bos_test.txt\", loan_limit=5)\nos.remove(\"bos_test.txt\")\nassert back.books == {} and back.loans == {} and back.loan_limit == 5",
+          "visible": false,
+          "failure_message": "An empty library must round-trip and loan_limit must be honoured.",
+          "failure_message_tr": "Boş kütüphane de gidip gelmeli ve loan_limit kullanılmalı."
+        },
+        {
+          "code": "import os\nlib = Library(loan_limit=3)\nfor i, t in enumerate([\"Şu Çılgın Türkler\", \"İnce Memed\", \"Ölü Canlar\"], 1):\n    lib.add_book(Book(str(i), t, \"Yazar \" + str(i)))\nfor isbn in \"123\":\n    lib.checkout(\"zeynep\", isbn)\nlib.checkout(\"can\", \"1\")\nsave_library(lib, \"x_test.txt\")\nback = load_library(\"x_test.txt\", 3)\nos.remove(\"x_test.txt\")\nassert [b.title for b in back.books.values()] == [\"Şu Çılgın Türkler\", \"İnce Memed\", \"Ölü Canlar\"]\nassert back.loans == {\"zeynep\": [\"1\", \"2\", \"3\"]}\nassert back.checkout(\"can\", \"1\") is False",
+          "visible": false,
+          "failure_message": "Do not hard-code the sample; any library must survive the round-trip.",
+          "failure_message_tr": "Örneği ezberleme; her kütüphane gidip gelmeli.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.With) for n in ast.walk(_t))\nassert sum(1 for n in ast.walk(_t) if isinstance(n, ast.Call) and getattr(n.func, \"id\", \"\") == \"open\") >= 2",
+          "visible": false,
+          "failure_message": "Use `with open(...)` for both writing and reading.",
+          "failure_message_tr": "Hem yazma hem okuma için `with open(...)` kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "To fit each book on one line, join the fields with `|`; when reading, `split` on the same character.",
+        "Inside `with open(path, \"w\", encoding=\"utf-8\") as f:` call `f.write(line + \"\\n\")`. When reading, `for line in f:` yields lines; drop the line ending with `rstrip(\"\\n\")`.",
+        "On load the first field tells the line type: B/R builds a book (`ReferenceBook` for R), L adds a loan. Text to bool: `parts[4] == \"1\"`."
+      ],
+      "hints_tr": [
+        "Her kitabı tek satıra sığdırmak için alanları `|` ile birleştir; okurken aynı karakterle `split` et.",
+        "`with open(path, \"w\", encoding=\"utf-8\") as f:` içinde `f.write(satır + \"\\n\")`. Okurken `for line in f:` satırları verir; sondaki satır sonunu `rstrip(\"\\n\")` ile at.",
+        "Yüklerken ilk alan satırın türünü söyler: B/R ise kitap kur (R için `ReferenceBook`), L ise ödünç listesine ekle. `available` metninden bool'a: `parts[4] == \"1\"`."
+      ],
+      "solution": {
+        "code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n\nclass Book:\n    def __init__(self, isbn, title, author):\n        self.isbn = isbn\n        self.title = title\n        self.author = author\n        self.available = True\n\n    def borrow(self):\n        if not self.available:\n            return False\n        self.available = False\n        return True\n\n    def give_back(self):\n        self.available = True\n\n    def __str__(self):\n        status = \"rafta\" if self.available else \"ödünçte\"\n        return f\"{self.title} - {self.author} ({status})\"\n\nclass ReferenceBook(Book):\n    def borrow(self):\n        return False\n\n\nclass Library:\n    def __init__(self, loan_limit=2):\n        self.books = {}\n        self.loans = {}\n        self.loan_limit = loan_limit\n\n    def add_book(self, book):\n        self.books[book.isbn] = book\n\n    def checkout(self, member, isbn):\n        book = self.books.get(isbn)\n        if book is None:\n            return False\n        borrowed = self.loans.get(member, [])\n        if len(borrowed) >= self.loan_limit or not book.borrow():\n            return False\n        self.loans[member] = borrowed + [isbn]\n        return True\n\n    def return_book(self, member, isbn):\n        borrowed = self.loans.get(member, [])\n        if isbn not in borrowed:\n            return False\n        self.books[isbn].give_back()\n        borrowed.remove(isbn)\n        return True\n\ndef save_library(lib, path):\n    with open(path, \"w\", encoding=\"utf-8\") as f:\n        for b in lib.books.values():\n            kind = \"R\" if isinstance(b, ReferenceBook) else \"B\"\n            f.write(f\"{kind}|{b.isbn}|{b.title}|{b.author}|{int(b.available)}\\n\")\n        for member, isbns in lib.loans.items():\n            for isbn in isbns:\n                f.write(f\"L|{member}|{isbn}\\n\")\n\n\ndef load_library(path, loan_limit=2):\n    lib = Library(loan_limit)\n    with open(path, encoding=\"utf-8\") as f:\n        for line in f:\n            parts = line.rstrip(\"\\n\").split(\"|\")\n            if parts[0] in (\"B\", \"R\"):\n                cls = ReferenceBook if parts[0] == \"R\" else Book\n                book = cls(parts[1], parts[2], parts[3])\n                book.available = parts[4] == \"1\"\n                lib.add_book(book)\n            elif parts[0] == \"L\":\n                lib.loans.setdefault(parts[1], []).append(parts[2])\n    return lib\n",
+        "approach_tr": "Düz metin biçimi: ilk alan satırın türünü belirler. `with` bloğu dosyayı hata olsa bile kapatır. Okurken `split('|')` ile satırı alanlarına ayırıp nesneleri yeniden kurarız."
+      }
+    },
+    {
+      "id": "boss4-s4",
+      "title_tr": "Yeni gelenler sayfasından kitap ekle",
+      "prompt_tr": "Kütüphanenin web sayfasında \"yeni gelenler\" listesi var. Ağa bağlanmadan, sayfanın ham HTML metnini (`NEW_HTML`) düzenli ifadeyle işle (web kazıma mantığı).\n- `parse_arrivals(html)`: yalnızca `class=\"new\"` olan `<li>` öğelerini bul; her birinin `başlık | yazar | isbn` biçimindeki metninden `Book` nesnesi üretip liste döndür (fazladan boşlukları temizle; `class=\"old\"` satırlarını atla).\n- `add_arrivals(lib, html)`: kütüphanede zaten olan isbn'leri atlayarak yeni kitapları ekle ve kaç tane eklendiğini döndür.\nSonda `library = Library()` oluştur ve `3 yeni kitap eklendi` yazdır (sayı `add_arrivals`'tan gelsin).",
+      "prompt": "The library website has a \"new arrivals\" list. Without any network, process the page's raw HTML text (`NEW_HTML`) with a regular expression (web-scraping logic).\n- `parse_arrivals(html)`: find only the `<li>` items with `class=\"new\"`; build a `Book` from each `title | author | isbn` text and return the list (strip extra spaces; skip `class=\"old\"` rows).\n- `add_arrivals(lib, html)`: add the new books, skipping isbns the library already has, and return how many were added.\nAt the end create `library = Library()` and print `3 yeni kitap eklendi` (the number must come from `add_arrivals`).",
+      "starter_code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n\nclass Book:\n    def __init__(self, isbn, title, author):\n        self.isbn = isbn\n        self.title = title\n        self.author = author\n        self.available = True\n\n    def borrow(self):\n        if not self.available:\n            return False\n        self.available = False\n        return True\n\n    def give_back(self):\n        self.available = True\n\n    def __str__(self):\n        status = \"rafta\" if self.available else \"ödünçte\"\n        return f\"{self.title} - {self.author} ({status})\"\n\nclass ReferenceBook(Book):\n    def borrow(self):\n        return False\n\n\nclass Library:\n    def __init__(self, loan_limit=2):\n        self.books = {}\n        self.loans = {}\n        self.loan_limit = loan_limit\n\n    def add_book(self, book):\n        self.books[book.isbn] = book\n\n    def checkout(self, member, isbn):\n        book = self.books.get(isbn)\n        if book is None:\n            return False\n        borrowed = self.loans.get(member, [])\n        if len(borrowed) >= self.loan_limit or not book.borrow():\n            return False\n        self.loans[member] = borrowed + [isbn]\n        return True\n\n    def return_book(self, member, isbn):\n        borrowed = self.loans.get(member, [])\n        if isbn not in borrowed:\n            return False\n        self.books[isbn].give_back()\n        borrowed.remove(isbn)\n        return True\n\ndef save_library(lib, path):\n    with open(path, \"w\", encoding=\"utf-8\") as f:\n        for b in lib.books.values():\n            kind = \"R\" if isinstance(b, ReferenceBook) else \"B\"\n            f.write(f\"{kind}|{b.isbn}|{b.title}|{b.author}|{int(b.available)}\\n\")\n        for member, isbns in lib.loans.items():\n            for isbn in isbns:\n                f.write(f\"L|{member}|{isbn}\\n\")\n\n\ndef load_library(path, loan_limit=2):\n    lib = Library(loan_limit)\n    with open(path, encoding=\"utf-8\") as f:\n        for line in f:\n            parts = line.rstrip(\"\\n\").split(\"|\")\n            if parts[0] in (\"B\", \"R\"):\n                cls = ReferenceBook if parts[0] == \"R\" else Book\n                book = cls(parts[1], parts[2], parts[3])\n                book.available = parts[4] == \"1\"\n                lib.add_book(book)\n            elif parts[0] == \"L\":\n                lib.loans.setdefault(parts[1], []).append(parts[2])\n    return lib\n\n# --- Aşama 4: Yeni gelenler sayfasından kitap ekle (buraya ekle) ---\n",
+      "tests": [
+        {
+          "code": "books = parse_arrivals(NEW_HTML)\nassert [(b.isbn, b.title, b.author) for b in books] == [(\"111\", \"Suç ve Ceza\", \"Dostoyevski\"), (\"222\", \"Simyacı\", \"Coelho\"), (\"333\", \"1984\", \"Orwell\")]\nassert all(isinstance(b, Book) for b in books)",
+          "visible": true,
+          "failure_message": "Only class='new' items are parsed, with clean title/author/isbn.",
+          "failure_message_tr": "Yalnız class=\"new\" öğeleri, temiz başlık/yazar/isbn ile ayrıştırılmalı.",
+          "label_tr": "Yeni gelenler ayrışıyor"
+        },
+        {
+          "code": "assert \"3 yeni kitap eklendi\" in __stdout__.splitlines() and sorted(library.books) == [\"111\", \"222\", \"333\"]",
+          "visible": true,
+          "failure_message": "Print '3 yeni kitap eklendi' and fill `library`.",
+          "failure_message_tr": "'3 yeni kitap eklendi' yazdır ve `library`'yi doldur.",
+          "label_tr": "Kitaplar eklendi ve yazdırıldı"
+        },
+        {
+          "code": "lib = Library()\nassert add_arrivals(lib, NEW_HTML) == 3\nassert add_arrivals(lib, NEW_HTML) == 0\nlib2 = Library(); lib2.add_book(Book(\"222\", \"Başka\", \"Biri\"))\nassert add_arrivals(lib2, NEW_HTML) == 2 and lib2.books[\"222\"].title == \"Başka\"",
+          "visible": false,
+          "failure_message": "Existing isbns are skipped, not overwritten.",
+          "failure_message_tr": "Var olan isbn'ler atlanmalı, ezilmemeli."
+        },
+        {
+          "code": "html = \"\"\"<div><li class=\"new\">Çalıkuşu|Reşat Nuri Güntekin|4001</li>\n<li class='new'>tek tırnak yok sayılır | X | 1</li><li class=\"old\">Eski | Y | 2</li>\n<li class=\"new\">   Kar   |  Orhan Pamuk  |  4002  </li><li class=\"new\">isbn yok | Z | abc</li></div>\"\"\"\ngot = parse_arrivals(html)\nassert [(b.isbn, b.title, b.author) for b in got] == [(\"4001\", \"Çalıkuşu\", \"Reşat Nuri Güntekin\"), (\"4002\", \"Kar\", \"Orhan Pamuk\")]\nassert parse_arrivals(\"<ul></ul>\") == []",
+          "visible": false,
+          "failure_message": "Parse any HTML text: spacing varies, old rows and malformed rows are ignored.",
+          "failure_message_tr": "Her HTML metnini ayrıştır: boşluklar değişir, eski ve bozuk satırlar yok sayılır.",
+          "anti_hardcode": true
+        },
+        {
+          "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id in (\"re\", \"ARRIVAL_RE\") or isinstance(n, ast.Attribute) and n.attr in (\"findall\", \"finditer\", \"search\", \"match\", \"sub\") for n in ast.walk(_t))",
+          "visible": false,
+          "failure_message": "Use the re module to extract the data.",
+          "failure_message_tr": "Veriyi çıkarmak için re kullan.",
+          "anti_hardcode": true
+        }
+      ],
+      "hints": [
+        "You do not need to parse HTML fully: the pattern starts with `<li class=\"new\">` and ends with `</li>`.",
+        "Use three capture groups: `(.*?)` for title and author, `(\\d+)` for the isbn; put `\\|` and flexible `\\s*` between them. `re.findall` returns a list of tuples.",
+        "Turn each tuple into `Book(isbn, title, author)` (mind the order: findall gives title, author, isbn). When adding, check `book.isbn not in lib.books`."
+      ],
+      "hints_tr": [
+        "HTML'i tam çözmeye gerek yok: aradığın kalıp `<li class=\"new\">` ile başlıyor ve `</li>` ile bitiyor.",
+        "Üç alan için üç yakalama grubu kur: `(.*?)` başlık ve yazar için, `(\\d+)` isbn için; aralarına `\\|` ve esnek `\\s*` boşlukları koy. `re.findall` demet listesi verir.",
+        "Her demeti `Book(isbn, title, author)`'a çevir (sıraya dikkat: findall başlık, yazar, isbn verir). Eklerken `book.isbn not in lib.books` kontrolü yap."
+      ],
+      "solution": {
+        "code": "import re\n\n# Aşama 4'te kullanacağın, kütüphanenin \"yeni gelenler\" web sayfasının ham metni. Dokunma.\nNEW_HTML = \"\"\"<ul>\n  <li class=\"new\">Suç ve Ceza | Dostoyevski | 111</li>\n  <li class=\"old\">Eski Kitap | Biri | 999</li>\n  <li class=\"new\">Simyacı | Coelho | 222</li>\n  <li class=\"new\"> 1984 |Orwell| 333 </li>\n</ul>\"\"\"\n\n# --- Aşama 1: Book sınıfı (buraya ekle) ---\n\nclass Book:\n    def __init__(self, isbn, title, author):\n        self.isbn = isbn\n        self.title = title\n        self.author = author\n        self.available = True\n\n    def borrow(self):\n        if not self.available:\n            return False\n        self.available = False\n        return True\n\n    def give_back(self):\n        self.available = True\n\n    def __str__(self):\n        status = \"rafta\" if self.available else \"ödünçte\"\n        return f\"{self.title} - {self.author} ({status})\"\n\nclass ReferenceBook(Book):\n    def borrow(self):\n        return False\n\n\nclass Library:\n    def __init__(self, loan_limit=2):\n        self.books = {}\n        self.loans = {}\n        self.loan_limit = loan_limit\n\n    def add_book(self, book):\n        self.books[book.isbn] = book\n\n    def checkout(self, member, isbn):\n        book = self.books.get(isbn)\n        if book is None:\n            return False\n        borrowed = self.loans.get(member, [])\n        if len(borrowed) >= self.loan_limit or not book.borrow():\n            return False\n        self.loans[member] = borrowed + [isbn]\n        return True\n\n    def return_book(self, member, isbn):\n        borrowed = self.loans.get(member, [])\n        if isbn not in borrowed:\n            return False\n        self.books[isbn].give_back()\n        borrowed.remove(isbn)\n        return True\n\ndef save_library(lib, path):\n    with open(path, \"w\", encoding=\"utf-8\") as f:\n        for b in lib.books.values():\n            kind = \"R\" if isinstance(b, ReferenceBook) else \"B\"\n            f.write(f\"{kind}|{b.isbn}|{b.title}|{b.author}|{int(b.available)}\\n\")\n        for member, isbns in lib.loans.items():\n            for isbn in isbns:\n                f.write(f\"L|{member}|{isbn}\\n\")\n\n\ndef load_library(path, loan_limit=2):\n    lib = Library(loan_limit)\n    with open(path, encoding=\"utf-8\") as f:\n        for line in f:\n            parts = line.rstrip(\"\\n\").split(\"|\")\n            if parts[0] in (\"B\", \"R\"):\n                cls = ReferenceBook if parts[0] == \"R\" else Book\n                book = cls(parts[1], parts[2], parts[3])\n                book.available = parts[4] == \"1\"\n                lib.add_book(book)\n            elif parts[0] == \"L\":\n                lib.loans.setdefault(parts[1], []).append(parts[2])\n    return lib\n\nARRIVAL_RE = re.compile(r'<li class=\"new\">\\s*(.*?)\\s*\\|\\s*(.*?)\\s*\\|\\s*(\\d+)\\s*</li>')\n\n\ndef parse_arrivals(html):\n    return [Book(isbn, title, author) for title, author, isbn in ARRIVAL_RE.findall(html)]\n\n\ndef add_arrivals(lib, html):\n    added = 0\n    for book in parse_arrivals(html):\n        if book.isbn not in lib.books:\n            lib.add_book(book)\n            added += 1\n    return added\n\n\nlibrary = Library()\nprint(add_arrivals(library, NEW_HTML), \"yeni kitap eklendi\")\n",
+        "approach_tr": "Sayfa metnini regex ile tarayıp `findall` demetlerini `Book` nesnelerine çeviriyoruz; gerçek kazımanın (scraping) özü budur, yalnızca ağ isteği yok. Tekrarı önlemek için isbn sözlükte var mı diye bakılır."
+      }
+    }
+  ]
+}

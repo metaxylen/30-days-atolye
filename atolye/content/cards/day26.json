@@ -1,0 +1,266 @@
+{
+ "day": 26,
+ "title_tr": "Python ile Web (Flask)",
+ "title": "Python for the Web (Flask)",
+ "est_minutes": 30,
+ "cards": [
+  {
+   "id": "d26-c01",
+   "type": "explain",
+   "title_tr": "Flask nedir?",
+   "title": "What is Flask?",
+   "body_tr": "Python'da web uygulaması yazmak için iki ünlü çatı var: Django ve Flask. **Flask**, Python ile yazılmış hafif bir web framework'üdür (hazır iskelet) ve HTML üretmek için **Jinja2** şablon motorunu kullanır. Bu tarayıcıda sunucu çalıştıramayız; Flask'ın mantığını saf Python ile canlandıracağız. Önce proje klasörü:",
+   "body": "Python has two famous web frameworks: Django and Flask. **Flask** is a lightweight web framework written in Python, using the **Jinja2** template engine to produce HTML. We can't run a server in this browser, so we'll mimic Flask's logic in plain Python. First, the project folder:",
+   "code": "project = {'app.py': None, 'templates': ['home.html', 'about.html'], 'static': ['css/main.css']}\nfor name in project:\n    print(name)",
+   "expected_output": "app.py\ntemplates\nstatic",
+   "section": "Flask"
+  },
+  {
+   "id": "d26-c02",
+   "type": "truefalse",
+   "statement_tr": "Flask, HTML sayfalarını doldurmak için Jinja2 şablon motorunu kullanır.",
+   "statement": "Flask uses the Jinja2 template engine to fill in HTML pages.",
+   "answer": true,
+   "why_tr": "Doğru: `{{ }}` ve `{% %}` işaretleri Jinja2 sözdizimidir.",
+   "why": "Correct: `{{ }}` and `{% %}` are Jinja2 syntax.",
+   "section": "Flask"
+  },
+  {
+   "id": "d26-c03",
+   "type": "explain",
+   "title_tr": "Proje klasörünü hazırlamak",
+   "title": "Setting up the project directory",
+   "body_tr": "Adımlar: `pip install virtualenv`, klasör aç, `virtualenv venv`, `source venv/bin/activate`, `pip install Flask`. Başta `pip freeze` boştur, kurulumdan sonra Flask ve bağımlılıkları listelenir (Gün 23). Komutları listede sırayla görelim.",
+   "body": "Steps: `pip install virtualenv`, make a folder, `virtualenv venv`, `source venv/bin/activate`, `pip install Flask`. At first `pip freeze` is empty; after installing, Flask and its dependencies appear (Day 23). Let's list the commands in order.",
+   "code": "steps = ['mkdir python_for_web', 'virtualenv venv',\n         'source venv/bin/activate', 'pip install Flask']\nfor i, s in enumerate(steps, 1):\n    print(i, s)",
+   "expected_output": "1 mkdir python_for_web\n2 virtualenv venv\n3 source venv/bin/activate\n4 pip install Flask",
+   "section": "Setting up your project directory"
+  },
+  {
+   "id": "d26-c04",
+   "type": "explain",
+   "title_tr": "Route: adres + fonksiyon",
+   "title": "Route: address + function",
+   "body_tr": "Tarayıcı bir adrese (`/`) gidince Flask ilgili fonksiyonu çalıştırır ve döndürdüğü HTML'i gösterir. `@app.route('/')` bir **decorator**: fonksiyonu o adrese kaydeder. Adım adım kayıt mantığı:",
+   "body": "When the browser visits an address (`/`), Flask runs the matching function and shows the HTML it returns. `@app.route('/')` is a **decorator**: it registers the function for that address. Here is the registration logic, step by step:",
+   "code": "routes = {}\ndef route(path):\n    def register(func):\n        routes[path] = func\n        return func\n    return register\n\n@route('/')\ndef home():\n    return '<h1>Welcome</h1>'\nprint(routes['/']())",
+   "expected_output": "<h1>Welcome</h1>",
+   "trace": true,
+   "section": "Creating routes"
+  },
+  {
+   "id": "d26-c05",
+   "type": "explain",
+   "title_tr": "Port ve PORT ortam değişkeni",
+   "title": "The port and the PORT variable",
+   "body_tr": "Derste `port = int(os.environ.get('PORT', 5000))` var: sunucu ortamı bir `PORT` verirse onu, yoksa 5000'i kullan. Böylece aynı kod hem bilgisayarında hem yayında çalışır. `python app.py` sonrası adres: `localhost:5000`. Burada ortam değişkenlerini bir sözlükle canlandırıyoruz.",
+   "body": "The lesson has `port = int(os.environ.get('PORT', 5000))`: use the `PORT` the hosting environment gives, otherwise 5000. The same code then works on your machine and in production. After `python app.py` the address is `localhost:5000`. Here we mimic environment variables with a dict.",
+   "code": "env = {}\nport = int(env.get('PORT', 5000))\nprint(port)\nenv = {'PORT': '8080'}\nprint(int(env.get('PORT', 5000)))",
+   "expected_output": "5000\n8080",
+   "section": "Creating routes"
+  },
+  {
+   "id": "d26-c06",
+   "type": "fill",
+   "prompt_tr": "Varsayılan portu yaz.",
+   "prompt": "Write the default port.",
+   "code": "env = {}\nprint(int(env.get('PORT', ___)))",
+   "answers": [
+    "5000"
+   ],
+   "expected_output": "5000",
+   "why_tr": "`get` anahtar yoksa ikinci argümanı döndürür; Flask'ın geliştirme portu 5000'dir.",
+   "why": "`get` returns its second argument when the key is missing; Flask's development port is 5000.",
+   "section": "Creating routes"
+  },
+  {
+   "id": "d26-c07",
+   "type": "explain",
+   "title_tr": "İkinci route: /about",
+   "title": "A second route: /about",
+   "body_tr": "Her yeni sayfa için yeni bir route eklenir. Sözlüğe iki adres koyup sırayla çağıralım.",
+   "body": "Each new page gets a new route. Let's put two addresses in a dict and call them in turn.",
+   "code": "routes = {}\nroutes['/'] = lambda: '<h1>Welcome</h1>'\nroutes['/about'] = lambda: '<h1>About us</h1>'\nfor path in routes:\n    print(path, routes[path]())",
+   "expected_output": "/ <h1>Welcome</h1>\n/about <h1>About us</h1>",
+   "section": "Creating routes"
+  },
+  {
+   "id": "d26-c08",
+   "type": "predict",
+   "prompt_tr": "Kayıtlı olmayan bir adrese gidilirse ne olur? Çıktı ne?",
+   "prompt": "What happens when an unregistered address is visited? What is printed?",
+   "code": "routes = {'/': 'Welcome', '/about': 'About us'}\nprint(routes.get('/contact', '404 Not Found'))",
+   "choices": [
+    "Error",
+    "404 Not Found",
+    "None",
+    "About us"
+   ],
+   "answer": "404 Not Found",
+   "why_tr": "'/contact' kayıtlı değil, bu yüzden varsayılan metin döner (gerçekte tarayıcı 404 görür).",
+   "why": "'/contact' is not registered, so the default text is returned (a real browser would see 404).",
+   "section": "Creating routes"
+  },
+  {
+   "id": "d26-c09",
+   "type": "explain",
+   "title_tr": "Şablon (template) dosyaları",
+   "title": "Template files",
+   "body_tr": "Uzun HTML'i Python metninin içine yazmak zordur. Bunun yerine `templates/` klasöründe `home.html` gibi dosyalar tutulur. İçlerinde `{{name}}` gibi boşluklar olabilir; Flask bunları gerçek değerle doldurur. Aynı fikir `replace` ile:",
+   "body": "Writing long HTML inside Python strings is painful. Instead, files like `home.html` live in the `templates/` folder. They can hold blanks like `{{name}}` that Flask fills with real values. The same idea with `replace`:",
+   "code": "template = '<h1>Welcome to {{name}}</h1>'\npage = template.replace('{{name}}', '30 Days Of Python')\nprint(page)",
+   "expected_output": "<h1>Welcome to 30 Days Of Python</h1>",
+   "section": "Creating templates"
+  },
+  {
+   "id": "d26-c10",
+   "type": "explain",
+   "title_tr": "render_template",
+   "title": "render_template",
+   "body_tr": "`render_template('home.html')` şablon dosyasını bulur ve içeriğini cevap olarak döndürür. Sahte bir `render_template` yazalım: dosyaları bir sözlükte tutuyor.",
+   "body": "`render_template('home.html')` finds the template file and returns its content as the response. Let's write a fake `render_template` that keeps the files in a dict.",
+   "code": "templates = {'home.html': '<h1>Welcome Home</h1>', 'about.html': '<h1>About Us</h1>'}\ndef render_template(name):\n    return templates[name]\nprint(render_template('home.html'))",
+   "expected_output": "<h1>Welcome Home</h1>",
+   "section": "Python Script"
+  },
+  {
+   "id": "d26-c11",
+   "type": "fill",
+   "prompt_tr": "Hangi şablon çağrılırsa 'About Us' çıkar?",
+   "prompt": "Which template gives 'About Us'?",
+   "code": "templates = {'home.html': '<h1>Welcome Home</h1>', 'about.html': '<h1>About Us</h1>'}\ndef render_template(name):\n    return templates[name]\nprint(render_template('___'))",
+   "answers": [
+    "about.html"
+   ],
+   "expected_output": "<h1>About Us</h1>",
+   "why_tr": "About sayfasının şablonu `about.html`.",
+   "why": "The About page's template is `about.html`.",
+   "section": "Python Script"
+  },
+  {
+   "id": "d26-c12",
+   "type": "explain",
+   "title_tr": "Şablona veri göndermek: döngü",
+   "title": "Passing data to a template: a loop",
+   "body_tr": "`render_template('home.html', techs=techs, name=name)` ile Python verisi şablona gider. Şablonda `{% for tech in techs %}` bir `<li>` listesi üretir. Aynısını Python döngüsüyle izle. (Gezinme için de sadece `<a href=\"/\">Home</a>` bağlantıları yeter.)",
+   "body": "`render_template('home.html', techs=techs, name=name)` sends Python data to the template. In the template, `{% for tech in techs %}` builds a list of `<li>`. Watch the same thing as a Python loop. (For navigation, plain `<a href=\"/\">Home</a>` links are enough.)",
+   "code": "techs = ['HTML', 'CSS', 'Flask', 'Python']\nitems = ''\nfor tech in techs:\n    items += f'<li>{tech}</li>'\nprint('<ul>' + items + '</ul>')",
+   "expected_output": "<ul><li>HTML</li><li>CSS</li><li>Flask</li><li>Python</li></ul>",
+   "trace": true,
+   "section": "Navigation"
+  },
+  {
+   "id": "d26-c13",
+   "type": "predict",
+   "prompt_tr": "Küçük bir 'render' fonksiyonu. Çıktı ne olur?",
+   "prompt": "A tiny 'render' function. What is printed?",
+   "code": "def render(template, **data):\n    for key, value in data.items():\n        template = template.replace('{{' + key + '}}', value)\n    return template\n\nprint(render('Hi {{name}}', name='Ada'))",
+   "choices": [
+    "Hi Ada",
+    "Ada",
+    "Hi {{name}}",
+    "Hi name"
+   ],
+   "answer": "Hi Ada",
+   "why_tr": "`name='Ada'` anahtarı `{{name}}` boşluğunu 'Ada' ile değiştirir.",
+   "why": "The `name='Ada'` key replaces the `{{name}}` blank with 'Ada'.",
+   "section": "Navigation"
+  },
+  {
+   "id": "d26-c14",
+   "type": "explain",
+   "title_tr": "Layout: tekrarı kaldırmak",
+   "title": "Layout: removing repetition",
+   "body_tr": "Menü gibi ortak kısımlar her sayfada tekrar edilir. `layout.html` ortak iskeleti tutar ve içinde `{% block content %}` boşluğu bırakır; `home.html` `{% extends 'layout.html' %}` ile bu boşluğa kendi içeriğini koyar.",
+   "body": "Shared parts like the menu repeat on every page. `layout.html` holds the common skeleton with a `{% block content %}` gap; `home.html` uses `{% extends 'layout.html' %}` to put its own content in that gap.",
+   "code": "layout = '<nav>Home | About</nav><main>{% block content %}</main>'\nhome = '<h1>Welcome</h1>'\npage = layout.replace('{% block content %}', home)\nprint(page)",
+   "expected_output": "<nav>Home | About</nav><main><h1>Welcome</h1></main>",
+   "section": "Creating a layout"
+  },
+  {
+   "id": "d26-c15",
+   "type": "explain",
+   "title_tr": "Statik dosyalar: url_for",
+   "title": "Static files: url_for",
+   "body_tr": "CSS, resim gibi değişmeyen dosyalar `static/` klasörüne konur. Şablonda `url_for('static', filename='css/main.css')` doğru adresi üretir. Mantığı tek satırda görelim.",
+   "body": "Files that never change, like CSS and images, go in the `static/` folder. In a template, `url_for('static', filename='css/main.css')` builds the right address. Here is the idea in a few lines.",
+   "code": "def url_for_static(filename):\n    return '/static/' + filename\n\nprint(url_for_static('css/main.css'))",
+   "expected_output": "/static/css/main.css",
+   "section": "Creating a layout"
+  },
+  {
+   "id": "d26-c16",
+   "type": "explain",
+   "title_tr": "GET ve POST",
+   "title": "GET and POST",
+   "body_tr": "GET sayfayı **okur**, POST veri **gönderir** (form gibi). `/post` route'u `methods=['GET','POST']` ile ikisini de kabul eder: GET gelirse formu gösterir, POST gelirse `request.form['content']` ile veriyi alır. (Tam CRUD için PUT ve DELETE de vardır, Gün 28.)",
+   "body": "GET **reads** a page, POST **sends** data (like a form). The `/post` route accepts both with `methods=['GET','POST']`: on GET it shows the form, on POST it reads the data via `request.form['content']`. (Full CRUD also has PUT and DELETE, Day 28.)",
+   "code": "def post(method, form=None):\n    if method == 'GET':\n        return 'show form'\n    return 'got: ' + form['content']\n\nprint(post('GET'))\nprint(post('POST', {'content': 'hello'}))",
+   "expected_output": "show form\ngot: hello",
+   "section": "Creating a layout"
+  },
+  {
+   "id": "d26-c17",
+   "type": "truefalse",
+   "statement_tr": "Kullanıcı formu gönderdiğinde route bir POST isteği alır.",
+   "statement": "When the user submits the form, the route receives a POST request.",
+   "answer": true,
+   "why_tr": "Form gönderimi POST ile gelir; sayfayı ilk açmak ise GET'tir.",
+   "why": "A form submission arrives as POST; opening the page is a GET.",
+   "section": "Creating a layout"
+  },
+  {
+   "id": "d26-c18",
+   "type": "explain",
+   "title_tr": "Yayına almak (deployment)",
+   "title": "Deploying",
+   "body_tr": "Yayına almak için iki dosya gerekir: `requirements.txt` (`pip freeze > requirements.txt` ile üretilen paket listesi) ve `Procfile` (`web: python app.py`, sunucuya uygulamayı nasıl başlatacağını söyler). Derste Heroku kullanılır; Heroku'nun ücretsiz planı kalktı, ama mantık diğer platformlarda da aynıdır.",
+   "body": "Deploying needs two files: `requirements.txt` (the package list made with `pip freeze > requirements.txt`) and `Procfile` (`web: python app.py`, which tells the server how to start the app). The lesson uses Heroku; Heroku's free plan is gone, but the idea is the same on other platforms.",
+   "code": "packages = {'Flask': '1.1.1', 'Click': '7.0'}\nrequirements = '\\n'.join(f'{k}=={v}' for k, v in sorted(packages.items()))\nprint(requirements)\nprint('web: python app.py')",
+   "expected_output": "Click==7.0\nFlask==1.1.1\nweb: python app.py",
+   "section": "Deployment"
+  },
+  {
+   "id": "d26-c19",
+   "type": "order",
+   "prompt_tr": "Yayın adımlarını doğru sıraya diz.",
+   "prompt": "Put the deployment steps in order.",
+   "lines": [
+    "steps.append('Procfile')",
+    "print(steps)",
+    "steps.append('requirements.txt')",
+    "steps = []",
+    "steps.append('git push')"
+   ],
+   "correct_order": [
+    3,
+    2,
+    0,
+    4,
+    1
+   ],
+   "expected_output": "['requirements.txt', 'Procfile', 'git push']",
+   "section": "Deployment"
+  },
+  {
+   "id": "d26-c20",
+   "type": "recap",
+   "points_tr": [
+    "Flask, route (adres + fonksiyon) ile çalışan hafif bir Python web framework'üdür.",
+    "HTML, `templates/` içindeki şablonlarda durur; `{{ }}` ve `{% %}` ile Python verisi basılır.",
+    "`layout.html` ortak iskeleti tutar, statik dosyalar `static/` içindedir.",
+    "GET okur, POST gönderir; yayın için `requirements.txt` ve `Procfile` gerekir."
+   ],
+   "points": [
+    "Flask is a lightweight Python web framework built on routes (address + function).",
+    "HTML lives in templates under `templates/`; `{{ }}` and `{% %}` insert Python data.",
+    "`layout.html` holds the shared skeleton, static files live in `static/`.",
+    "GET reads, POST sends; deploying needs `requirements.txt` and a `Procfile`."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "Deployment"
+  }
+ ]
+}

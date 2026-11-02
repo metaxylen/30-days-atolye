@@ -1,0 +1,598 @@
+{
+  "day": 3,
+  "title": "Operators",
+  "title_tr": "Operatörler",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "blocks": [
+    {
+      "id": "d03-b1",
+      "concept": "arithmetic-assignment",
+      "tags": [
+        "operators",
+        "assignment",
+        "modulus"
+      ],
+      "worked_example": {
+        "code": "count = 5\ncount += 2\nprint(count)\nprint(count % 2 == 1)",
+        "notes": [
+          "count += 2 is shorthand for count = count + 2.",
+          "% 2 gives 0 for even numbers and 1 for odd numbers."
+        ],
+        "notes_tr": [
+          "count += 2, count = count + 2 yazmanın kısa yoludur.",
+          "% 2 çift sayılarda 0, tek sayılarda 1 verir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d03-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "n = 17\nn -= 2\nn *= 3\nprint(n, n % 2)",
+          "choices": [
+            "45 1",
+            "45 0",
+            "30 0",
+            "15 1"
+          ],
+          "expected_output": "45 1",
+          "explanation": "n becomes 15 after -= 2, then 45 after *= 3. 45 % 2 is the remainder 1, so n is odd.",
+          "misconceptions": {
+            "45 0": "45 is odd: dividing by 2 leaves remainder 1, not 0.",
+            "30 0": "*= 3 multiplies by 3, it does not add 15 twice.",
+            "15 1": "The *= 3 line also runs before the print, so n is 45."
+          },
+          "explanation_tr": "n önce -= 2 ile 15 olur, sonra *= 3 ile 45 olur. 45 % 2 kalan 1'dir, yani n tektir.",
+          "misconceptions_tr": {
+            "45 0": "45 tek sayıdır: 2'ye bölünce kalan 0 değil 1 olur.",
+            "30 0": "*= 3 sayıyı 3 ile çarpar; 15'i iki kez toplamaz.",
+            "15 1": "*= 3 satırı da print'ten önce çalışır, bu yüzden n 45'tir."
+          }
+        },
+        {
+          "id": "d03-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints True (8 is even).",
+          "prompt_tr": "Programın True yazdırması için boşluğu doldur (8 çifttir).",
+          "starter_code": "number = 8\nprint(number ___ 2 == 0)",
+          "blanks": [
+            {
+              "answer": [
+                "%"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'True'",
+              "visible": true,
+              "failure_message": "The program must print True.",
+              "label_tr": "Program True yazdırmalı",
+              "failure_message_tr": "Program True yazdırmalı."
+            }
+          ],
+          "hints": [
+            "How do you get the remainder of a division?",
+            "The modulus operator gives the remainder; an even number leaves remainder 0 when divided by 2.",
+            "The blank needs the percent sign (the modulus operator)."
+          ],
+          "hints_tr": [
+            "Bir bölmenin kalanını nasıl bulursun?",
+            "Modulus operatörü kalanı verir; çift sayı 2'ye bölününce kalan 0 olur.",
+            "Boşluğa yüzde işareti (modulus operatörü) gelmeli."
+          ]
+        },
+        {
+          "id": "d03-b1-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints exactly: Your weekly earning is 1120 (hours times rate).",
+          "prompt_tr": "Programı, tam olarak şunu yazdıracak şekilde değiştir: Your weekly earning is 1120 (saat çarpı ücret).",
+          "starter_code": "hours = 40\nrate = 28\nprint(hours + rate)",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Your weekly earning is 1120'",
+              "visible": true,
+              "failure_message": "The output must read: Your weekly earning is 1120",
+              "label_tr": "Çıktı istenen cümleyle aynı",
+              "failure_message_tr": "Çıktı şöyle olmalı: Your weekly earning is 1120"
+            },
+            {
+              "code": "import io, contextlib\nassert '1120' not in __source__\n__ns = {}\n__buf = io.StringIO()\nwith contextlib.redirect_stdout(__buf):\n    exec(__source__.replace('hours = 40', 'hours = 10'), __ns)\nassert __buf.getvalue().strip() == 'Your weekly earning is 280'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The answer was typed by hand; let Python do the multiplication with the variables so it works for other values too.",
+              "failure_message_tr": "Sonucu elle yazmışsın; çarpmayı değişkenlerle Python yapsın ki başka değerlerde de çalışsın."
+            }
+          ],
+          "hints": [
+            "Two things change: the operator and the message.",
+            "print can take several arguments separated by commas: a text first, then a value. Multiplication is written with an asterisk.",
+            "Swap the + for the multiplication operator and give print a text before the calculation (the text goes in quotes, then a comma)."
+          ],
+          "solution": {
+            "approach": "Multiply instead of add, and print a label before the value.",
+            "code": "hours = 40\nrate = 28\nprint('Your weekly earning is', hours * rate)",
+            "approach_tr": "Toplama yerine çarp ve değerden önce bir etiket yazdır."
+          },
+          "hints_tr": [
+            "İki şey değişecek: operatör ve mesaj.",
+            "print virgülle ayrılmış birden fazla argüman alabilir: önce bir metin, sonra bir değer. Çarpma yıldız işaretiyle yazılır.",
+            "+ yerine çarpma operatörünü koy ve hesaplamadan önce print'e bir metin ver (metin tırnak içinde, sonra virgül)."
+          ]
+        },
+        {
+          "id": "d03-b1-e4",
+          "type": "type_it",
+          "prompt": "Study the snippet, then retype it from memory.",
+          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz.",
+          "code": "a = 7\nb = 2\nprint(a / b)\nprint(a // b)\nprint(a % b)",
+          "expected_output": "3.5\n3\n1"
+        }
+      ],
+      "concept_tr": "Aritmetik ve atama operatörleri"
+    },
+    {
+      "id": "d03-b2",
+      "concept": "comparison-membership",
+      "tags": [
+        "comparison",
+        "in",
+        "booleans"
+      ],
+      "worked_example": {
+        "code": "print(len('python') == len('dragon'))\nprint('on' in 'python')",
+        "notes": [
+          "== compares two values; a single = assigns.",
+          "in checks whether a piece is inside a string or list."
+        ],
+        "notes_tr": [
+          "== iki değeri karşılaştırır; tek = ise değer atar.",
+          "in, bir parçanın string veya liste içinde olup olmadığına bakar."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d03-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "print(len('mango') < len('avocado'))\nprint('go' in 'mango')\nprint(3 != 3)",
+          "choices": [
+            "True\nTrue\nFalse",
+            "True\nFalse\nFalse",
+            "False\nTrue\nTrue",
+            "True\nTrue\nTrue"
+          ],
+          "expected_output": "True\nTrue\nFalse",
+          "explanation": "5 < 7 is True; 'go' appears inside 'mango' so in gives True; 3 != 3 is False because they are equal.",
+          "misconceptions": {
+            "True\nFalse\nFalse": "'go' is inside 'mango' (the last two letters), so in gives True.",
+            "False\nTrue\nTrue": "len('mango') is 5 and len('avocado') is 7, so 5 < 7 is True. And 3 != 3 is False.",
+            "True\nTrue\nTrue": "!= means 'not equal'. 3 and 3 are equal, so 3 != 3 is False."
+          },
+          "explanation_tr": "5 < 7 True'dur; 'go' 'mango' içinde geçtiği için in True verir; 3 != 3 ise iki sayı eşit olduğu için False'tur.",
+          "misconceptions_tr": {
+            "True\nFalse\nFalse": "'go', 'mango' kelimesinin son iki harfidir, bu yüzden in True verir.",
+            "False\nTrue\nTrue": "len('mango') 5, len('avocado') 7'dir, yani 5 < 7 True'dur. 3 != 3 ise False'tur.",
+            "True\nTrue\nTrue": "!= 'eşit değil' demektir. 3 ile 3 eşit, bu yüzden 3 != 3 False'tur."
+          }
+        },
+        {
+          "id": "d03-b2-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints True.",
+          "prompt_tr": "Programın True yazdırması için boşluğu doldur.",
+          "starter_code": "print('on' ___ 'python')",
+          "blanks": [
+            {
+              "answer": [
+                "in"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'True'",
+              "visible": true,
+              "failure_message": "The program must print True.",
+              "label_tr": "Program True yazdırmalı",
+              "failure_message_tr": "Program True yazdırmalı."
+            }
+          ],
+          "hints": [
+            "You want to know whether 'on' is somewhere inside 'python'.",
+            "Python has a short membership keyword made of two letters; it asks 'is this piece inside that text?'.",
+            "The blank takes that two-letter membership keyword (it starts with i)."
+          ],
+          "hints_tr": [
+            "'on' parçasının 'python' içinde bir yerde olup olmadığını öğrenmek istiyorsun.",
+            "Python'da iki harfli kısa bir üyelik anahtar kelimesi var; 'bu parça şu metnin içinde mi?' diye sorar.",
+            "Boşluğa bu iki harfli üyelik anahtar kelimesi gelir (i ile başlar)."
+          ]
+        },
+        {
+          "id": "d03-b2-e3",
+          "type": "write",
+          "prompt": "Create a = 'python' and b = 'dragon'. Then create same_length (True if both have the same length), has_o (True if 'o' is in a) and is_same (True if a equals b). Print same_length.",
+          "prompt_tr": "a = 'python' ve b = 'dragon' oluştur. Sonra same_length (uzunlukları eşitse True), has_o ('o' a içindeyse True) ve is_same (a, b'ye eşitse True) değişkenlerini oluştur. same_length'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert same_length is True",
+              "visible": true,
+              "failure_message": "'python' and 'dragon' both have 6 letters, so same_length is True.",
+              "label_tr": "same_length doğru hesaplanıyor",
+              "failure_message_tr": "'python' ve 'dragon' 6 harflidir, yani same_length True olmalı."
+            },
+            {
+              "code": "assert has_o is True",
+              "visible": true,
+              "failure_message": "'o' is in 'python'.",
+              "label_tr": "has_o doğru hesaplanıyor",
+              "failure_message_tr": "'o' harfi 'python' içinde var."
+            },
+            {
+              "code": "assert is_same is False",
+              "visible": false,
+              "failure_message": "The two words are different, so is_same is False. Use == not =.",
+              "failure_message_tr": "İki kelime farklı, yani is_same False olmalı. = değil == kullan."
+            },
+            {
+              "code": "assert same_length == (len(a) == len(b)) and has_o == ('o' in a)",
+              "visible": false,
+              "failure_message": "Compute these with len(...) == len(...) and 'o' in a.",
+              "failure_message_tr": "Bunları len(...) == len(...) ve 'o' in a ile hesapla."
+            },
+            {
+              "code": "assert __stdout__.strip() == 'True'",
+              "visible": false,
+              "failure_message": "Print same_length.",
+              "failure_message_tr": "same_length değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\nassert sum(isinstance(n, ast.Compare) for n in ast.walk(__t)) >= 3",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The results were typed by hand; compute each one with a comparison (==, in) so Python decides.",
+              "failure_message_tr": "Sonuçları elle yazmışsın; her birini bir karşılaştırmayla (==, in) hesapla, kararı Python versin."
+            }
+          ],
+          "hints": [
+            "Define a and b first.",
+            "== compares two values, the keyword in tests membership, and len gives the length. Each variable is one comparison.",
+            "Write the two strings, then one comparison per variable (len on both sides for same_length), then print only same_length."
+          ],
+          "solution": {
+            "approach": "Each variable is a single comparison.",
+            "code": "a = 'python'\nb = 'dragon'\nsame_length = len(a) == len(b)\nhas_o = 'o' in a\nis_same = a == b\nprint(same_length)",
+            "approach_tr": "Her değişken tek bir karşılaştırmadır."
+          },
+          "twin": "d03-b2-e4",
+          "hints_tr": [
+            "Önce a ve b'yi tanımla.",
+            "== iki değeri karşılaştırır, in anahtar kelimesi üyeliği sınar, len uzunluğu verir. Her değişken tek bir karşılaştırmadır.",
+            "İki string'i yaz, sonra her değişken için bir karşılaştırma yaz (same_length için iki tarafta da len kullan), en sonda yalnızca same_length'i yazdır."
+          ]
+        },
+        {
+          "id": "d03-b2-e4",
+          "type": "write",
+          "prompt": "Create x = 'mango' and y = 'avocado'. Then create shorter (True if x is shorter than y), has_v (True if 'v' is in y) and contains (True if x is found inside y). Print shorter.",
+          "prompt_tr": "x = 'mango' ve y = 'avocado' oluştur. Sonra shorter (x, y'den kısaysa True), has_v ('v' y içindeyse True) ve contains (x, y içinde bulunuyorsa True) değişkenlerini oluştur. shorter'ı yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert shorter is True",
+              "visible": true,
+              "failure_message": "'mango' (5) is shorter than 'avocado' (7).",
+              "label_tr": "shorter doğru hesaplanıyor",
+              "failure_message_tr": "'mango' (5) 'avocado'dan (7) kısadır."
+            },
+            {
+              "code": "assert has_v is True",
+              "visible": true,
+              "failure_message": "'avocado' contains a v.",
+              "label_tr": "has_v doğru hesaplanıyor",
+              "failure_message_tr": "'avocado' içinde v var."
+            },
+            {
+              "code": "assert contains is False",
+              "visible": false,
+              "failure_message": "'mango' is not a part of 'avocado', so contains is False.",
+              "failure_message_tr": "'mango', 'avocado'nun bir parçası değil, yani contains False olmalı."
+            },
+            {
+              "code": "assert shorter == (len(x) < len(y)) and has_v == ('v' in y)",
+              "visible": false,
+              "failure_message": "Use len(x) < len(y) and 'v' in y.",
+              "failure_message_tr": "len(x) < len(y) ve 'v' in y kullan."
+            },
+            {
+              "code": "assert __stdout__.strip() == 'True'",
+              "visible": false,
+              "failure_message": "Print shorter.",
+              "failure_message_tr": "shorter değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\nassert sum(isinstance(n, ast.Compare) for n in ast.walk(__t)) >= 3",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The results were typed by hand; compute each one with a comparison (<, in) so Python decides.",
+              "failure_message_tr": "Sonuçları elle yazmışsın; her birini bir karşılaştırmayla (<, in) hesapla, kararı Python versin."
+            }
+          ],
+          "hints": [
+            "Define x and y first.",
+            "Compare lengths with <, test membership with the keyword in (you need it twice, once for a letter and once for a whole word).",
+            "Write the two strings, then one comparison per variable, then print only shorter."
+          ],
+          "solution": {
+            "approach": "Three comparisons on two words.",
+            "code": "x = 'mango'\ny = 'avocado'\nshorter = len(x) < len(y)\nhas_v = 'v' in y\ncontains = x in y\nprint(shorter)",
+            "approach_tr": "İki kelime üzerinde üç karşılaştırma yapılır."
+          },
+          "twin": "d03-b2-e3",
+          "hints_tr": [
+            "Önce x ve y'yi tanımla.",
+            "Uzunlukları < ile karşılaştır, üyeliği in anahtar kelimesiyle sına (iki kez lazım: biri harf, biri tüm kelime için).",
+            "İki string'i yaz, sonra her değişken için bir karşılaştırma yaz, en sonda yalnızca shorter'ı yazdır."
+          ]
+        },
+        {
+          "id": "d03-b2-e5",
+          "type": "debug",
+          "prompt": "This program should print True but crashes with a TypeError. Fix it.",
+          "prompt_tr": "Bu program True yazdırmalı ama TypeError ile çöküyor. Düzelt.",
+          "starter_code": "age = 18\nprint(age = 18)",
+          "expected_output": "True",
+          "hints": [
+            "The error mentions an invalid keyword argument. Look at what is inside print().",
+            "A single = assigns (or names an argument). To compare two values you need a different operator.",
+            "Inside print(), replace the single = with the operator that means 'is equal to' (two equal signs)."
+          ],
+          "solution": {
+            "approach": "Use == to compare; = assigns.",
+            "code": "age = 18\nprint(age == 18)",
+            "approach_tr": "Karşılaştırmak için == kullan; = değer atar."
+          },
+          "hints_tr": [
+            "Hata geçersiz bir keyword argument'tan söz ediyor. print() içine bak.",
+            "Tek = değer atar (ya da argümana ad verir). İki değeri karşılaştırmak için başka bir operatör gerekir.",
+            "print() içindeki tek = işaretini 'eşit mi' anlamına gelen operatörle (iki eşittir) değiştir."
+          ]
+        }
+      ],
+      "concept_tr": "Karşılaştırma ve üyelik (in) operatörleri"
+    },
+    {
+      "id": "d03-b3",
+      "concept": "logical-operators",
+      "tags": [
+        "logic",
+        "and",
+        "or",
+        "not"
+      ],
+      "worked_example": {
+        "code": "print(3 > 2 and 4 < 3)\nprint(3 > 2 or 4 < 3)\nprint(not False)",
+        "notes": [
+          "and needs both sides True; or needs at least one.",
+          "not flips True and False."
+        ],
+        "notes_tr": [
+          "and için iki taraf da True olmalı; or için en az biri yeterli.",
+          "not, True'yu False'a, False'u True'ya çevirir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d03-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "print(not 3 > 2)\nprint(True and not False)\nprint(3 < 2 or 4 < 3)",
+          "choices": [
+            "False\nTrue\nFalse",
+            "True\nTrue\nFalse",
+            "False\nFalse\nFalse",
+            "False\nTrue\nTrue"
+          ],
+          "expected_output": "False\nTrue\nFalse",
+          "explanation": "3 > 2 is True so not gives False. True and (not False) is True and True = True. Both sides of the or are False, so False.",
+          "misconceptions": {
+            "True\nTrue\nFalse": "not 3 > 2 flips True to False.",
+            "False\nFalse\nFalse": "not False is True, so True and True is True.",
+            "False\nTrue\nTrue": "3 < 2 is False and 4 < 3 is False; False or False is False."
+          },
+          "explanation_tr": "3 > 2 True olduğu için not onu False yapar. True and (not False), yani True and True = True. or'un iki tarafı da False, sonuç False.",
+          "misconceptions_tr": {
+            "True\nTrue\nFalse": "not 3 > 2, True'yu False'a çevirir.",
+            "False\nFalse\nFalse": "not False True'dur, yani True and True da True olur.",
+            "False\nTrue\nTrue": "3 < 2 False, 4 < 3 de False; False or False sonucu False'tur."
+          }
+        },
+        {
+          "id": "d03-b3-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints whether the person may enter (age 20 but no ticket).",
+          "prompt_tr": "Satırları, kişinin girip giremeyeceğini (20 yaşında ama bilet yok) yazdıracak şekilde sırala.",
+          "lines": [
+            "print(age >= 18 and has_ticket)",
+            "age = 20",
+            "has_ticket = False"
+          ],
+          "correct_order": [
+            1,
+            2,
+            0
+          ],
+          "distractors": [
+            "print(age >= 18 or has_ticket)"
+          ],
+          "expected_output": "False"
+        },
+        {
+          "id": "d03-b3-e3",
+          "type": "write",
+          "prompt": "Create score = 85 and attended = True. Then create passed (True only if score is at least 60 and attended) and needs_help (True if score is below 60 or the student did not attend). Print passed.",
+          "prompt_tr": "score = 85 ve attended = True oluştur. Sonra passed (yalnızca score en az 60 ve attended ise True) ve needs_help (score 60'ın altındaysa veya öğrenci derse gelmediyse True) değişkenlerini oluştur. passed'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert passed is True",
+              "visible": true,
+              "failure_message": "85 is at least 60 and attended is True, so passed is True.",
+              "label_tr": "passed doğru hesaplanıyor",
+              "failure_message_tr": "85, 60'tan büyük ve attended True, yani passed True olmalı."
+            },
+            {
+              "code": "assert needs_help is False",
+              "visible": true,
+              "failure_message": "needs_help is False for these values.",
+              "label_tr": "needs_help doğru hesaplanıyor",
+              "failure_message_tr": "Bu değerlerde needs_help False olmalı."
+            },
+            {
+              "code": "assert (score, attended) == (85, True)",
+              "visible": false,
+              "failure_message": "Start with score = 85 and attended = True.",
+              "failure_message_tr": "score = 85 ve attended = True ile başla."
+            },
+            {
+              "code": "assert passed == (score >= 60 and attended) and needs_help == (score < 60 or not attended)",
+              "visible": false,
+              "failure_message": "Use `score >= 60 and attended` and `score < 60 or not attended`.",
+              "failure_message_tr": "`score >= 60 and attended` ve `score < 60 or not attended` kullan."
+            },
+            {
+              "code": "assert __stdout__.strip() == 'True'",
+              "visible": false,
+              "failure_message": "Print passed.",
+              "failure_message_tr": "passed değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\nassert sum(isinstance(n, ast.BoolOp) for n in ast.walk(__t)) >= 2\nassert any(isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.Not) for n in ast.walk(__t))",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The booleans were typed by hand; build passed and needs_help with and, or, not.",
+              "failure_message_tr": "True/False değerlerini elle yazmışsın; passed ve needs_help'i and, or, not ile kur."
+            }
+          ],
+          "hints": [
+            "Declare the two values first.",
+            "passed combines two conditions with and; needs_help combines two conditions with or, and one of them needs not.",
+            "After the two starting values: passed = comparison and attended; needs_help = comparison or the opposite of attended. Then print only passed."
+          ],
+          "solution": {
+            "approach": "Combine comparisons with and / or / not.",
+            "code": "score = 85\nattended = True\npassed = score >= 60 and attended\nneeds_help = score < 60 or not attended\nprint(passed)",
+            "approach_tr": "Karşılaştırmaları and / or / not ile birleştir."
+          },
+          "twin": "d03-b3-e4",
+          "hints_tr": [
+            "Önce iki değeri tanımla.",
+            "passed iki koşulu and ile birleştirir; needs_help iki koşulu or ile birleştirir ve birinde not gerekir.",
+            "İki başlangıç değerinden sonra: passed = karşılaştırma and attended; needs_help = karşılaştırma or attended'ın tersi. Sonra yalnızca passed'i yazdır."
+          ]
+        },
+        {
+          "id": "d03-b3-e4",
+          "type": "write",
+          "prompt": "Create temperature = 31 and is_weekend = False. Then create go_swimming (True only if temperature is above 28 and it is the weekend) and stay_home (True if go_swimming is False). Print go_swimming.",
+          "prompt_tr": "temperature = 31 ve is_weekend = False oluştur. Sonra go_swimming (yalnızca sıcaklık 28'in üstünde ve hafta sonuysa True) ve stay_home (go_swimming False ise True) değişkenlerini oluştur. go_swimming'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert go_swimming is False",
+              "visible": true,
+              "failure_message": "It is not the weekend, so go_swimming is False.",
+              "label_tr": "go_swimming doğru hesaplanıyor",
+              "failure_message_tr": "Hafta sonu değil, yani go_swimming False olmalı."
+            },
+            {
+              "code": "assert stay_home is True",
+              "visible": true,
+              "failure_message": "stay_home is the opposite of go_swimming.",
+              "label_tr": "stay_home doğru hesaplanıyor",
+              "failure_message_tr": "stay_home, go_swimming'in tersidir."
+            },
+            {
+              "code": "assert (temperature, is_weekend) == (31, False)",
+              "visible": false,
+              "failure_message": "Start with temperature = 31 and is_weekend = False.",
+              "failure_message_tr": "temperature = 31 ve is_weekend = False ile başla."
+            },
+            {
+              "code": "assert go_swimming == (temperature > 28 and is_weekend) and stay_home == (not go_swimming)",
+              "visible": false,
+              "failure_message": "Use `temperature > 28 and is_weekend`, and `not go_swimming`.",
+              "failure_message_tr": "`temperature > 28 and is_weekend` ve `not go_swimming` kullan."
+            },
+            {
+              "code": "assert __stdout__.strip() == 'False'",
+              "visible": false,
+              "failure_message": "Print go_swimming.",
+              "failure_message_tr": "go_swimming değişkenini yazdır."
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\nassert any(isinstance(n, ast.BoolOp) and isinstance(n.op, ast.And) for n in ast.walk(__t))\nassert any(isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.Not) for n in ast.walk(__t))",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The booleans were typed by hand; build go_swimming with and and stay_home with not.",
+              "failure_message_tr": "True/False değerlerini elle yazmışsın; go_swimming'i and ile, stay_home'u not ile kur."
+            }
+          ],
+          "hints": [
+            "Declare the two values first.",
+            "go_swimming needs a comparison joined to a boolean with and; stay_home is the opposite of go_swimming.",
+            "Write the two starting values, then go_swimming (comparison and is_weekend), then stay_home using not, then print only go_swimming."
+          ],
+          "solution": {
+            "approach": "and for the double condition, not for the opposite.",
+            "code": "temperature = 31\nis_weekend = False\ngo_swimming = temperature > 28 and is_weekend\nstay_home = not go_swimming\nprint(go_swimming)",
+            "approach_tr": "Çift koşul için and, ters çevirmek için not kullan."
+          },
+          "twin": "d03-b3-e3",
+          "hints_tr": [
+            "Önce iki değeri tanımla.",
+            "go_swimming bir karşılaştırmayı bir boolean ile and ile birleştirir; stay_home, go_swimming'in tersidir.",
+            "İki başlangıç değerini yaz, sonra go_swimming (karşılaştırma and is_weekend), sonra not kullanan stay_home, en sonda yalnızca go_swimming'i yazdır."
+          ]
+        },
+        {
+          "id": "d03-b3-e5",
+          "type": "explain",
+          "prompt": "In your own words: what is the difference between = and == in Python?",
+          "prompt_tr": "Kendi cümlelerinle: Python'da = ile == arasındaki fark nedir?",
+          "model_answer": "A single = is the assignment operator: it stores a value in a variable. A double == is a comparison: it checks if two values are equal and gives True or False.",
+          "keywords": [
+            "assign",
+            "store",
+            "compar",
+            "True",
+            "equal"
+          ],
+          "model_answer_tr": "Tek = atama operatörüdür: bir değeri değişkene kaydeder. Çift == ise karşılaştırmadır: iki değerin eşit olup olmadığına bakar ve True ya da False verir.",
+          "keywords_tr": [
+            "atama",
+            "atar",
+            "kaydet",
+            "karşılaştır",
+            "eşit",
+            "True"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "Mantıksal operatörler (and, or, not)"
+    }
+  ],
+  "review_pool": [
+    "d03-b1-e1",
+    "d03-b2-e1",
+    "d03-b2-e3",
+    "d03-b3-e1",
+    "d03-b3-e3"
+  ]
+}

@@ -1,0 +1,658 @@
+{
+  "day": 13,
+  "title": "List comprehension",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "blocks": [
+    {
+      "id": "d13-b1",
+      "concept": "list-comprehension-basics",
+      "tags": [
+        "list-comprehension",
+        "lists",
+        "loops"
+      ],
+      "worked_example": {
+        "code": "squares = [i * i for i in range(5)]\nprint(squares)",
+        "notes": [
+          "Read it as: for each i in range(5), put i * i into a new list.",
+          "The expression comes first, then the for part."
+        ],
+        "notes_tr": [
+          "Şöyle oku: range(5) içindeki her i için i * i'yi yeni listeye koy.",
+          "Önce ifade, sonra for kısmı gelir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d13-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "language = 'Python'\nletters = [i for i in language]\nprint(letters)",
+          "choices": [
+            "Python",
+            "['Python']",
+            "['P', 'y', 't', 'h', 'o', 'n']"
+          ],
+          "expected_output": "['P', 'y', 't', 'h', 'o', 'n']",
+          "explanation": "A string is iterable, so the loop visits each character. The comprehension builds a list of single characters.",
+          "misconceptions": {
+            "Python": "The result is a list, so it prints with brackets and quotes.",
+            "['Python']": "The loop goes over each character, not the whole string at once."
+          },
+          "explanation_tr": "String üzerinde dolaşılabilir, bu yüzden döngü her karakteri ziyaret eder. Comprehension tek karakterlerden oluşan bir liste kurar.",
+          "misconceptions_tr": {
+            "Python": "Sonuç bir liste olduğu için köşeli parantez ve tırnaklarla yazdırılır.",
+            "['Python']": "Döngü kelimenin tamamını değil, her karakteri tek tek dolaşır."
+          }
+        },
+        {
+          "id": "d13-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the comprehension so squares holds the squares of 0 to 5.",
+          "prompt_tr": "squares listesi 0'dan 5'e kadar sayıların karelerini tutacak şekilde liste üretecini tamamlayın.",
+          "starter_code": "squares = [___ for i in ___(6)]\nprint(squares)",
+          "blanks": [
+            {
+              "answer": [
+                "i * i",
+                "i*i",
+                "i ** 2"
+              ]
+            },
+            {
+              "answer": [
+                "range"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert squares == [0, 1, 4, 9, 16, 25]",
+              "visible": true,
+              "label_tr": "squares, 0'dan 5'e kadar sayıların karelerini tutuyor"
+            }
+          ],
+          "hints": [
+            "The part before 'for' is the value that goes into the list.",
+            "range(6) gives 0, 1, 2, 3, 4, 5."
+          ],
+          "hints_tr": [
+            "'for'dan önceki kısım listeye girecek değerdir.",
+            "range(6) 0, 1, 2, 3, 4, 5 üretir."
+          ]
+        },
+        {
+          "id": "d13-b1-e3",
+          "type": "write",
+          "prompt": "Write squares_up_to(n) that returns a list of the squares of 1, 2, ..., n. Use a list comprehension. Example: squares_up_to(3) returns [1, 4, 9].",
+          "prompt_tr": "1, 2, ..., n sayılarının karelerinden oluşan bir liste döndüren squares_up_to(n) yazın. Liste üreteci kullanın. Örnek: squares_up_to(3) sonucu [1, 4, 9] olur.",
+          "starter_code": "",
+          "signature": "def squares_up_to(n):",
+          "tests": [
+            {
+              "code": "assert squares_up_to(3) == [1, 4, 9]",
+              "visible": true,
+              "label_tr": "squares_up_to(3) [1, 4, 9] veriyor"
+            },
+            {
+              "code": "assert squares_up_to(1) == [1]",
+              "visible": true,
+              "label_tr": "squares_up_to(1) [1] veriyor"
+            },
+            {
+              "code": "assert squares_up_to(0) == []",
+              "visible": false,
+              "failure_message": "For n = 0 there are no numbers: return an empty list.",
+              "failure_message_tr": "n = 0 için sayı yok: boş liste döndür."
+            },
+            {
+              "code": "assert squares_up_to(5) == [1, 4, 9, 16, 25]",
+              "visible": false,
+              "failure_message": "Start at 1 and include n: range(1, n + 1).",
+              "failure_message_tr": "1'den başla ve n'yi de kat: range(1, n + 1)."
+            },
+            {
+              "code": "assert squares_up_to(6)[-1] == 36",
+              "visible": false,
+              "failure_message": "The last item must be n squared.",
+              "failure_message_tr": "Son eleman n'nin karesi olmalı."
+            },
+            {
+              "code": "assert squares_up_to(8) == [1, 4, 9, 16, 25, 36, 49, 64]",
+              "visible": false,
+              "failure_message": "Build the list from n; do not hard-code results.",
+              "failure_message_tr": "Listeyi n'den üret; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "range(start, stop) stop'tan ÖNCE durur.",
+            "Use range(1, n + 1) and square each item.",
+            "return [i * i for i in range(1, ___)] (what makes the range include n?)"
+          ],
+          "solution": {
+            "approach": "Loop from 1 to n inclusive and square every item inside one comprehension.",
+            "code": "def squares_up_to(n):\n    return [i * i for i in range(1, n + 1)]",
+            "approach_tr": "1'den n'ye (n dahil) git ve her sayının karesini tek bir comprehension içinde al."
+          },
+          "twin": "d13-b1-e4",
+          "hints_tr": [
+            "range(start, stop) stop değerinden ÖNCE durur.",
+            "range(1, n + 1) kullan ve her elemanın karesini al.",
+            "return [i * i for i in range(1, ___)] (aralığın n'yi de kapsaması için ne yazılmalı?)"
+          ]
+        },
+        {
+          "id": "d13-b1-e4",
+          "type": "write",
+          "prompt": "Write cubes_up_to(n) that returns a list of the cubes of 1, 2, ..., n. Use a list comprehension. Example: cubes_up_to(3) returns [1, 8, 27].",
+          "prompt_tr": "1, 2, ..., n sayılarının küplerinden oluşan bir liste döndüren cubes_up_to(n) yazın. Liste üreteci kullanın. Örnek: cubes_up_to(3) sonucu [1, 8, 27] olur.",
+          "starter_code": "",
+          "signature": "def cubes_up_to(n):",
+          "tests": [
+            {
+              "code": "assert cubes_up_to(3) == [1, 8, 27]",
+              "visible": true,
+              "label_tr": "cubes_up_to(3) [1, 8, 27] veriyor"
+            },
+            {
+              "code": "assert cubes_up_to(1) == [1]",
+              "visible": true,
+              "label_tr": "cubes_up_to(1) [1] veriyor"
+            },
+            {
+              "code": "assert cubes_up_to(0) == []",
+              "visible": false,
+              "failure_message": "For n = 0 return an empty list.",
+              "failure_message_tr": "n = 0 için boş liste döndür."
+            },
+            {
+              "code": "assert cubes_up_to(4) == [1, 8, 27, 64]",
+              "visible": false,
+              "failure_message": "Include n itself: range(1, n + 1).",
+              "failure_message_tr": "n'yi de kat: range(1, n + 1)."
+            },
+            {
+              "code": "assert cubes_up_to(5)[-1] == 125",
+              "visible": false,
+              "failure_message": "The last item must be n cubed.",
+              "failure_message_tr": "Son eleman n'nin küpü olmalı."
+            },
+            {
+              "code": "assert cubes_up_to(6) == [1, 8, 27, 64, 125, 216]",
+              "visible": false,
+              "failure_message": "Build the list from n; do not hard-code results.",
+              "failure_message_tr": "Listeyi n'den üret; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "range(1, n + 1) gives 1 to n.",
+            "Cube means raising to the third power.",
+            "return [i ___ 3 for i in range(1, n + 1)] (which operator raises to a power?)"
+          ],
+          "solution": {
+            "approach": "Same pattern as squares, with the power 3.",
+            "code": "def cubes_up_to(n):\n    return [i ** 3 for i in range(1, n + 1)]",
+            "approach_tr": "Kareler ile aynı kalıp, sadece üs 3."
+          },
+          "twin": "d13-b1-e3",
+          "hints_tr": [
+            "range(1, n + 1), 1'den n'ye kadar üretir.",
+            "Küp, üçüncü kuvvete almaktır.",
+            "return [i ___ 3 for i in range(1, n + 1)] (üs alma için hangi operatör?)"
+          ]
+        }
+      ],
+      "concept_tr": "List comprehension, tek satırda yeni bir liste kurmanın kısa yoludur: önce değer ifadesi, sonra for kısmı yazılır."
+    },
+    {
+      "id": "d13-b2",
+      "concept": "comprehension-with-condition",
+      "tags": [
+        "list-comprehension",
+        "filtering",
+        "nested-loops"
+      ],
+      "worked_example": {
+        "code": "numbers = [1, 2, 3, 4, 5, 6]\nevens = [i for i in numbers if i % 2 == 0]\nprint(evens)",
+        "notes": [
+          "The if at the end filters: only items that pass go into the list.",
+          "Without if you get one result per item."
+        ],
+        "notes_tr": [
+          "Sondaki if süzer: yalnızca şartı geçen elemanlar listeye girer.",
+          "if olmazsa her eleman için bir sonuç elde edersin."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d13-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print? Think about 0 and the negative numbers.",
+          "prompt_tr": "Bu ne yazdırır? 0'ı ve negatif sayıları düşünün.",
+          "code": "numbers = [-8, -7, -3, -1, 0, 1, 3, 4, 5, 7, 6, 8, 10]\nprint([i for i in numbers if i % 2 == 0 and i > 0])",
+          "choices": [
+            "[0, 4, 6, 8, 10]",
+            "[-8, 0, 4, 6, 8, 10]",
+            "[4, 6, 8, 10]"
+          ],
+          "expected_output": "[4, 6, 8, 10]",
+          "explanation": "An item is kept only if it is even AND positive. That leaves 4, 6, 8, 10 in their original order. (The lesson's printed comment shows a different list; run the code to see the real result.)",
+          "misconceptions": {
+            "[0, 4, 6, 8, 10]": "0 is even but 0 > 0 is False, so 0 is filtered out.",
+            "[-8, 0, 4, 6, 8, 10]": "Both conditions must be true: negative numbers fail i > 0."
+          },
+          "explanation_tr": "Bir eleman sadece hem çift HEM pozitifse tutulur. Geriye 4, 6, 8, 10 kalır, özgün sıralarıyla. (Dersin yorumunda yazan liste farklı; gerçek sonucu görmek için kodu çalıştır.)",
+          "misconceptions_tr": {
+            "[0, 4, 6, 8, 10]": "0 çifttir ama 0 > 0 yanlıştır, bu yüzden 0 elenir.",
+            "[-8, 0, 4, 6, 8, 10]": "İki şart da doğru olmalı: negatif sayılar i > 0'ı geçemez."
+          }
+        },
+        {
+          "id": "d13-b2-e2",
+          "type": "parsons",
+          "prompt": "Order the lines to flatten the list of lists into one list.",
+          "prompt_tr": "İç içe listeyi tek bir listeye düzleştirmek için satırları sıralayın.",
+          "lines": [
+            "flattened = [number for row in list_of_lists for number in row]",
+            "print(flattened)",
+            "list_of_lists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]"
+          ],
+          "correct_order": [
+            2,
+            0,
+            1
+          ],
+          "distractors": [
+            "flattened = [number for number in list_of_lists for row in number]"
+          ],
+          "expected_output": "[1, 2, 3, 4, 5, 6, 7, 8, 9]"
+        },
+        {
+          "id": "d13-b2-e3",
+          "type": "write",
+          "prompt": "Write positive_evens(numbers) that returns the positive even numbers from the list, in the same order. Use a list comprehension with a condition.",
+          "prompt_tr": "Listedeki pozitif çift sayıları aynı sırayla döndüren positive_evens(numbers) yazın. Koşullu liste üreteci kullanın.",
+          "starter_code": "",
+          "signature": "def positive_evens(numbers):",
+          "tests": [
+            {
+              "code": "assert positive_evens([-4, 0, 2, 3, 6]) == [2, 6]",
+              "visible": true,
+              "label_tr": "positive_evens([-4, 0, 2, 3, 6]) [2, 6] veriyor"
+            },
+            {
+              "code": "assert positive_evens([1, 3, 5]) == []",
+              "visible": true,
+              "label_tr": "positive_evens([1, 3, 5]) boş liste veriyor"
+            },
+            {
+              "code": "assert positive_evens([0]) == []",
+              "visible": false,
+              "failure_message": "0 is not positive.",
+              "failure_message_tr": "0 pozitif değildir."
+            },
+            {
+              "code": "assert positive_evens([-2, -4]) == []",
+              "visible": false,
+              "failure_message": "Negative even numbers must be left out.",
+              "failure_message_tr": "Negatif çift sayılar dışarıda kalmalı."
+            },
+            {
+              "code": "assert positive_evens([8, 2, 6]) == [8, 2, 6]",
+              "visible": false,
+              "failure_message": "Keep the original order; do not sort.",
+              "failure_message_tr": "Özgün sırayı koru; sıralama yapma."
+            },
+            {
+              "code": "assert positive_evens([12, -6, 5, 10, 0, 4]) == [12, 10, 4]",
+              "visible": false,
+              "failure_message": "Filter the list given; do not hard-code results.",
+              "failure_message_tr": "Verilen listeyi filtrele; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "You need two conditions at once.",
+            "Join the two conditions with a logical keyword after the if.",
+            "return [i for i in numbers if i % 2 == 0 ___ i > 0] (which keyword joins two conditions?)"
+          ],
+          "solution": {
+            "approach": "One comprehension with a combined condition.",
+            "code": "def positive_evens(numbers):\n    return [i for i in numbers if i % 2 == 0 and i > 0]",
+            "approach_tr": "Birleşik şartlı tek bir comprehension."
+          },
+          "twin": "d13-b2-e4",
+          "hints_tr": [
+            "Aynı anda iki şarta ihtiyacın var.",
+            "if'ten sonra iki şartı mantıksal bir anahtar kelimeyle birleştir.",
+            "return [i for i in numbers if i % 2 == 0 ___ i > 0] (iki şartı hangi anahtar kelime birleştirir?)"
+          ]
+        },
+        {
+          "id": "d13-b2-e4",
+          "type": "write",
+          "prompt": "Write long_words(words, n) that returns the words with more than n letters, in the same order. Use a list comprehension.",
+          "prompt_tr": "n harften uzun kelimeleri aynı sırayla döndüren long_words(words, n) yazın. Liste üreteci kullanın.",
+          "starter_code": "",
+          "signature": "def long_words(words, n):",
+          "tests": [
+            {
+              "code": "assert long_words(['Asabeneh', 'Lidiya', 'Eyob'], 5) == ['Asabeneh', 'Lidiya']",
+              "visible": true,
+              "label_tr": "long_words(['Asabeneh', 'Lidiya', 'Eyob'], 5) ['Asabeneh', 'Lidiya'] veriyor"
+            },
+            {
+              "code": "assert long_words(['a', 'bb'], 5) == []",
+              "visible": true,
+              "label_tr": "long_words(['a', 'bb'], 5) boş liste veriyor"
+            },
+            {
+              "code": "assert long_words(['Ermias', 'Brook'], 5) == ['Ermias']",
+              "visible": false,
+              "failure_message": "'more than n' means len(word) > n, so a 5-letter word is not included when n is 5.",
+              "failure_message_tr": "'n'den fazla' demek len(word) > n demektir; n 5 iken 5 harfli kelime girmez."
+            },
+            {
+              "code": "assert long_words([], 3) == []",
+              "visible": false,
+              "failure_message": "An empty input gives an empty list.",
+              "failure_message_tr": "Boş girdi boş liste verir."
+            },
+            {
+              "code": "assert long_words(['abcd', 'abc', 'ab'], 2) == ['abcd', 'abc']",
+              "visible": false,
+              "failure_message": "Keep the original order.",
+              "failure_message_tr": "Özgün sırayı koru."
+            },
+            {
+              "code": "assert long_words(['kedi', 'aslan', 'fil', 'zürafa'], 3) == ['kedi', 'aslan', 'zürafa']",
+              "visible": false,
+              "failure_message": "Filter the words given; do not hard-code results.",
+              "failure_message_tr": "Verilen kelimeleri filtrele; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "len(word) gives the number of letters.",
+            "Compare the length with n inside the if part.",
+            "return [w for w in words if ___ > n] (what goes in the blank to get the length of w?)"
+          ],
+          "solution": {
+            "approach": "Filter with len(w) > n inside a comprehension.",
+            "code": "def long_words(words, n):\n    return [w for w in words if len(w) > n]",
+            "approach_tr": "Comprehension içinde len(w) > n ile filtrele."
+          },
+          "twin": "d13-b2-e3",
+          "hints_tr": [
+            "len(word) harf sayısını verir.",
+            "if kısmında uzunluğu n ile karşılaştır.",
+            "return [w for w in words if ___ > n] (w'nin uzunluğunu almak için boşluğa ne yazılır?)"
+          ]
+        }
+      ],
+      "concept_tr": "Sonuna eklenen if bir filtre gibi çalışır: sadece şartı sağlayan elemanlar yeni listeye girer."
+    },
+    {
+      "id": "d13-b3",
+      "concept": "lambda-functions",
+      "tags": [
+        "lambda",
+        "functions"
+      ],
+      "worked_example": {
+        "code": "square = lambda x: x ** 2\nadd = lambda a, b: a + b\n\nprint(square(3))\nprint(add(2, 3))",
+        "notes": [
+          "lambda has no name, no return keyword and only one expression.",
+          "The expression after the colon is returned automatically."
+        ],
+        "notes_tr": [
+          "lambda'nın adı yoktur, return anahtar kelimesi kullanılmaz ve tek bir ifadesi olur.",
+          "İki noktadan sonraki ifade otomatik olarak döndürülür."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d13-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "def power(x):\n    return lambda n: x ** n\n\nprint(power(2)(5))\ncube = power(2)\nprint(cube(3))",
+          "choices": [
+            "10\n6",
+            "32\n9",
+            "32\n8"
+          ],
+          "expected_output": "32\n8",
+          "explanation": "power(2) returns a lambda that remembers x = 2. Calling it with 5 gives 2 ** 5 = 32; calling cube(3) gives 2 ** 3 = 8.",
+          "misconceptions": {
+            "10\n6": "** is exponentiation: 2 ** 5 is 32, not 2 * 5.",
+            "32\n9": "power(2) remembers x = 2, so cube(3) is 2 ** 3, not 3 ** 2."
+          },
+          "explanation_tr": "power(2), x = 2'yi hatırlayan bir lambda döndürür. 5 ile çağırınca 2 ** 5 = 32, cube(3) ise 2 ** 3 = 8 olur.",
+          "misconceptions_tr": {
+            "10\n6": "** üs almadır: 2 ** 5, 32 eder; 2 * 5 değil.",
+            "32\n9": "power(2) x = 2'yi hatırlar, yani cube(3) hesabı 2 ** 3'tür, 3 ** 2 değil."
+          }
+        },
+        {
+          "id": "d13-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Turn the two functions into lambda functions.",
+          "prompt_tr": "İki fonksiyonu lambda fonksiyonlarına dönüştürün.",
+          "starter_code": "square = ___ x: x ** 2\nmultiply = lambda a, b___ a * b\nprint(square(3))\nprint(multiply(4, 5))",
+          "blanks": [
+            {
+              "answer": [
+                "lambda"
+              ]
+            },
+            {
+              "answer": [
+                ":"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert square(3) == 9",
+              "visible": true,
+              "label_tr": "square(3) 9 veriyor"
+            },
+            {
+              "code": "assert multiply(4, 5) == 20",
+              "visible": true,
+              "label_tr": "multiply(4, 5) 20 veriyor"
+            }
+          ],
+          "hints": [
+            "The keyword that creates an anonymous function is lambda.",
+            "A colon separates the parameters from the expression."
+          ],
+          "hints_tr": [
+            "İsimsiz fonksiyon oluşturan anahtar kelime lambda'dır.",
+            "İki nokta üst üste, parametreleri ifadeden ayırır."
+          ]
+        },
+        {
+          "id": "d13-b3-e3",
+          "type": "write",
+          "prompt": "Write make_multiplier(n) that returns a lambda function. The returned function takes one number and returns that number multiplied by n.",
+          "prompt_tr": "Bir lambda fonksiyonu döndüren make_multiplier(n) yazın. Dönen fonksiyon bir sayı alıp onu n ile çarpmalıdır.",
+          "starter_code": "",
+          "signature": "def make_multiplier(n):",
+          "tests": [
+            {
+              "code": "assert make_multiplier(3)(4) == 12",
+              "visible": true,
+              "label_tr": "make_multiplier(3)(4) 12 veriyor"
+            },
+            {
+              "code": "assert make_multiplier(2)(5) == 10",
+              "visible": true,
+              "label_tr": "make_multiplier(2)(5) 10 veriyor"
+            },
+            {
+              "code": "assert make_multiplier(0)(9) == 0",
+              "visible": false,
+              "failure_message": "Multiplying by 0 gives 0.",
+              "failure_message_tr": "0 ile çarpmak 0 verir."
+            },
+            {
+              "code": "double = make_multiplier(2)\ntriple = make_multiplier(3)\nassert (double(5), triple(5)) == (10, 15)",
+              "visible": false,
+              "failure_message": "Each call to make_multiplier must remember its own n.",
+              "failure_message_tr": "make_multiplier'ın her çağrısı kendi n değerini hatırlamalı."
+            },
+            {
+              "code": "assert callable(make_multiplier(2))",
+              "visible": false,
+              "failure_message": "make_multiplier must RETURN a function, not a number.",
+              "failure_message_tr": "make_multiplier bir sayı değil, bir FONKSİYON döndürmeli."
+            },
+            {
+              "code": "assert make_multiplier(11)(6) == 66 and make_multiplier(-2)(5) == -10",
+              "visible": false,
+              "failure_message": "Use n from the call; do not hard-code results.",
+              "failure_message_tr": "n değerini çağrıdan al; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "The outer function returns a function.",
+            "A lambda defined inside can use the n of the outer call.",
+            "return lambda x: ___ (what should the inner function compute from x and n?)"
+          ],
+          "solution": {
+            "approach": "Return a lambda that uses the n of the outer call.",
+            "code": "def make_multiplier(n):\n    return lambda x: x * n",
+            "approach_tr": "Dış çağrının n değerini kullanan bir lambda döndür."
+          },
+          "twin": "d13-b3-e4",
+          "hints_tr": [
+            "Dıştaki fonksiyon bir fonksiyon döndürür.",
+            "İçeride tanımlanan lambda, dış çağrının n değerini kullanabilir.",
+            "return lambda x: ___ (iç fonksiyon x ve n ile ne hesaplamalı?)"
+          ]
+        },
+        {
+          "id": "d13-b3-e4",
+          "type": "write",
+          "prompt": "Write make_adder(n) that returns a lambda function. The returned function takes one number and returns that number plus n.",
+          "prompt_tr": "Bir lambda fonksiyonu döndüren make_adder(n) yazın. Dönen fonksiyon bir sayı alıp ona n eklemelidir.",
+          "starter_code": "",
+          "signature": "def make_adder(n):",
+          "tests": [
+            {
+              "code": "assert make_adder(3)(4) == 7",
+              "visible": true,
+              "label_tr": "make_adder(3)(4) 7 veriyor"
+            },
+            {
+              "code": "assert make_adder(10)(5) == 15",
+              "visible": true,
+              "label_tr": "make_adder(10)(5) 15 veriyor"
+            },
+            {
+              "code": "assert make_adder(0)(9) == 9",
+              "visible": false,
+              "failure_message": "Adding 0 changes nothing.",
+              "failure_message_tr": "0 eklemek hiçbir şeyi değiştirmez."
+            },
+            {
+              "code": "add2 = make_adder(2)\nadd7 = make_adder(7)\nassert (add2(1), add7(1)) == (3, 8)",
+              "visible": false,
+              "failure_message": "Each call to make_adder must remember its own n.",
+              "failure_message_tr": "make_adder'ın her çağrısı kendi n değerini hatırlamalı."
+            },
+            {
+              "code": "assert callable(make_adder(2))",
+              "visible": false,
+              "failure_message": "make_adder must RETURN a function, not a number.",
+              "failure_message_tr": "make_adder bir sayı değil, bir FONKSİYON döndürmeli."
+            },
+            {
+              "code": "assert make_adder(25)(17) == 42 and make_adder(-3)(1) == -2",
+              "visible": false,
+              "failure_message": "Use n from the call; do not hard-code results.",
+              "failure_message_tr": "n değerini çağrıdan al; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "The outer function returns a function.",
+            "A lambda defined inside can use the n of the outer call.",
+            "return lambda x: ___ (what should the inner function compute from x and n?)"
+          ],
+          "solution": {
+            "approach": "Return a lambda that adds the n of the outer call.",
+            "code": "def make_adder(n):\n    return lambda x: x + n",
+            "approach_tr": "Dış çağrının n değerini toplayan bir lambda döndür."
+          },
+          "twin": "d13-b3-e3",
+          "hints_tr": [
+            "Dıştaki fonksiyon bir fonksiyon döndürür.",
+            "İçeride tanımlanan lambda, dış çağrının n değerini kullanabilir.",
+            "return lambda x: ___ (iç fonksiyon x ve n ile ne hesaplamalı?)"
+          ]
+        },
+        {
+          "id": "d13-b3-e5",
+          "type": "debug",
+          "prompt": "This lambda should add two numbers, but the program does not even start. Fix it.",
+          "prompt_tr": "Bu lambda iki sayıyı toplamalı ama program başlamıyor bile. Düzeltin.",
+          "starter_code": "add_two_nums = lambda a, b: return a + b\nprint(add_two_nums(2, 3))",
+          "expected_output": "5",
+          "tests": [
+            {
+              "code": "assert add_two_nums(1, 1) == 2",
+              "visible": true,
+              "label_tr": "add_two_nums(1, 1) 2 veriyor"
+            }
+          ],
+          "hints": [
+            "Read the SyntaxError message and look at where the arrow points.",
+            "A lambda body is a single expression, and it is returned automatically.",
+            "Delete one keyword from the lambda line: the one that is not allowed there."
+          ],
+          "solution": {
+            "approach": "lambda never uses the return keyword; the expression after the colon is the result.",
+            "code": "add_two_nums = lambda a, b: a + b\nprint(add_two_nums(2, 3))",
+            "approach_tr": "lambda'da return kullanılmaz; iki noktadan sonraki ifade sonucun kendisidir."
+          },
+          "hints_tr": [
+            "SyntaxError mesajını oku ve okun nereyi gösterdiğine bak.",
+            "lambda gövdesi tek bir ifadedir ve otomatik döndürülür.",
+            "lambda satırından bir anahtar kelimeyi sil: orada kullanılmaması gereken kelimeyi."
+          ]
+        },
+        {
+          "id": "d13-b3-e6",
+          "type": "explain",
+          "prompt": "In your own words, read this comprehension aloud step by step: [x * 2 for x in nums if x > 0]",
+          "prompt_tr": "Kendi cümlelerinizle bu liste üretecini adım adım okuyun: [x * 2 for x in nums if x > 0]",
+          "model_answer": "For each x in nums, check if x is greater than 0. If it is, calculate x * 2 and put it into a new list. Items that fail the if are skipped.",
+          "keywords": [
+            "for each",
+            "if",
+            "new list"
+          ],
+          "model_answer_tr": "nums içindeki her x için x'in 0'dan büyük olup olmadığına bakılır. Büyükse x * 2 hesaplanıp yeni bir listeye konur. if şartını geçemeyen elemanlar atlanır.",
+          "keywords_tr": [
+            "her",
+            "if",
+            "liste",
+            "büyük"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "lambda, adı olmayan ve tek bir ifadeden oluşan küçük fonksiyondur. Başka bir fonksiyonun döndürdüğü fonksiyon olarak da kullanılır."
+    }
+  ],
+  "review_pool": [
+    "d13-b1-e1",
+    "d13-b1-e3",
+    "d13-b2-e1",
+    "d13-b2-e3",
+    "d13-b3-e1",
+    "d13-b3-e3"
+  ],
+  "title_tr": "List comprehension"
+}

@@ -1,0 +1,276 @@
+{
+  "day": 12,
+  "title_tr": "Modüller",
+  "title": "Modules",
+  "est_minutes": 22,
+  "cards": [
+    {
+      "id": "d12-c01",
+      "type": "explain",
+      "section": "What is a Module",
+      "title_tr": "Modül nedir?",
+      "title": "What is a module?",
+      "body_tr": "Modül, içinde fonksiyon, değişken ya da kod bulunan bir `.py` dosyasıdır. Başka dosyalarda `import` ile kullanırsın; böylece aynı kodu tekrar yazmazsın.",
+      "body": "A module is a `.py` file holding functions, variables or code. You `import` it elsewhere, so you never rewrite the same code."
+    },
+    {
+      "id": "d12-c02",
+      "type": "explain",
+      "section": "Creating a Module",
+      "title_tr": "Kendi modülünü yaz",
+      "title": "Create your own module",
+      "body_tr": "Normalde `mymodule.py` dosyasını editörde yazarsın. Tarayıcıda dosyayı kodla yazıyoruz; sonuç aynı: diskte bir modül dosyası.",
+      "body": "Normally you write `mymodule.py` in an editor. Here we write the file from code; the result is the same: a module file.",
+      "code": "src = 'def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n'\nwith open('mymodule.py', 'w') as f:\n    f.write(src)\nprint(open('mymodule.py').read())",
+      "expected_output": "def generate_full_name(firstname, lastname):\n    return firstname + ' ' + lastname"
+    },
+    {
+      "id": "d12-c03",
+      "type": "explain",
+      "section": "Importing a Module",
+      "title_tr": "import modül",
+      "title": "import module",
+      "body_tr": "`import mymodule` dosyayı yükler (`.py` yazmazsın). İçindekilere `mymodule.ad` ile ulaşırsın. (Kodun ilk iki satırı sadece modül dosyasını hazırlar.)",
+      "body": "`import mymodule` loads the file (no `.py`). Reach its contents with `mymodule.name`. (The first two code lines just prepare the module file.)",
+      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nimport mymodule\nprint(mymodule.generate_full_name('Asabeneh', 'Yetayeh'))",
+      "expected_output": "Asabeneh Yetayeh",
+      "trace": true
+    },
+    {
+      "id": "d12-c04",
+      "type": "predict",
+      "section": "Importing a Module",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nimport mymodule\nprint(mymodule.sum_two_nums(1, 9))",
+      "choices": [
+        "10",
+        "19",
+        "Hata verir"
+      ],
+      "answer": "10",
+      "why_tr": "`mymodule.sum_two_nums` 1 + 9 hesaplar.",
+      "why": "`mymodule.sum_two_nums` computes 1 + 9."
+    },
+    {
+      "id": "d12-c05",
+      "type": "explain",
+      "section": "Import Functions from a Module",
+      "title_tr": "from ... import",
+      "title": "from ... import",
+      "body_tr": "Yalnız ihtiyacın olanları `from modül import ad` ile alırsan başına modül adı yazmadan kullanırsın.",
+      "body": "Take only what you need with `from module import name` and use it without the module prefix.",
+      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nfrom mymodule import generate_full_name, sum_two_nums, person, gravity\nprint(generate_full_name('Asabeneh', 'Yetayeh'))\nprint(sum_two_nums(1, 9))\nmass = 100\nprint(mass * gravity)\nprint(person['firstname'])",
+      "expected_output": "Asabeneh Yetayeh\n10\n981.0\nAsabeneh"
+    },
+    {
+      "id": "d12-c06",
+      "type": "fill",
+      "section": "Import Functions from a Module",
+      "prompt_tr": "Boşluğu doldur.",
+      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nfrom mymodule ___ sum_two_nums\nprint(sum_two_nums(2, 3))",
+      "answers": [
+        "import"
+      ],
+      "expected_output": "5",
+      "why_tr": "Sözdizimi `from modül import ad` şeklindedir.",
+      "why": "The syntax is `from module import name`."
+    },
+    {
+      "id": "d12-c07",
+      "type": "explain",
+      "section": "Import Functions from a Module and Renaming",
+      "title_tr": "as ile yeniden adlandır",
+      "title": "Rename with as",
+      "body_tr": "`as` ile içe aktarırken kısa bir takma ad verebilirsin.",
+      "body": "`as` gives the imported name a shorter alias.",
+      "code": "open('mymodule.py', 'w').write('def generate_full_name(firstname, lastname):\\n    return firstname + \\' \\' + lastname\\n\\ndef sum_two_nums(a, b):\\n    return a + b\\n\\nperson = {\\'firstname\\': \\'Asabeneh\\'}\\ngravity = 9.81\\n')\nimport importlib; importlib.invalidate_caches()\nfrom mymodule import generate_full_name as fullname, sum_two_nums as total\nprint(fullname('Asabeneh', 'Yetayeh'))\nprint(total(1, 9))",
+      "expected_output": "Asabeneh Yetayeh\n10"
+    },
+    {
+      "id": "d12-c08",
+      "type": "explain",
+      "section": "Import Built-in Modules",
+      "title_tr": "Hazır modüller",
+      "title": "Built-in modules",
+      "body_tr": "Python ile gelen birçok hazır modül var: `math`, `datetime`, `os`, `sys`, `random`, `statistics`, `collections`, `json`, `re`. Aynı `import` söz dizimiyle kullanılırlar.",
+      "body": "Python ships many ready modules: `math`, `datetime`, `os`, `sys`, `random`, `statistics`, `collections`, `json`, `re`. They use the same `import` syntax."
+    },
+    {
+      "id": "d12-c09",
+      "type": "explain",
+      "section": "OS Module",
+      "title_tr": "os modülü",
+      "title": "The os module",
+      "body_tr": "`os`, işletim sistemi işlerini yapar: klasör oluşturma, silme, bulunduğun klasörü öğrenme. Tarayıcıda sanal bir dosya sistemi var, bu yüzden güvenle deneyebilirsin.",
+      "body": "`os` does operating system tasks: creating or removing folders, finding the current folder. The browser has a virtual file system, so it is safe to try.",
+      "code": "import os\n\nos.mkdir('demo')\nprint(os.path.isdir('demo'))\nos.rmdir('demo')\nprint(os.path.isdir('demo'))",
+      "expected_output": "True\nFalse",
+      "trace": true
+    },
+    {
+      "id": "d12-c10",
+      "type": "order",
+      "section": "OS Module",
+      "prompt_tr": "Satırları doğru sıraya diz.",
+      "lines": [
+        "os.rmdir('demo')",
+        "import os",
+        "print(os.path.isdir('demo'))",
+        "print(os.path.isdir('demo'))",
+        "os.mkdir('demo')"
+      ],
+      "correct_order": [
+        1,
+        4,
+        3,
+        0,
+        2
+      ],
+      "expected_output": "True\nFalse"
+    },
+    {
+      "id": "d12-c11",
+      "type": "explain",
+      "section": "Sys Module",
+      "title_tr": "sys modülü",
+      "title": "The sys module",
+      "body_tr": "`sys.argv`, komut satırından verilen argümanların listesidir; 0. eleman betiğin adıdır. Burada komut satırı yok, bu yüzden listeyi kendimiz taklit ediyoruz. `sys.exit()` programı bitirir, `sys.version` sürümü verir.",
+      "body": "`sys.argv` is the list of command line arguments; item 0 is the script name. There is no command line here, so we fake the list. `sys.exit()` ends the program and `sys.version` gives the version.",
+      "code": "import sys\n\nsys.argv = ['script.py', 'Asabeneh', '30DaysOfPython']\nprint('Welcome {}. Enjoy {} challenge!'.format(sys.argv[1], sys.argv[2]))",
+      "expected_output": "Welcome Asabeneh. Enjoy 30DaysOfPython challenge!"
+    },
+    {
+      "id": "d12-c12",
+      "type": "explain",
+      "section": "Statistics Module",
+      "title_tr": "statistics modülü",
+      "title": "The statistics module",
+      "body_tr": "`mean`, `median`, `mode` ve `stdev` gibi istatistik fonksiyonlarını verir. Ortalamayı tahmin et, sonra çalıştır. (Derste yazan ~22.9 yanlış; gerçek değeri kod hesaplar.)",
+      "body": "It provides `mean`, `median`, `mode`, `stdev` and more. Guess the mean, then run. (The lesson's ~22.9 is wrong; the code computes the real value.)",
+      "code": "from statistics import mean, median, mode, stdev\n\nages = [20, 20, 4, 24, 25, 22, 26, 20, 23, 22, 26]\nprint(round(mean(ages), 2))\nprint(median(ages))\nprint(mode(ages))\nprint(round(stdev(ages), 2))",
+      "expected_output": "21.09\n22\n20\n6.11",
+      "hide_output": true
+    },
+    {
+      "id": "d12-c13",
+      "type": "predict",
+      "section": "Statistics Module",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "from statistics import median, mode\n\nprint(median([1, 3, 9]), mode([2, 2, 5]))",
+      "choices": [
+        "3 2",
+        "9 2",
+        "3 5",
+        "4.33 2"
+      ],
+      "answer": "3 2",
+      "why_tr": "Ortanca 3, en sık görülen 2.",
+      "why": "The median is 3, the most frequent value is 2."
+    },
+    {
+      "id": "d12-c14",
+      "type": "explain",
+      "section": "Math Module",
+      "title_tr": "math modülü",
+      "title": "The math module",
+      "body_tr": "`math` sabitler (`pi`) ve fonksiyonlar (`sqrt`, `pow`, `floor`, `ceil`, `log10`) içerir. `dir(math)` ile içindekileri listeleyebilirsin.",
+      "body": "`math` has constants (`pi`) and functions (`sqrt`, `pow`, `floor`, `ceil`, `log10`). `dir(math)` lists what is inside.",
+      "code": "import math\n\nprint(math.pi)\nprint(math.sqrt(2))\nprint(math.pow(2, 3))\nprint(math.floor(9.81))\nprint(math.ceil(9.81))\nprint(math.log10(100))",
+      "expected_output": "3.141592653589793\n1.4142135623730951\n8.0\n9\n10\n2.0"
+    },
+    {
+      "id": "d12-c15",
+      "type": "predict",
+      "section": "Math Module",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "import math\n\nprint(math.floor(9.81), math.ceil(9.01))",
+      "choices": [
+        "9 10",
+        "10 10",
+        "9 9",
+        "10 9"
+      ],
+      "answer": "9 10",
+      "why_tr": "`floor` aşağı, `ceil` yukarı yuvarlar.",
+      "why": "`floor` rounds down, `ceil` rounds up."
+    },
+    {
+      "id": "d12-c16",
+      "type": "explain",
+      "section": "Math Module",
+      "title_tr": "Sadece gerekeni içe aktar",
+      "title": "Import only what you need",
+      "body_tr": "`from math import pi, sqrt` ile modül adı olmadan kullanırsın. `as` ile ad değiştirebilirsin. `from math import *` hepsini getirir ama hangi ad nereden geldi karışır; kaçın. Not: derste `import *` sonrası `math.log10` yazılmış, bu hata verir (`math` içe aktarılmadı).",
+      "body": "`from math import pi, sqrt` lets you skip the module prefix, and `as` renames. `from math import *` brings everything but hides where names come from; avoid it. Note: the lesson writes `math.log10` after `import *`, which errors (`math` was not imported).",
+      "code": "from math import pi as PI, sqrt, log10\n\nprint(PI)\nprint(sqrt(2))\nprint(log10(100))",
+      "expected_output": "3.141592653589793\n1.4142135623730951\n2.0"
+    },
+    {
+      "id": "d12-c17",
+      "type": "truefalse",
+      "section": "Math Module",
+      "statement_tr": "`from math import sqrt` yaptıktan sonra `math.sqrt(4)` de çalışır.",
+      "statement": "After `from math import sqrt`, `math.sqrt(4)` also works.",
+      "answer": false,
+      "why_tr": "Yalnız `sqrt` adı gelir; `math` adı tanımlanmaz, NameError olur.",
+      "why": "Only the name `sqrt` is imported; `math` is not defined, giving a NameError."
+    },
+    {
+      "id": "d12-c18",
+      "type": "explain",
+      "section": "String Module",
+      "title_tr": "string modülü",
+      "title": "The string module",
+      "body_tr": "`string` hazır karakter kümeleri verir: harfler, rakamlar, noktalama.",
+      "body": "`string` provides ready character sets: letters, digits, punctuation.",
+      "code": "import string\n\nprint(string.ascii_letters)\nprint(string.digits)\nprint(string.punctuation)",
+      "expected_output": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789\n!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+    },
+    {
+      "id": "d12-c19",
+      "type": "explain",
+      "section": "Random Module",
+      "title_tr": "random modülü",
+      "title": "The random module",
+      "body_tr": "`random()` 0 ile 1 arasında (1 hariç) bir ondalık sayı, `randint(a, b)` iki ucu da dahil bir tam sayı verir. Sonuç her seferinde değiştiği için aralıkları kontrol ediyoruz.",
+      "body": "`random()` gives a float from 0 up to (not including) 1; `randint(a, b)` gives an integer including both ends. Results change every run, so we check ranges.",
+      "code": "from random import random, randint\n\nprint(0 <= random() < 1)\nprint(5 <= randint(5, 20) <= 20)",
+      "expected_output": "True\nTrue"
+    },
+    {
+      "id": "d12-c20",
+      "type": "fill",
+      "section": "Random Module",
+      "prompt_tr": "Boşluğu doldur.",
+      "code": "from random import ___\n\nprint(randint(7, 7))",
+      "answers": [
+        "randint"
+      ],
+      "expected_output": "7",
+      "why_tr": "`randint(7, 7)` her zaman 7 verir; fonksiyon adı `randint`.",
+      "why": "`randint(7, 7)` always gives 7; the function is `randint`."
+    },
+    {
+      "id": "d12-c21",
+      "type": "recap",
+      "section": "Recap",
+      "title_tr": "Özet",
+      "title": "Summary",
+      "points_tr": [
+        "Modül bir `.py` dosyasıdır; `import modül` ya da `from modül import ad` ile kullanılır.",
+        "`as` ile takma ad verilir; `import *` karışıklık yaratır.",
+        "`os`, `sys`, `statistics`, `math`, `string`, `random` hazır modüllerdir.",
+        "Değişen sonuçları (random) aralıkla test et."
+      ],
+      "points": [
+        "A module is a `.py` file; use it with `import module` or `from module import name`.",
+        "`as` gives an alias; `import *` causes confusion.",
+        "`os`, `sys`, `statistics`, `math`, `string`, `random` are built-in modules.",
+        "Test changing results (random) by range."
+      ],
+      "link": "learn",
+      "link_label_tr": "Şimdi alıştırmalara geç",
+      "link_label": "Go to the exercises"
+    }
+  ]
+}

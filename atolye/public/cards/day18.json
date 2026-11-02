@@ -1,0 +1,341 @@
+{
+  "day": 18,
+  "title_tr": "Düzenli İfadeler (RegEx)",
+  "title": "Regular Expressions (RegEx)",
+  "est_minutes": 30,
+  "cards": [
+    {
+      "id": "d18-c01",
+      "type": "explain",
+      "section": "The *re* Module",
+      "title_tr": "RegEx nedir?",
+      "title": "What is RegEx?",
+      "body_tr": "Regular expression (RegEx), metinde **desen** aramaya yarayan özel bir yazım biçimidir. Python'da `re` modülüyle kullanılır. Beş ana fonksiyon: `match`, `search`, `findall`, `split`, `sub`.",
+      "body": "A regular expression (RegEx) is a special notation for finding **patterns** in text. In Python you use the `re` module. Five main functions: `match`, `search`, `findall`, `split`, `sub`.",
+      "code": "import re\n\nprint(re.match.__name__, re.search.__name__, re.findall.__name__)",
+      "expected_output": "match search findall"
+    },
+    {
+      "id": "d18-c02",
+      "type": "explain",
+      "section": "Match",
+      "title_tr": "re.match: başta ara",
+      "title": "re.match: look at the start",
+      "body_tr": "`match` yalnız metnin **başında** arar. Bulursa match nesnesi, bulamazsa `None` döner. `.span()` başlangıç ve bitişi verir; `re.I` büyük/küçük harfi yok sayar.",
+      "body": "`match` only looks at the **start** of the text. It returns a match object or `None`. `.span()` gives start and end; `re.I` ignores case.",
+      "code": "import re\n\ntxt = 'I love to teach python and javaScript'\nmatch = re.match('I love to teach', txt, re.I)\nprint(match)\nstart, end = match.span()\nprint(start, end, txt[start:end])",
+      "expected_output": "<re.Match object; span=(0, 15), match='I love to teach'>\n0 15 I love to teach",
+      "trace": true
+    },
+    {
+      "id": "d18-c03",
+      "type": "predict",
+      "section": "Match",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "import re\n\nprint(re.match('python', 'I love python'))",
+      "choices": [
+        "None",
+        "python",
+        "<re.Match object; span=(7, 13), match='python'>",
+        "Hata verir"
+      ],
+      "answer": "None",
+      "why_tr": "`match` başta arar; metin 'I love' ile başlıyor.",
+      "why": "`match` checks the start; the text starts with 'I love'."
+    },
+    {
+      "id": "d18-c04",
+      "type": "explain",
+      "section": "Search",
+      "title_tr": "re.search: her yerde ara",
+      "title": "re.search: look anywhere",
+      "body_tr": "`search` metnin her yerinde arar ve **ilk** eşleşmeyi döndürür; yoksa `None`.",
+      "body": "`search` looks anywhere in the text and returns the **first** match, or `None`.",
+      "code": "import re\ntxt = 'Python is the most beautiful language that a human being has ever created.\\nI recommend python for a first programming language'\nmatch = re.search('first', txt, re.I)\nprint(match.span())\nstart, end = match.span()\nprint(txt[start:end])",
+      "expected_output": "(100, 105)\nfirst",
+      "trace": true
+    },
+    {
+      "id": "d18-c05",
+      "type": "truefalse",
+      "section": "Search",
+      "statement_tr": "`re.match` ve `re.search` her zaman aynı sonucu verir.",
+      "statement": "`re.match` and `re.search` always give the same result.",
+      "answer": false,
+      "why_tr": "`match` yalnız başı kontrol eder, `search` her yeri.",
+      "why": "`match` checks only the start, `search` everywhere."
+    },
+    {
+      "id": "d18-c06",
+      "type": "explain",
+      "section": "Searching for All Matches Using *findall*",
+      "title_tr": "re.findall: hepsini bul",
+      "title": "re.findall: find all",
+      "body_tr": "`findall` tüm eşleşmeleri liste olarak döndürür. `re.I` ile `Python` ve `python` ikisini de yakalar.",
+      "body": "`findall` returns all matches as a list. With `re.I` it catches both `Python` and `python`.",
+      "code": "import re\ntxt = 'Python is the most beautiful language that a human being has ever created.\\nI recommend python for a first programming language'\nprint(re.findall('language', txt, re.I))\nprint(re.findall('python', txt, re.I))",
+      "expected_output": "['language', 'language']\n['Python', 'python']",
+      "hide_output": true
+    },
+    {
+      "id": "d18-c07",
+      "type": "explain",
+      "section": "Searching for All Matches Using *findall*",
+      "title_tr": "Bayrak yerine desen",
+      "title": "A pattern instead of a flag",
+      "body_tr": "`re.I` yerine deseni yazarak da aynı sonucu alırsın: `Python|python` ya da `[Pp]ython`. `|` 'veya', `[...]` 'bu karakterlerden biri' demektir.",
+      "body": "Instead of `re.I` you can write the pattern: `Python|python` or `[Pp]ython`. `|` means 'or'; `[...]` means 'one of these characters'.",
+      "code": "import re\ntxt = 'Python is the most beautiful language that a human being has ever created.\\nI recommend python for a first programming language'\nprint(re.findall('Python|python', txt))\nprint(re.findall('[Pp]ython', txt))",
+      "expected_output": "['Python', 'python']\n['Python', 'python']"
+    },
+    {
+      "id": "d18-c08",
+      "type": "fill",
+      "section": "Searching for All Matches Using *findall*",
+      "prompt_tr": "Çıktı `['a', 'a', 'a']` olsun.",
+      "code": "import re\n\nprint(re.___('a', 'banana'))",
+      "answers": [
+        "findall"
+      ],
+      "expected_output": "['a', 'a', 'a']",
+      "why_tr": "`findall` tüm 'a' harflerini listeler.",
+      "why": "`findall` lists every 'a'."
+    },
+    {
+      "id": "d18-c09",
+      "type": "explain",
+      "section": "Replacing a Substring",
+      "title_tr": "re.sub: değiştir",
+      "title": "re.sub: replace",
+      "body_tr": "`re.sub(desen, yerine, metin)` eşleşenleri değiştirir. Dikkat: dördüncü parametre `count`tur, bayrak değil; `re.I`yi `flags=re.I` diye vermelisin (derste hata vardı).",
+      "body": "`re.sub(pattern, replacement, text)` replaces matches. Careful: the fourth positional parameter is `count`, not flags; pass `flags=re.I` (the lesson got this wrong).",
+      "code": "import re\ntxt = 'Python is the most beautiful language that a human being has ever created.\\nI recommend python for a first programming language'\nprint(re.sub('python', 'JavaScript', txt, flags=re.I))",
+      "expected_output": "JavaScript is the most beautiful language that a human being has ever created.\nI recommend JavaScript for a first programming language",
+      "trace": true
+    },
+    {
+      "id": "d18-c10",
+      "type": "predict",
+      "section": "Replacing a Substring",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "import re\n\nprint(re.sub('%', '', 'P%y%t%h%on'))",
+      "choices": [
+        "Python",
+        "P%y%t%h%on",
+        "P y t h on",
+        "%%%%"
+      ],
+      "answer": "Python",
+      "why_tr": "Boş yazıyla değiştirmek `%` işaretlerini siler.",
+      "why": "Replacing with an empty string removes the `%` signs."
+    },
+    {
+      "id": "d18-c11",
+      "type": "explain",
+      "section": "Splitting Text Using RegEx Split",
+      "title_tr": "re.split: böl",
+      "title": "re.split: split",
+      "body_tr": "`re.split(desen, metin)` metni eşleşme noktalarından bölüp liste döndürür. `\\n` satır sonudur.",
+      "body": "`re.split(pattern, text)` splits at the matches and returns a list. `\\n` is the end-of-line character.",
+      "code": "import re\n\ntxt = 'I am teacher.\\nI love teaching.\\nDo you?'\nprint(re.split('\\n', txt))",
+      "expected_output": "['I am teacher.', 'I love teaching.', 'Do you?']"
+    },
+    {
+      "id": "d18-c12",
+      "type": "explain",
+      "section": "Writing RegEx Patterns",
+      "title_tr": "Ham yazı r'' ve meta karakterler",
+      "title": "Raw strings r'' and meta characters",
+      "body_tr": "Desenleri `r'...'` (ham yazı) ile yaz; ters eğik çizgi olduğu gibi kalır. Özel karakterler: `[]` küme, `\\d` rakam, `.` herhangi karakter, `^` başlangıç, `$` son, `*` sıfır+, `+` bir+, `?` sıfır ya da bir, `{n}` tam n, `|` veya.",
+      "body": "Write patterns as `r'...'` (raw string) so backslashes stay as they are. Special characters: `[]` set, `\\d` digit, `.` any character, `^` start, `$` end, `*` zero+, `+` one+, `?` zero or one, `{n}` exactly n, `|` or.",
+      "code": "import re\n\ntxt = 'Apple and banana are fruits. An old cliche says an apple a day'\nprint(re.findall(r'apple', txt))\nprint(re.findall(r'apple', txt, re.I))\nprint(re.findall(r'[Aa]pple', txt))",
+      "expected_output": "['apple']\n['Apple', 'apple']\n['Apple', 'apple']"
+    },
+    {
+      "id": "d18-c13",
+      "type": "truefalse",
+      "section": "Writing RegEx Patterns",
+      "statement_tr": "`r'\\d+'` gibi ham yazı (raw string), ters eğik çizgiyi özel işaret saymadan olduğu gibi bırakır.",
+      "statement": "A raw string like `r'\\d+'` keeps the backslash as is instead of treating it as an escape.",
+      "answer": true,
+      "why_tr": "Desenlerde `r''` kullanmak güvenlidir.",
+      "why": "Using `r''` for patterns is the safe habit."
+    },
+    {
+      "id": "d18-c14",
+      "type": "explain",
+      "section": "Square Bracket",
+      "title_tr": "Köşeli parantez [ ]",
+      "title": "Square brackets [ ]",
+      "body_tr": "`[Aa]` 'A ya da a' demektir. `|` ile birleştirip birden çok kelime arayabilirsin.",
+      "body": "`[Aa]` means 'A or a'. Join with `|` to search several words.",
+      "code": "import re\n\ntxt = 'Apple and banana are fruits. An old cliche says an apple a day a doctor way has been replaced by a banana a day'\nprint(re.findall(r'[Aa]pple|[Bb]anana', txt))",
+      "expected_output": "['Apple', 'banana', 'apple', 'banana']"
+    },
+    {
+      "id": "d18-c15",
+      "type": "explain",
+      "section": "Escape character(\\\\) in RegEx",
+      "title_tr": "\\d: rakam",
+      "title": "\\d: digit",
+      "body_tr": "`\\d` tek bir rakamı yakalar. Bu yüzden `2019` dört ayrı parça olur. İstediğimiz bu değil, bir sonraki kartta düzeltiyoruz.",
+      "body": "`\\d` matches a single digit, so `2019` becomes four separate pieces. Not what we want; the next card fixes it.",
+      "code": "import re\n\ntxt = 'made on December 6, 2019 and revised on July 8, 2021'\nprint(re.findall(r'\\d', txt))",
+      "expected_output": "['6', '2', '0', '1', '9', '8', '2', '0', '2', '1']",
+      "hide_output": true
+    },
+    {
+      "id": "d18-c16",
+      "type": "explain",
+      "section": "One or more times(+)",
+      "title_tr": "+ : bir ya da daha fazla",
+      "title": "+ : one or more",
+      "body_tr": "`\\d+` ardışık rakamları tek parça olarak alır.",
+      "body": "`\\d+` takes consecutive digits as one piece.",
+      "code": "import re\n\ntxt = 'made on December 6, 2019 and revised on July 8, 2021'\nprint(re.findall(r'\\d+', txt))",
+      "expected_output": "['6', '2019', '8', '2021']"
+    },
+    {
+      "id": "d18-c17",
+      "type": "predict",
+      "section": "One or more times(+)",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "import re\n\nprint(re.findall(r'\\d+', 'a12b345c6'))",
+      "choices": [
+        "['12', '345', '6']",
+        "['1', '2', '3', '4', '5', '6']",
+        "['12345 6']",
+        "['6']"
+      ],
+      "answer": "['12', '345', '6']",
+      "why_tr": "`+` ardışık rakam gruplarını tek parça yakalar.",
+      "why": "`+` captures each run of digits as one piece."
+    },
+    {
+      "id": "d18-c18",
+      "type": "explain",
+      "section": "Period(.)",
+      "title_tr": "Nokta (.)",
+      "title": "Period (.)",
+      "body_tr": "`.` satır sonu dışında herhangi bir karakteri temsil eder. `[a].` 'a ve ardından bir karakter' demektir; `.+` ise sonuna kadar alır.",
+      "body": "`.` stands for any character except a newline. `[a].` means 'a followed by one character'; `.+` takes everything to the end.",
+      "code": "import re\n\ntxt = 'Apple and banana are fruits'\nprint(re.findall(r'[a].', txt))\nprint(re.findall(r'[a].+', txt))",
+      "expected_output": "['an', 'an', 'an', 'a ', 'ar']\n['and banana are fruits']",
+      "hide_output": true
+    },
+    {
+      "id": "d18-c19",
+      "type": "predict",
+      "section": "Period(.)",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "import re\n\nprint(re.findall(r'a.', 'banana'))",
+      "choices": [
+        "['an', 'an']",
+        "['an', 'an', 'a']",
+        "['a', 'a', 'a']",
+        "['ban', 'ana']"
+      ],
+      "answer": "['an', 'an']",
+      "why_tr": "Son 'a'dan sonra karakter yok, o yüzden eşleşmez.",
+      "why": "The last 'a' has nothing after it, so it does not match."
+    },
+    {
+      "id": "d18-c20",
+      "type": "explain",
+      "section": "Zero or more times(\\*)",
+      "title_tr": "* : sıfır ya da daha fazla",
+      "title": "* : zero or more",
+      "body_tr": "`*` önceki öğenin hiç olmamasına da çok olmasına da izin verir. `.*` neredeyse her şeyi yakalar.",
+      "body": "`*` allows the previous item to be absent or repeated. `.*` grabs nearly anything.",
+      "code": "import re\n\ntxt = 'Apple and banana are fruits'\nprint(re.findall(r'[a].*', txt))",
+      "expected_output": "['and banana are fruits']"
+    },
+    {
+      "id": "d18-c21",
+      "type": "explain",
+      "section": "Zero or one time(?)",
+      "title_tr": "? : isteğe bağlı",
+      "title": "? : optional",
+      "body_tr": "`?` önceki öğe en fazla bir kez gelsin, yani isteğe bağlı olsun demektir. `[Ee]-?mail` hem `email` hem `e-mail`'i yakalar.",
+      "body": "`?` makes the previous item optional (at most once). `[Ee]-?mail` matches both `email` and `e-mail`.",
+      "code": "import re\n\ntxt = 'write it as e-mail, email, Email or E-mail.'\nprint(re.findall(r'[Ee]-?mail', txt))",
+      "expected_output": "['e-mail', 'email', 'Email', 'E-mail']"
+    },
+    {
+      "id": "d18-c22",
+      "type": "fill",
+      "section": "Zero or one time(?)",
+      "prompt_tr": "Çıktı `['color', 'colour']` olsun.",
+      "code": "import re\n\nprint(re.findall(r'colou___r', 'color colour'))",
+      "answers": [
+        "?"
+      ],
+      "expected_output": "['color', 'colour']",
+      "why_tr": "`u?` u'yu isteğe bağlı yapar: color ve colour.",
+      "why": "`u?` makes the u optional: color and colour."
+    },
+    {
+      "id": "d18-c23",
+      "type": "explain",
+      "section": "Quantifier in RegEx",
+      "title_tr": "Süslü parantez { }",
+      "title": "Curly braces { }",
+      "body_tr": "`{4}` tam 4 kez, `{1,4}` 1 ile 4 arası tekrar demektir.",
+      "body": "`{4}` means exactly 4 times, `{1,4}` between 1 and 4 times.",
+      "code": "import re\n\ntxt = 'made on December 6, 2019 and revised on July 8, 2021'\nprint(re.findall(r'\\d{4}', txt))\nprint(re.findall(r'\\d{1,4}', txt))",
+      "expected_output": "['2019', '2021']\n['6', '2019', '8', '2021']"
+    },
+    {
+      "id": "d18-c24",
+      "type": "explain",
+      "section": "Cart ^",
+      "title_tr": "^ : başlangıç ve olumsuzlama",
+      "title": "^ : start and negation",
+      "body_tr": "Desenin başında `^` 'ile başlar' demektir. Köşeli parantezin içinde ise 'bunlar hariç' anlamına gelir: `[^A-Za-z ]+` harf ve boşluk olmayanları yakalar.",
+      "body": "At the start of a pattern `^` means 'starts with'. Inside brackets it means 'not these': `[^A-Za-z ]+` catches everything but letters and spaces.",
+      "code": "import re\n\ntxt = 'This example was made on December 6, 2019'\nprint(re.findall(r'^This', txt))\nprint(re.findall(r'[^A-Za-z ]+', txt))",
+      "expected_output": "['This']\n['6,', '2019']"
+    },
+    {
+      "id": "d18-c25",
+      "type": "order",
+      "section": "Cart ^",
+      "prompt_tr": "Satırları doğru sıraya diz.",
+      "lines": [
+        "found = re.findall(r'\\d+', txt)",
+        "import re",
+        "print(found)",
+        "txt = 'a1b22c333'"
+      ],
+      "correct_order": [
+        1,
+        3,
+        0,
+        2
+      ],
+      "expected_output": "['1', '22', '333']"
+    },
+    {
+      "id": "d18-c26",
+      "type": "recap",
+      "section": "Recap",
+      "title_tr": "Özet",
+      "title": "Summary",
+      "points_tr": [
+        "`match` başta, `search` ilk eşleşmeyi, `findall` hepsini bulur.",
+        "`sub` değiştirir (bayrak için `flags=re.I`), `split` böler.",
+        "`[]` küme, `\\d` rakam, `.` her karakter, `^` başlangıç / olumsuzlama.",
+        "`*`, `+`, `?`, `{n}` tekrar sayısını belirler."
+      ],
+      "points": [
+        "`match` checks the start, `search` finds the first, `findall` finds all.",
+        "`sub` replaces (use `flags=re.I`), `split` splits.",
+        "`[]` set, `\\d` digit, `.` any character, `^` start / negation.",
+        "`*`, `+`, `?`, `{n}` control how many repeats."
+      ],
+      "link": "learn",
+      "link_label_tr": "Şimdi alıştırmalara geç",
+      "link_label": "Go to the exercises"
+    }
+  ]
+}

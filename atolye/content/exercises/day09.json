@@ -1,0 +1,605 @@
+{
+  "day": 9,
+  "title": "Conditionals",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "blocks": [
+    {
+      "id": "d09-b1",
+      "concept": "if-else",
+      "tags": [
+        "conditionals",
+        "if",
+        "else",
+        "indentation"
+      ],
+      "worked_example": {
+        "code": "a = 3\nif a > 0:\n    print('positive')\nelse:\n    print('not positive')",
+        "notes": [
+          "The condition ends with a colon.",
+          "The indented lines run only when the condition is True; else covers all other cases."
+        ],
+        "notes_tr": [
+          "Koşul iki nokta (:) ile biter.",
+          "Girintili satırlar yalnız koşul True ise çalışır; else geri kalan tüm durumları kapsar."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d09-b1-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "a = 0\nif a > 0:\n    print('positive')\nelif a < 0:\n    print('negative')\nelse:\n    print('zero')\nprint('done')",
+          "choices": [
+            "zero\ndone",
+            "zero",
+            "positive\ndone",
+            "negative\nzero\ndone"
+          ],
+          "expected_output": "zero\ndone",
+          "explanation": "0 is neither greater nor smaller than 0, so the else branch prints zero. The last print is not indented, so it runs in every case.",
+          "misconceptions": {
+            "zero": "The last print has no indentation, so it is outside the if and always runs.",
+            "positive\ndone": "a is 0, so a > 0 is False.",
+            "negative\nzero\ndone": "Only ONE branch of an if/elif/else runs, never several."
+          },
+          "explanation_tr": "0, 0'dan ne büyük ne küçük; bu yüzden else dalı zero yazdırır. Son print girintisiz olduğu için her durumda çalışır.",
+          "misconceptions_tr": {
+            "zero": "Son print girintili değil, yani if'in dışında ve her zaman çalışır.",
+            "positive\ndone": "a değeri 0, bu yüzden a > 0 False olur.",
+            "negative\nzero\ndone": "if/elif/else içinde yalnız BİR dal çalışır, birden fazlası asla."
+          }
+        },
+        {
+          "id": "d09-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints minor.",
+          "prompt_tr": "Programın minor yazdırması için boşluğu doldur.",
+          "starter_code": "age = 15\nif age >= 18:\n    print('adult')\n___:\n    print('minor')",
+          "blanks": [
+            {
+              "answer": [
+                "else"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'minor'",
+              "visible": true,
+              "failure_message": "The program must print minor.",
+              "label_tr": "Program minor yazdırıyor mu",
+              "failure_message_tr": "Program minor yazdırmalı."
+            }
+          ],
+          "hints": [
+            "What do you call the branch for 'everything else'?",
+            "It is a keyword that has no condition after it, only a colon.",
+            "Write the keyword that means 'otherwise' on the blank line, then the colon is already there."
+          ],
+          "hints_tr": [
+            "'Geri kalan her şey' dalına ne denir?",
+            "Bu anahtar kelimenin arkasında koşul olmaz, yalnız iki nokta gelir.",
+            "'Aksi halde' anlamına gelen anahtar kelimeyi boşluğa yaz; iki nokta zaten orada."
+          ]
+        },
+        {
+          "id": "d09-b1-e3",
+          "type": "modify",
+          "prompt": "Change the program so that, for a person under 18, it prints how many years are missing: You need 3 more years to learn to drive. (compute the number from age).",
+          "prompt_tr": "Programı, 18 yaşından küçük biri için kaç yıl eksik olduğunu yazdıracak şekilde değiştir: You need 3 more years to learn to drive. (sayıyı age'den hesapla).",
+          "starter_code": "age = 15\nif age >= 18:\n    print('You are old enough to learn to drive.')",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'You need 3 more years to learn to drive.'",
+              "visible": true,
+              "failure_message": "Expected: You need 3 more years to learn to drive.",
+              "label_tr": "Eksik yıl doğru yazdırılıyor",
+              "failure_message_tr": "Beklenen: You need 3 more years to learn to drive."
+            },
+            {
+              "code": "import io, contextlib\n__ns = {}\n__buf = io.StringIO()\nwith contextlib.redirect_stdout(__buf):\n    exec(__source__.replace('age = 15', 'age = 10'), __ns)\nassert __buf.getvalue().strip() == 'You need 8 more years to learn to drive.'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Change age in your code: the message must update. Do not type the final text by hand; compute the number.",
+              "failure_message_tr": "Yaşı değiştirince mesaj da değişmeli. Sonucu elle yazma; sayıyı hesapla."
+            }
+          ],
+          "hints": [
+            "The program prints nothing for age 15. Which branch is missing?",
+            "Add a second branch for the other case and compute the missing years by subtracting age from 18.",
+            "Add an else branch whose print uses an f-string with 18 minus age inside the braces."
+          ],
+          "solution": {
+            "approach": "Add an else branch with an f-string.",
+            "code": "age = 15\nif age >= 18:\n    print('You are old enough to learn to drive.')\nelse:\n    print(f'You need {18 - age} more years to learn to drive.')",
+            "approach_tr": "Bir else dalı ekle ve içinde f-string kullan."
+          },
+          "hints_tr": [
+            "Program 15 yaşı için hiçbir şey yazdırmıyor. Hangi dal eksik?",
+            "Diğer durum için ikinci bir dal ekle ve eksik yılı 18'den yaşı çıkararak hesapla.",
+            "Bir else dalı ekle; print'inde süslü parantez içinde 18 eksi age hesaplayan bir f-string kullan."
+          ]
+        },
+        {
+          "id": "d09-b1-e4",
+          "type": "debug",
+          "prompt": "This should print A is a positive number but Python reports a SyntaxError. Fix it.",
+          "prompt_tr": "Bu A is a positive number yazdırmalı ama Python SyntaxError veriyor. Düzelt.",
+          "starter_code": "a = 3\nif a > 0\n    print('A is a positive number')",
+          "expected_output": "A is a positive number",
+          "hints": [
+            "Look at the end of the if line.",
+            "Python expects a punctuation mark that starts the block.",
+            "The if line is missing one character at its very end: add it."
+          ],
+          "solution": {
+            "approach": "An if line must end with a colon.",
+            "code": "a = 3\nif a > 0:\n    print('A is a positive number')",
+            "approach_tr": "if satırı iki nokta ile bitmeli."
+          },
+          "hints_tr": [
+            "if satırının sonuna bak.",
+            "Python, bloğu başlatan bir noktalama işareti bekliyor.",
+            "if satırının en sonunda tek bir karakter eksik; onu ekle."
+          ]
+        }
+      ],
+      "concept_tr": "if-else: koşula göre karar verme"
+    },
+    {
+      "id": "d09-b2",
+      "concept": "elif-chains",
+      "tags": [
+        "conditionals",
+        "elif",
+        "functions-preview"
+      ],
+      "worked_example": {
+        "code": "score = 85\nif score >= 90:\n    print('A')\nelif score >= 80:\n    print('B')\nelse:\n    print('C')",
+        "notes": [
+          "Python checks the branches from top to bottom and runs the first True one.",
+          "Later elif branches are skipped once one branch has run."
+        ],
+        "notes_tr": [
+          "Python dalları yukarıdan aşağı kontrol eder ve True olan ilkini çalıştırır.",
+          "Bir dal çalıştıktan sonra sonraki elif dalları atlanır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d09-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "n = 15\nif n > 10:\n    print('big')\nif n > 5:\n    print('medium')\nelif n > 0:\n    print('small')",
+          "choices": [
+            "big\nmedium",
+            "big",
+            "big\nmedium\nsmall",
+            "medium"
+          ],
+          "expected_output": "big\nmedium",
+          "explanation": "The first if is a separate statement, so it prints big. The second if/elif chain starts fresh: n > 5 is True, so medium prints and the elif is skipped.",
+          "misconceptions": {
+            "big": "The second if is its own statement, so it is checked too.",
+            "big\nmedium\nsmall": "Inside the second chain, the elif is skipped once n > 5 has run.",
+            "medium": "The first if is checked on its own and n > 10 is True."
+          },
+          "explanation_tr": "İlk if ayrı bir ifadedir, bu yüzden big yazdırır. İkinci if/elif zinciri yeniden başlar: n > 5 True, medium yazdırılır ve elif atlanır.",
+          "misconceptions_tr": {
+            "big": "İkinci if kendi başına bir ifadedir, o da kontrol edilir.",
+            "big\nmedium\nsmall": "İkinci zincirde n > 5 çalıştıktan sonra elif atlanır.",
+            "medium": "İlk if kendi başına kontrol edilir ve n > 10 True'dur."
+          }
+        },
+        {
+          "id": "d09-b2-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints Summer.",
+          "prompt_tr": "Programın Summer yazdırması için boşluğu doldur.",
+          "starter_code": "month = 'July'\nif month in ('December', 'January', 'February'):\n    print('Winter')\n___ month in ('June', 'July', 'August'):\n    print('Summer')",
+          "blanks": [
+            {
+              "answer": [
+                "elif"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Summer'",
+              "visible": true,
+              "failure_message": "The program must print Summer.",
+              "label_tr": "Program Summer yazdırıyor mu",
+              "failure_message_tr": "Program Summer yazdırmalı."
+            }
+          ],
+          "hints": [
+            "You need a second condition after an if.",
+            "It is short for 'else if' and, like if, it is followed by a condition and a colon.",
+            "Put the one-word keyword that means 'else if' on the blank."
+          ],
+          "hints_tr": [
+            "Bir if'ten sonra ikinci bir koşula ihtiyacın var.",
+            "'else if' kısaltmasıdır ve if gibi arkasından koşul ve iki nokta gelir.",
+            "'else if' anlamına gelen tek kelimelik anahtar kelimeyi boşluğa yaz."
+          ]
+        },
+        {
+          "id": "d09-b2-e3",
+          "type": "write",
+          "prompt": "Write a function grade(score) that returns the letter grade: 'A' for 90-100, 'B' for 80-89, 'C' for 70-79, 'D' for 60-69 and 'F' for anything below 60. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "Harf notunu döndüren bir grade(score) fonksiyonu yaz: 90-100 için 'A', 80-89 için 'B', 70-79 için 'C', 60-69 için 'D', 60'ın altı için 'F'. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def grade(score):",
+          "tests": [
+            {
+              "code": "assert grade(95) == 'A'",
+              "visible": true,
+              "failure_message": "95 should give 'A'.",
+              "label_tr": "95 için A dönüyor mu",
+              "failure_message_tr": "95 için 'A' dönmeli."
+            },
+            {
+              "code": "assert grade(85) == 'B'",
+              "visible": true,
+              "failure_message": "85 should give 'B'.",
+              "label_tr": "85 için B dönüyor mu",
+              "failure_message_tr": "85 için 'B' dönmeli."
+            },
+            {
+              "code": "assert grade(90) == 'A' and grade(89) == 'B'",
+              "visible": false,
+              "failure_message": "Boundaries: 90 is an 'A', 89 is a 'B'. Check >= not >.",
+              "failure_message_tr": "Sınırlar: 90 'A', 89 'B' olmalı. > değil >= kullan."
+            },
+            {
+              "code": "assert grade(60) == 'D' and grade(59) == 'F'",
+              "visible": false,
+              "failure_message": "Boundaries: 60 is a 'D', 59 is an 'F'.",
+              "failure_message_tr": "Sınırlar: 60 'D', 59 'F' olmalı."
+            },
+            {
+              "code": "assert grade(70) == 'C' and grade(0) == 'F'",
+              "visible": false,
+              "failure_message": "70 gives 'C' and 0 gives 'F'.",
+              "failure_message_tr": "70 için 'C', 0 için 'F' dönmeli."
+            },
+            {
+              "code": "assert grade(100) == 'A' and grade(75) == 'C' and grade(62) == 'D' and grade(30) == 'F'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other scores too: the function must work for any score, not only the ones in the examples.",
+              "failure_message_tr": "Başka puanlarla da dene: fonksiyon yalnız örneklerdeki değil, her puan için çalışmalı."
+            }
+          ],
+          "hints": [
+            "Start from the highest grade and work down.",
+            "Test the highest limit first with >=, then the next limits in an elif chain, and use else for 'F'. Return the letter.",
+            "Use one if, three elif lines (80, 70, 60) and a final else; every branch uses return with a letter."
+          ],
+          "solution": {
+            "approach": "An elif chain from high to low.",
+            "code": "def grade(score):\n    if score >= 90:\n        return 'A'\n    elif score >= 80:\n        return 'B'\n    elif score >= 70:\n        return 'C'\n    elif score >= 60:\n        return 'D'\n    else:\n        return 'F'",
+            "approach_tr": "Yüksekten düşüğe doğru bir elif zinciri kur."
+          },
+          "twin": "d09-b2-e4",
+          "hints_tr": [
+            "En yüksek notla başla ve aşağı doğru ilerle.",
+            "En yüksek sınırı >= ile kontrol et, sonraki sınırları elif zincirinde kontrol et, 'F' için else kullan. Harfi return ile döndür.",
+            "Bir if, üç elif (80, 70, 60) ve sonda bir else kullan; her dal bir harfi return eder."
+          ]
+        },
+        {
+          "id": "d09-b2-e4",
+          "type": "write",
+          "prompt": "Write a function season(month) that takes a month name and returns 'Autumn' for September, October, November; 'Winter' for December, January, February; 'Spring' for March, April, May; 'Summer' for June, July, August. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "Ay adını alıp mevsimi döndüren bir season(month) fonksiyonu yaz: Eylül, Ekim, Kasım için 'Autumn'; Aralık, Ocak, Şubat için 'Winter'; Mart, Nisan, Mayıs için 'Spring'; Haziran, Temmuz, Ağustos için 'Summer' (ay adları İngilizce). (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def season(month):",
+          "tests": [
+            {
+              "code": "assert season('October') == 'Autumn'",
+              "visible": true,
+              "failure_message": "October is in Autumn.",
+              "label_tr": "Ekim için Autumn dönüyor mu",
+              "failure_message_tr": "Ekim (October) Autumn olmalı."
+            },
+            {
+              "code": "assert season('January') == 'Winter'",
+              "visible": true,
+              "failure_message": "January is in Winter.",
+              "label_tr": "Ocak için Winter dönüyor mu",
+              "failure_message_tr": "Ocak (January) Winter olmalı."
+            },
+            {
+              "code": "assert season('May') == 'Spring'",
+              "visible": false,
+              "failure_message": "May is in Spring.",
+              "failure_message_tr": "Mayıs (May) Spring olmalı."
+            },
+            {
+              "code": "assert season('August') == 'Summer'",
+              "visible": false,
+              "failure_message": "August is in Summer.",
+              "failure_message_tr": "Ağustos (August) Summer olmalı."
+            },
+            {
+              "code": "assert season('December') == 'Winter' and season('September') == 'Autumn'",
+              "visible": false,
+              "failure_message": "December is Winter, September is Autumn.",
+              "failure_message_tr": "December Winter, September Autumn olmalı."
+            },
+            {
+              "code": "assert season('April') == 'Spring' and season('June') == 'Summer' and season('November') == 'Autumn' and season('February') == 'Winter'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other months too: every month must map to the right season.",
+              "failure_message_tr": "Başka aylarla da dene: her ay doğru mevsime gitmeli."
+            }
+          ],
+          "hints": [
+            "Four seasons, so you need four branches (the last one can be else).",
+            "Test each season's months with the in operator against a tuple of month names, one elif per season.",
+            "Use if / elif / elif / else; each of the first three conditions checks `month in (...)` with three month names."
+          ],
+          "solution": {
+            "approach": "An elif chain using the in operator.",
+            "code": "def season(month):\n    if month in ('September', 'October', 'November'):\n        return 'Autumn'\n    elif month in ('December', 'January', 'February'):\n        return 'Winter'\n    elif month in ('March', 'April', 'May'):\n        return 'Spring'\n    else:\n        return 'Summer'",
+            "approach_tr": "in operatörüyle bir elif zinciri kur."
+          },
+          "twin": "d09-b2-e3",
+          "hints_tr": [
+            "Dört mevsim var, yani dört dal gerekir (sonuncusu else olabilir).",
+            "Her mevsimin aylarını, ay adlarından oluşan bir tuple'a karşı in operatörüyle kontrol et; her mevsim için bir elif.",
+            "if / elif / elif / else kullan; ilk üç koşulun her biri üç ay adı içeren bir `month in (...)` kontrolü yapar."
+          ]
+        },
+        {
+          "id": "d09-b2-e5",
+          "type": "explain",
+          "prompt": "In your own words: what is the difference between a chain of if/elif/else and several separate if statements?",
+          "prompt_tr": "Kendi cümlelerinle: if/elif/else zinciri ile birkaç ayrı if arasındaki fark nedir?",
+          "model_answer": "In an if/elif/else chain only the first branch whose condition is True runs and the rest are skipped. Separate if statements are each checked on their own, so several of them can run.",
+          "keywords": [
+            "first",
+            "only one",
+            "skipped",
+            "separate",
+            "each"
+          ],
+          "model_answer_tr": "if/elif/else zincirinde koşulu True olan yalnız ilk dal çalışır, gerisi atlanır. Ayrı if ifadelerinin her biri kendi başına kontrol edilir, bu yüzden birden fazlası çalışabilir.",
+          "keywords_tr": [
+            "ilk",
+            "yalnız",
+            "yalnızca",
+            "bir tane",
+            "atla",
+            "ayrı",
+            "her biri",
+            "tek"
+          ],
+          "min_words": 6
+        }
+      ],
+      "concept_tr": "elif zincirleri: sırayla birden çok koşul"
+    },
+    {
+      "id": "d09-b3",
+      "concept": "conditions-and-or",
+      "tags": [
+        "conditionals",
+        "and",
+        "or",
+        "membership"
+      ],
+      "worked_example": {
+        "code": "user = 'James'\naccess_level = 3\nif user == 'admin' or access_level >= 4:\n    print('Access granted!')\nelse:\n    print('Access denied!')",
+        "notes": [
+          "or: one True side is enough.",
+          "and: both sides must be True; it can replace a nested if."
+        ],
+        "notes_tr": [
+          "or: iki taraftan birinin True olması yeter.",
+          "and: iki taraf da True olmalı; iç içe if yerine kullanılabilir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d09-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "a = 7\nif a > 0 and a % 2 == 0:\n    print('positive even')\nelif a > 0 and a % 2 != 0:\n    print('positive odd')\nelif a == 0:\n    print('zero')\nelse:\n    print('negative')",
+          "choices": [
+            "positive odd",
+            "positive even",
+            "zero",
+            "negative"
+          ],
+          "expected_output": "positive odd",
+          "explanation": "7 is greater than 0, but 7 % 2 is 1, so the first branch fails. The second branch needs a > 0 and an odd number, which is true.",
+          "misconceptions": {
+            "positive even": "7 % 2 == 0 is False, so the first branch does not run.",
+            "zero": "a is 7, not 0.",
+            "negative": "a > 0 is True, so a is not negative."
+          },
+          "explanation_tr": "7, 0'dan büyük ama 7 % 2 sonucu 1, bu yüzden ilk dal başarısız olur. İkinci dal a > 0 ve tek sayı ister; bu doğrudur.",
+          "misconceptions_tr": {
+            "positive even": "7 % 2 == 0 False, bu yüzden ilk dal çalışmaz.",
+            "zero": "a değeri 7, 0 değil.",
+            "negative": "a > 0 True, yani a negatif değil."
+          }
+        },
+        {
+          "id": "d09-b3-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program adds 'mango' only when it is not in the list yet, then prints the list.",
+          "prompt_tr": "Satırları, program 'mango' listede yoksa ekleyip listeyi yazdıracak şekilde sırala.",
+          "lines": [
+            "else:",
+            "if fruit in fruits:",
+            "    print(fruits)",
+            "fruits = ['banana', 'orange']",
+            "    fruits.append(fruit)",
+            "fruit = 'mango'",
+            "    print('That fruit already exist in the list')"
+          ],
+          "correct_order": [
+            3,
+            5,
+            1,
+            6,
+            0,
+            4,
+            2
+          ],
+          "distractors": [
+            "    fruits.add(fruit)"
+          ],
+          "expected_output": "['banana', 'orange', 'mango']"
+        },
+        {
+          "id": "d09-b3-e3",
+          "type": "write",
+          "prompt": "Write a function access(user, level) that returns 'granted' if the user is 'admin' OR the level is at least 4, and 'denied' otherwise. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "Kullanıcı 'admin' İSE veya seviye en az 4 ise 'granted', aksi halde 'denied' döndüren bir access(user, level) fonksiyonu yaz. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def access(user, level):",
+          "tests": [
+            {
+              "code": "assert access('admin', 1) == 'granted'",
+              "visible": true,
+              "failure_message": "An admin is always granted access.",
+              "label_tr": "admin her zaman giriyor mu",
+              "failure_message_tr": "admin her zaman erişim alır."
+            },
+            {
+              "code": "assert access('James', 3) == 'denied'",
+              "visible": true,
+              "failure_message": "James with level 3 is denied.",
+              "label_tr": "James seviye 3 ile reddediliyor mu",
+              "failure_message_tr": "James seviye 3 ile reddedilir (denied)."
+            },
+            {
+              "code": "assert access('James', 4) == 'granted'",
+              "visible": false,
+              "failure_message": "Level 4 or higher is granted (>= 4).",
+              "failure_message_tr": "Seviye 4 ve üstü kabul edilir (>= 4)."
+            },
+            {
+              "code": "assert access('admin', 0) == 'granted'",
+              "visible": false,
+              "failure_message": "admin wins even with level 0.",
+              "failure_message_tr": "Seviye 0 olsa bile admin kabul edilir."
+            },
+            {
+              "code": "assert access('Mia', 3) == 'denied' and access('Mia', 10) == 'granted'",
+              "visible": false,
+              "failure_message": "Level 3 is denied, level 10 is granted.",
+              "failure_message_tr": "Seviye 3 reddedilir, seviye 10 kabul edilir."
+            },
+            {
+              "code": "assert access('root', 9) == 'granted' and access('root', 2) == 'denied' and access('admin', 100) == 'granted' and access('Leo', 4) == 'granted'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other users and levels: the rule must hold for all of them.",
+              "failure_message_tr": "Başka kullanıcı ve seviyelerle dene: kural hepsi için geçerli olmalı."
+            }
+          ],
+          "hints": [
+            "Two conditions, joined by one logical keyword.",
+            "The word that accepts a True on either side is or; put it between the two comparisons inside the if.",
+            "Write an if with both comparisons joined by that keyword and return 'granted'; after the if, return 'denied'."
+          ],
+          "solution": {
+            "approach": "Combine both conditions with or.",
+            "code": "def access(user, level):\n    if user == 'admin' or level >= 4:\n        return 'granted'\n    return 'denied'",
+            "approach_tr": "İki koşulu or ile birleştir."
+          },
+          "twin": "d09-b3-e4",
+          "hints_tr": [
+            "İki koşul var, tek bir mantıksal anahtar kelimeyle bağlanır.",
+            "İki taraftan birinin True olmasını kabul eden kelime or'dur; if içinde iki karşılaştırmanın arasına koy.",
+            "İki karşılaştırmayı o kelimeyle birleştiren bir if yaz ve 'granted' döndür; if'ten sonra 'denied' döndür."
+          ]
+        },
+        {
+          "id": "d09-b3-e4",
+          "type": "write",
+          "prompt": "Write a function describe(n) that returns 'zero' if n is 0, 'positive even' or 'positive odd' if n is above 0, and 'negative' if n is below 0. Use the and operator instead of nesting. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
+          "prompt_tr": "n 0 ise 'zero', 0'dan büyükse 'positive even' veya 'positive odd', 0'dan küçükse 'negative' döndüren bir describe(n) fonksiyonu yaz. İç içe if yerine and operatörünü kullan. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
+          "starter_code": "",
+          "signature": "def describe(n):",
+          "tests": [
+            {
+              "code": "assert describe(6) == 'positive even'",
+              "visible": true,
+              "failure_message": "6 is positive and even.",
+              "label_tr": "6 pozitif çift mi",
+              "failure_message_tr": "6 pozitif ve çifttir."
+            },
+            {
+              "code": "assert describe(7) == 'positive odd'",
+              "visible": true,
+              "failure_message": "7 is positive and odd.",
+              "label_tr": "7 pozitif tek mi",
+              "failure_message_tr": "7 pozitif ve tektir."
+            },
+            {
+              "code": "assert describe(0) == 'zero'",
+              "visible": false,
+              "failure_message": "0 is 'zero', not 'positive even'. Check n == 0 or n > 0 first.",
+              "failure_message_tr": "0 'zero' olmalı, 'positive even' değil. Önce n == 0 ya da n > 0 kontrolünü düşün."
+            },
+            {
+              "code": "assert describe(-4) == 'negative' and describe(-3) == 'negative'",
+              "visible": false,
+              "failure_message": "Any number below 0 is 'negative', odd or even.",
+              "failure_message_tr": "0'dan küçük her sayı 'negative' olmalı, tek ya da çift fark etmez."
+            },
+            {
+              "code": "assert describe(1) == 'positive odd' and describe(2) == 'positive even'",
+              "visible": false,
+              "failure_message": "Check the smallest positive numbers.",
+              "failure_message_tr": "En küçük pozitif sayıları kontrol et."
+            },
+            {
+              "code": "assert describe(13) == 'positive odd' and describe(20) == 'positive even' and describe(-10) == 'negative' and describe(-7) == 'negative'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Try other numbers too: the function must work for any number.",
+              "failure_message_tr": "Başka sayılarla da dene: fonksiyon her sayı için çalışmalı."
+            }
+          ],
+          "hints": [
+            "Four outcomes mean four branches.",
+            "Combine two checks with and: n > 0 and an even test (n % 2 == 0) for 'positive even', the same with != 0 for 'positive odd'.",
+            "Order the branches: positive even, positive odd (both use and), then zero, then else for 'negative'."
+          ],
+          "solution": {
+            "approach": "Branches with and, then zero, then else.",
+            "code": "def describe(n):\n    if n > 0 and n % 2 == 0:\n        return 'positive even'\n    elif n > 0 and n % 2 != 0:\n        return 'positive odd'\n    elif n == 0:\n        return 'zero'\n    else:\n        return 'negative'",
+            "approach_tr": "and ile dallar kur, sonra sıfır, sonra else."
+          },
+          "twin": "d09-b3-e3",
+          "hints_tr": [
+            "Dört sonuç, dört dal demek.",
+            "İki kontrolü and ile birleştir: 'positive even' için n > 0 ve çift testi (n % 2 == 0), 'positive odd' için aynısı != 0 ile.",
+            "Dalları şu sırayla kur: positive even, positive odd (ikisi de and kullanır), sonra zero, en sonda negatif için else."
+          ]
+        }
+      ],
+      "concept_tr": "and / or ile koşulları birleştirme"
+    }
+  ],
+  "review_pool": [
+    "d09-b1-e1",
+    "d09-b2-e1",
+    "d09-b2-e3",
+    "d09-b3-e1",
+    "d09-b3-e4"
+  ],
+  "title_tr": "Koşullar (if / elif / else)"
+}

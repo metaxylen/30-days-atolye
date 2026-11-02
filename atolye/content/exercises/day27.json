@@ -1,0 +1,890 @@
+{
+ "day": 27,
+ "title": "Python with MongoDB",
+ "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+ "blocks": [
+  {
+   "id": "d27-b1",
+   "concept": "documents-and-insert",
+   "tags": [
+    "mongodb",
+    "documents",
+    "collections",
+    "insert"
+   ],
+   "worked_example": {
+    "code": "students = []\ndoc = {'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nstudents.append(doc)\nprint(len(students), students[0]['name'])",
+    "notes": [
+     "A document is a dict-like record; a collection is a group of documents (here a plain list).",
+     "pymongo's insert_one also adds a unique _id key to the document."
+    ],
+    "notes_tr": [
+     "Doküman, dict benzeri bir kayıttır; koleksiyon (collection) ise dokümanlar grubudur (burada düz bir liste).",
+     "pymongo'nun insert_one'ı dokümana benzersiz bir _id anahtarı da ekler."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d27-b1-e1",
+     "type": "predict",
+     "concept": "documents-and-insert",
+     "tags": [
+      "mongodb",
+      "documents",
+      "collections",
+      "insert"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "collection = []\n\ndef insert_one(doc):\n    doc['_id'] = len(collection) + 1\n    collection.append(doc)\n    return doc['_id']\n\na = insert_one({'name': 'David'})\nb = insert_one({'name': 'John'})\nprint(a, b, collection[1])",
+     "choices": [
+      "1 2 {'name': 'John', '_id': 2}",
+      "1 2 {'name': 'John'}",
+      "0 1 {'name': 'John', '_id': 1}",
+      "1 2 {'name': 'David', '_id': 1}"
+     ],
+     "expected_output": "1 2 {'name': 'John', '_id': 2}",
+     "explanation": "The first insert sees an empty list, so its id is 1; the second sees one document, so its id is 2. The function adds '_id' to the document itself.",
+     "misconceptions": {
+      "1 2 {'name': 'John'}": "insert_one writes doc['_id'] into the same dict that is appended, so the stored document has an _id.",
+      "0 1 {'name': 'John', '_id': 1}": "The id is len(collection) + 1, so the first id is 1, not 0.",
+      "1 2 {'name': 'David', '_id': 1}": "collection[1] is the second document (index 1), which is John."
+     },
+     "explanation_tr": "İlk ekleme boş bir liste görür, bu yüzden id'si 1'dir; ikincisi bir doküman görür, id'si 2'dir. Fonksiyon '_id' anahtarını dokümanın kendisine ekler.",
+     "misconceptions_tr": {
+      "1 2 {'name': 'John'}": "insert_one, doc['_id'] değerini eklenen aynı dict'e yazar, bu yüzden saklanan dokümanda _id vardır.",
+      "0 1 {'name': 'John', '_id': 1}": "id, len(collection) + 1 olarak hesaplanır; ilk id 0 değil, 1'dir.",
+      "1 2 {'name': 'David', '_id': 1}": "collection[1] ikinci dokümandır (indeks 1), yani John."
+     }
+    },
+    {
+     "id": "d27-b1-e2",
+     "type": "fill_blank",
+     "concept": "documents-and-insert",
+     "tags": [
+      "mongodb",
+      "documents",
+      "collections",
+      "insert"
+     ],
+     "prompt": "Complete insert_many so every document is added to the collection, then count the documents.",
+     "prompt_tr": "insert_many fonksiyonunu tamamla: her doküman koleksiyona eklensin, sonra doküman sayısını bul.",
+     "starter_code": "collection = []\ndef insert_many(docs):\n    for doc in docs:\n        collection.___(doc)\ninsert_many([{'name': 'Sami'}, {'name': 'John'}])\ncount = ___(collection)",
+     "blanks": [
+      {
+       "answer": [
+        "append"
+       ]
+      },
+      {
+       "answer": [
+        "len"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert count == 2",
+       "visible": true,
+       "label_tr": "Doküman sayısı 2"
+      },
+      {
+       "code": "assert [d['name'] for d in collection] == ['Sami', 'John']",
+       "visible": true,
+       "label_tr": "Dokümanlar sırayla eklenmiş"
+      }
+     ]
+    },
+    {
+     "id": "d27-b1-e3",
+     "type": "write",
+     "concept": "documents-and-insert",
+     "tags": [
+      "mongodb",
+      "documents",
+      "collections",
+      "insert"
+     ],
+     "prompt": "Write insert_one(collection, doc). Set doc['_id'] to len(collection) + 1 (before adding), append doc to collection, and return the _id.",
+     "prompt_tr": "insert_one(collection, doc) yaz. doc['_id'] değerini (ekleme yapmadan önce) len(collection) + 1 yap, doc'u collection'a ekle ve _id'yi döndür.",
+     "starter_code": "",
+     "signature": "def insert_one(collection, doc):",
+     "tests": [
+      {
+       "code": "c = []\nassert insert_one(c, {'name': 'Ada'}) == 1",
+       "visible": true,
+       "label_tr": "İlk eklemenin id'si 1"
+      },
+      {
+       "code": "c = []\ninsert_one(c, {'name': 'Ada'})\ninsert_one(c, {'name': 'Ben'})\nassert [d['_id'] for d in c] == [1, 2]",
+       "visible": true,
+       "label_tr": "İki dokümanın id'leri 1 ve 2"
+      },
+      {
+       "code": "c = []\nd = {'name': 'Ada'}\ninsert_one(c, d)\nassert c[0] is d and d['_id'] == 1",
+       "visible": false,
+       "failure_message": "Add the _id to the SAME dict you append, as pymongo does.",
+       "failure_message_tr": "_id'yi eklediğin AYNI dict'e koy, pymongo'nun yaptığı gibi."
+      },
+      {
+       "code": "c = [{'_id': 1}, {'_id': 2}, {'_id': 3}]\nassert insert_one(c, {}) == 4 and len(c) == 4",
+       "visible": false,
+       "failure_message": "The id depends on how many documents are already in the collection.",
+       "failure_message_tr": "id, koleksiyonda zaten kaç doküman olduğuna bağlıdır."
+      }
+     ],
+     "hints": [
+      "Three steps: set the id, append, return it.",
+      "doc['_id'] = len(collection) + 1 must happen before append.",
+      "Last step: assign doc['_id'] from the collection length plus one, then call append on collection, then return doc['_id']."
+     ],
+     "solution": {
+      "approach": "Compute the id from the current length, store it in the doc, append.",
+      "code": "def insert_one(collection, doc):\n    doc['_id'] = len(collection) + 1\n    collection.append(doc)\n    return doc['_id']",
+      "approach_tr": "id'yi mevcut uzunluktan hesapla, dokümana yaz ve ekle."
+     },
+     "twin": "d27-b1-e4",
+     "hints_tr": [
+      "Üç adım: id'yi ata, ekle, döndür.",
+      "doc['_id'] = len(collection) + 1 ataması ekleme işleminden ÖNCE yapılmalı.",
+      "Son adım: doc['_id'] değerini koleksiyon uzunluğu artı bir olarak ata, sonra collection üzerinde append çağır, sonra doc['_id'] değerini döndür."
+     ]
+    },
+    {
+     "id": "d27-b1-e4",
+     "type": "write",
+     "concept": "documents-and-insert",
+     "tags": [
+      "mongodb",
+      "documents",
+      "collections",
+      "insert"
+     ],
+     "prompt": "Write insert_many(collection, docs). Insert every document the same way (ids continue from the current length) and return the list of new _id values. An empty docs list returns [].",
+     "prompt_tr": "insert_many(collection, docs) yaz. Her dokümanı aynı şekilde ekle (id'ler mevcut uzunluktan devam etsin) ve yeni _id değerlerinin listesini döndür. Boş docs listesi [] döndürür.",
+     "starter_code": "",
+     "signature": "def insert_many(collection, docs):",
+     "tests": [
+      {
+       "code": "c = []\nassert insert_many(c, [{'name': 'A'}, {'name': 'B'}]) == [1, 2]",
+       "visible": true,
+       "label_tr": "İki doküman 1 ve 2 id'si alıyor"
+      },
+      {
+       "code": "c = []\nassert insert_many(c, []) == [] and c == []",
+       "visible": true,
+       "label_tr": "Boş liste boş sonuç veriyor"
+      },
+      {
+       "code": "c = [{'_id': 1}]\nids = insert_many(c, [{'x': 1}, {'x': 2}])\nassert ids == [2, 3] and len(c) == 3",
+       "visible": false,
+       "failure_message": "Ids continue after the documents that are already stored.",
+       "failure_message_tr": "id'ler zaten saklanmış dokümanlardan sonra devam etmeli."
+      },
+      {
+       "code": "c = []\nd = {'n': 1}\ninsert_many(c, [d])\nassert c[0] is d and d['_id'] == 1",
+       "visible": false,
+       "failure_message": "Add the _id to each given dict and append that same dict.",
+       "failure_message_tr": "_id'yi verilen her dict'e ekle ve aynı dict'i koleksiyona ekle."
+      }
+     ],
+     "hints": [
+      "It is insert_one applied to every document.",
+      "Loop over docs; set the id from len(collection) + 1, append, and collect the ids.",
+      "Last step: start with an empty list for the ids, loop over docs repeating the insert_one steps, append each new id to your list, and return it."
+     ],
+     "solution": {
+      "approach": "Repeat the insert_one steps for each document and collect the ids.",
+      "code": "def insert_many(collection, docs):\n    ids = []\n    for doc in docs:\n        doc['_id'] = len(collection) + 1\n        collection.append(doc)\n        ids.append(doc['_id'])\n    return ids",
+      "approach_tr": "Her doküman için insert_one adımlarını tekrarla ve id'leri topla."
+     },
+     "twin": "d27-b1-e3",
+     "hints_tr": [
+      "Bu, insert_one'ın her dokümana uygulanmış hâli.",
+      "docs üzerinde dön; id'yi len(collection) + 1 ile ata, ekle ve id'leri topla.",
+      "Son adım: id'ler için boş bir liste aç, docs üzerinde dönüp insert_one adımlarını tekrarla, her yeni id'yi listene ekle ve listeyi döndür."
+     ]
+    },
+    {
+     "id": "d27-b1-e5",
+     "type": "explain",
+     "concept": "documents-and-insert",
+     "tags": [
+      "mongodb",
+      "documents",
+      "collections",
+      "insert"
+     ],
+     "prompt": "In your own words: what is a document in MongoDB, what is _id for, and how is a collection different from an SQL table?",
+     "prompt_tr": "Kendi cümlelerinle anlat: MongoDB'de doküman nedir, _id ne işe yarar ve koleksiyon bir SQL tablosundan nasıl farklıdır?",
+     "model_answer": "A document is a JSON-like record of key-value pairs, and a collection is a group of such documents. MongoDB gives every document a unique _id that works as its primary key. Unlike rows of an SQL table, documents in one collection do not need to have the same fields.",
+     "keywords": [
+      "document",
+      "_id",
+      "collection"
+     ],
+     "model_answer_tr": "Doküman, anahtar-değer çiftlerinden oluşan JSON benzeri bir kayıttır; koleksiyon (collection) bu tür dokümanların grubudur. MongoDB her dokümana, birincil anahtar gibi çalışan benzersiz bir _id verir. SQL tablosunun satırlarından farklı olarak, bir koleksiyondaki dokümanların aynı alanlara sahip olması gerekmez.",
+     "keywords_tr": [
+      "doküman",
+      "_id",
+      "koleksiyon"
+     ],
+     "min_words": 6
+    }
+   ],
+   "concept_tr": "Doküman (document) ekleme"
+  },
+  {
+   "id": "d27-b2",
+   "concept": "find-query-projection",
+   "tags": [
+    "mongodb",
+    "find",
+    "query",
+    "projection"
+   ],
+   "worked_example": {
+    "code": "students = [{'name': 'Asabeneh', 'country': 'Finland'},\n            {'name': 'David', 'country': 'UK'}]\nquery = {'country': 'Finland'}\nfound = [s for s in students if all(s.get(k) == v for k, v in query.items())]\nprint(found)",
+    "notes": [
+     "find(query) returns the documents whose fields equal every pair in the query.",
+     "The second argument of find({}, {...}) is a projection that chooses fields."
+    ],
+    "notes_tr": [
+     "find(query), alanları sorgudaki her çifte eşit olan dokümanları döndürür.",
+     "find({}, {...}) çağrısının ikinci argümanı, hangi alanların seçileceğini belirleyen projection'dır."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d27-b2-e1",
+     "type": "predict",
+     "concept": "find-query-projection",
+     "tags": [
+      "mongodb",
+      "find",
+      "query",
+      "projection"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "students = [\n    {'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n    {'name': 'David', 'country': 'UK', 'city': 'London'},\n    {'name': 'Sami', 'country': 'Finland', 'city': 'Espoo'},\n]\nquery = {'country': 'Finland', 'city': 'Helsinki'}\nfound = [s['name'] for s in students if all(s.get(k) == v for k, v in query.items())]\nprint(found)",
+     "choices": [
+      "['Asabeneh']",
+      "['Asabeneh', 'Sami']",
+      "['Asabeneh', 'David', 'Sami']",
+      "[]"
+     ],
+     "expected_output": "['Asabeneh']",
+     "explanation": "A query with two pairs is an AND: the country must be Finland AND the city must be Helsinki. Only Asabeneh has both.",
+     "misconceptions": {
+      "['Asabeneh', 'Sami']": "Sami lives in Finland but in Espoo. The city also has to be Helsinki.",
+      "['Asabeneh', 'David', 'Sami']": "all(...) requires every pair of the query to match.",
+      "[]": "Asabeneh matches both conditions."
+     },
+     "explanation_tr": "İki çiftli bir sorgu VE demektir: ülke Finland VE şehir Helsinki olmalı. Bunların ikisine de yalnızca Asabeneh sahiptir.",
+     "misconceptions_tr": {
+      "['Asabeneh', 'Sami']": "Sami Finland'da yaşıyor ama Espoo'da. Şehrin de Helsinki olması gerekir.",
+      "['Asabeneh', 'David', 'Sami']": "all(...) sorgudaki her çiftin eşleşmesini ister.",
+      "[]": "Asabeneh iki koşulu da sağlar."
+     }
+    },
+    {
+     "id": "d27-b2-e2",
+     "type": "fill_blank",
+     "concept": "find-query-projection",
+     "tags": [
+      "mongodb",
+      "find",
+      "query",
+      "projection"
+     ],
+     "prompt": "Apply the projection: keep only the fields whose projection value is 1.",
+     "prompt_tr": "Projection uygula: yalnızca projection değeri 1 olan alanları tut.",
+     "starter_code": "doc = {'_id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nprojection = {'_id': 0, 'name': 1, 'country': 1}\nresult = {k: v for k, v in doc.items() if projection.___(k, 0) == ___}",
+     "blanks": [
+      {
+       "answer": [
+        "get"
+       ]
+      },
+      {
+       "answer": [
+        "1"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert result == {'name': 'Asabeneh', 'country': 'Finland'}",
+       "visible": true,
+       "label_tr": "Yalnızca istenen alanlar kalıyor"
+      }
+     ]
+    },
+    {
+     "id": "d27-b2-e3",
+     "type": "write",
+     "concept": "find-query-projection",
+     "tags": [
+      "mongodb",
+      "find",
+      "query",
+      "projection"
+     ],
+     "prompt": "Write matches(doc, query). Return True when every key of query is in doc with an equal value, otherwise False. An empty query matches every document.",
+     "prompt_tr": "matches(doc, query) yaz. query'nin her anahtarı doc içinde eşit değerle varsa True, aksi hâlde False döndür. Boş sorgu her dokümanla eşleşir.",
+     "starter_code": "",
+     "signature": "def matches(doc, query):",
+     "tests": [
+      {
+       "code": "assert matches({'name': 'Ada', 'country': 'UK'}, {'country': 'UK'}) is True",
+       "visible": true,
+       "label_tr": "Ülke eşleşince True"
+      },
+      {
+       "code": "assert matches({'name': 'Ada', 'country': 'UK'}, {'country': 'Finland'}) is False",
+       "visible": true,
+       "label_tr": "Ülke eşleşmeyince False"
+      },
+      {
+       "code": "assert matches({'a': 1, 'b': 2}, {'a': 1, 'b': 3}) is False",
+       "visible": false,
+       "failure_message": "All pairs must match (AND), not just one.",
+       "failure_message_tr": "Tüm çiftler eşleşmeli (VE), yalnızca biri değil."
+      },
+      {
+       "code": "assert matches({'a': 1}, {}) is True and matches({'a': 1}, {'missing': 1}) is False",
+       "visible": false,
+       "failure_message": "An empty query matches everything; a key the document does not have never matches.",
+       "failure_message_tr": "Boş sorgu her şeyle eşleşir; dokümanda olmayan anahtar hiç eşleşmez."
+      }
+     ],
+     "hints": [
+      "Check every pair of the query against the document.",
+      "all(...) over query.items(); use doc.get(key) so a missing key does not crash.",
+      "Last step: return all(...) over query.items(), where each pair checks that the key is in doc and that doc's value equals the query's value."
+     ],
+     "solution": {
+      "approach": "Use all() over the query pairs.",
+      "code": "def matches(doc, query):\n    return all(key in doc and doc[key] == value for key, value in query.items())",
+      "approach_tr": "Sorgu çiftleri üzerinde all() kullan."
+     },
+     "twin": "d27-b2-e4",
+     "hints_tr": [
+      "Sorgudaki her çifti dokümanla karşılaştır.",
+      "query.items() üzerinde all(...) kullan; eksik anahtar çökertmesin diye doc.get(anahtar) kullanabilirsin.",
+      "Son adım: query.items() üzerinde all(...) döndür; her çift için anahtarın doc içinde olduğunu ve doc'taki değerin sorgudaki değere eşit olduğunu kontrol et."
+     ]
+    },
+    {
+     "id": "d27-b2-e4",
+     "type": "write",
+     "concept": "find-query-projection",
+     "tags": [
+      "mongodb",
+      "find",
+      "query",
+      "projection"
+     ],
+     "prompt": "Write find_all(docs, query). Return the list of documents in docs that match every pair of query (equal values), in the original order. An empty query returns all documents.",
+     "prompt_tr": "find_all(docs, query) yaz. docs içinde sorgunun her çiftiyle (eşit değerlerle) eşleşen dokümanları özgün sırayla bir liste olarak döndür. Boş sorgu tüm dokümanları döndürür.",
+     "starter_code": "",
+     "signature": "def find_all(docs, query):",
+     "tests": [
+      {
+       "code": "docs = [{'n': 'A', 'c': 'UK'}, {'n': 'B', 'c': 'FI'}]\nassert find_all(docs, {'c': 'FI'}) == [{'n': 'B', 'c': 'FI'}]",
+       "visible": true,
+       "label_tr": "Ülkesi FI olan doküman bulunuyor"
+      },
+      {
+       "code": "docs = [{'n': 'A'}, {'n': 'B'}]\nassert find_all(docs, {}) == docs",
+       "visible": true,
+       "label_tr": "Boş sorgu tüm dokümanları veriyor"
+      },
+      {
+       "code": "docs = [{'a': 1, 'b': 2}, {'a': 1, 'b': 3}]\nassert find_all(docs, {'a': 1, 'b': 3}) == [{'a': 1, 'b': 3}]",
+       "visible": false,
+       "failure_message": "All pairs must match (AND).",
+       "failure_message_tr": "Tüm çiftler eşleşmeli (VE)."
+      },
+      {
+       "code": "assert find_all([{'a': 1}], {'zzz': 1}) == []",
+       "visible": false,
+       "failure_message": "A key the document does not have never matches.",
+       "failure_message_tr": "Dokümanda olmayan anahtar hiç eşleşmez."
+      }
+     ],
+     "hints": [
+      "It is matches() applied to every document.",
+      "A list comprehension with all(...) as the condition.",
+      "Last step: return a list comprehension over docs whose condition is an all(...) over the query pairs, as in matches."
+     ],
+     "solution": {
+      "approach": "Filter the documents with an all(...) condition.",
+      "code": "def find_all(docs, query):\n    return [d for d in docs if all(k in d and d[k] == v for k, v in query.items())]",
+      "approach_tr": "Dokümanları bir all(...) koşuluyla filtrele."
+     },
+     "twin": "d27-b2-e3",
+     "hints_tr": [
+      "Bu, matches()'in her dokümana uygulanmış hâli.",
+      "Koşulu all(...) olan bir liste kapsamı (list comprehension) kullan.",
+      "Son adım: docs üzerinde, koşulu matches'teki gibi sorgu çiftleri üzerinde all(...) olan bir liste kapsamı döndür."
+     ]
+    },
+    {
+     "id": "d27-b2-e5",
+     "type": "debug",
+     "concept": "find-query-projection",
+     "tags": [
+      "mongodb",
+      "find",
+      "query",
+      "projection"
+     ],
+     "prompt": "This should print the names of people in Finland AND Helsinki (['Asabeneh', 'Sami']) but also prints Aino. Fix the matching.",
+     "prompt_tr": "Bu kod Finland VE Helsinki'deki kişilerin adlarını (['Asabeneh', 'Sami']) yazdırmalı ama Aino'yu da yazdırıyor. Eşleştirmeyi düzelt.",
+     "starter_code": "students = [\n    {'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n    {'name': 'David', 'country': 'UK', 'city': 'London'},\n    {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki'},\n    {'name': 'Aino', 'country': 'Finland', 'city': 'Tampere'},\n]\n\ndef matches(doc, query):\n    return any(doc.get(k) == v for k, v in query.items())\n\nquery = {'country': 'Finland', 'city': 'Helsinki'}\nprint([s['name'] for s in students if matches(s, query)])",
+     "hints": [
+      "Aino has country Finland but city Tampere. Why does matches return True for her?",
+      "any() is True when ONE pair matches. A query with several pairs needs every pair to match.",
+      "Last step: in matches, swap any for the built-in that is True only when every pair matches."
+     ],
+     "solution": {
+      "approach": "A MongoDB query with several fields is an AND, so use all() instead of any().",
+      "code": "students = [\n    {'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki'},\n    {'name': 'David', 'country': 'UK', 'city': 'London'},\n    {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki'},\n    {'name': 'Aino', 'country': 'Finland', 'city': 'Tampere'},\n]\n\ndef matches(doc, query):\n    return all(doc.get(k) == v for k, v in query.items())\n\nquery = {'country': 'Finland', 'city': 'Helsinki'}\nprint([s['name'] for s in students if matches(s, query)])",
+      "approach_tr": "Birden çok alanlı bir MongoDB sorgusu VE anlamına gelir; bu yüzden any() yerine all() kullan."
+     },
+     "expected_output": "['Asabeneh', 'Sami']",
+     "hints_tr": [
+      "Aino'nun ülkesi Finland ama şehri Tampere. matches neden onun için True döndürüyor?",
+      "any() TEK bir çift eşleşince True olur. Birden çok çiftli bir sorguda her çiftin eşleşmesi gerekir.",
+      "Son adım: matches içinde any'yi, yalnızca her çift eşleşince True olan yerleşik fonksiyonla değiştir."
+     ]
+    }
+   ],
+   "concept_tr": "Sorgu (find) ve projection"
+  },
+  {
+   "id": "d27-b3",
+   "concept": "query-operators",
+   "tags": [
+    "mongodb",
+    "operators",
+    "sort",
+    "limit"
+   ],
+   "worked_example": {
+    "code": "doc = {'name': 'David', 'age': 34}\nquery = {'age': {'$gt': 30}}\nlimit = query['age']['$gt']\nprint(doc['age'] > limit)",
+    "notes": [
+     "{'$gt': 30} means 'greater than 30'; $lt means 'less than'.",
+     "sort('age', -1) sorts descending and limit(n) keeps the first n."
+    ],
+    "notes_tr": [
+     "{'$gt': 30} 'şundan büyük 30' demektir; $lt 'küçüktür' demektir.",
+     "sort('age', -1) büyükten küçüğe sıralar, limit(n) ilk n sonucu tutar."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d27-b3-e1",
+     "type": "predict",
+     "concept": "query-operators",
+     "tags": [
+      "mongodb",
+      "operators",
+      "sort",
+      "limit"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "students = [{'name': 'Asabeneh', 'age': 250}, {'name': 'David', 'age': 34},\n            {'name': 'John', 'age': 28}, {'name': 'Sami', 'age': 25}]\nolder = [s for s in students if s['age'] > 26]      # find({'age': {'$gt': 26}})\nordered = sorted(older, key=lambda s: s['age'], reverse=True)   # .sort('age', -1)\nprint([s['name'] for s in ordered][:2])             # .limit(2)",
+     "choices": [
+      "['Asabeneh', 'David']",
+      "['Sami', 'John']",
+      "['David', 'John']",
+      "['Asabeneh', 'David', 'John']"
+     ],
+     "expected_output": "['Asabeneh', 'David']",
+     "explanation": "Ages above 26 are Asabeneh (250), David (34) and John (28). Sorted descending: Asabeneh, David, John. limit(2) keeps the first two.",
+     "misconceptions": {
+      "['Sami', 'John']": "Sami (25) is filtered out by age > 26, and the sort is descending.",
+      "['David', 'John']": "250 is the largest age, so Asabeneh comes first in a descending sort.",
+      "['Asabeneh', 'David', 'John']": "The slice [:2] limits the result to two documents."
+     },
+     "explanation_tr": "26'dan büyük yaşlar: Asabeneh (250), David (34) ve John (28). Büyükten küçüğe sıralayınca: Asabeneh, David, John. limit(2) ilk ikisini tutar.",
+     "misconceptions_tr": {
+      "['Sami', 'John']": "Sami (25) yaş > 26 koşuluyla elenir ve sıralama büyükten küçüğedir.",
+      "['David', 'John']": "En büyük yaş 250'dir; bu yüzden azalan sıralamada Asabeneh ilk gelir.",
+      "['Asabeneh', 'David', 'John']": "[:2] dilimi sonucu iki dokümanla sınırlar."
+     }
+    },
+    {
+     "id": "d27-b3-e2",
+     "type": "parsons",
+     "concept": "query-operators",
+     "tags": [
+      "mongodb",
+      "operators",
+      "sort",
+      "limit"
+     ],
+     "prompt": "Put the lines in order: keep people older than 30, sort them by age from oldest to youngest, and print their names.",
+     "prompt_tr": "Satırları sırala: 30'dan büyük kişileri tut, yaşa göre büyükten küçüğe sırala ve adlarını yazdır.",
+     "lines": [
+      "adults.sort(key=lambda s: s['age'], reverse=True)",
+      "students = [{'name': 'A', 'age': 31}, {'name': 'B', 'age': 25}, {'name': 'C', 'age': 40}]",
+      "print([s['name'] for s in adults])",
+      "adults = [s for s in students if s['age'] > 30]"
+     ],
+     "correct_order": [
+      1,
+      3,
+      0,
+      2
+     ],
+     "distractors": [
+      "adults.sort(key=lambda s: s['age'])"
+     ],
+     "expected_output": "['C', 'A']"
+    },
+    {
+     "id": "d27-b3-e3",
+     "type": "write",
+     "concept": "query-operators",
+     "tags": [
+      "mongodb",
+      "operators",
+      "sort",
+      "limit"
+     ],
+     "prompt": "Write matches_op(doc, query). Each query value is either a plain value (must be equal) or a dict with operators $gt, $lt, $gte, $lte (all given operators must hold). All keys must match; a key missing from doc never matches.",
+     "prompt_tr": "matches_op(doc, query) yaz. Her sorgu değeri ya düz bir değerdir (eşit olmalı) ya da $gt, $lt, $gte, $lte işleçlerini içeren bir dict'tir (verilen tüm işleçler sağlanmalı). Tüm anahtarlar eşleşmeli; doc'ta olmayan bir anahtar hiç eşleşmez.",
+     "starter_code": "",
+     "signature": "def matches_op(doc, query):",
+     "tests": [
+      {
+       "code": "assert matches_op({'age': 34}, {'age': {'$gt': 30}}) is True",
+       "visible": true,
+       "label_tr": "34 yaşı $gt 30 ile eşleşiyor"
+      },
+      {
+       "code": "assert matches_op({'age': 25}, {'age': {'$gt': 30}}) is False",
+       "visible": true,
+       "label_tr": "25 yaşı $gt 30 ile eşleşmiyor"
+      },
+      {
+       "code": "assert matches_op({'age': 30}, {'age': {'$gte': 30}}) is True and matches_op({'age': 30}, {'age': {'$gt': 30}}) is False",
+       "visible": false,
+       "failure_message": "$gte includes the boundary value, $gt does not.",
+       "failure_message_tr": "$gte sınır değeri dahil eder, $gt etmez."
+      },
+      {
+       "code": "assert matches_op({'age': 28, 'city': 'Oslo'}, {'age': {'$gt': 20, '$lt': 30}, 'city': 'Oslo'}) is True",
+       "visible": false,
+       "failure_message": "Several operators and several keys must ALL hold; plain values are compared with ==.",
+       "failure_message_tr": "Birden çok işleç ve birden çok anahtar HEPSİ sağlanmalı; düz değerler == ile karşılaştırılır."
+      },
+      {
+       "code": "assert matches_op({'name': 'A'}, {'age': {'$lt': 5}}) is False",
+       "visible": false,
+       "failure_message": "A key that the document does not have must not match.",
+       "failure_message_tr": "Dokümanda olmayan bir anahtar eşleşmemeli."
+      }
+     ],
+     "hints": [
+      "Handle two kinds of query values: plain value or operator dict.",
+      "For a dict value, check each operator with a small mapping from operator name to comparison.",
+      "Last step: keep a dict that maps each operator name to a comparison function; loop over the query keys, return False on a missing key or a failed check, and return True after the loop."
+     ],
+     "solution": {
+      "approach": "Compare each field either by equality or by the operator functions.",
+      "code": "def matches_op(doc, query):\n    ops = {'$gt': lambda a, b: a > b, '$lt': lambda a, b: a < b,\n           '$gte': lambda a, b: a >= b, '$lte': lambda a, b: a <= b}\n    for key, cond in query.items():\n        if key not in doc:\n            return False\n        if isinstance(cond, dict):\n            if not all(ops[op](doc[key], v) for op, v in cond.items()):\n                return False\n        elif doc[key] != cond:\n            return False\n    return True",
+      "approach_tr": "Her alanı ya eşitlikle ya da işleç fonksiyonlarıyla karşılaştır."
+     },
+     "twin": "d27-b3-e4",
+     "hints_tr": [
+      "İki tür sorgu değerini ele al: düz değer ya da işleç dict'i.",
+      "Dict değeri için, işleç adını karşılaştırmaya eşleyen küçük bir tabloyla her işleci kontrol et.",
+      "Son adım: her işleç adını bir karşılaştırma fonksiyonuna eşleyen bir dict tut; sorgu anahtarları üzerinde dön, anahtar eksikse ya da kontrol başarısızsa False döndür, döngüden sonra True döndür."
+     ]
+    },
+    {
+     "id": "d27-b3-e4",
+     "type": "write",
+     "concept": "query-operators",
+     "tags": [
+      "mongodb",
+      "operators",
+      "sort",
+      "limit"
+     ],
+     "prompt": "Write count_matching(docs, query). Count the documents that match the query. Each query value is a plain value (equal) or a dict with operators $gt, $lt, $gte, $lte. A key missing from a document never matches.",
+     "prompt_tr": "count_matching(docs, query) yaz. Sorguyla eşleşen dokümanları say. Her sorgu değeri düz bir değerdir (eşit) ya da $gt, $lt, $gte, $lte işleçlerini içeren bir dict'tir. Bir dokümanda olmayan anahtar hiç eşleşmez.",
+     "starter_code": "",
+     "signature": "def count_matching(docs, query):",
+     "tests": [
+      {
+       "code": "docs = [{'age': 250}, {'age': 34}, {'age': 28}, {'age': 25}]\nassert count_matching(docs, {'age': {'$gt': 30}}) == 2",
+       "visible": true,
+       "label_tr": "30'dan büyük yaşlar sayılıyor"
+      },
+      {
+       "code": "assert count_matching([], {'age': {'$gt': 1}}) == 0",
+       "visible": true,
+       "label_tr": "Boş liste için sayı 0"
+      },
+      {
+       "code": "docs = [{'age': 30}, {'age': 31}]\nassert count_matching(docs, {'age': {'$gte': 30}}) == 2 and count_matching(docs, {'age': {'$gt': 30}}) == 1",
+       "visible": false,
+       "failure_message": "$gte includes the boundary value, $gt does not.",
+       "failure_message_tr": "$gte sınır değeri dahil eder, $gt etmez."
+      },
+      {
+       "code": "docs = [{'c': 'FI', 'age': 25}, {'c': 'FI', 'age': 40}, {'c': 'UK', 'age': 40}]\nassert count_matching(docs, {'c': 'FI', 'age': {'$gt': 30}}) == 1",
+       "visible": false,
+       "failure_message": "Plain values and operators in one query must ALL hold.",
+       "failure_message_tr": "Aynı sorgudaki düz değerler ve işleçlerin HEPSİ sağlanmalı."
+      },
+      {
+       "code": "assert count_matching([{'a': 1}, {'b': 2}], {'b': {'$lt': 5}}) == 1",
+       "visible": false,
+       "failure_message": "Documents without the key do not match.",
+       "failure_message_tr": "Anahtarı olmayan dokümanlar eşleşmez."
+      }
+     ],
+     "hints": [
+      "Reuse the idea of matches_op, then count.",
+      "Write a helper with the operator comparisons; sum(1 for d in docs if helper(d)).",
+      "Last step: define an inner function ok(doc) that does the matches_op checks, then return the sum of 1 for every document where ok(doc) is true."
+     ],
+     "solution": {
+      "approach": "Same field-by-field check as matches_op, then count the documents that pass.",
+      "code": "def count_matching(docs, query):\n    ops = {'$gt': lambda a, b: a > b, '$lt': lambda a, b: a < b,\n           '$gte': lambda a, b: a >= b, '$lte': lambda a, b: a <= b}\n    def ok(doc):\n        for key, cond in query.items():\n            if key not in doc:\n                return False\n            if isinstance(cond, dict):\n                if not all(ops[o](doc[key], v) for o, v in cond.items()):\n                    return False\n            elif doc[key] != cond:\n                return False\n        return True\n    return sum(1 for d in docs if ok(d))",
+      "approach_tr": "matches_op ile aynı alan alan kontrolü yap, sonra geçen dokümanları say."
+     },
+     "twin": "d27-b3-e3",
+     "hints_tr": [
+      "matches_op fikrini yeniden kullan, sonra say.",
+      "İşleç karşılaştırmalarını yapan bir yardımcı fonksiyon yaz; sum(1 for d in docs if yardımcı(d)).",
+      "Son adım: matches_op kontrollerini yapan iç bir ok(doc) fonksiyonu tanımla, sonra ok(doc) doğru olan her doküman için 1 toplayan değeri döndür."
+     ]
+    }
+   ],
+   "concept_tr": "Sorgu işleçleri ($gt, $lt)"
+  },
+  {
+   "id": "d27-b4",
+   "concept": "update-delete-sort",
+   "tags": [
+    "mongodb",
+    "update",
+    "delete",
+    "set"
+   ],
+   "worked_example": {
+    "code": "students = [{'name': 'Asabeneh', 'age': 250}, {'name': 'David', 'age': 34}]\nupdate = {'$set': {'age': 38}}\nstudents[0].update(update['$set'])\nprint(students[0])",
+    "notes": [
+     "update_one(query, {'$set': {...}}) changes only the listed fields of the first match.",
+     "delete_one(query) removes the first match; delete_many removes all matches."
+    ],
+    "notes_tr": [
+     "update_one(query, {'$set': {...}}) ilk eşleşmenin yalnızca listelenen alanlarını değiştirir.",
+     "delete_one(query) ilk eşleşmeyi siler; delete_many tüm eşleşmeleri siler."
+    ]
+   },
+   "exercises": [
+    {
+     "id": "d27-b4-e1",
+     "type": "predict",
+     "concept": "update-delete-sort",
+     "tags": [
+      "mongodb",
+      "update",
+      "delete",
+      "set"
+     ],
+     "prompt": "What does this code print?",
+     "prompt_tr": "Bu kod ne yazdırır?",
+     "code": "students = [{'name': 'A', 'age': 30}, {'name': 'B', 'age': 30}]\n\ndef update_one(docs, query, new_values):\n    for doc in docs:\n        if all(doc.get(k) == v for k, v in query.items()):\n            doc.update(new_values)\n            return 1\n    return 0\n\nn = update_one(students, {'age': 30}, {'age': 31})\nm = update_one(students, {'name': 'Z'}, {'age': 99})\nprint(n, m, [s['age'] for s in students])",
+     "choices": [
+      "1 0 [31, 30]",
+      "1 0 [31, 31]",
+      "2 0 [31, 31]",
+      "1 1 [31, 99]"
+     ],
+     "expected_output": "1 0 [31, 30]",
+     "explanation": "update_one stops after the first match (A). The second call finds no document named Z, so it returns 0 and changes nothing.",
+     "misconceptions": {
+      "1 0 [31, 31]": "update_one returns right after the first match, so B keeps age 30.",
+      "2 0 [31, 31]": "Only one document is updated; the function returns 1.",
+      "1 1 [31, 99]": "No document has the name 'Z', so the second call returns 0 and nothing is changed."
+     },
+     "explanation_tr": "update_one ilk eşleşmeden (A) sonra durur. İkinci çağrı Z adında bir doküman bulamaz, bu yüzden 0 döndürür ve hiçbir şeyi değiştirmez.",
+     "misconceptions_tr": {
+      "1 0 [31, 31]": "update_one ilk eşleşmeden hemen sonra döner, bu yüzden B'nin yaşı 30 kalır.",
+      "2 0 [31, 31]": "Yalnızca bir doküman güncellenir; fonksiyon 1 döndürür.",
+      "1 1 [31, 99]": "Hiçbir dokümanın adı 'Z' değil, bu yüzden ikinci çağrı 0 döndürür ve hiçbir şey değişmez."
+     }
+    },
+    {
+     "id": "d27-b4-e2",
+     "type": "fill_blank",
+     "concept": "update-delete-sort",
+     "tags": [
+      "mongodb",
+      "update",
+      "delete",
+      "set"
+     ],
+     "prompt": "Sort the students by age from oldest to youngest (like sort('age', -1)).",
+     "prompt_tr": "Öğrencileri yaşa göre büyükten küçüğe sırala (sort('age', -1) gibi).",
+     "starter_code": "students = [{'name': 'Sami', 'age': 25}, {'name': 'David', 'age': 34}]\nstudents.sort(key=lambda s: s[___], reverse=___)",
+     "blanks": [
+      {
+       "answer": [
+        "'age'"
+       ]
+      },
+      {
+       "answer": [
+        "True"
+       ]
+      }
+     ],
+     "tests": [
+      {
+       "code": "assert students[0]['name'] == 'David'",
+       "visible": true,
+       "label_tr": "En yaşlı öğrenci başta"
+      },
+      {
+       "code": "assert [s['age'] for s in students] == [34, 25]",
+       "visible": true,
+       "label_tr": "Yaşlar azalan sırada"
+      }
+     ]
+    },
+    {
+     "id": "d27-b4-e3",
+     "type": "write",
+     "concept": "update-delete-sort",
+     "tags": [
+      "mongodb",
+      "update",
+      "delete",
+      "set"
+     ],
+     "prompt": "Write update_one(docs, query, update). update looks like {'$set': {'age': 38}}. Find the first document that has every key/value of query, apply the $set values to it, and return 1. If nothing matches return 0 and change nothing.",
+     "prompt_tr": "update_one(docs, query, update) yaz. update, {'$set': {'age': 38}} gibi görünür. query'nin tüm anahtar/değerlerine sahip ilk dokümanı bul, $set değerlerini ona uygula ve 1 döndür. Hiçbir şey eşleşmezse 0 döndür ve hiçbir şeyi değiştirme.",
+     "starter_code": "",
+     "signature": "def update_one(docs, query, update):",
+     "tests": [
+      {
+       "code": "docs = [{'name': 'A', 'age': 250}]\nassert update_one(docs, {'name': 'A'}, {'$set': {'age': 38}}) == 1 and docs[0]['age'] == 38",
+       "visible": true,
+       "label_tr": "Eşleşen doküman güncelleniyor"
+      },
+      {
+       "code": "docs = [{'name': 'A'}]\nassert update_one(docs, {'name': 'Z'}, {'$set': {'age': 1}}) == 0 and docs == [{'name': 'A'}]",
+       "visible": true,
+       "label_tr": "Eşleşme yoksa 0 dönüyor ve değişiklik olmuyor"
+      },
+      {
+       "code": "docs = [{'n': 1, 'age': 5}, {'n': 1, 'age': 5}]\nupdate_one(docs, {'n': 1}, {'$set': {'age': 6}})\nassert [d['age'] for d in docs] == [6, 5]",
+       "visible": false,
+       "failure_message": "Only the FIRST matching document is updated.",
+       "failure_message_tr": "Yalnızca İLK eşleşen doküman güncellenir."
+      },
+      {
+       "code": "docs = [{'n': 'A', 'city': 'X', 'age': 1}]\nupdate_one(docs, {'n': 'A'}, {'$set': {'age': 2}})\nassert docs == [{'n': 'A', 'city': 'X', 'age': 2}]",
+       "visible": false,
+       "failure_message": "$set changes only the listed fields; other fields must stay.",
+       "failure_message_tr": "$set yalnızca listelenen alanları değiştirir; diğer alanlar kalmalı."
+      }
+     ],
+     "hints": [
+      "Loop to find the first match, update it, and stop.",
+      "doc.update(update['$set']) merges the new values; return 1 right away.",
+      "Last step: loop over docs; for the first doc where every query pair matches, merge update['$set'] into it and return 1; after the loop return 0."
+     ],
+     "solution": {
+      "approach": "Return after the first match and merge the $set values into it.",
+      "code": "def update_one(docs, query, update):\n    for doc in docs:\n        if all(doc.get(k) == v for k, v in query.items()):\n            doc.update(update['$set'])\n            return 1\n    return 0",
+      "approach_tr": "İlk eşleşmeden sonra dön ve $set değerlerini ona birleştir."
+     },
+     "twin": "d27-b4-e4",
+     "hints_tr": [
+      "İlk eşleşmeyi bulmak için dön, güncelle ve dur.",
+      "doc.update(update['$set']) yeni değerleri birleştirir; hemen 1 döndür.",
+      "Son adım: docs üzerinde dön; sorgunun her çiftinin eşleştiği ilk dokümanda update['$set'] değerlerini birleştir ve 1 döndür; döngüden sonra 0 döndür."
+     ]
+    },
+    {
+     "id": "d27-b4-e4",
+     "type": "write",
+     "concept": "update-delete-sort",
+     "tags": [
+      "mongodb",
+      "update",
+      "delete",
+      "set"
+     ],
+     "prompt": "Write delete_one(docs, query). Remove the first document that has every key/value of query and return 1. If nothing matches return 0 and change nothing.",
+     "prompt_tr": "delete_one(docs, query) yaz. query'nin tüm anahtar/değerlerine sahip ilk dokümanı sil ve 1 döndür. Hiçbir şey eşleşmezse 0 döndür ve hiçbir şeyi değiştirme.",
+     "starter_code": "",
+     "signature": "def delete_one(docs, query):",
+     "tests": [
+      {
+       "code": "docs = [{'name': 'A'}, {'name': 'B'}]\nassert delete_one(docs, {'name': 'A'}) == 1 and docs == [{'name': 'B'}]",
+       "visible": true,
+       "label_tr": "Eşleşen doküman siliniyor"
+      },
+      {
+       "code": "docs = [{'name': 'A'}]\nassert delete_one(docs, {'name': 'Z'}) == 0 and docs == [{'name': 'A'}]",
+       "visible": true,
+       "label_tr": "Eşleşme yoksa 0 dönüyor ve değişiklik olmuyor"
+      },
+      {
+       "code": "docs = [{'c': 'FI', 'i': 1}, {'c': 'FI', 'i': 2}]\ndelete_one(docs, {'c': 'FI'})\nassert docs == [{'c': 'FI', 'i': 2}]",
+       "visible": false,
+       "failure_message": "Only the FIRST matching document is removed.",
+       "failure_message_tr": "Yalnızca İLK eşleşen doküman silinir."
+      },
+      {
+       "code": "docs = [{'a': 1, 'b': 2}, {'a': 1, 'b': 3}]\ndelete_one(docs, {'a': 1, 'b': 3})\nassert docs == [{'a': 1, 'b': 2}]",
+       "visible": false,
+       "failure_message": "All query pairs must match before a document is removed.",
+       "failure_message_tr": "Doküman silinmeden önce sorgunun tüm çiftleri eşleşmeli."
+      }
+     ],
+     "hints": [
+      "Same search as update_one, different action.",
+      "docs.remove(doc) deletes it; return 1 immediately (do not keep looping while changing the list).",
+      "Last step: in the same loop as update_one, call the list method that removes the matching doc and return 1 right away."
+     ],
+     "solution": {
+      "approach": "Find the first match, remove it, and return 1.",
+      "code": "def delete_one(docs, query):\n    for doc in docs:\n        if all(doc.get(k) == v for k, v in query.items()):\n            docs.remove(doc)\n            return 1\n    return 0",
+      "approach_tr": "İlk eşleşmeyi bul, sil ve 1 döndür."
+     },
+     "twin": "d27-b4-e3",
+     "hints_tr": [
+      "update_one ile aynı arama, farklı eylem.",
+      "docs.remove(doc) onu siler; hemen 1 döndür (liste değişirken dönmeye devam etme).",
+      "Son adım: update_one'daki döngünün aynısında, eşleşen dokümanı silen liste metodunu çağır ve hemen 1 döndür."
+     ]
+    }
+   ],
+   "concept_tr": "Güncelleme, silme ve sıralama"
+  }
+ ],
+ "review_pool": [
+  "d27-b1-e1",
+  "d27-b1-e3",
+  "d27-b2-e1",
+  "d27-b2-e3",
+  "d27-b3-e1",
+  "d27-b3-e3"
+ ],
+ "title_tr": "Python ve MongoDB"
+}

@@ -1,0 +1,295 @@
+{
+  "day": 19,
+  "title_tr": "Dosya İşlemleri",
+  "title": "File Handling",
+  "est_minutes": 30,
+  "cards": [
+    {
+      "id": "d19-c01",
+      "type": "explain",
+      "section": "File Handling",
+      "title_tr": "open() ve modlar",
+      "title": "open() and modes",
+      "body_tr": "Dosya işleri `open('ad', mod)` ile başlar. Modlar: `r` oku (varsayılan, dosya yoksa hata), `w` yaz (var olanı siler, yoksa oluşturur), `a` sonuna ekle, `x` yeni oluştur (varsa hata). `t` metin, `b` ikili (resim vb.). Tarayıcıda gerçek diskin yerine sanal bir dosya sistemi var; güvenle dene.",
+      "body": "File work starts with `open('name', mode)`. Modes: `r` read (default, error if missing), `w` write (erases existing, creates if missing), `a` append, `x` create new (error if exists). `t` text, `b` binary (images etc.). The browser has a virtual file system instead of your disk; safe to try."
+    },
+    {
+      "id": "d19-c02",
+      "type": "truefalse",
+      "section": "File Handling",
+      "statement_tr": "`'w'` modu dosyanın eski içeriğini silip üzerine yazar.",
+      "statement": "Mode `'w'` erases the old content and writes anew.",
+      "answer": true,
+      "why_tr": "Eklemek için `'a'` kullanılır.",
+      "why": "To add instead, use `'a'`."
+    },
+    {
+      "id": "d19-c03",
+      "type": "explain",
+      "section": "Opening Files for Writing and Updating",
+      "title_tr": "Önce bir dosya yazalım",
+      "title": "First, write a file",
+      "body_tr": "`with open(...) as f:` bloğu dosyayı iş bitince kendisi kapatır; `close()` unutma derdi yoktur. `f.write()` yazıyı dosyaya koyar.",
+      "body": "A `with open(...) as f:` block closes the file itself when done, so you cannot forget `close()`. `f.write()` puts text in the file.",
+      "code": "with open('example.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.')\nprint(open('example.txt').read())",
+      "expected_output": "This is the first line.\nThis is the second line.",
+      "trace": true
+    },
+    {
+      "id": "d19-c04",
+      "type": "explain",
+      "section": "Opening Files for Reading",
+      "title_tr": "read(): hepsini oku",
+      "title": "read(): everything",
+      "body_tr": "`read()` tüm metni tek yazı olarak verir. `read(10)` yalnız ilk 10 karakteri okur.",
+      "body": "`read()` returns all text as one string. `read(10)` reads only the first 10 characters.",
+      "code": "with open('example.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.')\nf = open('example.txt')\nprint(type(f.read(10)))\nf.seek(0)\nprint(f.read(10))\nf.close()",
+      "expected_output": "<class 'str'>\nThis is th",
+      "hide_output": true
+    },
+    {
+      "id": "d19-c05",
+      "type": "predict",
+      "section": "Opening Files for Reading",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "with open('example.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.')\nwith open('example.txt') as f:\n    print(repr(f.readline()))",
+      "choices": [
+        "'This is the first line.\\n'",
+        "'This is the first line.'",
+        "['This is the first line.']",
+        "'This is'"
+      ],
+      "answer": "'This is the first line.\\n'",
+      "why_tr": "`readline()` ilk satırı sonundaki `\\n` ile birlikte okur; `repr` bunu görünür yapar.",
+      "why": "`readline()` reads the first line including its trailing `\\n`; `repr` makes it visible."
+    },
+    {
+      "id": "d19-c06",
+      "type": "explain",
+      "section": "Opening Files for Reading",
+      "title_tr": "readline, readlines, splitlines",
+      "title": "readline, readlines, splitlines",
+      "body_tr": "`readline()` tek satır, `readlines()` satırlar listesi (sonlarda `\\n` ile), `read().splitlines()` ise `\\n` olmadan satırlar listesi verir.",
+      "body": "`readline()` gives one line, `readlines()` a list of lines (with `\\n`), and `read().splitlines()` a list without `\\n`.",
+      "code": "with open('example.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.')\nwith open('example.txt') as f:\n    print(f.readlines())\nwith open('example.txt') as f:\n    print(f.read().splitlines())",
+      "expected_output": "['This is the first line.\\n', 'This is the second line.']\n['This is the first line.', 'This is the second line.']"
+    },
+    {
+      "id": "d19-c07",
+      "type": "fill",
+      "section": "Opening Files for Reading",
+      "prompt_tr": "Boşluğu doldur.",
+      "code": "with open('example.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.')\nwith open('example.txt') as f:\n    lines = f.read().___()\nprint(len(lines))",
+      "answers": [
+        "splitlines"
+      ],
+      "expected_output": "2",
+      "why_tr": "`splitlines()` satırlara böler: 2 satır.",
+      "why": "`splitlines()` splits into lines: 2 lines."
+    },
+    {
+      "id": "d19-c08",
+      "type": "explain",
+      "section": "Opening Files for Writing and Updating",
+      "title_tr": "'a' ile ekle, 'w' ile ez",
+      "title": "Append with 'a', overwrite with 'w'",
+      "body_tr": "`'a'` mevcut içeriğin sonuna ekler. `'w'` her şeyi silip baştan yazar. Farkı gör.",
+      "body": "`'a'` adds to the end of existing content. `'w'` wipes everything and writes anew. See the difference.",
+      "code": "with open('example.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.')\nwith open('example.txt', 'a') as f:\n    f.write('\\nAppended!')\nprint(open('example.txt').read().splitlines())\nwith open('example.txt', 'w') as f:\n    f.write('Only me')\nprint(open('example.txt').read())",
+      "expected_output": "['This is the first line.', 'This is the second line.', 'Appended!']\nOnly me",
+      "trace": true
+    },
+    {
+      "id": "d19-c09",
+      "type": "predict",
+      "section": "Opening Files for Writing and Updating",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "with open('t.txt', 'w') as f:\n    f.write('A')\nwith open('t.txt', 'a') as f:\n    f.write('B')\nwith open('t.txt', 'w') as f:\n    f.write('C')\nprint(open('t.txt').read())",
+      "choices": [
+        "C",
+        "ABC",
+        "AB",
+        "AC"
+      ],
+      "answer": "C",
+      "why_tr": "Son `'w'` önceki her şeyi siler.",
+      "why": "The last `'w'` erases everything before."
+    },
+    {
+      "id": "d19-c10",
+      "type": "explain",
+      "section": "Deleting Files",
+      "title_tr": "Dosya silmek",
+      "title": "Deleting files",
+      "body_tr": "`os.remove(yol)` dosyayı siler; yoksa hata verir. Önce `os.path.exists` ile kontrol etmek iyi alışkanlıktır.",
+      "body": "`os.remove(path)` deletes a file and errors if missing. Checking `os.path.exists` first is a good habit.",
+      "code": "import os\n\nopen('temp.txt', 'w').write('x')\nfor _ in range(2):\n    if os.path.exists('temp.txt'):\n        os.remove('temp.txt')\n        print('deleted')\n    else:\n        print('The file does not exist')",
+      "expected_output": "deleted\nThe file does not exist",
+      "trace": true
+    },
+    {
+      "id": "d19-c11",
+      "type": "explain",
+      "section": "File with json Extension",
+      "title_tr": "JSON nedir?",
+      "title": "What is JSON?",
+      "body_tr": "JSON, bir sözlüğün **yazı** halidir ve dosyalarda/ağda veri taşımak için çok kullanılır. JSON'da tür yoktur, her şey yazıdır. Dikkat: JSON çift tırnak ister, Python sözlüğü tek de olabilir.",
+      "body": "JSON is the **text** form of a dictionary, widely used to move data in files and over networks. JSON has no types; it is all text. Note: JSON requires double quotes, Python dicts may use single.",
+      "code": "person_dct = {'name': 'Asabeneh', 'skills': ['Python']}\nperson_json = '{\"name\": \"Asabeneh\", \"skills\": [\"Python\"]}'\nprint(type(person_dct).__name__, type(person_json).__name__)",
+      "expected_output": "dict str"
+    },
+    {
+      "id": "d19-c12",
+      "type": "truefalse",
+      "section": "File with json Extension",
+      "statement_tr": "JSON aslında düz metindir (str).",
+      "statement": "JSON is really plain text (a str).",
+      "answer": true,
+      "why_tr": "Ağda ve dosyada yazı olarak taşınır; `loads` ile sözlüğe dönüşür.",
+      "why": "It travels as text in files and networks; `loads` turns it into a dict."
+    },
+    {
+      "id": "d19-c13",
+      "type": "explain",
+      "section": "Changing JSON to Dictionary",
+      "title_tr": "json.loads: yazıdan sözlüğe",
+      "title": "json.loads: text to dict",
+      "body_tr": "`json.loads(yazı)` JSON yazısını Python sözlüğüne çevirir. (loads = load string)",
+      "body": "`json.loads(text)` converts a JSON string into a Python dict. (loads = load string)",
+      "code": "import json\n\nperson_json = '{\"name\": \"Asabeneh\", \"country\": \"Finland\", \"skills\": [\"React\", \"Python\"]}'\nperson_dct = json.loads(person_json)\nprint(type(person_dct).__name__)\nprint(person_dct['name'])\nprint(person_dct['skills'])",
+      "expected_output": "dict\nAsabeneh\n['React', 'Python']"
+    },
+    {
+      "id": "d19-c14",
+      "type": "explain",
+      "section": "Changing Dictionary to JSON",
+      "title_tr": "json.dumps: sözlükten yazıya",
+      "title": "json.dumps: dict to text",
+      "body_tr": "`json.dumps(sözlük, indent=4)` sözlüğü okunur biçimli JSON yazısına çevirir. Çıktının türü `str`'dir.",
+      "body": "`json.dumps(dict, indent=4)` turns a dict into nicely formatted JSON text. The result is a `str`.",
+      "code": "import json\n\nperson = {'name': 'Asabeneh', 'skills': ['Python', 'React']}\nperson_json = json.dumps(person, indent=4)\nprint(type(person_json).__name__)\nprint(person_json)",
+      "expected_output": "str\n{\n    \"name\": \"Asabeneh\",\n    \"skills\": [\n        \"Python\",\n        \"React\"\n    ]\n}"
+    },
+    {
+      "id": "d19-c15",
+      "type": "predict",
+      "section": "Changing Dictionary to JSON",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "import json\n\nprint(json.dumps({'ok': True}))",
+      "choices": [
+        "{\"ok\": true}",
+        "{'ok': True}",
+        "{\"ok\": True}",
+        "ok"
+      ],
+      "answer": "{\"ok\": true}",
+      "why_tr": "JSON `true` küçük harfle yazar ve çift tırnak kullanır.",
+      "why": "JSON writes `true` in lowercase and uses double quotes."
+    },
+    {
+      "id": "d19-c16",
+      "type": "fill",
+      "section": "Changing JSON to Dictionary",
+      "prompt_tr": "Boşluğu doldur.",
+      "code": "import json\n\ndata = json.___('{\"a\": 1}')\nprint(data['a'] + 1)",
+      "answers": [
+        "loads"
+      ],
+      "expected_output": "2",
+      "why_tr": "Yazıdan sözlüğe `loads`.",
+      "why": "From string to dict is `loads`."
+    },
+    {
+      "id": "d19-c17",
+      "type": "explain",
+      "section": "Saving as JSON File",
+      "title_tr": "json.dump: dosyaya kaydet",
+      "title": "json.dump: save to a file",
+      "body_tr": "`json.dump(veri, dosya, indent=4)` sözlüğü doğrudan dosyaya yazar (`dumps` yazı döndürür, `dump` dosyaya yazar). Sonra `json.load` ile geri okuyabilirsin.",
+      "body": "`json.dump(data, file, indent=4)` writes a dict straight into a file (`dumps` returns text, `dump` writes to a file). Read it back with `json.load`.",
+      "code": "import json\n\nperson = {'name': 'Asabeneh', 'city': 'Helsinki'}\nwith open('json_example.json', 'w', encoding='utf-8') as f:\n    json.dump(person, f, ensure_ascii=False, indent=4)\nwith open('json_example.json') as f:\n    print(json.load(f))",
+      "expected_output": "{'name': 'Asabeneh', 'city': 'Helsinki'}"
+    },
+    {
+      "id": "d19-c18",
+      "type": "explain",
+      "section": "File with csv Extension",
+      "title_tr": "CSV: virgülle ayrılmış değerler",
+      "title": "CSV: comma separated values",
+      "body_tr": "CSV, tablo verisini düz metin olarak saklar; satır = kayıt, virgül = sütun ayırıcı. `csv.reader` satırları liste olarak verir. İlk satır genelde sütun adlarıdır.",
+      "body": "CSV stores tables as plain text; row = record, comma = column separator. `csv.reader` gives each row as a list. The first row is usually the column names.",
+      "code": "import csv\n\nopen('csv_example.csv', 'w').write('name,country,city\\nAsabeneh,Finland,Helsinki\\n')\nwith open('csv_example.csv') as f:\n    for i, row in enumerate(csv.reader(f, delimiter=',')):\n        if i == 0:\n            print('Column names are:', ', '.join(row))\n        else:\n            print(f'{row[0]} lives in {row[1]}, {row[2]}.')",
+      "expected_output": "Column names are: name, country, city\nAsabeneh lives in Finland, Helsinki.",
+      "trace": true
+    },
+    {
+      "id": "d19-c19",
+      "type": "predict",
+      "section": "File with csv Extension",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "code": "import csv\n\nrows = list(csv.reader(['a,b', 'c,d']))\nprint(rows[1][0])",
+      "choices": [
+        "c",
+        "b",
+        "a,b",
+        "d"
+      ],
+      "answer": "c",
+      "why_tr": "İkinci satır `['c', 'd']`; 0. eleman 'c'.",
+      "why": "The second row is `['c', 'd']`; item 0 is 'c'."
+    },
+    {
+      "id": "d19-c20",
+      "type": "explain",
+      "section": "File with xlsx Extension",
+      "title_tr": "Excel dosyaları",
+      "title": "Excel files",
+      "body_tr": "Excel dosyalarını okumak için `xlrd` gibi ek bir **paket** gerekir; bunu bir sonraki gün `pip` ile kurmayı öğreneceksin. Bu yüzden burada çalıştırmıyoruz.",
+      "body": "Reading Excel files needs an extra **package** such as `xlrd`; you will learn to install one with `pip` next day. So we do not run it here."
+    },
+    {
+      "id": "d19-c21",
+      "type": "explain",
+      "section": "File with xml Extension",
+      "title_tr": "XML: etiketli veri",
+      "title": "XML: tagged data",
+      "body_tr": "XML, HTML'e benzer ama etiketleri serbesttir. En üstteki etiket `root`tur; etiketin `attrib`ı özellikleri verir. `xml.etree.ElementTree` ile okunur; burada dosya yerine yazıdan okuyoruz.",
+      "body": "XML looks like HTML but tags are free-form. The top tag is the `root`; `attrib` gives its attributes. Read it with `xml.etree.ElementTree`; here we parse from text instead of a file.",
+      "code": "import xml.etree.ElementTree as ET\n\nxml = '<person gender=\"female\"><name>Asabeneh</name><country>Finland</country></person>'\nroot = ET.fromstring(xml)\nprint('Root tag:', root.tag)\nprint('Attribute:', root.attrib)\nfor child in root:\n    print('field:', child.tag)",
+      "expected_output": "Root tag: person\nAttribute: {'gender': 'female'}\nfield: name\nfield: country",
+      "trace": true
+    },
+    {
+      "id": "d19-c22",
+      "type": "truefalse",
+      "section": "File with xml Extension",
+      "statement_tr": "JSON ve XML ikisi de yapılandırılmış veri biçimidir.",
+      "statement": "JSON and XML are both structured data formats.",
+      "answer": true,
+      "why_tr": "İkisi de iç içe yapıyı metinle ifade eder.",
+      "why": "Both express nested structure as text."
+    },
+    {
+      "id": "d19-c23",
+      "type": "recap",
+      "section": "Recap",
+      "title_tr": "Özet",
+      "title": "Summary",
+      "points_tr": [
+        "`open(ad, mod)`: `r` oku, `w` ez, `a` ekle, `x` yeni; `with` dosyayı kendisi kapatır.",
+        "`read`, `readline`, `readlines`, `splitlines` farklı okuma biçimleridir.",
+        "`json.loads/dumps` yazı ile, `json.load/dump` dosya ile çalışır.",
+        "CSV ve XML için `csv` ve `xml.etree.ElementTree` kullanılır."
+      ],
+      "points": [
+        "`open(name, mode)`: `r` read, `w` overwrite, `a` append, `x` new; `with` closes the file itself.",
+        "`read`, `readline`, `readlines`, `splitlines` are different ways to read.",
+        "`json.loads/dumps` work with text, `json.load/dump` with files.",
+        "Use `csv` and `xml.etree.ElementTree` for CSV and XML."
+      ],
+      "link": "learn",
+      "link_label_tr": "Şimdi alıştırmalara geç",
+      "link_label": "Go to the exercises"
+    }
+  ]
+}

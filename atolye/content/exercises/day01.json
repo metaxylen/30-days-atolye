@@ -1,0 +1,600 @@
+{
+  "day": 1,
+  "title": "Introduction",
+  "title_tr": "Giriş",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "blocks": [
+    {
+      "id": "d01-b1",
+      "concept": "arithmetic-operators",
+      "concept_tr": "Aritmetik operatörler",
+      "tags": [
+        "numbers",
+        "operators",
+        "print"
+      ],
+      "worked_example": {
+        "code": "print(7 // 2)\nprint(7 % 2)",
+        "notes": [
+          "// throws away the remainder: 7 // 2 is 3.",
+          "% gives only the remainder: 7 % 2 is 1."
+        ],
+        "notes_tr": [
+          "// kalanı atar: 7 // 2 sonucu 3'tür.",
+          "% sadece kalanı verir: 7 % 2 sonucu 1'dir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d01-b1-e1",
+          "type": "predict",
+          "prompt": "What do these three lines print?",
+          "prompt_tr": "Bu üç satır ne yazdırır?",
+          "code": "print(7 / 2)\nprint(7 // 2)\nprint(7 % 2)",
+          "choices": [
+            "3.5\n3\n1",
+            "3\n3\n1",
+            "3.5\n3.5\n1",
+            "3.5\n1\n3"
+          ],
+          "expected_output": "3.5\n3\n1",
+          "explanation": "/ is normal division and always gives a float (3.5). // drops the remainder (3). % keeps only the remainder (1).",
+          "misconceptions": {
+            "3\n3\n1": "In Python 3 the / operator never rounds down. 7 / 2 is 3.5; use // for 3.",
+            "3.5\n3.5\n1": "// is floor division: it removes the decimal part, so 7 // 2 is 3, not 3.5.",
+            "3.5\n1\n3": "Check the order: // comes second (3) and % third (1)."
+          },
+          "explanation_tr": "/ normal bölmedir ve her zaman float verir (3.5). // kalanı atar (3). % sadece kalanı verir (1).",
+          "misconceptions_tr": {
+            "3\n3\n1": "Python 3'te / operatörü asla aşağı yuvarlamaz. 7 / 2 sonucu 3.5'tir; 3 için // kullan.",
+            "3.5\n3.5\n1": "// taban bölmedir: ondalık kısmı atar, yani 7 // 2 sonucu 3'tür, 3.5 değil.",
+            "3.5\n1\n3": "Sıraya dikkat et: // ikinci satırdadır (3), % üçüncü satırdadır (1)."
+          }
+        },
+        {
+          "id": "d01-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints 32 (2 to the power of 5).",
+          "prompt_tr": "Programın 32 yazdırması için boşluğu doldur (2'nin 5. kuvveti).",
+          "starter_code": "print(2 ___ 5)",
+          "blanks": [
+            {
+              "answer": [
+                "**"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '32'",
+              "visible": true,
+              "failure_message": "The program must print 32.",
+              "failure_message_tr": "Program 32 yazdırmalı.",
+              "label_tr": "Program 32 yazdırıyor"
+            }
+          ],
+          "hints": [
+            "Which operator means 'to the power of'?",
+            "In Python this operator is written with a repeated symbol, not with a letter or a caret.",
+            "Put the operator made of two asterisks (two * characters) in the blank."
+          ],
+          "hints_tr": [
+            "'Üssü' anlamına gelen operatör hangisi?",
+            "Python'da bu operatör harfle ya da ^ işaretiyle değil, tekrarlanan bir sembolle yazılır.",
+            "Boşluğa iki yıldız işaretinden (iki tane *) oluşan operatörü yaz."
+          ]
+        },
+        {
+          "id": "d01-b1-e3",
+          "type": "modify",
+          "prompt": "Change the program so it prints the floor division of 17 by 5 on the first line and the remainder of 17 divided by 5 on the second line.",
+          "prompt_tr": "Programı, ilk satırda 17'nin 5'e tam bölümünü, ikinci satırda 17'nin 5'e bölümünden kalanı yazdıracak şekilde değiştir.",
+          "starter_code": "print(17 + 5)\nprint(17 - 5)",
+          "tests": [
+            {
+              "code": "assert __stdout__.split() == ['3', '2']",
+              "visible": true,
+              "failure_message": "Expected the lines 3 and 2.",
+              "failure_message_tr": "Satırlar 3 ve 2 olmalı.",
+              "label_tr": "Birinci satır 3, ikinci satır 2 yazdırıyor"
+            },
+            {
+              "code": "import ast\n__t = ast.parse(__source__)\n__ops = [type(n.op) for n in ast.walk(__t) if isinstance(n, ast.BinOp)]\nassert ast.FloorDiv in __ops and ast.Mod in __ops, 'operators missing'\nimport io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = __source__.replace('17', '23')\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __out.split() == ['4', '3'], 'rerun mismatch'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Compute the results with the // and % operators on the numbers in the code instead of typing the results.",
+              "failure_message_tr": "Sonuçları elle yazma; kodda // ve % operatörlerini sayılara uygula."
+            }
+          ],
+          "hints": [
+            "Which operator drops the remainder, and which keeps only the remainder?",
+            "// is floor division and % is the remainder (modulus). Each print line needs one of them.",
+            "Replace the + in the first line with the floor-division operator and the - in the second line with the remainder operator."
+          ],
+          "solution": {
+            "approach": "Replace + and - with // (floor division) and % (modulus).",
+            "code": "print(17 // 5)\nprint(17 % 5)",
+            "approach_tr": "+ ve - yerine // (tam bölme) ve % (kalan) koy."
+          },
+          "hints_tr": [
+            "Hangi operatör kalanı atar, hangisi sadece kalanı verir?",
+            "// tam bölmedir, % ise kalandır (modulus). Her print satırı bunlardan birini ister.",
+            "İlk satırdaki + yerine tam bölme operatörünü, ikinci satırdaki - yerine kalan operatörünü koy."
+          ]
+        },
+        {
+          "id": "d01-b1-e4",
+          "type": "debug",
+          "prompt": "This line should print 6 but Python reports a SyntaxError. Fix it.",
+          "prompt_tr": "Bu satır 6 yazdırmalı ama Python SyntaxError veriyor. Düzelt.",
+          "starter_code": "print(2 x 3)",
+          "expected_output": "6",
+          "hints": [
+            "Read the error message: Python says the syntax is invalid at x.",
+            "x is not an operator in Python. Python has a symbol for multiplication.",
+            "Replace the letter x with the multiplication symbol, the asterisk."
+          ],
+          "solution": {
+            "approach": "Multiplication is written with * in Python, not x.",
+            "code": "print(2 * 3)",
+            "approach_tr": "Python'da çarpma x ile değil * ile yazılır."
+          },
+          "hints_tr": [
+            "Hata mesajını oku: Python x'te sözdiziminin geçersiz olduğunu söylüyor.",
+            "x Python'da bir operatör değildir. Python'da çarpma için bir sembol vardır.",
+            "x harfini çarpma sembolüyle, yani yıldız işaretiyle değiştir."
+          ]
+        },
+        {
+          "id": "d01-b1-e5",
+          "type": "type_it",
+          "prompt": "Study the snippet, then retype it from memory. It must print 5, 9 and 1.",
+          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz. 5, 9 ve 1 yazdırmalı.",
+          "code": "print(3 + 2)\nprint(3 ** 2)\nprint(3 // 2)",
+          "expected_output": "5\n9\n1"
+        }
+      ]
+    },
+    {
+      "id": "d01-b2",
+      "concept": "data-types",
+      "concept_tr": "Veri tipleri",
+      "tags": [
+        "types",
+        "type()"
+      ],
+      "worked_example": {
+        "code": "print(type(10))\nprint(type(3.14))\nprint(type('Alp'))",
+        "notes": [
+          "type() shows which kind of value you have.",
+          "Quotes make a str, a dot makes a float."
+        ],
+        "notes_tr": [
+          "type() elindeki değerin hangi türden olduğunu gösterir.",
+          "Tırnak str yapar, nokta float yapar."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d01-b2-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "print(type(4 / 2))",
+          "choices": [
+            "<class 'int'>",
+            "<class 'float'>",
+            "<class 'str'>"
+          ],
+          "expected_output": "<class 'float'>",
+          "explanation": "Division with / always returns a float in Python 3, even when the result is whole (2.0).",
+          "misconceptions": {
+            "<class 'int'>": "4 and 2 are ints, but / always produces a float. Only // keeps ints as ints.",
+            "<class 'str'>": "No quotes are involved, so nothing here is a string."
+          },
+          "explanation_tr": "Python 3'te / bölmesi sonuç tam sayı olsa bile her zaman float verir (2.0).",
+          "misconceptions_tr": {
+            "<class 'int'>": "4 ve 2 int'tir ama / her zaman float üretir. Sadece // tam sayıları int olarak tutar.",
+            "<class 'str'>": "Burada tırnak yok, yani hiçbir şey string değil."
+          }
+        },
+        {
+          "id": "d01-b2-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank with a value so the program prints <class 'complex'>.",
+          "prompt_tr": "Boşluğa, programın <class 'complex'> yazdırmasını sağlayacak bir değer yaz.",
+          "starter_code": "print(type(___))",
+          "blanks": [
+            {
+              "answer": [
+                "1 + 2j",
+                "3j",
+                "1j",
+                "2 + 1j",
+                "4 - 4j",
+                "1+2j"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"<class 'complex'>\"",
+              "visible": true,
+              "failure_message": "The output must be <class 'complex'>.",
+              "failure_message_tr": "Çıktı <class 'complex'> olmalı.",
+              "label_tr": "Program karmaşık sayı tipini yazdırıyor"
+            }
+          ],
+          "hints": [
+            "Complex numbers have an imaginary part.",
+            "The imaginary part is written with the letter j right after a number.",
+            "Put a complex literal in the blank: a number followed directly by j (for example, plus or minus another number)."
+          ],
+          "hints_tr": [
+            "Karmaşık sayıların sanal bir kısmı vardır.",
+            "Sanal kısım, bir sayının hemen arkasına j harfi konularak yazılır.",
+            "Boşluğa bir karmaşık sayı yaz: bir sayının hemen ardından j (istersen başka bir sayıyı toplayıp çıkararak)."
+          ]
+        },
+        {
+          "id": "d01-b2-e3",
+          "type": "write",
+          "prompt": "Create these five variables: age (a whole number), height (a decimal number), z (a complex number), is_student (a boolean) and name (a string). Then print type(height).",
+          "prompt_tr": "Şu beş değişkeni oluştur: age (tam sayı), height (ondalık sayı), z (karmaşık sayı), is_student (boolean), name (string). Sonra type(height) yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert type(age) is int",
+              "visible": true,
+              "failure_message": "age must be an int, e.g. 20.",
+              "failure_message_tr": "age bir int olmalı (ör. 20).",
+              "label_tr": "age tam sayı (int)"
+            },
+            {
+              "code": "assert type(name) is str",
+              "visible": true,
+              "failure_message": "name must be a string in quotes.",
+              "failure_message_tr": "name tırnak içinde bir string olmalı.",
+              "label_tr": "name bir string"
+            },
+            {
+              "code": "assert type(height) is float",
+              "visible": false,
+              "failure_message": "height must be a float: write a decimal point, e.g. 1.75.",
+              "failure_message_tr": "height float olmalı: ondalık nokta kullan, ör. 1.75."
+            },
+            {
+              "code": "assert type(z) is complex",
+              "visible": false,
+              "failure_message": "z must be complex: add j after the imaginary part, e.g. 2 + 3j.",
+              "failure_message_tr": "z karmaşık olmalı: sanal kısmın arkasına j ekle, ör. 2 + 3j."
+            },
+            {
+              "code": "assert type(is_student) is bool and __stdout__.strip() == \"<class 'float'>\"",
+              "visible": false,
+              "failure_message": "is_student must be True or False (no quotes), and you must print type(height).",
+              "failure_message_tr": "is_student tırnaksız True ya da False olmalı ve type(height) yazdırmalısın."
+            },
+            {
+              "code": "assert 'type(' in __source__, 'type() missing'\nassert '<class' not in __source__, 'typed output by hand'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Let Python produce the type text with type(); do not type '<class ...>' yourself.",
+              "failure_message_tr": "Tip yazısını Python üretsin: type() kullan, '<class ...>' yazısını elle yazma."
+            }
+          ],
+          "hints": [
+            "Start by writing one variable per line, like age = ...",
+            "Quotes create strings; a . creates a float; j creates a complex; True/False (capital first letter, no quotes) are booleans.",
+            "Write five assignments (age, height, z, is_student, name), then one print line that wraps height in type(...)."
+          ],
+          "solution": {
+            "approach": "Pick a literal of the right kind for each variable.",
+            "code": "age = 20\nheight = 1.75\nz = 2 + 3j\nis_student = True\nname = 'Alp'\nprint(type(height))",
+            "approach_tr": "Her değişken için doğru türde bir değer (literal) seç."
+          },
+          "twin": "d01-b2-e4",
+          "hints_tr": [
+            "Her satıra bir değişken yazarak başla, örneğin age = ...",
+            "Tırnak string yapar; nokta float yapar; j karmaşık sayı yapar; True/False (ilk harf büyük, tırnak yok) boolean'dır.",
+            "Beş atama yaz (age, height, z, is_student, name), sonra height'ı type(...) içine alan bir print satırı ekle."
+          ]
+        },
+        {
+          "id": "d01-b2-e4",
+          "type": "write",
+          "prompt": "Create these variables: planet (a string), moons (an int), gravity (a float), has_rings (a boolean) and point (a complex number). Then print type(moons).",
+          "prompt_tr": "Şu değişkenleri oluştur: planet (string), moons (int), gravity (float), has_rings (boolean), point (karmaşık sayı). Sonra type(moons) yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert type(planet) is str",
+              "visible": true,
+              "failure_message": "planet must be a string such as 'Mars'.",
+              "failure_message_tr": "planet 'Mars' gibi bir string olmalı.",
+              "label_tr": "planet bir string"
+            },
+            {
+              "code": "assert type(moons) is int",
+              "visible": true,
+              "failure_message": "moons must be a whole number.",
+              "failure_message_tr": "moons tam sayı olmalı.",
+              "label_tr": "moons tam sayı (int)"
+            },
+            {
+              "code": "assert type(gravity) is float",
+              "visible": false,
+              "failure_message": "gravity needs a decimal point, e.g. 3.71.",
+              "failure_message_tr": "gravity ondalık nokta ister, ör. 3.71."
+            },
+            {
+              "code": "assert type(has_rings) is bool",
+              "visible": false,
+              "failure_message": "has_rings must be True or False without quotes.",
+              "failure_message_tr": "has_rings tırnaksız True ya da False olmalı."
+            },
+            {
+              "code": "assert type(point) is complex and __stdout__.strip() == \"<class 'int'>\"",
+              "visible": false,
+              "failure_message": "point needs a j part, and you must print type(moons).",
+              "failure_message_tr": "point'in j kısmı olmalı ve type(moons) yazdırmalısın."
+            },
+            {
+              "code": "assert 'type(' in __source__, 'type() missing'\nassert '<class' not in __source__, 'typed output by hand'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Let Python produce the type text with type(); do not type '<class ...>' yourself.",
+              "failure_message_tr": "Tip yazısını Python üretsin: type() kullan, '<class ...>' yazısını elle yazma."
+            }
+          ],
+          "hints": [
+            "One variable per line.",
+            "Use quotes for text, a decimal point for floats, j for complex, True/False for booleans.",
+            "Write five assignments (planet, moons, gravity, has_rings, point), then one print line that wraps moons in type(...)."
+          ],
+          "solution": {
+            "approach": "Choose one literal per type.",
+            "code": "planet = 'Mars'\nmoons = 2\ngravity = 3.71\nhas_rings = False\npoint = 1 + 1j\nprint(type(moons))",
+            "approach_tr": "Her tür için bir literal seç."
+          },
+          "twin": "d01-b2-e3",
+          "hints_tr": [
+            "Her satıra bir değişken.",
+            "Metin için tırnak, float için ondalık nokta, karmaşık için j, boolean için True/False kullan.",
+            "Beş atama yaz (planet, moons, gravity, has_rings, point), sonra moons'u type(...) içine alan bir print satırı ekle."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d01-b3",
+      "concept": "math-expressions",
+      "concept_tr": "Matematiksel ifadeler",
+      "tags": [
+        "operators",
+        "variables",
+        "geometry"
+      ],
+      "worked_example": {
+        "code": "side = 4\narea = side ** 2\nprint(area)",
+        "notes": [
+          "Store a result in a variable, then reuse it.",
+          "** is the power operator, so side ** 2 is side times side."
+        ],
+        "notes_tr": [
+          "Sonucu bir değişkende sakla, sonra tekrar kullan.",
+          "** üs alma operatörüdür; side ** 2, side çarpı side demektir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d01-b3-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu ne yazdırır?",
+          "code": "a = 3\nb = 4\nprint((a ** 2 + b ** 2) ** 0.5)",
+          "choices": [
+            "5",
+            "5.0",
+            "25",
+            "7.0"
+          ],
+          "expected_output": "5.0",
+          "explanation": "a ** 2 + b ** 2 is 25, and 25 ** 0.5 is the square root, 5.0 (a float).",
+          "misconceptions": {
+            "5": "The result of ** 0.5 is a float, so Python prints 5.0, not 5.",
+            "25": "25 is the sum of the squares; the last ** 0.5 takes the square root.",
+            "7.0": "That would be a + b. Here each number is squared first."
+          },
+          "explanation_tr": "a ** 2 + b ** 2 sonucu 25'tir ve 25 ** 0.5 karekökü verir: 5.0 (float).",
+          "misconceptions_tr": {
+            "5": "** 0.5 sonucu float'tır, bu yüzden Python 5 değil 5.0 yazdırır.",
+            "25": "25 kareler toplamıdır; sondaki ** 0.5 karekökü alır.",
+            "7.0": "Bu a + b olurdu. Burada önce her sayının karesi alınıyor."
+          }
+        },
+        {
+          "id": "d01-b3-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints the area of the rectangle.",
+          "prompt_tr": "Satırları, dikdörtgenin alanını yazdıracak şekilde sırala.",
+          "lines": [
+            "area = length * width",
+            "length = 10",
+            "print(area)",
+            "width = 20"
+          ],
+          "correct_order": [
+            1,
+            3,
+            0,
+            2
+          ],
+          "distractors": [
+            "area = length + width"
+          ],
+          "expected_output": "200"
+        },
+        {
+          "id": "d01-b3-e3",
+          "type": "write",
+          "prompt": "The points are (2, 3) and (10, 8). Create x1, y1, x2, y2 with these values, compute their Euclidean distance in a variable called distance, and print distance.",
+          "prompt_tr": "Noktalar (2, 3) ve (10, 8). Bu değerlerle x1, y1, x2, y2 değişkenlerini oluştur, Öklid uzaklığını distance değişkeninde hesapla ve distance'ı yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert abs(distance - 9.433981132056603) < 1e-9",
+              "visible": true,
+              "failure_message": "Distance should be about 9.4340. Remember: square root of (dx squared + dy squared).",
+              "failure_message_tr": "Uzaklık yaklaşık 9.43 olmalı. Hatırla: (dx kare + dy kare) sayısının karekökü.",
+              "label_tr": "distance doğru hesaplanıyor"
+            },
+            {
+              "code": "assert (x1, y1, x2, y2) == (2, 3, 10, 8)",
+              "visible": true,
+              "failure_message": "Use x1=2, y1=3, x2=10, y2=8.",
+              "failure_message_tr": "x1=2, y1=3, x2=10, y2=8 kullan.",
+              "label_tr": "Dört koordinat doğru tanımlı"
+            },
+            {
+              "code": "assert type(distance) is float",
+              "visible": false,
+              "failure_message": "A square root with ** 0.5 gives a float.",
+              "failure_message_tr": "Karekök için ** 0.5 float verir."
+            },
+            {
+              "code": "assert __stdout__.strip() == str(distance)",
+              "visible": false,
+              "failure_message": "Print distance with print(distance).",
+              "failure_message_tr": "print(distance) ile yazdır."
+            },
+            {
+              "code": "assert abs(distance - ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5) < 1e-9",
+              "visible": false,
+              "failure_message": "Use the formula sqrt((x2 - x1)^2 + (y2 - y1)^2).",
+              "failure_message_tr": "sqrt((x2 - x1)^2 + (y2 - y1)^2) formülünü kullan."
+            },
+            {
+              "code": "import re\nimport io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = re.sub(r'\\b10\\b', '13', __source__)\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert abs(__ns['distance'] - 146 ** 0.5) < 1e-9, 'rerun mismatch'\nimport ast\nassert any(isinstance(n, ast.BinOp) for n in ast.walk(ast.parse(__source__)))",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The result was typed by hand. Let Python compute it from the coordinates.",
+              "failure_message_tr": "Sonucu elle yazmışsın; hesaplamayı Python yapsın."
+            }
+          ],
+          "hints": [
+            "Write the four coordinates first. Then find the differences x2 - x1 and y2 - y1.",
+            "Square both differences, add them, then raise to the power 0.5.",
+            "Store the four coordinates, put the whole formula (both squared differences added, then ** 0.5) in distance, and finish with print(distance)."
+          ],
+          "solution": {
+            "approach": "Apply the Pythagorean theorem with ** and 0.5.",
+            "code": "x1 = 2\ny1 = 3\nx2 = 10\ny2 = 8\ndistance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5\nprint(distance)",
+            "approach_tr": "Pisagor teoremini ** ve 0.5 ile uygula."
+          },
+          "twin": "d01-b3-e4",
+          "hints_tr": [
+            "Önce dört koordinatı yaz. Sonra x2 - x1 ve y2 - y1 farklarını bul.",
+            "İki farkın karesini al, topla, sonra 0.5 kuvvetine yükselt.",
+            "Dört koordinatı kaydet, formülün tamamını (kare farklarının toplamı, sonra ** 0.5) distance'a ata ve print(distance) ile bitir."
+          ]
+        },
+        {
+          "id": "d01-b3-e4",
+          "type": "write",
+          "prompt": "A tram goes from stop A (1, 1) to stop B (4, 5). Create ax, ay, bx, by, compute the straight-line distance in a variable called gap, and print gap.",
+          "prompt_tr": "Bir tramvay A durağından (1, 1) B durağına (4, 5) gidiyor. ax, ay, bx, by değişkenlerini oluştur, düz çizgi uzaklığını gap değişkeninde hesapla ve gap'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert gap == 5.0",
+              "visible": true,
+              "failure_message": "The distance between (1, 1) and (4, 5) is exactly 5.0.",
+              "failure_message_tr": "(1, 1) ile (4, 5) arasındaki uzaklık tam 5.0'dır.",
+              "label_tr": "gap doğru hesaplanıyor"
+            },
+            {
+              "code": "assert (ax, ay, bx, by) == (1, 1, 4, 5)",
+              "visible": true,
+              "failure_message": "Use ax=1, ay=1, bx=4, by=5.",
+              "failure_message_tr": "ax=1, ay=1, bx=4, by=5 kullan.",
+              "label_tr": "Dört koordinat doğru tanımlı"
+            },
+            {
+              "code": "assert type(gap) is float",
+              "visible": false,
+              "failure_message": "Use ** 0.5 for the square root so you get a float.",
+              "failure_message_tr": "Karekök için ** 0.5 kullan, böylece float elde edersin."
+            },
+            {
+              "code": "assert __stdout__.strip() == '5.0'",
+              "visible": false,
+              "failure_message": "You must print gap.",
+              "failure_message_tr": "gap'i yazdırmalısın."
+            },
+            {
+              "code": "assert abs(gap - ((bx - ax) ** 2 + (by - ay) ** 2) ** 0.5) < 1e-9",
+              "visible": false,
+              "failure_message": "Use sqrt((bx - ax)^2 + (by - ay)^2).",
+              "failure_message_tr": "sqrt((bx - ax)^2 + (by - ay)^2) formülünü kullan."
+            },
+            {
+              "code": "import re\nimport io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = re.sub(r'\\b4\\b', '7', __source__)\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert abs(__ns['gap'] - 52 ** 0.5) < 1e-9, 'rerun mismatch'\nimport ast\nassert any(isinstance(n, ast.BinOp) for n in ast.walk(ast.parse(__source__)))",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The result was typed by hand. Let Python compute it from the coordinates.",
+              "failure_message_tr": "Sonucu elle yazmışsın; hesaplamayı Python yapsın."
+            }
+          ],
+          "hints": [
+            "First define the four numbers.",
+            "dx = bx - ax and dy = by - ay; square both, add them, and take the power 0.5.",
+            "Store the four numbers, put the whole formula in gap, and finish with print(gap)."
+          ],
+          "solution": {
+            "approach": "Same formula with different names and numbers.",
+            "code": "ax = 1\nay = 1\nbx = 4\nby = 5\ngap = ((bx - ax) ** 2 + (by - ay) ** 2) ** 0.5\nprint(gap)",
+            "approach_tr": "Aynı formül, farklı isimler ve sayılarla."
+          },
+          "twin": "d01-b3-e3",
+          "hints_tr": [
+            "Önce dört sayıyı tanımla.",
+            "dx = bx - ax ve dy = by - ay; ikisinin karesini al, topla ve 0.5 kuvvetini al.",
+            "Dört sayıyı kaydet, formülün tamamını gap'e ata ve print(gap) ile bitir."
+          ]
+        },
+        {
+          "id": "d01-b3-e5",
+          "type": "explain",
+          "prompt": "In your own words: what is a comment in Python (the # symbol), and why do programmers write them?",
+          "prompt_tr": "Kendi cümlelerinle: Python'da yorum (# işareti) nedir ve programcılar neden yorum yazar?",
+          "model_answer": "A comment starts with # and Python ignores it when running the program. Programmers use comments to leave notes that explain the code for themselves and other readers.",
+          "keywords": [
+            "ignore",
+            "note",
+            "explain",
+            "not run",
+            "readab"
+          ],
+          "model_answer_tr": "Yorum # ile başlar ve Python program çalışırken onu yok sayar. Programcılar kodu hem kendileri hem diğer okuyucular için açıklayan notlar bırakmak için yorum kullanır.",
+          "keywords_tr": [
+            "yok say",
+            "not",
+            "açıkla",
+            "çalışmaz",
+            "okun",
+            "anlaş"
+          ],
+          "min_words": 6
+        }
+      ]
+    }
+  ],
+  "review_pool": [
+    "d01-b1-e1",
+    "d01-b2-e1",
+    "d01-b2-e3",
+    "d01-b3-e1",
+    "d01-b3-e3"
+  ]
+}

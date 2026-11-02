@@ -1,0 +1,236 @@
+{
+ "day": 29,
+ "title_tr": "API Kurmak (CRUD)",
+ "title": "Building an API (CRUD)",
+ "est_minutes": 30,
+ "cards": [
+  {
+   "id": "d29-c01",
+   "type": "explain",
+   "title_tr": "Endpoint'in yapısı",
+   "title": "The structure of an endpoint",
+   "body_tr": "Bir API **endpoint**'i, veriyi almak, oluşturmak, güncellemek veya silmek için kullandığın adrestir. Yapı: şirket/sunucu adı + sürüm + amaç. Örnek: `https://api.twitter.com/1.1/lists/members.json`. Biz `/api/v1.0/students` gibi bir endpoint kuracağız. Tarayıcı yalnız GET gönderir; POST, PUT, DELETE denemek için Postman ya da Insomnia kullanılır. Burada Flask ve MongoDB çalışmaz, saf Python ile canlandıracağız.",
+   "body": "An API **endpoint** is the address you use to retrieve, create, update or delete data. Structure: company/server name + version + purpose. Example: `https://api.twitter.com/1.1/lists/members.json`. We'll build an endpoint like `/api/v1.0/students`. A browser only sends GET; to try POST, PUT, DELETE you use Postman or Insomnia. Flask and MongoDB can't run here, so we mimic everything in plain Python.",
+   "code": "url = 'https://api.twitter.com/1.1/lists/members.json'\nhost, version, *purpose = url.split('/')[2:]\nprint(host, version, purpose)",
+   "expected_output": "api.twitter.com 1.1 ['lists', 'members.json']",
+   "section": "Structure of an API"
+  },
+  {
+   "id": "d29-c02",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "url = 'http://localhost:5000/api/v1.0/students'\nprint(url.split('/')[4])",
+   "choices": [
+    "api",
+    "localhost:5000",
+    "students",
+    "v1.0"
+   ],
+   "answer": "v1.0",
+   "why_tr": "Bölünce: `http:`, boş, `localhost:5000`, `api`, `v1.0`, `students`; 4. indeks sürümdür.",
+   "why": "After splitting: `http:`, empty, `localhost:5000`, `api`, `v1.0`, `students`; index 4 is the version.",
+   "section": "Structure of an API"
+  },
+  {
+   "id": "d29-c03",
+   "type": "explain",
+   "title_tr": "GET ile veri döndürmek",
+   "title": "Returning data with GET",
+   "body_tr": "Önce sahte (dummy) veriyle başlıyoruz. Flask'ta `Response(json.dumps(liste), mimetype='application/json')` listeyi JSON metnine çevirip doğru türle gönderir. Burada `json.dumps` kısmını görelim:",
+   "body": "We start with dummy data. In Flask, `Response(json.dumps(list), mimetype='application/json')` turns the list into JSON text and sends it with the right type. Here is the `json.dumps` part:",
+   "code": "import json\nstudent_list = [{'name': 'Asabeneh', 'skills': ['HTML', 'Python']},\n                {'name': 'David', 'skills': ['Python', 'MongoDB']}]\nprint(json.dumps(student_list))",
+   "expected_output": "[{\"name\": \"Asabeneh\", \"skills\": [\"HTML\", \"Python\"]}, {\"name\": \"David\", \"skills\": [\"Python\", \"MongoDB\"]}]",
+   "section": "Retrieving data using get"
+  },
+  {
+   "id": "d29-c04",
+   "type": "explain",
+   "title_tr": "Route fonksiyonu GET'e yanıt verir",
+   "title": "A route function answers GET",
+   "body_tr": "`@app.route('/api/v1.0/students', methods=['GET'])` adresi `students()` fonksiyonuna bağlar. Aynı bağı bir sözlükle gösterelim.",
+   "body": "`@app.route('/api/v1.0/students', methods=['GET'])` binds the address to the `students()` function. Here is the same binding with a dict.",
+   "code": "import json\nroutes = {}\ndef students():\n    return json.dumps([{'name': 'Asabeneh'}, {'name': 'David'}])\nroutes['/api/v1.0/students'] = students\nprint(routes['/api/v1.0/students']())",
+   "expected_output": "[{\"name\": \"Asabeneh\"}, {\"name\": \"David\"}]",
+   "section": "Retrieving data using get"
+  },
+  {
+   "id": "d29-c05",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "import json\nprint(json.dumps({'a': [1, 2]}))",
+   "choices": [
+    "{\"a\": [1, 2]}",
+    "[1, 2]",
+    "{'a': [1, 2]}",
+    "a: [1, 2]"
+   ],
+   "answer": "{\"a\": [1, 2]}",
+   "why_tr": "JSON metni çift tırnak kullanır; Python sözlüğünün tek tırnaklı gösteriminden farklıdır.",
+   "why": "JSON text uses double quotes, unlike the single-quoted display of a Python dict.",
+   "section": "Retrieving data using get"
+  },
+  {
+   "id": "d29-c06",
+   "type": "explain",
+   "title_tr": "Veritabanından okurken JSON sorunu",
+   "title": "A JSON problem when reading from the database",
+   "body_tr": "MongoDB belgelerindeki `_id` bir `ObjectId`'dir ve `json.dumps` bunu yazamaz (TypeError). Çözüm: `bson.json_util.dumps`. (Dersteki ikinci örnek tanımsız `student` değişkenini döndürüyor; doğrusu `dumps(db.students.find())`.)",
+   "body": "The `_id` in MongoDB documents is an `ObjectId`, and `json.dumps` can't write it (TypeError). The fix: `bson.json_util.dumps`. (The lesson's second example returns an undefined `student`; the correct form is `dumps(db.students.find())`.)",
+   "code": "import json\ntry:\n    json.dumps({'_id': object()})\nexcept TypeError:\n    print('not serializable')",
+   "expected_output": "not serializable",
+   "section": "Retrieving data using get"
+  },
+  {
+   "id": "d29-c07",
+   "type": "truefalse",
+   "statement_tr": "`json.dumps` her türlü Python nesnesini, ObjectId dahil, JSON'a çevirebilir.",
+   "statement": "`json.dumps` can turn any Python object, ObjectId included, into JSON.",
+   "answer": false,
+   "why_tr": "Yalnızca dict, list, str, sayı, bool, None gibi temel türleri yazar; ObjectId için `bson.json_util` gerekir.",
+   "why": "It only handles basic types such as dict, list, str, numbers, bool, None; ObjectId needs `bson.json_util`.",
+   "section": "Retrieving data using get"
+  },
+  {
+   "id": "d29-c08",
+   "type": "explain",
+   "title_tr": "Adresten id okumak",
+   "title": "Reading the id from the address",
+   "body_tr": "`/api/v1.0/students/<id>` içindeki `<id>` değişken parçadır; Flask bunu fonksiyona parametre olarak verir. Biz yolu bölüp son parçayı alarak aynı şeyi yapalım ve belgeyi bulalım.",
+   "body": "In `/api/v1.0/students/<id>`, `<id>` is a variable part; Flask passes it to the function as a parameter. We'll do the same by splitting the path and taking the last piece, then look up the document.",
+   "code": "students = {'1': {'name': 'Asabeneh'}, '2': {'name': 'David'}}\npath = '/api/v1.0/students/2'\nstudent_id = path.split('/')[-1]\nprint(students[student_id])",
+   "expected_output": "{'name': 'David'}",
+   "trace": true,
+   "section": "Getting a document by id"
+  },
+  {
+   "id": "d29-c09",
+   "type": "fill",
+   "prompt_tr": "Son parçayı seçen indeksi yaz.",
+   "prompt": "Write the index that picks the last piece.",
+   "code": "path = '/api/v1.0/students/5'\nprint(path.split('/')[___])",
+   "answers": [
+    "-1"
+   ],
+   "expected_output": "5",
+   "why_tr": "Negatif indeks sondan sayar; `-1` son elemandır.",
+   "why": "A negative index counts from the end; `-1` is the last item.",
+   "section": "Getting a document by id"
+  },
+  {
+   "id": "d29-c10",
+   "type": "explain",
+   "title_tr": "POST ile veri oluşturmak",
+   "title": "Creating data with POST",
+   "body_tr": "Form verisi `request.form['name']` ile okunur, bir sözlüğe (belgeye) dönüştürülür ve `insert_one` ile kaydedilir. `skills` alanı `'Python, SQL'` metnini `split(', ')` ile listeye çevirir. (Dersteki kodda `request` import edilmemiş, `return ;` yarım; sonuç JSON olarak dönmeli. `created_at = datetime.now()` da eklenir.)",
+   "body": "Form data is read with `request.form['name']`, turned into a dict (document) and saved with `insert_one`. The `skills` field turns the text `'Python, SQL'` into a list with `split(', ')`. (The lesson code never imports `request` and has an unfinished `return ;`; it should return JSON. It also adds `created_at = datetime.now()`.)",
+   "code": "form = {'name': 'Ada', 'skills': 'Python, SQL', 'birthyear': '2000'}\nstudent = {'name': form['name'],\n           'skills': form['skills'].split(', '),\n           'birthyear': form['birthyear']}\ndb = []\ndb.append(student)\nprint(db)",
+   "expected_output": "[{'name': 'Ada', 'skills': ['Python', 'SQL'], 'birthyear': '2000'}]",
+   "section": "Creating data using POST"
+  },
+  {
+   "id": "d29-c11",
+   "type": "predict",
+   "prompt_tr": "Çıktı ne olur?",
+   "prompt": "What is printed?",
+   "code": "print('Python, SQL'.split(', '))",
+   "choices": [
+    "Python SQL",
+    "['Python, SQL']",
+    "['Python,', 'SQL']",
+    "['Python', 'SQL']"
+   ],
+   "answer": "['Python', 'SQL']",
+   "why_tr": "Ayırıcı `', '` (virgül ve boşluk) olduğu için iki temiz parça çıkar.",
+   "why": "The separator is `', '` (comma and space), so we get two clean pieces.",
+   "section": "Creating data using POST"
+  },
+  {
+   "id": "d29-c12",
+   "type": "explain",
+   "title_tr": "PUT ile güncellemek",
+   "title": "Updating with PUT",
+   "body_tr": "PUT, id'si verilen belgeyi yeni bilgiyle değiştirir. Adım adım izle.",
+   "body": "PUT replaces the document with the given id by the new data. Step through it.",
+   "code": "db = [{'id': 1, 'name': 'Ada', 'city': 'London'}]\ndef put(student_id, new):\n    for i, s in enumerate(db):\n        if s['id'] == student_id:\n            db[i] = {'id': student_id, **new}\nput(1, {'name': 'Ada', 'city': 'Paris'})\nprint(db)",
+   "expected_output": "[{'id': 1, 'name': 'Ada', 'city': 'Paris'}]",
+   "trace": true,
+   "section": "Updating using PUT"
+  },
+  {
+   "id": "d29-c13",
+   "type": "truefalse",
+   "statement_tr": "pymongo'da `update_one(query, student)` yazmak yeterlidir; `$set` gerekmez.",
+   "statement": "In pymongo, `update_one(query, student)` is enough; `$set` isn't needed.",
+   "answer": false,
+   "why_tr": "`update_one` ikinci argümanda `{'$set': student}` gibi bir güncelleme operatörü ister (Gün 27). Dersteki örnekte bu eksik.",
+   "why": "`update_one` expects an update operator like `{'$set': student}` as its second argument (Day 27). The lesson example misses it.",
+   "section": "Updating using PUT"
+  },
+  {
+   "id": "d29-c14",
+   "type": "explain",
+   "title_tr": "DELETE ile silmek",
+   "title": "Deleting with DELETE",
+   "body_tr": "DELETE, id'ye uyan belgeyi kaldırır: `db.students.delete_one({'_id': ObjectId(id)})`. Aynısını liste üzerinde yapalım.",
+   "body": "DELETE removes the document that matches the id: `db.students.delete_one({'_id': ObjectId(id)})`. Let's do the same on a list.",
+   "code": "db = [{'id': 1}, {'id': 2}, {'id': 3}]\ndef delete(student_id):\n    for s in db:\n        if s['id'] == student_id:\n            db.remove(s)\n            break\ndelete(2)\nprint(db)",
+   "expected_output": "[{'id': 1}, {'id': 3}]",
+   "section": "Deleting a document using Delete"
+  },
+  {
+   "id": "d29-c15",
+   "type": "explain",
+   "title_tr": "Dört metot bir arada",
+   "title": "All four methods together",
+   "body_tr": "Tüm CRUD'u tek bir dağıtıcı fonksiyonda toplayalım: POST ve PUT kaydeder, DELETE siler, sonda mevcut değer döner (GET).",
+   "body": "Let's gather all of CRUD in one dispatcher function: POST and PUT store, DELETE removes, and the current value is returned at the end (GET).",
+   "code": "db = {}\ndef handle(method, key, value=None):\n    if method in ('POST', 'PUT'):\n        db[key] = value\n    elif method == 'DELETE':\n        db.pop(key)\n    return db.get(key)\n\nprint(handle('POST', 1, 'Ada'), handle('PUT', 1, 'Grace'), handle('DELETE', 1))",
+   "expected_output": "Ada Grace None",
+   "section": "Deleting a document using Delete"
+  },
+  {
+   "id": "d29-c16",
+   "type": "order",
+   "prompt_tr": "Satırları doğru sıraya diz: oluştur, güncelle, sil.",
+   "prompt": "Order the lines: create, update, delete.",
+   "lines": [
+    "db = []",
+    "db.append({'name': 'Ada'})",
+    "print(db)",
+    "db.pop(0)",
+    "db[0]['name'] = 'Grace'"
+   ],
+   "correct_order": [
+    0,
+    1,
+    4,
+    3,
+    2
+   ],
+   "expected_output": "[]",
+   "section": "Deleting a document using Delete"
+  },
+  {
+   "id": "d29-c17",
+   "type": "recap",
+   "points_tr": [
+    "Endpoint = sunucu + sürüm + amaç; metot işlemi belirler.",
+    "GET veriyi JSON olarak döndürür; ObjectId için `bson.json_util` gerekir.",
+    "POST belge oluşturur, PUT günceller (`$set` ile), DELETE siler.",
+    "URL'deki `<id>` değişkeni fonksiyona parametre olarak gelir."
+   ],
+   "points": [
+    "Endpoint = server + version + purpose; the method decides the operation.",
+    "GET returns data as JSON; ObjectId needs `bson.json_util`.",
+    "POST creates a document, PUT updates it (with `$set`), DELETE removes it.",
+    "The `<id>` variable in the URL arrives as a function parameter."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "Deleting a document using Delete"
+  }
+ ]
+}

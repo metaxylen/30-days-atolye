@@ -1,0 +1,321 @@
+{
+ "day": 27,
+ "title_tr": "Python ile MongoDB",
+ "title": "Python with MongoDB",
+ "est_minutes": 35,
+ "cards": [
+  {
+   "id": "d27-c01",
+   "type": "explain",
+   "title_tr": "MongoDB: belge tabanlı veritabanı",
+   "title": "MongoDB: a document database",
+   "body_tr": "**MongoDB** bir NoSQL veritabanıdır: veriyi tablo satırı yerine JSON benzeri **belgeler** (document) olarak saklar. Python'daki sözlüğe çok benzer, bu yüzden esnektir. Gerçek MongoDB bulut hesabı ve ağ ister; bu ortamda yok. Aynı işlemleri sözlük listeleriyle canlandıracağız.",
+   "body": "**MongoDB** is a NoSQL database: instead of table rows it stores JSON-like **documents**. They look just like Python dicts, which makes it flexible. Real MongoDB needs a cloud account and a network, which we don't have here. We'll mimic the same operations with lists of dicts.",
+   "code": "doc = {'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nprint(doc['name'], doc['age'])",
+   "expected_output": "Asabeneh 250",
+   "section": "SQL versus NoSQL"
+  },
+  {
+   "id": "d27-c02",
+   "type": "truefalse",
+   "statement_tr": "MongoDB veriyi JSON'a benzeyen belgeler olarak saklar.",
+   "statement": "MongoDB stores data as JSON-like documents.",
+   "answer": true,
+   "why_tr": "Her kayıt (document) anahtar-değer çiftlerinden oluşur; Python sözlüğüne benzer.",
+   "why": "Each record (document) is made of key-value pairs, much like a Python dict.",
+   "section": "SQL versus NoSQL"
+  },
+  {
+   "id": "d27-c03",
+   "type": "explain",
+   "title_tr": "Bağlantı adresi (URI)",
+   "title": "The connection string (URI)",
+   "body_tr": "MongoDB sitesi sana `mongodb+srv://kullanici:<password>@küme.mongodb.net/...` biçiminde bir adres verir; `<password>` yerine kendi şifreni yazarsın. Python için `pip install pymongo dnspython` gerekir. Şifreyi koda gömme, ortam değişkeninde tut!",
+   "body": "The MongoDB site gives you an address like `mongodb+srv://user:<password>@cluster.mongodb.net/...`; you replace `<password>` with your own. In Python you need `pip install pymongo dnspython`. Never hard-code the password; keep it in an environment variable!",
+   "code": "user, host = 'asabeneh', '30daysofpython-twxkr.mongodb.net'\nuri = f'mongodb+srv://{user}:<password>@{host}/test'\nprint(uri)",
+   "expected_output": "mongodb+srv://asabeneh:<password>@30daysofpython-twxkr.mongodb.net/test",
+   "section": "Getting Connection String(MongoDB URI)"
+  },
+  {
+   "id": "d27-c04",
+   "type": "explain",
+   "title_tr": "Bağlanmak: MongoClient",
+   "title": "Connecting: MongoClient",
+   "body_tr": "`pymongo.MongoClient(MONGODB_URI)` kümeye bağlanır; `client.list_database_names()` veritabanlarını listeler (ilk başta `['admin', 'local']`). Dersteki kodda `import pymongo` unutulmuş; ekledik. İstemciyi bir sözlükle canlandıralım:",
+   "body": "`pymongo.MongoClient(MONGODB_URI)` connects to the cluster; `client.list_database_names()` lists its databases (at first `['admin', 'local']`). The lesson's code forgot `import pymongo`; add it. Let's mimic the client with a dict:",
+   "code": "client = {'admin': {}, 'local': {}}\nprint(list(client))",
+   "expected_output": "['admin', 'local']",
+   "section": "Connecting Flask application to MongoDB Cluster"
+  },
+  {
+   "id": "d27-c05",
+   "type": "predict",
+   "prompt_tr": "Yeni bir veritabanı eklenince isimler (sıralı) ne olur?",
+   "prompt": "After adding a new database, what are the (sorted) names?",
+   "code": "client = {'admin': {}, 'local': {}}\nclient['thirty_days_of_python'] = {}\nprint(sorted(client))",
+   "choices": [
+    "['admin', 'local', 'thirty_days_of_python']",
+    "['thirty_days_of_python']",
+    "['admin', 'local']",
+    "Error"
+   ],
+   "answer": "['admin', 'local', 'thirty_days_of_python']",
+   "why_tr": "`client.thirty_days_of_python` ya da `client['...']` ile erişince yeni isim listeye girer (gerçek MongoDB'de ilk belge eklenince oluşur).",
+   "why": "Accessing `client.thirty_days_of_python` or `client['...']` adds the new name (in real MongoDB it is created when the first document is inserted).",
+   "section": "Creating a database and collection"
+  },
+  {
+   "id": "d27-c06",
+   "type": "explain",
+   "title_tr": "insert_one ve otomatik _id",
+   "title": "insert_one and the automatic _id",
+   "body_tr": "`db.students.insert_one({...})` bir belge ekler. Veritabanı ve koleksiyon (collection, tablo benzeri) yoksa kendiliğinden oluşur. MongoDB her belgeye benzersiz bir `_id` (ObjectId) verir; biz basit bir sayı kullanıyoruz. Adım adım izle.",
+   "body": "`db.students.insert_one({...})` adds a document. If the database and collection (table-like) don't exist, they are created automatically. MongoDB gives each document a unique `_id` (an ObjectId); we use a simple number. Step through it.",
+   "code": "students = []\ndef insert_one(doc):\n    doc['_id'] = len(students) + 1\n    students.append(doc)\n\ninsert_one({'name': 'Asabeneh', 'age': 250})\nprint(students)",
+   "expected_output": "[{'name': 'Asabeneh', 'age': 250, '_id': 1}]",
+   "trace": true,
+   "section": "Creating a database and collection"
+  },
+  {
+   "id": "d27-c07",
+   "type": "explain",
+   "title_tr": "Birden çok belge eklemek",
+   "title": "Inserting many documents",
+   "body_tr": "Birden çok belgeyi ya döngüyle tek tek `insert_one` ile ya da `insert_many` ile eklersin. Döngü mantığını adım adım izle.",
+   "body": "You insert many documents either one by one with `insert_one` in a loop, or with `insert_many`. Follow the loop version step by step.",
+   "code": "students = []\nnew = [{'name': 'David', 'age': 34}, {'name': 'John', 'age': 28}, {'name': 'Sami', 'age': 25}]\nfor student in new:\n    students.append(student)\nprint(len(students))",
+   "expected_output": "3",
+   "trace": true,
+   "section": "Inserting many documents to collection"
+  },
+  {
+   "id": "d27-c08",
+   "type": "truefalse",
+   "statement_tr": "`insert_many` ile belgeleri döngü yazmadan, tek çağrıda ekleyebiliriz.",
+   "statement": "With `insert_many` we can add documents in one call, without writing a loop.",
+   "answer": true,
+   "why_tr": "Evet; `insert_many(liste)` listedeki tüm belgeleri tek seferde ekler.",
+   "why": "Yes; `insert_many(list)` adds all documents in the list at once.",
+   "section": "Inserting many documents to collection"
+  },
+  {
+   "id": "d27-c09",
+   "type": "explain",
+   "title_tr": "find_one ve find",
+   "title": "find_one and find",
+   "body_tr": "`find_one()` ilk belgeyi, `find()` hepsini döndürür (SQL'deki SELECT gibi). `find()` aslında bir cursor verir; üzerinde `for` ile gezersin. Aşağıda ilk belge ve hepsi:",
+   "body": "`find_one()` returns the first document, `find()` returns all of them (like SQL's SELECT). `find()` actually returns a cursor you loop over with `for`. Below: the first document and then all.",
+   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint(students[0])\nfor s in students:\n    print(s['name'])",
+   "expected_output": "{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250}\nAsabeneh\nDavid\nJohn\nSami",
+   "section": "MongoDB Find"
+  },
+  {
+   "id": "d27-c10",
+   "type": "explain",
+   "title_tr": "_id ile belge bulmak",
+   "title": "Finding a document by _id",
+   "body_tr": "Belirli bir belge için `find_one({'_id': ObjectId('...')})` yazılır. `ObjectId` `bson` paketinden gelir. Burada `_id` sayı olduğu için koşula uyan ilk belgeyi `next(...)` ile alıyoruz.",
+   "body": "For a specific document you write `find_one({'_id': ObjectId('...')})`. `ObjectId` comes from the `bson` package. Here `_id` is a number, so we take the first matching document with `next(...)`.",
+   "code": "students = [{'_id': 1, 'name': 'Asabeneh'}, {'_id': 2, 'name': 'David'}]\nprint(next(s for s in students if s['_id'] == 2))",
+   "expected_output": "{'_id': 2, 'name': 'David'}",
+   "section": "MongoDB Find"
+  },
+  {
+   "id": "d27-c11",
+   "type": "explain",
+   "title_tr": "Alan seçmek (projection)",
+   "title": "Choosing fields (projection)",
+   "body_tr": "`find({}, {'_id': 0, 'name': 1, 'country': 1})` ikinci parametreyle hangi alanların döneceğini seçer: 1 dahil et, 0 hariç tut. `_id` dışında 0 ve 1'i karıştıramazsın.",
+   "body": "`find({}, {'_id': 0, 'name': 1, 'country': 1})` uses the second parameter to choose which fields come back: 1 include, 0 exclude. You can't mix 0 and 1, except for `_id`.",
+   "code": "students = [{'_id': 1, 'name': 'Asabeneh', 'country': 'Finland', 'age': 250},\n            {'_id': 2, 'name': 'David', 'country': 'UK', 'age': 34}]\nfor s in students:\n    print({k: s[k] for k in ('name', 'country')})",
+   "expected_output": "{'name': 'Asabeneh', 'country': 'Finland'}\n{'name': 'David', 'country': 'UK'}",
+   "section": "MongoDB Find"
+  },
+  {
+   "id": "d27-c12",
+   "type": "predict",
+   "prompt_tr": "Projection `{'name': 1}` olsaydı (id hariç) çıktı ne olurdu?",
+   "prompt": "What would the output be with projection `{'name': 1}` (no id)?",
+   "code": "s = {'_id': 1, 'name': 'David', 'age': 34}\nprint({k: s[k] for k in ('name',)})",
+   "choices": [
+    "David",
+    "{'_id': 1, 'name': 'David'}",
+    "{'name': 1}",
+    "{'name': 'David'}"
+   ],
+   "answer": "{'name': 'David'}",
+   "why_tr": "Yalnızca istenen alan (`name`) ve gerçek değeri döner.",
+   "why": "Only the requested field (`name`) comes back, with its real value.",
+   "section": "MongoDB Find"
+  },
+  {
+   "id": "d27-c13",
+   "type": "explain",
+   "title_tr": "Sorguyla süzmek",
+   "title": "Filtering with a query",
+   "body_tr": "`find({'country': 'Finland'})` yalnızca koşula uyan belgeleri getirir; koşul bir sözlüktür. Aynısını bir list comprehension'la (Gün 13) yazalım.",
+   "body": "`find({'country': 'Finland'})` returns only the documents that match; the condition is a dict. Let's write the same with a list comprehension (Day 13).",
+   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nquery = {'country': 'Finland'}\nfound = [s for s in students if all(s[k] == v for k, v in query.items())]\nfor s in found:\n    print(s['name'])",
+   "expected_output": "Asabeneh\nSami",
+   "section": "Find with Query"
+  },
+  {
+   "id": "d27-c14",
+   "type": "explain",
+   "title_tr": "Birden çok koşul ve $gt / $lt",
+   "title": "Several conditions and $gt / $lt",
+   "body_tr": "Sorguda birden çok anahtar varsa hepsi aynı anda sağlanmalı (ve). `{'age': {'$gt': 30}}` 30'dan büyük, `$lt` küçük demektir. (Derste ikinci örnek de `$gt` yazılmış ama sonucu küçük yaşları gösteriyor; biz `$lt` yazdık.)",
+   "body": "With several keys in a query, all must match (and). `{'age': {'$gt': 30}}` means greater than 30, `$lt` means less than. (The lesson's second example also says `$gt` yet shows the younger people; we wrote `$lt`.)",
+   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students if s['country'] == 'Finland' and s['city'] == 'Helsinki'])\nprint([s['name'] for s in students if s['age'] > 30])\nprint([s['name'] for s in students if s['age'] < 30])",
+   "expected_output": "['Asabeneh', 'Sami']\n['Asabeneh', 'David']\n['John', 'Sami']",
+   "section": "Find query with modifier"
+  },
+  {
+   "id": "d27-c15",
+   "type": "predict",
+   "prompt_tr": "`{'age': {'$lt': 30}}` sorgusunun karşılığı. Çıktı ne olur?",
+   "prompt": "The equivalent of the query `{'age': {'$lt': 30}}`. What is printed?",
+   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students if s['age'] < 30])",
+   "choices": [
+    "['Sami']",
+    "['John', 'Sami']",
+    "['Asabeneh', 'David']",
+    "['David', 'John', 'Sami']"
+   ],
+   "answer": "['John', 'Sami']",
+   "why_tr": "30'dan küçük yaşlar John (28) ve Sami (25).",
+   "why": "The ages below 30 are John (28) and Sami (25).",
+   "section": "Find query with modifier"
+  },
+  {
+   "id": "d27-c16",
+   "type": "fill",
+   "prompt_tr": "Operatörü yaz: 30'dan büyük olanlar.",
+   "prompt": "Write the operator: those older than 30.",
+   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students if s['age'] ___ 30])",
+   "answers": [
+    ">"
+   ],
+   "expected_output": "['Asabeneh', 'David']",
+   "why_tr": "`$gt` 'büyüktür' demektir; Python'da `>`.",
+   "why": "`$gt` means 'greater than'; in Python it is `>`.",
+   "section": "Find query with modifier"
+  },
+  {
+   "id": "d27-c17",
+   "type": "explain",
+   "title_tr": "limit: sonuçları kısıtlamak",
+   "title": "limit: capping the results",
+   "body_tr": "`find().limit(3)` yalnızca ilk 3 belgeyi getirir. Python'da bu, dilimlemeye (`[:3]`) karşılık gelir.",
+   "body": "`find().limit(3)` returns only the first 3 documents. In Python that matches slicing (`[:3]`).",
+   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in students[:3]])",
+   "expected_output": "['Asabeneh', 'David', 'John']",
+   "section": "Limiting documents"
+  },
+  {
+   "id": "d27-c18",
+   "type": "explain",
+   "title_tr": "sort: sıralama",
+   "title": "sort: ordering",
+   "body_tr": "`sort('name')` artan, `sort('name', -1)` azalan sıralar. Python'da `sorted(..., key=...)` ve `reverse=True` ile aynı sonuç alınır (Gün 14).",
+   "body": "`sort('name')` sorts ascending, `sort('name', -1)` descending. In Python the same results come from `sorted(..., key=...)` and `reverse=True` (Day 14).",
+   "code": "students = [{'name': 'Asabeneh', 'country': 'Finland', 'city': 'Helsinki', 'age': 250},\n            {'name': 'David', 'country': 'UK', 'city': 'London', 'age': 34},\n            {'name': 'John', 'country': 'Sweden', 'city': 'Stockholm', 'age': 28},\n            {'name': 'Sami', 'country': 'Finland', 'city': 'Helsinki', 'age': 25}]\n\nprint([s['name'] for s in sorted(students, key=lambda s: s['name'])])\nprint([s['name'] for s in sorted(students, key=lambda s: s['age'], reverse=True)])",
+   "expected_output": "['Asabeneh', 'David', 'John', 'Sami']\n['Asabeneh', 'David', 'John', 'Sami']",
+   "section": "Find with sort"
+  },
+  {
+   "id": "d27-c19",
+   "type": "truefalse",
+   "statement_tr": "`sort('age', -1)` yaşa göre büyükten küçüğe sıralar.",
+   "statement": "`sort('age', -1)` orders by age from largest to smallest.",
+   "answer": true,
+   "why_tr": "-1 azalan, 1 (varsayılan) artan sıralama demektir.",
+   "why": "-1 means descending, 1 (the default) means ascending.",
+   "section": "Find with sort"
+  },
+  {
+   "id": "d27-c20",
+   "type": "explain",
+   "title_tr": "update_one ve $set",
+   "title": "update_one and $set",
+   "body_tr": "`update_one(sorgu, {'$set': {'age': 38}})` sorguya uyan **ilk** belgeyi günceller. Hepsini güncellemek için `update_many` kullanılır. Eşleşen ilk belgede durmayı döngüde `break` ile canlandıralım.",
+   "body": "`update_one(query, {'$set': {'age': 38}})` updates the **first** document that matches. To update all, use `update_many`. We mimic stopping at the first match with `break`.",
+   "code": "students = [{'name': 'Asabeneh', 'age': 250}, {'name': 'David', 'age': 34}]\nfor s in students:\n    if s['age'] == 250:\n        s['age'] = 38\n        break\nprint(students)",
+   "expected_output": "[{'name': 'Asabeneh', 'age': 38}, {'name': 'David', 'age': 34}]",
+   "trace": true,
+   "section": "Update with query"
+  },
+  {
+   "id": "d27-c21",
+   "type": "explain",
+   "title_tr": "delete_one",
+   "title": "delete_one",
+   "body_tr": "`delete_one(sorgu)` eşleşen ilk belgeyi siler. Python'da listeden benzer bir şey `remove` ile yapılır.",
+   "body": "`delete_one(query)` deletes the first matching document. The list equivalent in Python is `remove`.",
+   "code": "students = [{'name': 'Asabeneh'}, {'name': 'John'}, {'name': 'Sami'}]\nstudents.remove({'name': 'John'})\nprint([s['name'] for s in students])",
+   "expected_output": "['Asabeneh', 'Sami']",
+   "section": "Delete Document"
+  },
+  {
+   "id": "d27-c22",
+   "type": "truefalse",
+   "statement_tr": "`delete_many({})` boş bir sorguyla çağrılırsa koleksiyondaki tüm belgeleri siler.",
+   "statement": "Calling `delete_many({})` with an empty query deletes all documents in the collection.",
+   "answer": true,
+   "why_tr": "Boş sorgu her şeyle eşleşir, o yüzden dikkatli kullan.",
+   "why": "An empty query matches everything, so use it carefully.",
+   "section": "Delete Document"
+  },
+  {
+   "id": "d27-c23",
+   "type": "explain",
+   "title_tr": "drop: koleksiyonu silmek",
+   "title": "drop: removing a collection",
+   "body_tr": "`db.students.drop()` koleksiyonu tamamen kaldırır; içindeki belgeler de gider. Sözlükteki karşılığı `del`.",
+   "body": "`db.students.drop()` removes the whole collection, documents included. The dict equivalent is `del`.",
+   "code": "db = {'students': [{'name': 'Sami'}], 'courses': []}\ndel db['students']\nprint(list(db))",
+   "expected_output": "['courses']",
+   "section": "Drop a collection"
+  },
+  {
+   "id": "d27-c24",
+   "type": "order",
+   "prompt_tr": "Satırları doğru sıraya diz.",
+   "prompt": "Put the lines in the right order.",
+   "lines": [
+    "students.append({'name': 'Bob', 'age': 30})",
+    "students = []",
+    "students.append({'name': 'Ada', 'age': 20})",
+    "print(len(students))"
+   ],
+   "correct_order": [
+    1,
+    2,
+    0,
+    3
+   ],
+   "expected_output": "2",
+   "section": "Inserting many documents to collection"
+  },
+  {
+   "id": "d27-c25",
+   "type": "recap",
+   "points_tr": [
+    "MongoDB belgeleri (sözlük benzeri) koleksiyonlarda saklar.",
+    "`insert_one/insert_many` ekler, `find_one/find` okur, sorgu sözlüğü süzer (`$gt`, `$lt`).",
+    "`limit` ve `sort` sonucu kısıtlar ve sıralar.",
+    "`update_one` + `$set` günceller, `delete_one` siler, `drop` koleksiyonu kaldırır."
+   ],
+   "points": [
+    "MongoDB stores documents (dict-like) in collections.",
+    "`insert_one/insert_many` add, `find_one/find` read, a query dict filters (`$gt`, `$lt`).",
+    "`limit` and `sort` cap and order the result.",
+    "`update_one` + `$set` updates, `delete_one` deletes, `drop` removes the collection."
+   ],
+   "cta_tr": "Şimdi alıştırmalara geç",
+   "cta": "Go to the exercises now",
+   "link": "learn",
+   "section": "Drop a collection"
+  }
+ ]
+}
