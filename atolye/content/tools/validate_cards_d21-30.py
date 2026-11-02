@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """Validator for atolye/content/cards/day21.json .. day30.json.
 
-Run: .venv/bin/python atolye/content/tools/validate_cards_d21-30.py
+Run: .venv/bin/python atolye/content/tools/validate_cards_d21-30.py [first last]
+(without arguments every day 21-30 is checked; with two day numbers only that range)
 
 Checks: JSON shape per card type, TR + EN twins present and non-empty, unique ids,
 every code runs (fresh subprocess, 5 s timeout) and stdout equals expected_output,
@@ -242,7 +243,11 @@ def exec_job(job):
 
 def main():
     errs, jobs, stats = [], [], []
-    for d in DAYS:
+    days = DAYS
+    nums = [int(a) for a in sys.argv[1:] if a.isdigit()]
+    if len(nums) >= 2:
+        days = range(max(nums[0], DAYS.start), min(nums[1], DAYS.stop - 1) + 1)
+    for d in days:
         p = CARDS / f"day{d:02d}.json"
         if not p.exists():
             errs.append(f"{p.name}: file missing")

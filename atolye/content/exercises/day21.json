@@ -1,27 +1,30 @@
 {
   "day": 21,
   "title": "Classes and Objects",
+  "title_tr": "Sınıflar ve Nesneler",
   "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
   "blocks": [
     {
       "id": "d21-b1",
       "concept": "class-constructor",
+      "concept_tr": "Sınıf, yapıcı (__init__) ve nitelikler",
       "tags": [
         "classes",
         "__init__",
-        "self"
+        "self",
+        "attributes"
       ],
       "worked_example": {
-        "code": "class Country:\n    def __init__(self, name, capital):\n        self.name = name\n        self.capital = capital\n\nc = Country('Finland', 'Helsinki')\nprint(c.capital)",
+        "code": "class Country:\n    def __init__(self, name, capital):\n        self.name = name\n        self.capital = capital\n\nc = Country('Türkiye', 'Ankara')\nd = Country('Finland', 'Helsinki')\nprint(c.capital, d.capital)",
         "notes": [
-          "A class is only a blueprint; calling it, as in Country('Finland', 'Helsinki'), builds one real object from that blueprint.",
+          "A class is only a blueprint; calling it, as in Country('Türkiye', 'Ankara'), builds one real object from that blueprint.",
           "Python creates the empty object first and then calls __init__ on it, passing the object itself as the first argument. That argument is what we name self.",
-          "self.name = name copies the value into the object's own storage, so every object remembers its own data. Without the self. prefix you only create a throw-away local variable."
+          "self.name = name copies the value onto the object, so every object remembers its own data. Without the self. prefix you would only create a local variable that disappears when __init__ ends."
         ],
         "notes_tr": [
-          "Sınıf yalnızca bir plandır; onu Country('Finland', 'Helsinki') gibi çağırdığında bu plandan gerçek bir nesne üretilir.",
+          "Sınıf yalnızca bir plandır; onu Country('Türkiye', 'Ankara') gibi çağırdığında bu plandan gerçek bir nesne üretilir.",
           "Python önce boş nesneyi yaratır, sonra __init__'i o nesne üzerinde çağırır ve nesnenin kendisini ilk argüman olarak verir. Bu argümana self deriz.",
-          "self.name = name değeri nesnenin kendi deposuna yazar, böylece her nesne kendi verisini hatırlar. self. öneki olmazsa yalnızca atılıp giden yerel bir değişken yaratırsın."
+          "self.name = name değeri nesnenin üzerine yazar, böylece her nesne kendi verisini hatırlar. self. öneki olmasaydı yalnızca __init__ bitince kaybolan yerel bir değişken yaratırdın."
         ]
       },
       "exercises": [
@@ -32,29 +35,30 @@
           "tags": [
             "classes",
             "__init__",
-            "self"
+            "self",
+            "attributes"
           ],
           "prompt": "What does this code print?",
           "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class City:\n    def __init__(self, name, people):\n        self.name = name\n        self.people = people\n\na = City('Ankara', 5700000)\nb = City('Izmir', 4400000)\nprint(a.name, b.people)",
+          "code": "class City:\n    def __init__(self, name, people):\n        self.name = name\n        self.people = people\n\na = City('Ankara', 5700000)\nb = City('İzmir', 4400000)\nprint(a.name, b.people)",
           "choices": [
-            "Ankara 4400000",
-            "Izmir 5700000",
+            "İzmir 5700000",
             "Ankara 5700000",
-            "Error"
+            "Error",
+            "Ankara 4400000"
           ],
           "expected_output": "Ankara 4400000",
-          "explanation": "a and b are two separate objects. a.name is 'Ankara' and b.people is 4400000.",
+          "explanation": "a and b are two separate objects built from the same class. a.name is 'Ankara' and b.people is 4400000.",
+          "explanation_tr": "a ve b aynı sınıftan üretilmiş iki ayrı nesnedir. a.name 'Ankara', b.people ise 4400000'dür.",
           "misconceptions": {
-            "Izmir 5700000": "You swapped the objects: a.name belongs to a (Ankara) and b.people belongs to b.",
-            "Ankara 5700000": "b.people is read from b (Izmir), not from a.",
-            "Error": "Both attributes were set in __init__, so they exist on each object."
+            "İzmir 5700000": "You swapped the objects: a.name belongs to a (Ankara) and b.people belongs to b (İzmir).",
+            "Ankara 5700000": "b.people is read from b, not from a. Each object keeps its own people value.",
+            "Error": "Both attributes are set in __init__, so every City object has name and people."
           },
-          "explanation_tr": "a ve b iki ayrı nesnedir. a.name 'Ankara', b.people ise 4400000'dür.",
           "misconceptions_tr": {
-            "Izmir 5700000": "Nesneleri karıştırmışsın: a.name a'ya (Ankara), b.people ise b'ye aittir.",
-            "Ankara 5700000": "b.people, a'dan değil b'den (Izmir) okunur.",
-            "Error": "İki öznitelik de __init__ içinde atandı, yani her nesnede vardır."
+            "İzmir 5700000": "Nesneleri karıştırmışsın: a.name a'ya (Ankara), b.people ise b'ye (İzmir) aittir.",
+            "Ankara 5700000": "b.people a'dan değil b'den okunur. Her nesne kendi people değerini tutar.",
+            "Error": "İki nitelik de __init__ içinde atanıyor, yani her City nesnesinde name ve people vardır."
           }
         },
         {
@@ -64,10 +68,11 @@
           "tags": [
             "classes",
             "__init__",
-            "self"
+            "self",
+            "attributes"
           ],
-          "prompt": "Complete the class so that a Student object keeps a name and an age.",
-          "prompt_tr": "Sınıfı tamamla: Student nesnesi bir isim ve bir yaş saklasın.",
+          "prompt": "Complete the class so that a Student object keeps a name and an age. The last line creates Student('Eyob', 30) as s.",
+          "prompt_tr": "Sınıfı tamamla: Student nesnesi bir isim ve bir yaş saklasın. Son satır s adıyla Student('Eyob', 30) nesnesini üretiyor.",
           "starter_code": "class Student:\n    def ___(self, name, age):\n        self.name = name\n        self.___ = age\n\ns = Student('Eyob', 30)",
           "blanks": [
             {
@@ -85,150 +90,119 @@
             {
               "code": "assert s.name == 'Eyob'",
               "visible": true,
-              "label_tr": "İsim doğru saklanıyor"
+              "label": "The name is stored",
+              "label_tr": "İsim saklanıyor"
             },
             {
               "code": "assert s.age == 30",
               "visible": true,
-              "label_tr": "Yaş doğru saklanıyor"
+              "label": "The age is stored as age",
+              "label_tr": "Yaş age adıyla saklanıyor"
             }
           ]
         },
         {
-          "id": "d21-b1-e8",
+          "id": "d21-b1-e3",
           "type": "modify",
           "concept": "class-constructor",
           "tags": [
             "classes",
             "__init__",
-            "self"
+            "self",
+            "attributes"
           ],
-          "prompt": "Make the Country class optional-friendly: give population a default of 0, so Country('Chad', 'N Djamena') works.",
-          "prompt_tr": "Country sınıfını esnek yap: population için varsayılan 0 ver, böylece Country('Chad', 'Njamena') çalışsın.",
+          "prompt": "Give population a default of 0 so that Country('Chad', 'Ndjamena') works and its population is 0. Calls that pass a population must keep working.",
+          "prompt_tr": "population parametresine varsayılan 0 ver: Country('Chad', 'Ndjamena') çalışsın ve nüfusu 0 olsun. Nüfus veren çağrılar da çalışmaya devam etmeli.",
           "starter_code": "class Country:\n    def __init__(self, name, capital, population):\n        self.name = name\n        self.capital = capital\n        self.population = population",
           "tests": [
             {
-              "code": "assert Country('Chad', 'Njamena').population == 0",
+              "code": "assert Country('Chad', 'Ndjamena').population == 0",
               "visible": true,
+              "label": "Without a population it is 0",
               "label_tr": "Nüfus verilmezse 0 olur"
             },
             {
               "code": "assert Country('Fiji', 'Suva', 900000).population == 900000",
               "visible": true,
+              "label": "A given population is kept",
               "label_tr": "Verilen nüfus korunur"
             },
             {
-              "code": "c = Country('A', 'B')\nd = Country('C', 'D', 5)\nassert c.population == 0 and d.population == 5",
+              "code": "c = Country('A', 'B')\nd = Country('C', 'D', 5)\nassert (c.name, c.capital, c.population, d.population) == ('A', 'B', 0, 5)",
               "visible": false,
-              "failure_message": "Both calls must work: with and without population.",
-              "failure_message_tr": "Hem nüfuslu hem nüfussuz çağrı çalışmalı."
+              "failure_message": "Both kinds of call must work, and name and capital must still be stored.",
+              "failure_message_tr": "Hem nüfuslu hem nüfussuz çağrı çalışmalı; name ve capital da saklanmaya devam etmeli."
             }
           ],
           "hints": [
-            "Look at how default values are written in function definitions on Day 11.",
-            "A default goes in the parameter list as population=value; parameters with defaults come last.",
-            "Last step: change only the third parameter in the def line, so it ends with =0."
+            "Default values are written in the def line, exactly as for ordinary functions on Day 11.",
+            "A default goes into the parameter list as population=value; parameters with defaults must come last, and population already is last.",
+            "Change only the def line so that its last parameter reads population=0; the body stays as it is."
+          ],
+          "hints_tr": [
+            "Varsayılan değerler, 11. gündeki sıradan fonksiyonlarda olduğu gibi def satırına yazılır.",
+            "Varsayılan, parametre listesinde population=değer biçiminde yazılır; varsayılanlı parametreler sonda olmalı ve population zaten sonda.",
+            "Yalnızca def satırını değiştir: son parametre population=0 olsun; gövde aynı kalır."
           ],
           "solution": {
             "approach": "Give the parameter a default; the body stays unchanged.",
-            "code": "class Country:\n    def __init__(self, name, capital, population=0):\n        self.name = name\n        self.capital = capital\n        self.population = population",
-            "approach_tr": "Parametreye varsayılan ver; gövde aynı kalır."
-          },
-          "hints_tr": [
-            "Varsayılan değerlerin fonksiyon tanımında nasıl yazıldığına bak (11. gün).",
-            "Varsayılan değer parametre listesinde population=değer biçiminde yazılır; varsayılanlı parametreler sona gelir.",
-            "Son adım: yalnızca def satırındaki üçüncü parametreyi değiştir, =0 ile bitsin."
-          ]
-        },
-        {
-          "id": "d21-b1-e6",
-          "type": "predict",
-          "concept": "class-constructor",
-          "tags": [
-            "classes",
-            "__init__",
-            "self",
-            "interleaving",
-            "day05"
-          ],
-          "prompt": "What does this code print?",
-          "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class City:\n    def __init__(self, name):\n        self.name = name\n\na = City('Ankara')\nb = a\nb.name = 'Izmir'\nprint(a.name)",
-          "choices": [
-            "Ankara",
-            "Error",
-            "None",
-            "Izmir"
-          ],
-          "expected_output": "Izmir",
-          "explanation": "b = a gives the same object a second name. The change made through b is visible through a, so it prints Izmir.",
-          "misconceptions": {
-            "Ankara": "Looks like b.name changed only b, but b = a copies nothing: both names point at the same object.",
-            "Error": "Attributes can be assigned from outside the class, so no error occurs.",
-            "None": "print shows the attribute value; nothing here returns None."
-          },
-          "explanation_tr": "b = a aynı nesneye ikinci bir isim verir. b üzerinden yapılan değişiklik a'dan da görünür, bu yüzden Izmir yazar.",
-          "misconceptions_tr": {
-            "Ankara": "b.name'in yalnızca b'yi değiştirdiğini sanmışsın; ama b = a kopya almaz, iki isim de aynı nesneyi gösterir.",
-            "Error": "Öznitelikler sınıfın dışından da atanabilir, bu yüzden hata oluşmaz.",
-            "None": "print öznitelik değerini gösterir; burada None döndüren bir şey yok."
+            "approach_tr": "Parametreye varsayılan değer ver; gövde değişmez.",
+            "code": "class Country:\n    def __init__(self, name, capital, population=0):\n        self.name = name\n        self.capital = capital\n        self.population = population"
           }
         },
         {
-          "id": "d21-b1-e7",
+          "id": "d21-b1-e4",
           "type": "debug",
           "concept": "class-constructor",
           "tags": [
             "classes",
             "__init__",
-            "self"
+            "self",
+            "attributes"
           ],
-          "prompt": "This should print 'Eyob 30' but crashes with an AttributeError. Find the missing piece in the constructor.",
-          "prompt_tr": "Bu kod 'Eyob 30' yazdırmalı ama AttributeError veriyor. Yapıcıda eksik olan parçayı bul.",
+          "prompt": "This should print 'Eyob 30' but crashes with an AttributeError. Fix the constructor.",
+          "prompt_tr": "Bu kod 'Eyob 30' yazdırmalı ama AttributeError veriyor. Yapıcı metodu onar.",
           "starter_code": "class Student:\n    def __init__(self, name, age):\n        name = name\n        self.age = age\n\ns = Student('Eyob', 30)\nprint(s.name, s.age)",
           "hints": [
-            "The error ends with AttributeError: 'Student' object has no attribute 'name'. Read it as: the object exists, but nobody ever stored a name on it. Which line should have done that?",
-            "name = name only creates a local variable inside __init__; it disappears when __init__ ends. Compare it with the line that works.",
-            "Last step: the line that handles name needs the same prefix as the line that handles age."
+            "The error ends with: 'Student' object has no attribute 'name'. The object exists, but nothing ever stored a name on it. Which line should have done that?",
+            "name = name only rebinds the local variable inside __init__; it is gone when __init__ ends. Compare it with the line that handles age.",
+            "The line that handles name needs the same prefix that the age line already has."
+          ],
+          "hints_tr": [
+            "Hata şöyle bitiyor: 'Student' object has no attribute 'name'. Nesne var ama üzerine hiçbir şey name saklamamış. Bunu hangi satır yapmalıydı?",
+            "name = name yalnızca __init__ içindeki yerel değişkeni yeniden bağlar; __init__ bitince yok olur. age'i işleyen satırla karşılaştır.",
+            "name'i işleyen satır, age satırında zaten olan öneke ihtiyaç duyuyor."
           ],
           "solution": {
             "approach": "Store the value on the object: self.name = name.",
-            "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\ns = Student('Eyob', 30)\nprint(s.name, s.age)",
-            "approach_tr": "Değeri nesneye kaydet: self.name = name."
+            "approach_tr": "Değeri nesneye kaydet: self.name = name.",
+            "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\ns = Student('Eyob', 30)\nprint(s.name, s.age)"
           },
-          "expected_output": "Eyob 30",
-          "hints_tr": [
-            "Hata şöyle biter: AttributeError: 'Student' object has no attribute 'name'. Şöyle oku: nesne var ama kimse üzerine name saklamamış. Bunu hangi satır yapmalıydı?",
-            "name = name yalnızca __init__ içinde yerel bir değişken yaratır; __init__ bitince yok olur. Çalışan satırla karşılaştır.",
-            "Son adım: name'i işleyen satır, age'i işleyen satırla aynı öneke ihtiyaç duyuyor."
-          ]
+          "expected_output": "Eyob 30"
         },
         {
-          "id": "d21-b1-e3",
+          "id": "d21-b1-e5",
           "type": "write",
           "concept": "class-constructor",
           "tags": [
             "classes",
             "__init__",
-            "self"
+            "self",
+            "attributes"
           ],
-          "prompt": "Write a class Book. Its constructor takes title and pages and stores both on the object.",
-          "prompt_tr": "Book adında bir sınıf yaz. Yapıcısı (constructor) title ve pages alsın ve ikisini de nesnenin üzerinde saklasın.",
+          "prompt": "Write a class Book. Its constructor takes title and pages (in that order) and stores them as the attributes title and pages. Example: Book('Dune', 412).pages is 412.",
+          "prompt_tr": "Book adında bir sınıf yaz. Yapıcısı sırasıyla title ve pages alsın ve bunları title ve pages nitelikleri olarak saklasın. Örnek: Book('Dune', 412).pages değeri 412'dir.",
           "starter_code": "",
           "signature": "class Book:",
           "tests": [
             {
               "code": "b = Book('Dune', 412)\nassert b.title == 'Dune' and b.pages == 412",
               "visible": true,
-              "label_tr": "Kitap başlığı ve sayfa sayısı saklanıyor"
+              "label": "Title and pages are stored",
+              "label_tr": "Başlık ve sayfa sayısı saklanıyor"
             },
             {
-              "code": "assert Book('Emma', 474).pages == 474",
-              "visible": true,
-              "label_tr": "Başka bir kitapta sayfa sayısı doğru"
-            },
-            {
-              "code": "a = Book('A', 1)\nb = Book('B', 2)\nassert a.title == 'A' and b.title == 'B'",
+              "code": "a = Book('Saatleri Ayarlama Enstitüsü', 395)\nb = Book('Emma', 474)\nassert (a.title, a.pages, b.title, b.pages) == ('Saatleri Ayarlama Enstitüsü', 395, 'Emma', 474)",
               "visible": false,
               "failure_message": "Each object must keep its own values. Store them on self, not in a shared variable.",
               "failure_message_tr": "Her nesne kendi değerlerini tutmalı. Değerleri ortak bir değişkene değil self'e kaydet."
@@ -241,123 +215,160 @@
             }
           ],
           "hints": [
-            "Start with: class Book: and a method named __init__.",
-            "__init__ needs self first, then title and pages. Inside it assign self.title = ... and self.pages = ...",
-            "Last step: inside __init__ write one line per value, in the form self.title = ___ (and the same for pages)."
+            "Start with class Book: and, inside it, a method named __init__.",
+            "__init__ takes self first, then title and pages. Each parameter must be copied onto the object.",
+            "Inside __init__ write one line per value in the form self.title = ___ (and the same for pages)."
+          ],
+          "hints_tr": [
+            "class Book: ile başla ve içine __init__ adlı bir metot yaz.",
+            "__init__ önce self, sonra title ve pages alır. Her parametre nesnenin üzerine kopyalanmalı.",
+            "__init__ içinde her değer için bir satır yaz: self.title = ___ (pages için de aynısı)."
           ],
           "solution": {
             "approach": "Define __init__(self, title, pages) and copy each parameter onto self.",
-            "code": "class Book:\n    def __init__(self, title, pages):\n        self.title = title\n        self.pages = pages",
-            "approach_tr": "__init__(self, title, pages) tanımla ve her parametreyi self'e kopyala."
+            "approach_tr": "__init__(self, title, pages) tanımla ve her parametreyi self'e kopyala.",
+            "code": "class Book:\n    def __init__(self, title, pages):\n        self.title = title\n        self.pages = pages"
           },
-          "twin": "d21-b1-e4",
-          "hints_tr": [
-            "class Book: ile başla ve içine __init__ adında bir metot yaz.",
-            "__init__ önce self, sonra title ve pages almalı. İçinde self.title = ... ve self.pages = ... atamalarını yap.",
-            "Son adım: __init__ içinde her değer için bir satır yaz: self.title = ___ (pages için de aynısı)."
-          ]
+          "twin": "d21-b1-e6"
         },
         {
-          "id": "d21-b1-e4",
+          "id": "d21-b1-e6",
           "type": "write",
           "concept": "class-constructor",
           "tags": [
             "classes",
             "__init__",
-            "self"
+            "self",
+            "attributes"
           ],
-          "prompt": "Write a class Country. Its constructor takes name, capital and population and stores all three on the object.",
-          "prompt_tr": "Country adında bir sınıf yaz. Yapıcısı name, capital ve population alsın ve üçünü de nesnenin üzerinde saklasın.",
+          "prompt": "Write a class Product with a constructor Product(name, price, stock=0). Store all three as attributes with the same names, and add an attribute in_stock that is True when stock is greater than 0, otherwise False. Example: Product('kalem', 12.5).in_stock is False; Product('defter', 40, 3).in_stock is True.",
+          "prompt_tr": "Product adında bir sınıf yaz; yapıcısı Product(name, price, stock=0) biçiminde olsun. Üçünü de aynı adlı nitelikler olarak sakla ve stock 0'dan büyükse True, değilse False olan bir in_stock niteliği ekle. Örnek: Product('kalem', 12.5).in_stock False, Product('defter', 40, 3).in_stock True olur.",
           "starter_code": "",
-          "signature": "class Country:",
+          "signature": "class Product:",
           "tests": [
             {
-              "code": "c = Country('Finland', 'Helsinki', 5500000)\nassert c.name == 'Finland' and c.capital == 'Helsinki'",
+              "code": "p = Product('kalem', 12.5)\nassert (p.name, p.price, p.stock, p.in_stock) == ('kalem', 12.5, 0, False)",
               "visible": true,
-              "label_tr": "İsim ve başkent saklanıyor"
+              "label": "Default stock is 0 and in_stock is False",
+              "label_tr": "Varsayılan stok 0 ve in_stock False"
             },
             {
-              "code": "assert Country('Turkey', 'Ankara', 85000000).population == 85000000",
+              "code": "assert Product('defter', 40, 3).in_stock is True",
               "visible": true,
-              "label_tr": "Nüfus saklanıyor"
+              "label": "Stock 3 means in_stock is True",
+              "label_tr": "Stok 3 ise in_stock True"
             },
             {
-              "code": "a = Country('UK', 'London', 67000000)\nb = Country('Sweden', 'Stockholm', 10000000)\nassert a.capital == 'London' and b.capital == 'Stockholm'",
+              "code": "q = Product('silgi', 5, 1)\nr = Product('cetvel', 8, 0)\nassert (q.stock, q.in_stock, r.in_stock, q.name, r.price) == (1, True, False, 'silgi', 8)",
               "visible": false,
-              "failure_message": "Each object must keep its own values. Use self.attribute = parameter.",
-              "failure_message_tr": "Her nesne kendi değerlerini tutmalı. self.öznitelik = parametre biçimini kullan."
+              "failure_message": "in_stock must be computed from the stock of each object (stock > 0).",
+              "failure_message_tr": "in_stock her nesnenin kendi stoğundan hesaplanmalı (stock > 0)."
             },
             {
-              "code": "assert Country(population=1, capital='B', name='A').name == 'A'",
+              "code": "assert Product(name='a', price=1, stock=7).stock == 7",
               "visible": false,
-              "failure_message": "Use the exact parameter names name, capital and population.",
-              "failure_message_tr": "Parametre adları tam olarak name, capital ve population olmalı."
+              "failure_message": "Use exactly the parameter names name, price and stock.",
+              "failure_message_tr": "Parametre adları tam olarak name, price ve stock olmalı."
             }
           ],
           "hints": [
-            "You need class Country: with an __init__ method.",
-            "__init__(self, name, capital, population) and one self.x = x line per value.",
-            "Last step: one line per parameter inside __init__, shaped like self.name = ___ (three lines in total)."
+            "You need one __init__ with a default for the last parameter.",
+            "Copy name, price and stock onto self. in_stock is the result of a comparison, and a comparison already gives True or False.",
+            "The last line of __init__ has the form self.in_stock = <a comparison using stock>."
+          ],
+          "hints_tr": [
+            "Son parametresi varsayılanlı tek bir __init__ gerekiyor.",
+            "name, price ve stock'u self'e kopyala. in_stock bir karşılaştırmanın sonucudur ve karşılaştırma zaten True ya da False verir.",
+            "__init__'in son satırı şu biçimde: self.in_stock = <stock ile yapılan bir karşılaştırma>."
           ],
           "solution": {
-            "approach": "Same pattern as Book, with three parameters.",
-            "code": "class Country:\n    def __init__(self, name, capital, population):\n        self.name = name\n        self.capital = capital\n        self.population = population",
-            "approach_tr": "Book ile aynı kalıp, bu kez üç parametreyle."
+            "approach": "Store the three parameters and save the boolean stock > 0 as in_stock.",
+            "approach_tr": "Üç parametreyi sakla ve stock > 0 karşılaştırmasının sonucunu in_stock olarak kaydet.",
+            "code": "class Product:\n    def __init__(self, name, price, stock=0):\n        self.name = name\n        self.price = price\n        self.stock = stock\n        self.in_stock = stock > 0"
           },
-          "twin": "d21-b1-e3",
-          "hints_tr": [
-            "class Country: ve içinde bir __init__ metodu gerekiyor.",
-            "__init__(self, name, capital, population) yaz ve her değer için bir self.x = x satırı ekle.",
-            "Son adım: __init__ içinde her parametre için bir satır yaz, şu biçimde: self.name = ___ (toplam üç satır)."
-          ]
+          "twin": "d21-b1-e5"
         },
         {
-          "id": "d21-b1-e5",
+          "id": "d21-b1-e7",
+          "type": "predict",
+          "concept": "class-constructor",
+          "tags": [
+            "classes",
+            "__init__",
+            "self",
+            "attributes"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "class Bag:\n    def __init__(self, items):\n        self.items = items\n\nshared = ['elma']\na = Bag(shared)\nb = Bag(shared)\na.items.append('armut')\nprint(len(b.items), a is b)",
+          "choices": [
+            "1 False",
+            "2 True",
+            "1 True",
+            "2 False"
+          ],
+          "expected_output": "2 False",
+          "explanation": "a and b are separate objects, but their items attributes are tags on the same list (Day 5: lists are mutable). The append is seen through b, so len(b.items) is 2.",
+          "explanation_tr": "a ve b ayrı nesnelerdir ama items nitelikleri aynı list'e bağlı iki etikettir (5. gün: list değiştirilebilir). Ekleme b üzerinden de görünür, bu yüzden len(b.items) 2'dir.",
+          "misconceptions": {
+            "1 False": "self.items = items does not copy the list; both objects get a tag on the one list called shared.",
+            "2 True": "The objects are different (two Bag() calls); only the list inside them is shared.",
+            "1 True": "Two calls make two objects, and the list is not copied, so both parts of this guess are off."
+          },
+          "misconceptions_tr": {
+            "1 False": "self.items = items listeyi kopyalamaz; iki nesne de shared adlı tek listeye etiket bağlar.",
+            "2 True": "Nesneler farklıdır (iki ayrı Bag() çağrısı); paylaşılan yalnızca içlerindeki listedir.",
+            "1 True": "İki çağrı iki nesne üretir ve liste kopyalanmaz; bu tahminin iki parçası da yanlış."
+          }
+        },
+        {
+          "id": "d21-b1-e8",
           "type": "explain",
           "concept": "class-constructor",
           "tags": [
             "classes",
             "__init__",
-            "self"
+            "self",
+            "attributes"
           ],
           "prompt": "In your own words: what is the difference between a class and an object, and what does self mean inside a method?",
           "prompt_tr": "Kendi cümlelerinle anlat: sınıf ile nesne arasındaki fark nedir ve bir metodun içinde self ne anlama gelir?",
-          "model_answer": "A class is a blueprint that describes what data and behaviour objects have. An object is one concrete thing created from that blueprint by calling the class. Inside a method, self is the object the method is working on, so self.name means the name of that specific object.",
+          "model_answer": "A class is a blueprint that describes which data and behaviour its objects have. An object is one concrete thing created from that blueprint by calling the class. Inside a method, self is the object the method is working on, so self.name means the name of that specific object.",
+          "model_answer_tr": "Sınıf, nesnelerinin hangi veriye ve davranışa sahip olacağını anlatan bir plandır (kalıptır). Nesne, sınıfı çağırarak bu plandan üretilen somut bir şeydir. Bir metodun içinde self, metodun üzerinde çalıştığı nesnenin kendisidir; self.name o nesnenin kendi adı demektir.",
           "keywords": [
             "blueprint",
             "object",
             "self"
           ],
-          "model_answer_tr": "Sınıf, nesnelerin hangi veriye ve davranışa sahip olacağını anlatan bir plandır (kalıptır). Nesne, sınıfı çağırarak bu plandan üretilen somut bir şeydir. Bir metodun içinde self, metodun üzerinde çalıştığı nesnenin kendisidir; yani self.name o nesnenin kendi adı demektir.",
           "keywords_tr": [
             "plan",
             "nesne",
             "self"
           ],
-          "min_words": 6
+          "min_words": 12
         }
-      ],
-      "concept_tr": "Sınıf ve yapıcı (constructor)"
+      ]
     },
     {
       "id": "d21-b2",
       "concept": "object-methods",
+      "concept_tr": "Metotlar ve nesnenin durumu",
       "tags": [
         "classes",
         "methods",
-        "default-values"
+        "state"
       ],
       "worked_example": {
-        "code": "class Person:\n    def __init__(self, name, city='Helsinki'):\n        self.name = name\n        self.city = city\n    def info(self):\n        return f'{self.name} lives in {self.city}'\n\nprint(Person('Asabeneh').info())",
+        "code": "class Cart:\n    def __init__(self):\n        self.items = []\n    def add(self, name, price):\n        self.items.append((name, price))\n    def total(self):\n        return sum(p for _, p in self.items)\ncart = Cart()\ncart.add('kalem', 12.5)\nprint(cart.total(), len(cart.items))",
         "notes": [
-          "A method is just a function stored inside a class. When you write p.info(), Python rewrites it as Person.info(p), which is why the method needs a self parameter.",
-          "Default values such as city='Helsinki' work exactly like in plain functions: the caller may skip the argument and the default fills in.",
-          "A method that only prints returns None. Return the value instead, so the caller decides whether to print it, store it or test it."
+          "A method is a def inside the class; its first parameter self is the object on the left of the dot, so cart.add('kalem', 12.5) runs Cart.add(cart, 'kalem', 12.5).",
+          "add changes the object's state in place (append), total only reads it and returns a number. Both reach the data through self.items.",
+          "Because self.items = [] runs in __init__, every Cart gets its own list; two carts never mix their products."
         ],
         "notes_tr": [
-          "Metot, sınıfın içinde duran bir fonksiyondur. p.info() yazdığında Python bunu Person.info(p) olarak çalıştırır; metodun self parametresine ihtiyaç duyması bundandır.",
-          "city='Helsinki' gibi varsayılan değerler sıradan fonksiyonlardakiyle aynı çalışır: çağıran argümanı atlayabilir, varsayılan değer devreye girer.",
-          "Yalnızca print eden bir metot None döndürür. Değeri return et; yazdırmak, saklamak ya da test etmek çağıranın kararı olsun."
+          "Metot, sınıfın içindeki bir def'tir; ilk parametresi self noktanın solundaki nesnedir. Yani cart.add('kalem', 12.5), Cart.add(cart, 'kalem', 12.5) çağrısını yapar.",
+          "add nesnenin durumunu yerinde değiştirir (append), total ise yalnızca okur ve bir sayı döndürür. İkisi de veriye self.items üzerinden ulaşır.",
+          "self.items = [] __init__ içinde çalıştığı için her Cart'ın kendi list'i olur; iki sepet ürünlerini asla karıştırmaz."
         ]
       },
       "exercises": [
@@ -368,29 +379,29 @@
           "tags": [
             "classes",
             "methods",
-            "default-values"
+            "state"
           ],
           "prompt": "What does this code print?",
           "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Rectangle:\n    def __init__(self, w, h=2):\n        self.w = w\n        self.h = h\n    def area(self):\n        return self.w * self.h\n\nprint(Rectangle(5).area(), Rectangle(3, 4).area())",
+          "code": "class Account:\n    def __init__(self):\n        self.balance = 0\n\n    def deposit(self, amount):\n        self.balance += amount\n        return self.balance\n\na = Account()\nb = Account()\na.deposit(50)\nprint(a.deposit(25), b.balance)",
           "choices": [
-            "10 12",
-            "15 7",
-            "5 12",
-            "Error"
+            "25 0",
+            "75 0",
+            "75 75",
+            "None 0"
           ],
-          "expected_output": "10 12",
-          "explanation": "Rectangle(5) uses the default h=2, so area is 5*2=10. Rectangle(3, 4) gives 3*4=12.",
+          "expected_output": "75 0",
+          "explanation": "a.deposit(50) makes a's balance 50, then a.deposit(25) makes it 75 and returns it. b was never changed, so it is still 0.",
+          "explanation_tr": "a.deposit(50) a'nın bakiyesini 50 yapar, a.deposit(25) 75'e çıkarır ve onu döndürür. b hiç değişmedi, hâlâ 0.",
           "misconceptions": {
-            "15 7": "area multiplies w and h, it does not add them; and h is 2 by default.",
-            "5 12": "The first call still calls area(), which multiplies: 5*2=10.",
-            "Error": "h has a default value, so Rectangle(5) is allowed."
+            "25 0": "deposit adds to the existing balance; the first call already made it 50.",
+            "75 75": "b is a separate object with its own balance; deposits on a never touch it.",
+            "None 0": "deposit ends with return self.balance, so the call has a value."
           },
-          "explanation_tr": "Rectangle(5) varsayılan h=2'yi kullanır, alan 5*2=10 olur. Rectangle(3, 4) ise 3*4=12 verir.",
           "misconceptions_tr": {
-            "15 7": "area, w ile h'yi toplamaz, çarpar; ayrıca h varsayılan olarak 2'dir.",
-            "5 12": "İlk çağrı da area() çağırır ve o çarpar: 5*2=10.",
-            "Error": "h'nin varsayılan değeri var, bu yüzden Rectangle(5) geçerlidir."
+            "25 0": "deposit mevcut bakiyeye ekler; ilk çağrı bakiyeyi zaten 50 yapmıştı.",
+            "75 75": "b kendi bakiyesi olan ayrı bir nesnedir; a'ya yapılan yatırma onu etkilemez.",
+            "None 0": "deposit return self.balance ile bitiyor, yani çağrının bir değeri var."
           }
         },
         {
@@ -400,24 +411,24 @@
           "tags": [
             "classes",
             "methods",
-            "default-values"
+            "state"
           ],
-          "prompt": "Put the lines in order: build a Circle class and print the diameter of a circle with radius 4.",
-          "prompt_tr": "Satırları sırala: bir Circle sınıfı kur ve yarıçapı 4 olan dairenin çapını yazdır.",
+          "prompt": "Put the lines in order: build a Circle class whose diameter() method returns twice the radius, and print the diameter of a circle with radius 4.",
+          "prompt_tr": "Satırları sırala: diameter() metodu yarıçapın iki katını döndüren bir Circle sınıfı kur ve yarıçapı 4 olan dairenin çapını yazdır.",
           "lines": [
             "    def diameter(self):",
             "print(Circle(4).diameter())",
             "    def __init__(self, radius):",
-            "class Circle:",
             "        return self.radius * 2",
+            "class Circle:",
             "        self.radius = radius"
           ],
           "correct_order": [
-            3,
+            4,
             2,
             5,
             0,
-            4,
+            3,
             1
           ],
           "distractors": [
@@ -433,1292 +444,1225 @@
           "tags": [
             "classes",
             "methods",
-            "default-values"
+            "state"
           ],
-          "prompt": "The class below can compute the area. Add a method perimeter() that returns 2 * (w + h).",
-          "prompt_tr": "Aşağıdaki sınıf alanı hesaplayabiliyor. 2 * (w + h) döndüren bir perimeter() metodu ekle.",
-          "starter_code": "class Rectangle:\n    def __init__(self, w, h=2):\n        self.w = w\n        self.h = h\n    def area(self):\n        return self.w * self.h",
+          "prompt": "Add a method to_fahrenheit() to the Thermometer class. It returns the temperature in Fahrenheit: celsius * 9 / 5 + 32. Example: Thermometer(100).to_fahrenheit() returns 212.0.",
+          "prompt_tr": "Thermometer sınıfına to_fahrenheit() adında bir metot ekle. Sıcaklığı Fahrenheit olarak döndürsün: celsius * 9 / 5 + 32. Örnek: Thermometer(100).to_fahrenheit() 212.0 döndürür.",
+          "starter_code": "class Thermometer:\n    def __init__(self, celsius):\n        self.celsius = celsius",
           "tests": [
             {
-              "code": "assert Rectangle(3, 4).perimeter() == 14",
+              "code": "assert Thermometer(100).to_fahrenheit() == 212.0",
               "visible": true,
-              "label_tr": "3x4 dikdörtgenin çevresi doğru"
+              "label": "100 C is 212 F",
+              "label_tr": "100 C, 212 F eder"
             },
             {
-              "code": "assert Rectangle(5).perimeter() == 14",
+              "code": "assert Thermometer(0).to_fahrenheit() == 32.0",
               "visible": true,
-              "label_tr": "Varsayılan yükseklikle çevre doğru"
+              "label": "0 C is 32 F",
+              "label_tr": "0 C, 32 F eder"
             },
             {
-              "code": "r = Rectangle(2, 2)\nassert r.area() == 4 and r.perimeter() == 8",
+              "code": "t = Thermometer(-40)\nassert t.to_fahrenheit() == -40.0\nt.celsius = 37\nassert abs(t.to_fahrenheit() - 98.6) < 1e-9",
               "visible": false,
-              "failure_message": "area() must keep working after your change.",
-              "failure_message_tr": "Değişikliğinden sonra area() çalışmaya devam etmeli."
+              "failure_message": "The method must use the object's current celsius value each time it is called.",
+              "failure_message_tr": "Metot her çağrıldığında nesnenin o anki celsius değerini kullanmalı."
             }
           ],
           "hints": [
-            "A new method goes inside the class, at the same indentation as area.",
-            "It needs self as the first parameter and must use return, not print.",
-            "Last step: add a method named perimeter whose body is a return of 2 times (self.w + ___)."
+            "A new method is a new def inside the class, indented like __init__.",
+            "Its only parameter is self; read the temperature as self.celsius and return the formula's result.",
+            "The body is a single line of the form return self.celsius * ___ + 32."
+          ],
+          "hints_tr": [
+            "Yeni bir metot, sınıfın içinde __init__ ile aynı girintide yeni bir def'tir.",
+            "Tek parametresi self; sıcaklığı self.celsius olarak oku ve formülün sonucunu döndür.",
+            "Gövde tek satır: return self.celsius * ___ + 32 biçiminde."
           ],
           "solution": {
-            "approach": "Add one more method that reads self.w and self.h.",
-            "code": "class Rectangle:\n    def __init__(self, w, h=2):\n        self.w = w\n        self.h = h\n    def area(self):\n        return self.w * self.h\n    def perimeter(self):\n        return 2 * (self.w + self.h)",
-            "approach_tr": "self.w ve self.h değerlerini okuyan bir metot daha ekle."
-          },
-          "hints_tr": [
-            "Yeni metot sınıfın içine, area ile aynı girintiyle yazılır.",
-            "İlk parametresi self olmalı ve print değil return kullanmalı.",
-            "Son adım: perimeter adlı bir metot ekle; gövdesi 2 çarpı (self.w + ___) değerini return etsin."
-          ]
-        },
-        {
-          "id": "d21-b2-e4",
-          "type": "predict",
-          "concept": "object-methods",
-          "tags": [
-            "classes",
-            "methods",
-            "default-values"
-          ],
-          "prompt": "What does this code print?",
-          "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Counter:\n    def __init__(self):\n        self.n = 0\n    def hit(self):\n        self.n += 1\n\nc = Counter()\nprint(c.hit())\nprint(c.n)",
-          "choices": [
-            "None\n0",
-            "Error",
-            "None\n1",
-            "1\n1"
-          ],
-          "expected_output": "None\n1",
-          "explanation": "hit() changes the object but returns nothing, so print(c.hit()) shows None. The attribute was updated, so c.n is 1.",
-          "misconceptions": {
-            "1\n1": "hit() changes self.n but has no return, so the first print shows None, not 1.",
-            "None\n0": "The method did run, so n is now 1, not 0.",
-            "Error": "A method without return is fine; it returns None."
-          },
-          "explanation_tr": "hit() nesneyi değiştirir ama bir şey döndürmez, bu yüzden print(c.hit()) None yazar. Öznitelik güncellendi, c.n 1 olur.",
-          "misconceptions_tr": {
-            "1\n1": "hit() self.n'i değiştirir ama return etmez, bu yüzden ilk print 1 değil None gösterir.",
-            "None\n0": "Metot çalıştı, dolayısıyla n artık 0 değil 1.",
-            "Error": "return olmayan metot sorun değildir; None döndürür."
+            "approach": "Add a method that reads self.celsius and returns the converted value.",
+            "approach_tr": "self.celsius'u okuyan ve dönüştürülmüş değeri döndüren bir metot ekle.",
+            "code": "class Thermometer:\n    def __init__(self, celsius):\n        self.celsius = celsius\n\n    def to_fahrenheit(self):\n        return self.celsius * 9 / 5 + 32"
           }
         },
         {
-          "id": "d21-b2-e5",
-          "type": "fill_blank",
-          "concept": "object-methods",
-          "tags": [
-            "classes",
-            "methods",
-            "default-values"
-          ],
-          "prompt": "Complete the method so a Person can greet another Person.",
-          "prompt_tr": "Metodu tamamla: bir Person başka bir Person'ı selamlayabilsin.",
-          "starter_code": "class Person:\n    def __init__(self, name):\n        self.name = name\n    def greet(___, other):\n        return f'{self.name} greets {other.___}'\n\na = Person('Ali')\nb = Person('Ece')",
-          "blanks": [
-            {
-              "answer": [
-                "self"
-              ]
-            },
-            {
-              "answer": [
-                "name"
-              ]
-            }
-          ],
-          "tests": [
-            {
-              "code": "assert a.greet(b) == 'Ali greets Ece'",
-              "visible": true,
-              "label_tr": "a, b'yi selamlıyor"
-            },
-            {
-              "code": "assert b.greet(a) == 'Ece greets Ali'",
-              "visible": true,
-              "label_tr": "b, a'yı selamlıyor"
-            }
-          ]
-        },
-        {
-          "id": "d21-b2-e6",
+          "id": "d21-b2-e4",
           "type": "debug",
           "concept": "object-methods",
           "tags": [
             "classes",
             "methods",
-            "default-values"
+            "state"
           ],
-          "prompt": "area() should return 12 for a 3x4 rectangle, but Python complains about arguments. Fix the method definition.",
-          "prompt_tr": "3x4 dikdörtgen için area() 12 döndürmeli ama Python argüman hatası veriyor. Metot tanımını düzelt.",
-          "starter_code": "class Rectangle:\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n    def area():\n        return self.w * self.h\n\nprint(Rectangle(3, 4).area())",
+          "prompt": "This wallet should print 15, but it crashes with a NameError. Fix the method.",
+          "prompt_tr": "Bu cüzdan 15 yazdırmalı ama NameError veriyor. Metodu onar.",
+          "starter_code": "class Wallet:\n    def __init__(self):\n        self.coins = []\n\n    def add(self, coin):\n        self.coins.append(coin)\n\n    def total(self):\n        return sum(coins)\n\nw = Wallet()\nw.add(5)\nw.add(10)\nprint(w.total())",
           "hints": [
-            "The error says: TypeError: Rectangle.area() takes 0 positional arguments but 1 was given. You wrote no argument in the call, so who is the 1 that Python passed?",
-            "r.area() is executed as Rectangle.area(r): the object is passed automatically as the first argument.",
-            "Last step: the def line of area needs one parameter, written inside the empty parentheses."
+            "Read the last line of the error: name 'coins' is not defined. Inside total, where does Python look for a name written without a dot?",
+            "Inside a method a bare name is a local or global variable. The list lives on the object, so it must be reached through the object.",
+            "Look at how add reaches the list and use the same prefix inside sum(...)."
+          ],
+          "hints_tr": [
+            "Hatanın son satırını oku: name 'coins' is not defined. total içinde, noktasız yazılmış bir ismi Python nerede arar?",
+            "Metodun içinde yalın bir isim yerel ya da global bir değişkendir. List nesnenin üzerinde duruyor, ona nesne üzerinden ulaşmalısın.",
+            "add metodunun list'e nasıl ulaştığına bak ve sum(...) içinde aynı öneki kullan."
           ],
           "solution": {
-            "approach": "Every method must accept self as its first parameter.",
-            "code": "class Rectangle:\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n    def area(self):\n        return self.w * self.h\n\nprint(Rectangle(3, 4).area())",
-            "approach_tr": "Her metot ilk parametre olarak self almalı."
+            "approach": "Attributes are reached through self: sum(self.coins).",
+            "approach_tr": "Niteliklere self üzerinden ulaşılır: sum(self.coins).",
+            "code": "class Wallet:\n    def __init__(self):\n        self.coins = []\n\n    def add(self, coin):\n        self.coins.append(coin)\n\n    def total(self):\n        return sum(self.coins)\n\nw = Wallet()\nw.add(5)\nw.add(10)\nprint(w.total())"
           },
-          "expected_output": "12",
+          "expected_output": "15"
+        },
+        {
+          "id": "d21-b2-e5",
+          "type": "write",
+          "concept": "object-methods",
+          "tags": [
+            "classes",
+            "methods",
+            "state"
+          ],
+          "prompt": "Write a class PersonAccount (from the original Level 2 exercise). PersonAccount(firstname, lastname) starts with empty lists incomes and expenses. Methods: add_income(amount, description) and add_expense(amount, description) append the tuple (amount, description) to the right list; total_income() and total_expense() return the sums of the amounts; account_balance() returns total income minus total expense; account_info() returns the string 'Ada Lovelace: balance 700' (first name, space, last name, colon, space, 'balance', space, the balance). Example: after add_income(1000, 'maaş') and add_expense(300, 'kira') the balance is 700.",
+          "prompt_tr": "PersonAccount adında bir sınıf yaz (orijinal 2. seviye alıştırması). PersonAccount(firstname, lastname) boş incomes ve expenses list'leriyle başlar. Metotlar: add_income(amount, description) ve add_expense(amount, description), (amount, description) demetini ilgili list'e ekler; total_income() ve total_expense() tutarların toplamını döndürür; account_balance() toplam gelir eksi toplam gideri döndürür; account_info() 'Ada Lovelace: balance 700' biçiminde bir string döndürür (ad, boşluk, soyad, iki nokta, boşluk, 'balance', boşluk, bakiye). Örnek: add_income(1000, 'maaş') ve add_expense(300, 'kira') sonrası bakiye 700'dür.",
+          "starter_code": "",
+          "signature": "class PersonAccount:",
+          "tests": [
+            {
+              "code": "a = PersonAccount('Ada', 'Lovelace')\na.add_income(1000, 'maaş')\na.add_expense(300, 'kira')\nassert a.account_balance() == 700\nassert a.account_info() == 'Ada Lovelace: balance 700'",
+              "visible": true,
+              "label": "Balance and info after one income and one expense",
+              "label_tr": "Bir gelir ve bir gider sonrası bakiye ve bilgi"
+            },
+            {
+              "code": "a = PersonAccount('Ada', 'Lovelace')\nassert a.incomes == [] and a.expenses == [] and a.account_balance() == 0",
+              "visible": true,
+              "label": "A new account is empty",
+              "label_tr": "Yeni hesap boş başlar"
+            },
+            {
+              "code": "b = PersonAccount('Kemal', 'Sunal')\nb.add_income(500, 'burs')\nb.add_income(250, 'proje')\nb.add_expense(100, 'yemek')\nb.add_expense(100, 'yemek')\nassert (b.total_income(), b.total_expense(), b.account_balance()) == (750, 200, 550)\nassert b.expenses == [(100, 'yemek'), (100, 'yemek')]",
+              "visible": false,
+              "failure_message": "Two equal expenses must both count; keep (amount, description) tuples in a list and sum the amounts.",
+              "failure_message_tr": "Aynı iki gider de sayılmalı; (amount, description) demetlerini bir list'te tut ve tutarları topla."
+            },
+            {
+              "code": "c = PersonAccount('Elif', 'Şafak')\nd = PersonAccount('Orhan', 'Veli')\nc.add_expense(40, 'kitap')\nassert d.expenses == [] and c.account_info() == 'Elif Şafak: balance -40'",
+              "visible": false,
+              "failure_message": "Each account needs its own lists (create them in __init__), and the info string must use the exact format.",
+              "failure_message_tr": "Her hesabın kendi list'leri olmalı (onları __init__ içinde kur) ve bilgi metni tam olarak istenen biçimde olmalı."
+            }
+          ],
+          "hints": [
+            "Start with __init__: store the two names and create two new empty lists on self.",
+            "The add_ methods append a tuple; the total_ methods can use sum over the first item of each tuple, like sum(a for a, d in self.incomes).",
+            "account_balance subtracts the two totals, and account_info builds an f-string from self.firstname, self.lastname and self.account_balance()."
+          ],
           "hints_tr": [
-            "Hata şöyle diyor: TypeError: Rectangle.area() takes 0 positional arguments but 1 was given. Çağrıda hiç argüman yazmadın; Python'un verdiği o 1 kim?",
-            "r.area(), Rectangle.area(r) olarak çalışır: nesne ilk argüman olarak kendiliğinden verilir.",
-            "Son adım: area'nın def satırının boş parantezine bir parametre yazılmalı."
-          ]
+            "__init__ ile başla: iki ismi sakla ve self üzerinde iki yeni boş list kur.",
+            "add_ metotları bir demet ekler; total_ metotları her demetin ilk öğesi üzerinde sum kullanabilir, örneğin sum(a for a, d in self.incomes).",
+            "account_balance iki toplamı birbirinden çıkarır; account_info ise self.firstname, self.lastname ve self.account_balance() ile bir f-string kurar."
+          ],
+          "solution": {
+            "approach": "Keep lists of (amount, description) tuples, sum the amounts, and let account_info reuse account_balance. A list is used instead of the original's set because two identical expenses must both count.",
+            "approach_tr": "(amount, description) demetlerini list'lerde tut, tutarları topla ve account_info'nun account_balance'ı yeniden kullanmasını sağla. Orijinaldeki set yerine list kullanılır, çünkü aynı iki gider de sayılmalıdır.",
+            "code": "class PersonAccount:\n    def __init__(self, firstname, lastname):\n        self.firstname = firstname\n        self.lastname = lastname\n        self.incomes = []\n        self.expenses = []\n\n    def add_income(self, amount, description):\n        self.incomes.append((amount, description))\n\n    def add_expense(self, amount, description):\n        self.expenses.append((amount, description))\n\n    def total_income(self):\n        return sum(a for a, _ in self.incomes)\n\n    def total_expense(self):\n        return sum(a for a, _ in self.expenses)\n\n    def account_balance(self):\n        return self.total_income() - self.total_expense()\n\n    def account_info(self):\n        return f'{self.firstname} {self.lastname}: balance {self.account_balance()}'"
+          },
+          "twin": "d21-b2-e6"
+        },
+        {
+          "id": "d21-b2-e6",
+          "type": "write",
+          "concept": "object-methods",
+          "tags": [
+            "classes",
+            "methods",
+            "state"
+          ],
+          "prompt": "Write a class Statistics (from the original Level 1 exercise) whose constructor takes a list of numbers and stores it as data. Methods: count(), sum(), min(), max(), range() (max minus min), mean() (sum divided by count, a float), median() (the middle value of the sorted data; for an even count, the average of the two middle values) and mode() returning a tuple (value, how_many) for the most frequent value. Example with the ages list from the lesson: count 25, sum 744, range 14, mean 29.76, median 29, mode (26, 5). (The original lesson prints the mean as 30; the exact value is 29.76.)",
+          "prompt_tr": "Statistics adında bir sınıf yaz (orijinal 1. seviye alıştırması). Yapıcısı bir sayı list'i alsın ve onu data olarak saklasın. Metotlar: count(), sum(), min(), max(), range() (en büyük eksi en küçük), mean() (toplam bölü adet, float), median() (sıralanmış verinin ortadaki değeri; adet çiftse ortadaki iki değerin ortalaması) ve en sık görülen değer için (değer, kaç_kez) demeti döndüren mode(). Dersteki ages list'iyle örnek: count 25, sum 744, range 14, mean 29.76, median 29, mode (26, 5). (Orijinal ders ortalamayı 30 diye yazıyor; tam değer 29.76'dır.)",
+          "starter_code": "",
+          "signature": "class Statistics:",
+          "tests": [
+            {
+              "code": "s = Statistics([31, 26, 34, 37, 27, 26, 32, 32, 26, 27, 27, 24, 32, 33, 27, 25, 26, 38, 37, 31, 34, 24, 33, 29, 26])\nassert (s.count(), s.sum(), s.min(), s.max(), s.range()) == (25, 744, 24, 38, 14)",
+              "visible": true,
+              "label": "Count, sum, min, max and range of the ages",
+              "label_tr": "Yaş list'inin adedi, toplamı, en küçüğü, en büyüğü ve aralığı"
+            },
+            {
+              "code": "s = Statistics([31, 26, 34, 37, 27, 26, 32, 32, 26, 27, 27, 24, 32, 33, 27, 25, 26, 38, 37, 31, 34, 24, 33, 29, 26])\nassert abs(s.mean() - 29.76) < 1e-9 and s.median() == 29 and s.mode() == (26, 5)",
+              "visible": true,
+              "label": "Mean, median and mode of the ages",
+              "label_tr": "Yaş list'inin ortalaması, ortancası ve tepe değeri"
+            },
+            {
+              "code": "t = Statistics([4, 1, 3, 2])\nassert t.median() == 2.5 and t.mean() == 2.5 and t.range() == 3",
+              "visible": false,
+              "failure_message": "For an even number of values the median is the average of the two middle values of the SORTED data.",
+              "failure_message_tr": "Değer sayısı çiftse ortanca, SIRALANMIŞ verinin ortadaki iki değerinin ortalamasıdır."
+            },
+            {
+              "code": "u = Statistics([5, 7, 7, 1, 7, 5])\nassert u.mode() == (7, 3) and u.count() == 6 and u.sum() == 32 and u.min() == 1",
+              "visible": false,
+              "failure_message": "Compute every value from self.data; mode must count how often each value appears.",
+              "failure_message_tr": "Her değeri self.data'dan hesapla; mode her değerin kaç kez geçtiğini saymalı."
+            }
+          ],
+          "hints": [
+            "Store the list in __init__ as self.data. Most methods are one line using the built-ins len, sum, min, max on self.data.",
+            "For median, sort a copy with sorted(self.data), find the middle index n // 2, and check whether n is even. For mode, count with a dict (or max with key=self.data.count).",
+            "mode can pick the value with max(self.data, key=self.data.count) and then return it together with self.data.count(value)."
+          ],
+          "hints_tr": [
+            "List'i __init__ içinde self.data olarak sakla. Çoğu metot, self.data üzerinde len, sum, min, max hazır fonksiyonlarını kullanan tek bir satırdır.",
+            "median için sorted(self.data) ile sıralı bir kopya al, orta indeksi n // 2 ile bul ve n'nin çift olup olmadığına bak. mode için bir dict ile say (ya da key=self.data.count ile max kullan).",
+            "mode değeri max(self.data, key=self.data.count) ile seçip self.data.count(değer) ile birlikte döndürebilir."
+          ],
+          "solution": {
+            "approach": "Each statistic is a small method over self.data; methods named sum, min and max still call the built-ins, because inside the method a bare name means the global function, not the method.",
+            "approach_tr": "Her istatistik self.data üzerinde küçük bir metottur. sum, min ve max adlı metotlar yine hazır fonksiyonları çağırır, çünkü metodun içinde yalın bir isim metodu değil global fonksiyonu gösterir.",
+            "code": "class Statistics:\n    def __init__(self, data):\n        self.data = data\n\n    def count(self):\n        return len(self.data)\n\n    def sum(self):\n        return sum(self.data)\n\n    def min(self):\n        return min(self.data)\n\n    def max(self):\n        return max(self.data)\n\n    def range(self):\n        return self.max() - self.min()\n\n    def mean(self):\n        return self.sum() / self.count()\n\n    def median(self):\n        s = sorted(self.data)\n        n = len(s)\n        mid = n // 2\n        if n % 2 == 1:\n            return s[mid]\n        return (s[mid - 1] + s[mid]) / 2\n\n    def mode(self):\n        value = max(self.data, key=self.data.count)\n        return (value, self.data.count(value))"
+          },
+          "twin": "d21-b2-e5"
         },
         {
           "id": "d21-b2-e7",
-          "type": "write",
+          "type": "predict",
           "concept": "object-methods",
           "tags": [
             "classes",
             "methods",
-            "default-values"
+            "state"
           ],
-          "prompt": "Write a class Temperature that stores celsius. Add a method fahrenheit() that returns celsius * 9 / 5 + 32.",
-          "prompt_tr": "Temperature adında bir sınıf yaz; celsius değerini saklasın. celsius * 9 / 5 + 32 döndüren fahrenheit() metodunu ekle.",
-          "starter_code": "",
-          "signature": "class Temperature:",
-          "tests": [
-            {
-              "code": "assert Temperature(100).fahrenheit() == 212",
-              "visible": true,
-              "label_tr": "100 derece Celsius 212 Fahrenheit"
-            },
-            {
-              "code": "assert Temperature(0).fahrenheit() == 32",
-              "visible": true,
-              "label_tr": "0 derece Celsius 32 Fahrenheit"
-            },
-            {
-              "code": "t = Temperature(-40)\nassert t.fahrenheit() == -40 and t.celsius == -40",
-              "visible": false,
-              "failure_message": "celsius must be kept as an attribute and the formula must be general.",
-              "failure_message_tr": "celsius öznitelik olarak saklanmalı ve formül genel olmalı."
-            },
-            {
-              "code": "assert Temperature(37).fahrenheit() == 98.6",
-              "visible": false,
-              "failure_message": "Use the exact formula celsius * 9 / 5 + 32.",
-              "failure_message_tr": "Formülü tam olarak celsius * 9 / 5 + 32 şeklinde kullan."
-            }
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "class Greeter:\n    def __init__(self, name):\n        self.name = name\n\n    def greet(self):\n        print('Merhaba', self.name)\n\ng = Greeter('Ece')\nr = g.greet()\nprint(r)",
+          "choices": [
+            "Merhaba Ece",
+            "Merhaba Ece\nMerhaba Ece",
+            "Merhaba Ece\nNone",
+            "None"
           ],
-          "hints": [
-            "You need one __init__ and one more method.",
-            "Store the value as self.celsius; fahrenheit reads it back through self.",
-            "Last step: the method body is one return line built from self.celsius, 9, 5 and 32."
-          ],
-          "solution": {
-            "approach": "Store celsius in __init__, compute in the method.",
-            "code": "class Temperature:\n    def __init__(self, celsius):\n        self.celsius = celsius\n    def fahrenheit(self):\n        return self.celsius * 9 / 5 + 32",
-            "approach_tr": "celsius'u __init__ içinde sakla, hesabı metotta yap."
+          "expected_output": "Merhaba Ece\nNone",
+          "explanation": "Day 11 rule, now inside a class: a method without return gives back None. greet prints during the call, and then print(r) shows None.",
+          "explanation_tr": "11. günün kuralı, şimdi sınıfın içinde: return olmayan metot None döndürür. greet çağrı sırasında yazdırır, ardından print(r) None gösterir.",
+          "misconceptions": {
+            "Merhaba Ece": "The last line prints r too. greet has no return, so r holds None and that is printed.",
+            "Merhaba Ece\nMerhaba Ece": "print shows text on the screen; it does not become the method's result.",
+            "None": "The method runs during r = g.greet(), so its print happens first."
           },
-          "twin": "d21-b2-e8",
-          "hints_tr": [
-            "Bir __init__ ve bir metot daha gerekiyor.",
-            "Değeri self.celsius olarak sakla; fahrenheit onu self üzerinden okur.",
-            "Son adım: metodun gövdesi self.celsius, 9, 5 ve 32'den kurulan tek bir return satırı."
-          ]
-        },
-        {
-          "id": "d21-b2-e8",
-          "type": "write",
-          "concept": "object-methods",
-          "tags": [
-            "classes",
-            "methods",
-            "default-values"
-          ],
-          "prompt": "Write a class Employee(name, salary). Method raise_salary(percent) increases salary by that percent; info() returns 'Name: salary' with salary rounded to 2 decimals.",
-          "prompt_tr": "Employee(name, salary) sınıfını yaz. raise_salary(percent) maaşı o yüzde kadar artırsın; info() 'Name: salary' döndürsün (maaş 2 ondalığa yuvarlansın).",
-          "starter_code": "",
-          "signature": "class Employee:",
-          "tests": [
-            {
-              "code": "e = Employee('Ece', 1000)\ne.raise_salary(10)\nassert e.info() == 'Ece: 1100.0'",
-              "visible": true,
-              "label_tr": "Yüzde 10 zamdan sonra maaş 1100.0"
-            },
-            {
-              "code": "assert Employee('Ali', 500).info() == 'Ali: 500'",
-              "visible": true,
-              "label_tr": "Zamsız maaş olduğu gibi görünür"
-            },
-            {
-              "code": "e = Employee('X', 200)\ne.raise_salary(50)\ne.raise_salary(50)\nassert e.salary == 450",
-              "visible": false,
-              "failure_message": "raise_salary must change self.salary and stack up across calls.",
-              "failure_message_tr": "raise_salary self.salary'yi değiştirmeli ve çağrılar üst üste eklenmeli."
-            },
-            {
-              "code": "e = Employee('Y', 100)\ne.raise_salary(3.333)\nassert e.info() == 'Y: 103.33'",
-              "visible": false,
-              "failure_message": "info() must round the salary to 2 decimals.",
-              "failure_message_tr": "info() maaşı 2 ondalığa yuvarlamalı."
-            }
-          ],
-          "hints": [
-            "Two attributes in __init__, then two methods: one changes state, one returns text.",
-            "raise_salary does not return; it updates self.salary using 1 + percent / 100.",
-            "Last step: info returns an f-string, with round(self.salary, 2) in the second slot."
-          ],
-          "solution": {
-            "approach": "One method mutates the object, the other reports it.",
-            "code": "class Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n    def raise_salary(self, percent):\n        self.salary = self.salary * (1 + percent / 100)\n    def info(self):\n        return f'{self.name}: {round(self.salary, 2)}'",
-            "approach_tr": "Bir metot nesneyi değiştirir, diğeri raporlar."
-          },
-          "twin": "d21-b2-e7",
-          "hints_tr": [
-            "__init__'te iki öznitelik, sonra iki metot: biri durumu değiştirir, biri metin döndürür.",
-            "raise_salary return etmez; self.salary'yi 1 + percent / 100 ile günceller.",
-            "Son adım: info bir f-string döndürür, ikinci yerde round(self.salary, 2) olur."
-          ]
+          "misconceptions_tr": {
+            "Merhaba Ece": "Son satır r'yi de yazdırır. greet'te return yok, bu yüzden r None tutar ve o da yazdırılır.",
+            "Merhaba Ece\nMerhaba Ece": "print metni ekrana yazar; metodun sonucu olmaz.",
+            "None": "Metot r = g.greet() satırında çalışır, yani içindeki print önce gerçekleşir."
+          }
         }
-      ],
-      "concept_tr": "Nesne metotları"
+      ]
     },
     {
       "id": "d21-b3",
-      "concept": "state-in-objects",
+      "concept": "defaults-and-shared-state",
+      "concept_tr": "Varsayılanlar, değiştirilebilir varsayılan tuzağı ve sınıf nitelikleri",
       "tags": [
         "classes",
-        "lists",
-        "methods"
+        "default-values",
+        "mutable-default",
+        "class-attributes"
       ],
       "worked_example": {
-        "code": "class Person:\n    def __init__(self):\n        self.skills = []\n    def add_skill(self, skill):\n        self.skills.append(skill)\np = Person()\np.add_skill('CSS')\nprint(p.skills)",
+        "code": "class Dev:\n    team = 'Atölye'\n    def __init__(self, name, skills=None):\n        self.name = name\n        self.skills = [] if skills is None else skills\na = Dev('Ali')\nb = Dev('Banu')\na.skills.append('Python')\nprint(b.skills, a.team, Dev.team)",
         "notes": [
-          "Every object owns a separate attribute dictionary. self.skills = [] inside __init__ runs once per object, so each object gets its own fresh list.",
-          "Lists are mutable, so add_skill changes the list that the object already holds; nothing needs to be returned or reassigned.",
-          "Two names can point to the same object (b = a). Changing it through b is visible through a, because no copy was made."
+          "A default value is built once, when the def line runs. That is why the default is None and a new list is made inside __init__ on every call.",
+          "team is written in the class body, so it is a class attribute shared by every Dev; reading a.team finds it in the class because the object has no team of its own.",
+          "After the append only a has a skill: each object got its own list, so b.skills is still empty."
         ],
         "notes_tr": [
-          "Her nesnenin ayrı bir öznitelik sözlüğü vardır. __init__ içindeki self.skills = [] her nesne için bir kez çalışır, yani her nesne kendi taze listesini alır.",
-          "Listeler değiştirilebilir (mutable) olduğundan add_skill nesnenin zaten tuttuğu listeyi değiştirir; bir şey döndürmek ya da yeniden atamak gerekmez.",
-          "İki isim aynı nesneyi gösterebilir (b = a). b üzerinden yapılan değişiklik a'da da görünür, çünkü kopya alınmamıştır."
+          "Varsayılan değer bir kez, def satırı çalıştığında kurulur. Bu yüzden varsayılan None'dır ve her çağrıda __init__ içinde yeni bir list yapılır.",
+          "team sınıfın gövdesine yazıldığı için bütün Dev nesnelerinin paylaştığı bir sınıf niteliğidir; nesnenin kendi team'i olmadığından a.team okuması onu sınıfta bulur.",
+          "append'ten sonra yalnızca a'nın becerisi var: her nesne kendi list'ini aldı, bu yüzden b.skills hâlâ boş."
         ]
       },
       "exercises": [
         {
           "id": "d21-b3-e1",
           "type": "predict",
-          "concept": "state-in-objects",
+          "concept": "defaults-and-shared-state",
           "tags": [
             "classes",
-            "lists",
-            "methods"
+            "default-values",
+            "mutable-default",
+            "class-attributes"
           ],
           "prompt": "What does this code print?",
           "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Team:\n    def __init__(self):\n        self.members = []\n    def add(self, name):\n        self.members.append(name)\n\nt1 = Team()\nt2 = Team()\nt1.add('Ali')\nt1.add('Ayse')\nt2.add('Can')\nprint(len(t1.members), t2.members)",
+          "code": "class Team:\n    def __init__(self, members=[]):\n        self.members = members\n\na = Team()\nb = Team()\na.members.append('Ali')\nprint(b.members)",
           "choices": [
-            "2 ['Can']",
-            "3 ['Ali', 'Ayse', 'Can']",
-            "2 ['Ali', 'Ayse']",
-            "1 ['Can']"
+            "[]",
+            "Error",
+            "['Ali']",
+            "None"
           ],
-          "expected_output": "2 ['Can']",
-          "explanation": "__init__ runs once per object, so t1 and t2 each have their own list. t1 holds two names, t2 holds one.",
+          "expected_output": "['Ali']",
+          "explanation": "Both Team() calls use the single list created when the def line ran. Appending through a is visible through b.",
+          "explanation_tr": "İki Team() çağrısı da def satırı çalışırken üretilen tek list'i kullanır. a üzerinden yapılan ekleme b üzerinden de görünür.",
           "misconceptions": {
-            "3 ['Ali', 'Ayse', 'Can']": "The lists are not shared: self.members = [] creates a new list for every object.",
-            "2 ['Ali', 'Ayse']": "t2.members is t2's own list, which only got 'Can'.",
-            "1 ['Can']": "t1 got two add() calls, so its length is 2."
+            "[]": "The default [] is created once, when def runs, and both objects receive that same list.",
+            "Error": "Nothing is wrong syntactically; the danger of a mutable default is silent sharing, not an error.",
+            "None": "members has a default value, so b.members is that (shared) list, not None."
           },
-          "explanation_tr": "__init__ her nesne için bir kez çalışır; bu yüzden t1 ve t2'nin kendi listeleri vardır. t1'de iki isim, t2'de bir isim bulunur.",
           "misconceptions_tr": {
-            "3 ['Ali', 'Ayse', 'Can']": "Listeler ortak değil: self.members = [] her nesne için yeni bir liste yaratır.",
-            "2 ['Ali', 'Ayse']": "t2.members t2'nin kendi listesidir ve içine yalnızca 'Can' eklendi.",
-            "1 ['Can']": "t1'e iki add() çağrısı yapıldı, uzunluğu 2'dir."
+            "[]": "Varsayılan [] bir kez, def çalışırken üretilir ve iki nesne de aynı listeyi alır.",
+            "Error": "Sözdiziminde sorun yok; değiştirilebilir varsayılanın tehlikesi hata değil, sessiz paylaşımdır.",
+            "None": "members'ın varsayılan değeri var; b.members None değil, o (paylaşılan) listedir."
           }
         },
         {
           "id": "d21-b3-e2",
           "type": "fill_blank",
-          "concept": "state-in-objects",
+          "concept": "defaults-and-shared-state",
           "tags": [
             "classes",
-            "lists",
-            "methods"
+            "default-values",
+            "mutable-default",
+            "class-attributes"
           ],
-          "prompt": "Complete add_skill so the skill is appended to the object's own list.",
-          "prompt_tr": "add_skill metodunu tamamla: beceri, nesnenin kendi listesine eklensin.",
-          "starter_code": "class Person:\n    def __init__(self, name):\n        self.name = name\n        self.skills = ___\n    def add_skill(self, skill):\n        self.skills.___(skill)\n\np = Person('Sami')\np.add_skill('CSS')\np.add_skill('Python')",
+          "prompt": "Fix the mutable default with the None pattern: when no tags are given, every Post must get its own new list.",
+          "prompt_tr": "Değiştirilebilir varsayılanı None kalıbıyla düzelt: etiket verilmediğinde her Post kendi yeni list'ini almalı.",
+          "starter_code": "class Post:\n    def __init__(self, title, tags=None):\n        if tags is ___:\n            tags = []\n        self.title = title\n        self.tags = tags\n\np = Post('a')\nq = Post('b')\np.tags.append('python')",
           "blanks": [
             {
               "answer": [
-                "[]"
-              ]
-            },
-            {
-              "answer": [
-                "append"
+                "None"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert p.skills == ['CSS', 'Python']",
+              "code": "assert p.tags == ['python'] and q.tags == []",
               "visible": true,
-              "label_tr": "Beceriler listeye sırayla ekleniyor"
+              "label": "Each post has its own tags list",
+              "label_tr": "Her gönderinin kendi etiket list'i var"
             },
             {
-              "code": "assert Person('X').skills == []",
+              "code": "assert Post('c', ['x']).tags == ['x']",
               "visible": true,
-              "label_tr": "Yeni nesnenin listesi boş başlıyor"
+              "label": "Given tags are kept",
+              "label_tr": "Verilen etiketler korunur"
             }
-          ]
-        },
-        {
-          "id": "d21-b3-e7",
-          "type": "modify",
-          "concept": "state-in-objects",
-          "tags": [
-            "classes",
-            "lists",
-            "methods"
-          ],
-          "prompt": "Add a method clear() to Playlist that empties the song list, and make total_minutes() return 0 afterwards.",
-          "prompt_tr": "Playlist'e şarkı listesini boşaltan bir clear() metodu ekle; sonrasında total_minutes() 0 döndürmeli.",
-          "starter_code": "class Playlist:\n    def __init__(self):\n        self.songs = []\n    def add_song(self, title, minutes):\n        self.songs.append((title, minutes))\n    def total_minutes(self):\n        return sum(m for _, m in self.songs)",
-          "tests": [
-            {
-              "code": "p = Playlist()\np.add_song('A', 3)\np.clear()\nassert p.total_minutes() == 0",
-              "visible": true,
-              "label_tr": "clear() sonrası toplam 0"
-            },
-            {
-              "code": "p = Playlist()\np.clear()\nassert p.songs == []",
-              "visible": true,
-              "label_tr": "Boş listede clear() hata vermez"
-            },
-            {
-              "code": "p = Playlist()\np.add_song('A', 3)\np.clear()\np.add_song('B', 4)\nassert p.total_minutes() == 4 and len(p.songs) == 1",
-              "visible": false,
-              "failure_message": "The playlist must be usable again after clear().",
-              "failure_message_tr": "clear() sonrası liste yeniden kullanılabilmeli."
-            }
-          ],
-          "hints": [
-            "Think about which attribute holds the songs.",
-            "Either assign a new empty list to that attribute or call the list's own clearing method.",
-            "Last step: add def clear(self): and give it a body of exactly one line touching self.songs."
-          ],
-          "solution": {
-            "approach": "A new method that resets the stored list.",
-            "code": "class Playlist:\n    def __init__(self):\n        self.songs = []\n    def add_song(self, title, minutes):\n        self.songs.append((title, minutes))\n    def total_minutes(self):\n        return sum(m for _, m in self.songs)\n    def clear(self):\n        self.songs = []",
-            "approach_tr": "Saklanan listeyi sıfırlayan yeni bir metot."
-          },
-          "hints_tr": [
-            "Şarkıları hangi özniteliğin tuttuğunu düşün.",
-            "Ya o özniteliğe yeni boş bir liste ata ya da listenin kendi temizleme metodunu çağır.",
-            "Son adım: def clear(self): ekle ve gövdesi self.songs'a dokunan tek bir satır olsun."
-          ]
-        },
-        {
-          "id": "d21-b3-e5",
-          "type": "predict",
-          "concept": "state-in-objects",
-          "tags": [
-            "classes",
-            "lists",
-            "methods",
-            "interleaving",
-            "day05"
-          ],
-          "prompt": "What does this code print?",
-          "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Basket:\n    items = []\n    def add(self, x):\n        self.items.append(x)\n\na = Basket()\nb = Basket()\na.add('egg')\nprint(b.items)",
-          "choices": [
-            "['egg']",
-            "[]",
-            "['egg', 'egg']",
-            "Error"
-          ],
-          "expected_output": "['egg']",
-          "explanation": "items is defined in the class body, so there is only one list and every object shares it. a.add('egg') changes that shared list, and b sees it.",
-          "misconceptions": {
-            "[]": "This would be true if items were created per object in __init__. Here it is a class attribute, shared by all objects.",
-            "['egg', 'egg']": "The item was appended once, not twice.",
-            "Error": "b.items is found on the class, so lookup succeeds."
-          },
-          "explanation_tr": "items sınıf gövdesinde tanımlı olduğundan tek bir liste vardır ve bütün nesneler onu paylaşır. a.add('egg') bu ortak listeyi değiştirir, b de onu görür.",
-          "misconceptions_tr": {
-            "[]": "items __init__ içinde nesne başına yaratılsaydı bu doğru olurdu. Burada sınıf özniteliği, bütün nesneler paylaşır.",
-            "['egg', 'egg']": "Öğe iki kez değil, bir kez eklendi.",
-            "Error": "b.items sınıfta bulunur, arama başarılı olur."
-          }
-        },
-        {
-          "id": "d21-b3-e6",
-          "type": "debug",
-          "concept": "state-in-objects",
-          "tags": [
-            "classes",
-            "lists",
-            "methods"
-          ],
-          "prompt": "Each Person should have its own skills, but Ada's skill shows up on Bob too. Fix the constructor.",
-          "prompt_tr": "Her Person'ın kendi becerileri olmalı ama Ada'nın becerisi Bob'da da görünüyor. Yapıcıyı düzelt.",
-          "starter_code": "class Person:\n    def __init__(self, name, skills=[]):\n        self.name = name\n        self.skills = skills\n\nada = Person('Ada')\nbob = Person('Bob')\nada.skills.append('Python')\nprint(bob.skills)",
-          "hints": [
-            "Print ada.skills is bob.skills in your head: are they the same list?",
-            "A default value is created once, when def runs, not on every call. Every object that uses the default receives that same list.",
-            "Last step: use None as the default and create a new list inside the body when the argument is None."
-          ],
-          "solution": {
-            "approach": "Never use a mutable default value; default to None and build the list inside __init__.",
-            "code": "class Person:\n    def __init__(self, name, skills=None):\n        self.name = name\n        self.skills = skills if skills is not None else []\n\nada = Person('Ada')\nbob = Person('Bob')\nada.skills.append('Python')\nprint(bob.skills)",
-            "approach_tr": "Değiştirilebilir bir varsayılan değer kullanma; None ver ve listeyi __init__ içinde oluştur."
-          },
-          "expected_output": "[]",
-          "hints_tr": [
-            "Kafandan ada.skills is bob.skills'i çalıştır: aynı liste mi?",
-            "Varsayılan değer her çağrıda değil, def çalışırken bir kez yaratılır. Varsayılanı kullanan her nesne aynı listeyi alır.",
-            "Son adım: varsayılan olarak None kullan ve argüman None ise gövdede yeni bir liste yarat."
           ]
         },
         {
           "id": "d21-b3-e3",
-          "type": "write",
-          "concept": "state-in-objects",
+          "type": "modify",
+          "concept": "defaults-and-shared-state",
           "tags": [
             "classes",
-            "lists",
-            "methods"
+            "default-values",
+            "mutable-default",
+            "class-attributes"
           ],
-          "prompt": "Write a class ShoppingCart with no constructor arguments. add_item(name, price) stores an item, and total() returns the sum of all prices (0 for an empty cart).",
-          "prompt_tr": "Yapıcısı argüman almayan bir ShoppingCart sınıfı yaz. add_item(name, price) bir ürün saklasın, total() tüm fiyatların toplamını döndürsün (boş sepet için 0).",
-          "starter_code": "",
-          "signature": "class ShoppingCart:",
+          "prompt": "Give Pizza defaults: size defaults to 'orta' and toppings to no list at all (None), and every pizza created without toppings must get its own new empty list. Pizza() must work, and Pizza('büyük', ['mantar']) must keep its values.",
+          "prompt_tr": "Pizza'ya varsayılanlar ver: size varsayılan olarak 'orta', toppings ise None olsun ve malzemesiz üretilen her pizza kendi yeni boş list'ini alsın. Pizza() çalışmalı, Pizza('büyük', ['mantar']) de değerlerini korumalı.",
+          "starter_code": "class Pizza:\n    def __init__(self, size, toppings):\n        self.size = size\n        self.toppings = toppings",
           "tests": [
             {
-              "code": "c = ShoppingCart()\nc.add_item('tea', 20)\nc.add_item('bread', 10)\nassert c.total() == 30",
+              "code": "p = Pizza()\nassert p.size == 'orta' and p.toppings == []",
               "visible": true,
-              "label_tr": "Sepet iki ürünün toplamını veriyor"
+              "label": "Pizza() is medium with no toppings",
+              "label_tr": "Pizza() orta boy ve malzemesiz"
             },
             {
-              "code": "assert ShoppingCart().total() == 0",
+              "code": "q = Pizza('büyük', ['mantar'])\nassert q.size == 'büyük' and q.toppings == ['mantar']",
               "visible": true,
-              "label_tr": "Boş sepetin toplamı 0"
+              "label": "Given values are kept",
+              "label_tr": "Verilen değerler korunur"
             },
             {
-              "code": "a = ShoppingCart()\nb = ShoppingCart()\na.add_item('x', 5)\nassert b.total() == 0",
+              "code": "a = Pizza()\nb = Pizza('küçük')\na.toppings.append('sucuk')\nassert b.toppings == [] and b.size == 'küçük'",
               "visible": false,
-              "failure_message": "Two carts must not share items. Create the list inside __init__ with self.items = [].",
-              "failure_message_tr": "İki sepet ürünleri paylaşmamalı. Listeyi __init__ içinde self.items = [] ile oluştur."
-            },
-            {
-              "code": "c = ShoppingCart()\nc.add_item('a', 1.5)\nc.add_item('b', 2.5)\nassert c.total() == 4.0",
-              "visible": false,
-              "failure_message": "total() must add the prices, not count the items.",
-              "failure_message_tr": "total() ürünleri saymamalı, fiyatları toplamalı."
+              "failure_message": "Two pizzas made without toppings must not share one list: use None as the default and create the list inside __init__.",
+              "failure_message_tr": "Malzemesiz iki pizza aynı list'i paylaşmamalı: varsayılan olarak None kullan ve list'i __init__ içinde kur."
             }
           ],
           "hints": [
-            "You need an __init__ that creates an empty container, and two more methods.",
-            "Keep a list in self.items; add_item appends (name, price); total adds the prices up.",
-            "Last step: __init__ sets self.items to an empty list; add_item calls self.items.append(...); total returns sum(...) over the prices."
+            "Two changes: defaults in the def line, and a check inside __init__.",
+            "size='orta' is safe because strings are immutable. For toppings use None and replace it with [] inside the body.",
+            "Inside __init__, before storing, add a check of the form: if toppings is None: toppings = []."
+          ],
+          "hints_tr": [
+            "İki değişiklik var: def satırında varsayılanlar ve __init__ içinde bir kontrol.",
+            "size='orta' güvenlidir, çünkü string değiştirilemez. toppings için None kullan ve gövdede onu [] ile değiştir.",
+            "__init__ içinde, saklamadan önce şu biçimde bir kontrol ekle: if toppings is None: toppings = []."
           ],
           "solution": {
-            "approach": "Store (name, price) pairs in a per-object list, then sum the prices.",
-            "code": "class ShoppingCart:\n    def __init__(self):\n        self.items = []\n    def add_item(self, name, price):\n        self.items.append((name, price))\n    def total(self):\n        return sum(price for name, price in self.items)",
-            "approach_tr": "(name, price) çiftlerini nesneye özel bir listede sakla, sonra fiyatları topla."
-          },
-          "twin": "d21-b3-e4",
-          "hints_tr": [
-            "Boş bir kap (liste) oluşturan bir __init__ ve iki metot daha gerekiyor.",
-            "Ürünleri self.items listesinde tut; add_item (name, price) çiftini ekler; total fiyatları toplar.",
-            "Son adım: __init__ içinde self.items boş liste olsun; add_item self.items.append(...) çağırsın; total fiyatların sum(...) değerini döndürsün."
-          ]
+            "approach": "Immutable defaults can be written directly; the mutable one uses the None pattern.",
+            "approach_tr": "Değiştirilemez varsayılanlar doğrudan yazılabilir; değiştirilebilir olan None kalıbını kullanır.",
+            "code": "class Pizza:\n    def __init__(self, size='orta', toppings=None):\n        if toppings is None:\n            toppings = []\n        self.size = size\n        self.toppings = toppings"
+          }
         },
         {
           "id": "d21-b3-e4",
-          "type": "write",
-          "concept": "state-in-objects",
+          "type": "debug",
+          "concept": "defaults-and-shared-state",
           "tags": [
             "classes",
-            "lists",
-            "methods"
+            "default-values",
+            "mutable-default",
+            "class-attributes"
           ],
-          "prompt": "Write a class Playlist with no constructor arguments. add_song(title, minutes) stores a song, and total_minutes() returns the sum of all lengths (0 when empty).",
-          "prompt_tr": "Yapıcısı argüman almayan bir Playlist sınıfı yaz. add_song(title, minutes) bir şarkı saklasın, total_minutes() tüm sürelerin toplamını döndürsün (boşsa 0).",
+          "prompt": "Visitor should count how many visitors were created; after three visitors this prints 0 instead of 3. Fix the counter.",
+          "prompt_tr": "Visitor kaç ziyaretçi üretildiğini saymalı; üç ziyaretçiden sonra bu kod 3 yerine 0 yazdırıyor. Sayacı onar.",
+          "starter_code": "class Visitor:\n    count = 0\n\n    def __init__(self, name):\n        self.name = name\n        self.count += 1\n\nVisitor('Ayla')\nVisitor('Burak')\nVisitor('Cem')\nprint(Visitor.count)",
+          "hints": [
+            "The class attribute stays 0, so the += must be landing somewhere else. Where does self.count = ... write?",
+            "self.count += 1 reads the class value 0, then WRITES 1 as a new attribute on that one object. The class attribute never changes.",
+            "Change the target of += so that it names the class instead of self."
+          ],
+          "hints_tr": [
+            "Sınıf niteliği 0 kalıyor, demek ki += başka bir yere yazıyor. self.count = ... nereye yazar?",
+            "self.count += 1 sınıftaki 0'ı okur, sonra 1'i o tek nesneye yeni bir nitelik olarak YAZAR. Sınıf niteliği hiç değişmez.",
+            "+= işleminin hedefini değiştir: self yerine sınıfın adını kullansın."
+          ],
+          "solution": {
+            "approach": "Update the shared value through the class: Visitor.count += 1.",
+            "approach_tr": "Paylaşılan değeri sınıf üzerinden güncelle: Visitor.count += 1.",
+            "code": "class Visitor:\n    count = 0\n\n    def __init__(self, name):\n        self.name = name\n        Visitor.count += 1\n\nVisitor('Ayla')\nVisitor('Burak')\nVisitor('Cem')\nprint(Visitor.count)"
+          },
+          "expected_output": "3"
+        },
+        {
+          "id": "d21-b3-e5",
+          "type": "write",
+          "concept": "defaults-and-shared-state",
+          "tags": [
+            "classes",
+            "default-values",
+            "mutable-default",
+            "class-attributes"
+          ],
+          "prompt": "Write a class Ticket that numbers tickets automatically. Use a class attribute next_number that starts at 1. Ticket(title) stores title and gives the object an attribute number equal to the current next_number, then increases next_number by 1. Example: the first Ticket('giriş') has number 1, the next Ticket('vip') has number 2.",
+          "prompt_tr": "Biletleri otomatik numaralayan Ticket adında bir sınıf yaz. 1'den başlayan next_number adlı bir sınıf niteliği kullan. Ticket(title) title'ı saklar, nesneye o anki next_number değerine eşit bir number niteliği verir ve ardından next_number'ı 1 artırır. Örnek: ilk Ticket('giriş')'in numarası 1, sonraki Ticket('vip')'in numarası 2'dir.",
+          "starter_code": "",
+          "signature": "class Ticket:",
+          "tests": [
+            {
+              "code": "a = Ticket('giriş')\nb = Ticket('vip')\nassert b.number == a.number + 1 and a.title == 'giriş'",
+              "visible": true,
+              "label": "Consecutive tickets get consecutive numbers",
+              "label_tr": "Art arda biletler art arda numara alır"
+            },
+            {
+              "code": "n = Ticket.next_number\nt = Ticket('x')\nassert t.number == n and Ticket.next_number == n + 1",
+              "visible": true,
+              "label": "next_number moves one ahead",
+              "label_tr": "next_number bir ileri gider"
+            },
+            {
+              "code": "Ticket.next_number = 10\nassert Ticket('y').number == 10 and Ticket('z').number == 11 and Ticket('z').title == 'z'",
+              "visible": false,
+              "failure_message": "number must come from the class attribute next_number at the moment the ticket is created.",
+              "failure_message_tr": "number, bilet üretildiği andaki next_number sınıf niteliğinden gelmeli."
+            },
+            {
+              "code": "Ticket.next_number = 1\nts = [Ticket(t) for t in ['a', 'b', 'c', 'd']]\nassert [t.number for t in ts] == [1, 2, 3, 4] and Ticket.next_number == 5",
+              "visible": false,
+              "failure_message": "Read and update Ticket.next_number (the class attribute) in __init__; self.next_number += 1 would only change one object.",
+              "failure_message_tr": "__init__ içinde Ticket.next_number'ı (sınıf niteliğini) okuyup güncelle; self.next_number += 1 yalnızca tek bir nesneyi değiştirir."
+            }
+          ],
+          "hints": [
+            "Write next_number = 1 directly in the class body, above __init__.",
+            "In __init__, first copy the current Ticket.next_number into self.number, then increase the class attribute.",
+            "The increase is one line of the form Ticket.next_number += ___."
+          ],
+          "hints_tr": [
+            "next_number = 1 satırını doğrudan sınıfın gövdesine, __init__'in üstüne yaz.",
+            "__init__ içinde önce o anki Ticket.next_number'ı self.number'a kopyala, sonra sınıf niteliğini artır.",
+            "Artırma şu biçimde tek bir satırdır: Ticket.next_number += ___."
+          ],
+          "solution": {
+            "approach": "A class attribute holds the shared counter; each object copies it, then the class value is increased.",
+            "approach_tr": "Paylaşılan sayaç bir sınıf niteliğinde durur; her nesne onu kopyalar, sonra sınıftaki değer artırılır.",
+            "code": "class Ticket:\n    next_number = 1\n\n    def __init__(self, title):\n        self.title = title\n        self.number = Ticket.next_number\n        Ticket.next_number += 1"
+          },
+          "twin": "d21-b3-e6"
+        },
+        {
+          "id": "d21-b3-e6",
+          "type": "write",
+          "concept": "defaults-and-shared-state",
+          "tags": [
+            "classes",
+            "default-values",
+            "mutable-default",
+            "class-attributes"
+          ],
+          "prompt": "Write a class Playlist. Playlist(name, songs=None) stores name and a list songs (a new empty list when none is given). Method add(song) appends a song; method count() returns how many songs there are. Example: p = Playlist('yol'); p.add('Gesi Bağları'); p.count() returns 1.",
+          "prompt_tr": "Playlist adında bir sınıf yaz. Playlist(name, songs=None), name'i ve songs list'ini saklar (verilmezse yeni bir boş list). add(song) metodu şarkı ekler; count() metodu kaç şarkı olduğunu döndürür. Örnek: p = Playlist('yol'); p.add('Gesi Bağları'); p.count() 1 döndürür.",
           "starter_code": "",
           "signature": "class Playlist:",
           "tests": [
             {
-              "code": "p = Playlist()\np.add_song('Intro', 3)\np.add_song('Outro', 4)\nassert p.total_minutes() == 7",
+              "code": "p = Playlist('yol')\np.add('Gesi Bağları')\nassert p.count() == 1 and p.songs == ['Gesi Bağları'] and p.name == 'yol'",
               "visible": true,
-              "label_tr": "İki şarkının toplam süresi doğru"
+              "label": "Adding one song",
+              "label_tr": "Bir şarkı eklemek"
             },
             {
-              "code": "assert Playlist().total_minutes() == 0",
+              "code": "assert Playlist('x', ['a', 'b']).count() == 2",
               "visible": true,
-              "label_tr": "Boş çalma listesinin süresi 0"
+              "label": "Songs given at creation are counted",
+              "label_tr": "Oluştururken verilen şarkılar sayılır"
             },
             {
-              "code": "a = Playlist()\nb = Playlist()\na.add_song('x', 5)\nassert b.total_minutes() == 0",
+              "code": "a = Playlist('a')\nb = Playlist('b')\na.add('s1')\na.add('s2')\nassert b.count() == 0 and a.count() == 2",
               "visible": false,
-              "failure_message": "Two playlists must not share songs. Create the list inside __init__.",
-              "failure_message_tr": "İki çalma listesi şarkıları paylaşmamalı. Listeyi __init__ içinde oluştur."
+              "failure_message": "Two playlists made without songs must not share one list: use the None pattern.",
+              "failure_message_tr": "Şarkısız üretilen iki list aynı list'i paylaşmamalı: None kalıbını kullan."
             },
             {
-              "code": "p = Playlist()\np.add_song('a', 2.5)\np.add_song('b', 1.5)\nassert p.total_minutes() == 4.0",
+              "code": "c = Playlist('c', [])\nc.add('z')\nc.add('y')\nc.add('x')\nassert c.count() == 3 and c.songs[-1] == 'x'",
               "visible": false,
-              "failure_message": "total_minutes() must add the lengths, not count the songs.",
-              "failure_message_tr": "total_minutes() süreleri toplamalı, şarkıları saymamalı."
+              "failure_message": "count must report the real current number of songs, and add must append at the end.",
+              "failure_message_tr": "count şarkıların gerçek ve güncel sayısını vermeli, add de sona eklemeli."
             }
           ],
           "hints": [
-            "Same shape as a cart: an empty list in __init__, then two methods.",
-            "add_song appends to self.songs; total_minutes sums the minutes.",
-            "Last step: __init__ sets self.songs to an empty list; add_song appends a pair to it; total_minutes returns sum(...) over the minutes."
+            "Three methods: __init__, add and count.",
+            "In __init__ replace a None songs with [] before storing it. add calls append on self.songs; count returns a length.",
+            "count is a single line of the form return len(___)."
+          ],
+          "hints_tr": [
+            "Üç metot var: __init__, add ve count.",
+            "__init__ içinde None olan songs'u saklamadan önce [] ile değiştir. add self.songs üzerinde append çağırır; count bir uzunluk döndürür.",
+            "count şu biçimde tek bir satırdır: return len(___)."
           ],
           "solution": {
-            "approach": "Per-object list of (title, minutes), then sum the minutes.",
-            "code": "class Playlist:\n    def __init__(self):\n        self.songs = []\n    def add_song(self, title, minutes):\n        self.songs.append((title, minutes))\n    def total_minutes(self):\n        return sum(m for t, m in self.songs)",
-            "approach_tr": "Nesneye özel bir (title, minutes) listesi tut, sonra dakikaları topla."
+            "approach": "None default, a fresh list in __init__, append to add and len to count.",
+            "approach_tr": "None varsayılanı, __init__ içinde yeni bir list, eklemek için append, saymak için len.",
+            "code": "class Playlist:\n    def __init__(self, name, songs=None):\n        if songs is None:\n            songs = []\n        self.name = name\n        self.songs = songs\n\n    def add(self, song):\n        self.songs.append(song)\n\n    def count(self):\n        return len(self.songs)"
           },
-          "twin": "d21-b3-e3",
-          "hints_tr": [
-            "Sepetle aynı kalıp: __init__ içinde boş bir liste, sonra iki metot.",
-            "add_song self.songs listesine ekler; total_minutes dakikaları toplar.",
-            "Son adım: __init__ içinde self.songs boş liste olsun; add_song listeye bir çift eklesin; total_minutes dakikaların sum(...) değerini döndürsün."
-          ]
+          "twin": "d21-b3-e5"
         },
         {
-          "id": "d21-b3-e8",
-          "type": "write",
-          "concept": "state-in-objects",
+          "id": "d21-b3-e7",
+          "type": "predict",
+          "concept": "defaults-and-shared-state",
           "tags": [
             "classes",
-            "lists",
-            "methods",
-            "interleaving",
-            "day17"
+            "default-values",
+            "mutable-default",
+            "class-attributes"
           ],
-          "prompt": "Write a class BankAccount(owner, balance=0). deposit(amount) adds money; withdraw(amount) subtracts it but raises ValueError when the amount is larger than the balance or not positive. Keep a list self.history of ('deposit', amount) / ('withdraw', amount) tuples.",
-          "prompt_tr": "BankAccount(owner, balance=0) sınıfını yaz. deposit(amount) para ekler; withdraw(amount) çeker ama tutar bakiyeden büyükse ya da pozitif değilse ValueError fırlatır. self.history listesinde ('deposit', amount) / ('withdraw', amount) demetlerini tut.",
-          "starter_code": "",
-          "signature": "class BankAccount:",
-          "tests": [
-            {
-              "code": "a = BankAccount('Ece', 100)\na.deposit(50)\na.withdraw(30)\nassert a.balance == 120",
-              "visible": true,
-              "label_tr": "Yatırma ve çekmeden sonra bakiye 120"
-            },
-            {
-              "code": "assert BankAccount('Ali').balance == 0",
-              "visible": true,
-              "label_tr": "Varsayılan bakiye 0"
-            },
-            {
-              "code": "a = BankAccount('X', 10)\ntry:\n    a.withdraw(50)\n    assert False, 'no error'\nexcept ValueError:\n    pass\nassert a.balance == 10",
-              "visible": false,
-              "failure_message": "Overdrawing must raise ValueError and leave the balance untouched.",
-              "failure_message_tr": "Bakiyeden fazla çekmek ValueError fırlatmalı ve bakiyeyi değiştirmemeli."
-            },
-            {
-              "code": "a = BankAccount('Y', 5)\ntry:\n    a.deposit(-1)\n    assert False, 'no error'\nexcept ValueError:\n    pass",
-              "visible": false,
-              "failure_message": "A non-positive deposit must raise ValueError too.",
-              "failure_message_tr": "Pozitif olmayan bir yatırma da ValueError fırlatmalı."
-            },
-            {
-              "code": "a = BankAccount('Z', 0)\na.deposit(5)\na.withdraw(2)\nassert a.history == [('deposit', 5), ('withdraw', 2)]",
-              "visible": false,
-              "failure_message": "history must record each successful operation in order.",
-              "failure_message_tr": "history her başarılı işlemi sırayla kaydetmeli."
-            }
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "class Truck:\n    wheels = 4\n\nt = Truck()\nu = Truck()\nt.wheels = 6\nTruck.wheels = 8\nprint(t.wheels, u.wheels)",
+          "choices": [
+            "6 8",
+            "6 4",
+            "8 8",
+            "6 6"
           ],
-          "hints": [
-            "Plan the state first: owner, balance, history. Then two methods that validate before changing anything.",
-            "Check the bad cases first and raise ValueError; only after the checks change the balance and append to history.",
-            "Last step: in withdraw, one if line must cover both 'not positive' and 'more than balance'."
-          ],
-          "solution": {
-            "approach": "Validate first, then mutate; raise ValueError for bad input.",
-            "code": "class BankAccount:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n        self.history = []\n    def deposit(self, amount):\n        if amount <= 0:\n            raise ValueError('amount must be positive')\n        self.balance += amount\n        self.history.append(('deposit', amount))\n    def withdraw(self, amount):\n        if amount <= 0 or amount > self.balance:\n            raise ValueError('invalid amount')\n        self.balance -= amount\n        self.history.append(('withdraw', amount))",
-            "approach_tr": "Önce doğrula, sonra değiştir; kötü girdide ValueError fırlat."
+          "expected_output": "6 8",
+          "explanation": "Lookup checks the object first, then the class. t has its own wheels (6); u has none, so it reads the class attribute, which is now 8.",
+          "explanation_tr": "Arama önce nesneye, sonra sınıfa bakar. t'nin kendi wheels'i var (6); u'nun yok, bu yüzden artık 8 olan sınıf niteliğini okur.",
+          "misconceptions": {
+            "6 4": "Truck.wheels = 8 changes the class attribute, and u has no wheels of its own, so u sees 8.",
+            "8 8": "t.wheels = 6 gave t its own attribute, which shadows the class value, so t keeps 6.",
+            "6 6": "Assigning through t affects only t; it never writes to the class."
           },
-          "twin": "d21-b3-e4",
-          "hints_tr": [
-            "Önce durumu planla: owner, balance, history. Sonra değiştirmeden önce doğrulayan iki metot.",
-            "Önce kötü durumları kontrol edip ValueError fırlat; kontrollerden sonra bakiyeyi değiştir ve history'ye ekle.",
-            "Son adım: withdraw'da tek bir if satırı hem 'pozitif değil' hem 'bakiyeden büyük' durumunu kapsamalı."
-          ]
+          "misconceptions_tr": {
+            "6 4": "Truck.wheels = 8 sınıf niteliğini değiştirir; u'nun kendi wheels'i yok, bu yüzden 8 görür.",
+            "8 8": "t.wheels = 6, t'ye sınıftaki değeri gölgeleyen kendi niteliğini verdi; t 6'da kalır.",
+            "6 6": "t üzerinden atama yalnızca t'yi etkiler; sınıfa hiçbir şey yazmaz."
+          }
         }
-      ],
-      "concept_tr": "Nesnelerde durum (state) saklama"
+      ]
     },
     {
       "id": "d21-b4",
-      "concept": "inheritance",
+      "concept": "repr-and-property",
+      "concept_tr": "__repr__ ile okunur gösterim ve @property",
       "tags": [
         "classes",
-        "inheritance",
-        "super"
+        "__repr__",
+        "__str__",
+        "property"
       ],
       "worked_example": {
-        "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Student(Person):\n    def __init__(self, name, school):\n        super().__init__(name)\n        self.school = school",
+        "code": "class Money:\n    def __init__(self, amount):\n        self.amount = amount\n    def __repr__(self):\n        return f'Money({self.amount})'\n    @property\n    def with_tax(self):\n        return round(self.amount * 1.2, 2)\nm = Money(50)\nprint(m, m.with_tax)",
         "notes": [
-          "class Student(Person) means Student gets every attribute and method of Person for free, and may add or replace some. Python looks in Student first, then in Person.",
-          "If the child defines its own __init__, it replaces the parent's one. super().__init__(name) explicitly runs the parent's setup so the inherited attributes still get created.",
-          "Use inheritance for an honest 'is a' relationship (a Student is a Person). If the relationship is 'has a', store the other object as an attribute instead."
+          "__repr__ is a special method: you never call it yourself; print and the display of lists call it when they need text for the object.",
+          "@property turns a method into something you read like an attribute: m.with_tax, without parentheses. It is recomputed on every read, so it can never go stale.",
+          "Return a string from __repr__ and a value from a property; printing inside them would show text at the wrong moment and give back None."
         ],
         "notes_tr": [
-          "class Student(Person), Student'ın Person'ın tüm öznitelik ve metotlarını bedavaya aldığı, isterse ekleyip değiştirebildiği anlamına gelir. Python önce Student'a, sonra Person'a bakar.",
-          "Alt sınıf kendi __init__'ini yazarsa ebeveynin __init__'inin yerine geçer. super().__init__(name) ebeveynin kurulumunu açıkça çalıştırır ve miras alınan öznitelikler yine yaratılır.",
-          "Kalıtımı dürüst bir 'bir ... dir' ilişkisi için kullan (Student bir Person'dır). İlişki 'sahiptir' ise diğer nesneyi öznitelik olarak sakla."
+          "__repr__ özel bir metottur: onu sen çağırmazsın; print ve list gösterimi, nesne için metne ihtiyaç duyduklarında onu çağırır.",
+          "@property bir metodu nitelik gibi okunan bir şeye çevirir: m.with_tax, parantezsiz. Her okumada yeniden hesaplandığı için asla eskimez.",
+          "__repr__'dan bir string, property'den bir değer döndür; içlerinde print kullanmak metni yanlış anda yazdırır ve None döndürür."
         ]
       },
       "exercises": [
         {
           "id": "d21-b4-e1",
           "type": "predict",
-          "concept": "inheritance",
+          "concept": "repr-and-property",
           "tags": [
             "classes",
-            "inheritance",
-            "super"
+            "__repr__",
+            "__str__",
+            "property"
           ],
           "prompt": "What does this code print?",
           "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Animal:\n    def speak(self):\n        return 'Some sound'\n\nclass Dog(Animal):\n    def speak(self):\n        return 'Woof'\n\nclass Fish(Animal):\n    pass\n\nprint(Dog().speak(), Fish().speak())",
+          "code": "class Card:\n    def __init__(self, rank):\n        self.rank = rank\n\n    def __repr__(self):\n        return f'Card({self.rank!r})'\n\nhand = [Card('A'), Card(7)]\nprint(hand)",
           "choices": [
-            "Woof Some sound",
-            "Some sound Some sound",
-            "Woof Woof",
-            "Error"
+            "[Card(A), Card(7)]",
+            "[<__main__.Card object>, <__main__.Card object>]",
+            "[Card('A'), Card(7)]",
+            "Card('A') Card(7)"
           ],
-          "expected_output": "Woof Some sound",
-          "explanation": "Dog defines its own speak, which overrides the parent's. Fish defines nothing, so it inherits Animal.speak.",
+          "expected_output": "[Card('A'), Card(7)]",
+          "explanation": "A list displays each item with __repr__. f'{self.rank!r}' gives 'A' with quotes for the string and 7 without quotes for the number.",
+          "explanation_tr": "List her öğesini __repr__ ile gösterir. f'{self.rank!r}' string için tırnaklı 'A', sayı için tırnaksız 7 verir.",
           "misconceptions": {
-            "Some sound Some sound": "Dog overrides speak, so Python uses Dog.speak first.",
-            "Woof Woof": "Fish has no speak of its own, so it uses the parent's version.",
-            "Error": "Fish inherits speak from Animal even with an empty body (pass)."
+            "[Card(A), Card(7)]": "!r uses repr(), and repr of a string includes its quotes, so 'A' keeps them.",
+            "[<__main__.Card object>, <__main__.Card object>]": "The class defines __repr__, and lists show their items with it.",
+            "Card('A') Card(7)": "We print the list itself, so the brackets and the comma are part of the output."
           },
-          "explanation_tr": "Dog kendi speak metodunu tanımlar ve ebeveyninkini ezer (override). Fish hiçbir şey tanımlamaz, bu yüzden Animal.speak'i miras alır.",
           "misconceptions_tr": {
-            "Some sound Some sound": "Dog speak'i ezdiği için Python önce Dog.speak'i kullanır.",
-            "Woof Woof": "Fish'in kendi speak'i yok, bu yüzden ebeveynin sürümünü kullanır.",
-            "Error": "Fish gövdesi boş (pass) olsa bile speak'i Animal'dan miras alır."
+            "[Card(A), Card(7)]": "!r repr() kullanır; bir string'in repr'i tırnaklarını da içerir, bu yüzden 'A' tırnaklı kalır.",
+            "[<__main__.Card object>, <__main__.Card object>]": "Sınıf __repr__ tanımlıyor ve list öğelerini onunla gösterir.",
+            "Card('A') Card(7)": "Listenin kendisini yazdırıyoruz; köşeli parantez ve virgül de çıktının parçası."
           }
         },
         {
           "id": "d21-b4-e2",
-          "type": "parsons",
-          "concept": "inheritance",
+          "type": "fill_blank",
+          "concept": "repr-and-property",
           "tags": [
             "classes",
-            "inheritance",
-            "super"
+            "__repr__",
+            "__str__",
+            "property"
           ],
-          "prompt": "Put the lines in order: Student inherits from Person and calls the parent constructor, then prints a name and a school.",
-          "prompt_tr": "Satırları sırala: Student, Person'dan miras alır ve ebeveyn yapıcısını çağırır; sonra bir isim ve bir okul yazdırılır.",
-          "lines": [
-            "class Student(Person):",
-            "s = Student('Eyob', 30, 'METU')",
-            "    def __init__(self, name, age):",
-            "        super().__init__(name, age)",
-            "class Person:",
-            "        self.age = age",
-            "print(s.name, s.school)",
-            "    def __init__(self, name, age, school):",
-            "        self.name = name",
-            "        self.school = school"
+          "prompt": "Complete the special method so that print(c) shows City('Van').",
+          "prompt_tr": "print(c) City('Van') göstersin diye özel metodu tamamla.",
+          "starter_code": "class City:\n    def __init__(self, name):\n        self.name = name\n\n    def ___(self):\n        return f'City({self.name!r})'\n\nc = City('Van')\nprint(c)",
+          "blanks": [
+            {
+              "answer": [
+                "__repr__",
+                "__str__"
+              ]
+            }
           ],
-          "correct_order": [
-            4,
-            2,
-            8,
-            5,
-            0,
-            7,
-            3,
-            9,
-            1,
-            6
-          ],
-          "distractors": [
-            "        super.__init__(name, age)",
-            "        self.super().__init__(name, age)"
-          ],
-          "expected_output": "Eyob METU"
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == \"City('Van')\"",
+              "visible": true,
+              "label": "print shows City('Van')",
+              "label_tr": "print City('Van') gösteriyor"
+            }
+          ]
         },
         {
           "id": "d21-b4-e3",
           "type": "modify",
-          "concept": "inheritance",
+          "concept": "repr-and-property",
           "tags": [
             "classes",
-            "inheritance",
-            "super"
+            "__repr__",
+            "__str__",
+            "property"
           ],
-          "prompt": "Student inherits intro() from Person. Override intro() in Student so it returns '<name> is a student.' (Person must stay unchanged.)",
-          "prompt_tr": "Student, intro() metodunu Person'dan miras alıyor. Student içinde intro()'yu ez (override) ve '<isim> is a student.' döndürsün (Person değişmesin).",
-          "starter_code": "class Person:\n    def __init__(self, name):\n        self.name = name\n    def intro(self):\n        return f'{self.name} is here.'\n\nclass Student(Person):\n    pass",
+          "prompt": "Add a read-only property fahrenheit to Temperature that returns celsius * 9 / 5 + 32, so that t.fahrenheit works without parentheses. Example: Temperature(25).fahrenheit is 77.0.",
+          "prompt_tr": "Temperature sınıfına celsius * 9 / 5 + 32 döndüren, salt okunur bir fahrenheit property'si ekle; t.fahrenheit parantezsiz çalışsın. Örnek: Temperature(25).fahrenheit 77.0'dır.",
+          "starter_code": "class Temperature:\n    def __init__(self, celsius):\n        self.celsius = celsius",
           "tests": [
             {
-              "code": "assert Student('Lidiya').intro() == 'Lidiya is a student.'",
+              "code": "assert Temperature(25).fahrenheit == 77.0",
               "visible": true,
-              "label_tr": "Student kendi cümlesini döndürüyor"
+              "label": "25 C is 77 F",
+              "label_tr": "25 C, 77 F eder"
             },
             {
-              "code": "assert Person('Sami').intro() == 'Sami is here.'",
+              "code": "t = Temperature(0)\nt.celsius = 100\nassert t.fahrenheit == 212.0",
               "visible": true,
-              "label_tr": "Person'ın cümlesi değişmedi"
+              "label": "It follows changes to celsius",
+              "label_tr": "celsius değişince o da değişir"
             },
             {
-              "code": "assert Student('Eyob').name == 'Eyob'",
+              "code": "assert isinstance(Temperature.__dict__.get('fahrenheit'), property)",
               "visible": false,
-              "failure_message": "Student must still inherit __init__ from Person; do not remove it.",
-              "failure_message_tr": "Student, __init__'i hâlâ Person'dan miras almalı; onu silme."
+              "failure_message": "fahrenheit must be defined with @property (read as t.fahrenheit), not stored in __init__.",
+              "failure_message_tr": "fahrenheit __init__ içinde saklanmamalı, @property ile tanımlanmalı (t.fahrenheit diye okunur)."
             }
           ],
           "hints": [
-            "Replace the body of Student: define a method with the same name as the parent's.",
-            "Inside it, use self.name in an f-string and return it.",
-            "Last step: replace pass with a method intro(self) that returns an f-string built from self.name and the text ' is a student.'"
+            "A property is a method with a decorator line above it.",
+            "Write @property, then def fahrenheit(self): and return the formula computed from self.celsius.",
+            "The line directly above def fahrenheit(self): is @property."
+          ],
+          "hints_tr": [
+            "Property, üstünde bir dekoratör satırı olan bir metottur.",
+            "@property yaz, sonra def fahrenheit(self): ve self.celsius'tan hesaplanan formülü döndür.",
+            "def fahrenheit(self): satırının hemen üstündeki satır @property'dir."
           ],
           "solution": {
-            "approach": "Define intro in the child class; Python finds the child's method first.",
-            "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n    def intro(self):\n        return f'{self.name} is here.'\n\nclass Student(Person):\n    def intro(self):\n        return f'{self.name} is a student.'",
-            "approach_tr": "Alt sınıfta intro'yu tanımla; Python önce alt sınıfın metodunu bulur."
-          },
-          "hints_tr": [
-            "Student'ın gövdesini değiştir: ebeveyndeki metotla aynı adı taşıyan bir metot yaz.",
-            "İçinde self.name'i bir f-string ile kullan ve sonucu döndür.",
-            "Son adım: pass'in yerine intro(self) metodunu yaz; self.name ve ' is a student.' metninden kurulan bir f-string döndürsün."
-          ]
-        },
-        {
-          "id": "d21-b4-e5",
-          "type": "predict",
-          "concept": "inheritance",
-          "tags": [
-            "classes",
-            "inheritance",
-            "super"
-          ],
-          "prompt": "What does this code print?",
-          "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Animal:\n    def speak(self):\n        return 'Some sound'\n\nclass Dog(Animal):\n    def speak(self):\n        return super().speak() + ' - Woof'\n\nprint(Dog().speak())",
-          "choices": [
-            "Some sound - Woof",
-            "Woof",
-            "Some sound",
-            "Error"
-          ],
-          "expected_output": "Some sound - Woof",
-          "explanation": "Dog.speak overrides Animal.speak, but it still asks the parent through super().speak(). The two parts are joined: Some sound - Woof.",
-          "misconceptions": {
-            "Woof": "super().speak() is called and its result is part of the string.",
-            "Some sound": "The override in Dog runs first and adds ' - Woof' to the parent's result.",
-            "Error": "Dog() needs no arguments and super() works inside methods too."
-          },
-          "explanation_tr": "Dog.speak, Animal.speak'in üzerine yazar ama super().speak() ile yine ebeveyne sorar. İki parça birleşir: Some sound - Woof.",
-          "misconceptions_tr": {
-            "Woof": "super().speak() çağrılır ve sonucu dizinin bir parçasıdır.",
-            "Some sound": "Önce Dog'daki üzerine yazılmış metot çalışır ve ebeveynin sonucuna ' - Woof' ekler.",
-            "Error": "Dog() argüman istemez ve super() metotların içinde de çalışır."
-          }
-        },
-        {
-          "id": "d21-b4-e6",
-          "type": "predict",
-          "concept": "inheritance",
-          "tags": [
-            "classes",
-            "inheritance",
-            "super"
-          ],
-          "prompt": "What does this code print?",
-          "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Person:\n    pass\n\nclass Student(Person):\n    pass\n\ns = Student()\nprint(isinstance(s, Person), isinstance(s, Student), isinstance(Person(), Student))",
-          "choices": [
-            "True False False",
-            "True True False",
-            "True True True",
-            "False True False"
-          ],
-          "expected_output": "True True False",
-          "explanation": "isinstance follows inheritance: a Student object counts as a Student and as a Person. A Person object is not a Student.",
-          "misconceptions": {
-            "True True True": "A plain Person is not a Student; inheritance only goes downward.",
-            "False True False": "A Student is also a Person, so the first value is True.",
-            "True False False": "The object was created by Student, so it is an instance of Student."
-          },
-          "explanation_tr": "isinstance kalıtımı izler: Student nesnesi hem Student hem Person sayılır. Person nesnesi Student değildir.",
-          "misconceptions_tr": {
-            "True True True": "Sıradan bir Person, Student değildir; kalıtım yalnızca aşağı doğru işler.",
-            "False True False": "Bir Student aynı zamanda Person'dır, bu yüzden ilk değer True.",
-            "True False False": "Nesne Student ile yaratıldı, dolayısıyla Student'ın örneğidir."
+            "approach": "A property computes the value from the current celsius on every read.",
+            "approach_tr": "Property değeri her okumada o anki celsius'tan hesaplar.",
+            "code": "class Temperature:\n    def __init__(self, celsius):\n        self.celsius = celsius\n\n    @property\n    def fahrenheit(self):\n        return self.celsius * 9 / 5 + 32"
           }
         },
         {
           "id": "d21-b4-e4",
           "type": "debug",
-          "concept": "inheritance",
+          "concept": "repr-and-property",
           "tags": [
             "classes",
-            "inheritance",
-            "super"
+            "__repr__",
+            "__str__",
+            "property"
           ],
-          "prompt": "This should print 'Lidiya METU' but it crashes. Fix the Student constructor.",
-          "prompt_tr": "Bu kod 'Lidiya METU' yazdırmalı ama hata veriyor. Student yapıcısını düzelt.",
-          "starter_code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Student(Person):\n    def __init__(self, name, school):\n        self.school = school\n\ns = Student('Lidiya', 'METU')\nprint(s.name, s.school)",
+          "prompt": "This should print 12, but it fails with TypeError: 'int' object is not callable. Fix the call.",
+          "prompt_tr": "Bu kod 12 yazdırmalı ama TypeError: 'int' object is not callable veriyor. Çağrıyı onar.",
+          "starter_code": "class Rect:\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n\n    @property\n    def area(self):\n        return self.w * self.h\n\nr = Rect(3, 4)\nprint(r.area())",
           "hints": [
-            "Read the error: which attribute does not exist?",
-            "Student.__init__ replaced Person.__init__, so self.name was never set.",
-            "Last step: the first line of Student.__init__ must call the parent constructor through super(), passing name."
+            "The message says an int is being called. Which value here is an int, and where do parentheses follow it?",
+            "r.area already runs the property and gives 12. Writing r.area() then tries to call 12 like a function.",
+            "Keep the class as it is and change only the last line so the property is read, not called."
+          ],
+          "hints_tr": [
+            "Mesaj bir int'in çağrıldığını söylüyor. Burada hangi değer int ve hangisinin ardından parantez geliyor?",
+            "r.area property'yi zaten çalıştırır ve 12 verir. r.area() yazmak ise 12'yi fonksiyon gibi çağırmaya çalışır.",
+            "Sınıfı olduğu gibi bırak, yalnızca son satırı değiştir: property çağrılmasın, okunsun."
           ],
           "solution": {
-            "approach": "A child __init__ replaces the parent's, so call super().__init__ to run the parent setup.",
-            "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Student(Person):\n    def __init__(self, name, school):\n        super().__init__(name)\n        self.school = school\n\ns = Student('Lidiya', 'METU')\nprint(s.name, s.school)",
-            "approach_tr": "Alt sınıfın __init__'i ebeveyninkinin yerine geçer; ebeveynin kurulumunu çalıştırmak için super().__init__ çağır."
+            "approach": "A property is read without parentheses: r.area.",
+            "approach_tr": "Property parantezsiz okunur: r.area.",
+            "code": "class Rect:\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n\n    @property\n    def area(self):\n        return self.w * self.h\n\nr = Rect(3, 4)\nprint(r.area)"
           },
-          "expected_output": "Lidiya METU",
+          "expected_output": "12"
+        },
+        {
+          "id": "d21-b4-e5",
+          "type": "write",
+          "concept": "repr-and-property",
+          "tags": [
+            "classes",
+            "__repr__",
+            "__str__",
+            "property"
+          ],
+          "prompt": "Write a class Product with a constructor Product(name, price) that stores both, and a __repr__ that returns exactly Product('kalem', 12.5) for Product('kalem', 12.5): the class name, an opening parenthesis, the name with quotes (use !r), a comma and a space, the price, and a closing parenthesis.",
+          "prompt_tr": "Product(name, price) yapıcılı, ikisini de saklayan ve Product('kalem', 12.5) için tam olarak Product('kalem', 12.5) döndüren bir __repr__'ı olan Product sınıfını yaz: sınıf adı, açılan parantez, tırnaklı isim (!r kullan), virgül ve boşluk, fiyat ve kapanan parantez.",
+          "starter_code": "",
+          "signature": "class Product:",
+          "tests": [
+            {
+              "code": "assert repr(Product('kalem', 12.5)) == \"Product('kalem', 12.5)\"",
+              "visible": true,
+              "label": "repr of a pen",
+              "label_tr": "Kalemin repr'i"
+            },
+            {
+              "code": "assert str([Product('a', 1)]) == \"[Product('a', 1)]\"",
+              "visible": true,
+              "label": "Inside a list too",
+              "label_tr": "List içinde de"
+            },
+            {
+              "code": "p = Product('çay', 40)\nassert repr(p) == \"Product('çay', 40)\" and p.name == 'çay' and p.price == 40",
+              "visible": false,
+              "failure_message": "Build the text from the object's own name and price (self.name, self.price).",
+              "failure_message_tr": "Metni nesnenin kendi name ve price değerlerinden kur (self.name, self.price)."
+            },
+            {
+              "code": "assert repr(Product(\"it's\", 2)) == 'Product(\"it\\'s\", 2)'",
+              "visible": false,
+              "failure_message": "Use !r for the name so Python chooses the right quotes itself.",
+              "failure_message_tr": "İsim için !r kullan; doğru tırnakları Python kendisi seçsin."
+            }
+          ],
+          "hints": [
+            "You need __init__ and __repr__, and __repr__ must return (not print) a string.",
+            "An f-string with {self.name!r} adds the quotes for you; {self.price} adds the number as it is.",
+            "The return line has the form return f'Product({___!r}, {___})'."
+          ],
           "hints_tr": [
-            "Hata mesajını oku: hangi öznitelik yok?",
-            "Student.__init__, Person.__init__'in yerine geçti; bu yüzden self.name hiç atanmadı.",
-            "Son adım: Student.__init__'in ilk satırı, name'i vererek ebeveyn yapıcısını super() üzerinden çağırmalı."
-          ]
+            "__init__ ve __repr__ gerekiyor; __repr__ bir string döndürmeli (yazdırmamalı).",
+            "{self.name!r} içeren bir f-string tırnakları senin yerine ekler; {self.price} sayıyı olduğu gibi ekler.",
+            "return satırı şu biçimde: return f'Product({___!r}, {___})'."
+          ],
+          "solution": {
+            "approach": "__repr__ returns an f-string built from the attributes, using !r for the name.",
+            "approach_tr": "__repr__ niteliklerden kurulan bir f-string döndürür; isim için !r kullanılır.",
+            "code": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\n    def __repr__(self):\n        return f'Product({self.name!r}, {self.price})'"
+          },
+          "twin": "d21-b4-e6"
+        },
+        {
+          "id": "d21-b4-e6",
+          "type": "write",
+          "concept": "repr-and-property",
+          "tags": [
+            "classes",
+            "__repr__",
+            "__str__",
+            "property"
+          ],
+          "prompt": "Write a class Thermostat. Thermostat(celsius) stores the value through a property celsius whose setter raises ValueError('below absolute zero') if the value is below -273.15. Add a read-only property kelvin that returns celsius + 273.15. Example: Thermostat(0).kelvin is 273.15; Thermostat(-300) raises ValueError.",
+          "prompt_tr": "Thermostat adında bir sınıf yaz. Thermostat(celsius) değeri celsius adlı bir property üzerinden saklar; bu property'nin setter'ı değer -273.15'ten küçükse ValueError('below absolute zero') fırlatır. celsius + 273.15 döndüren salt okunur bir kelvin property'si de ekle. Örnek: Thermostat(0).kelvin 273.15'tir; Thermostat(-300) ValueError fırlatır.",
+          "starter_code": "",
+          "signature": "class Thermostat:",
+          "tests": [
+            {
+              "code": "assert Thermostat(0).kelvin == 273.15",
+              "visible": true,
+              "label": "0 C is 273.15 K",
+              "label_tr": "0 C, 273.15 K eder"
+            },
+            {
+              "code": "t = Thermostat(20)\nt.celsius = 30\nassert t.celsius == 30 and abs(t.kelvin - 303.15) < 1e-9",
+              "visible": true,
+              "label": "Setting celsius later works",
+              "label_tr": "celsius'u sonradan değiştirmek çalışır"
+            },
+            {
+              "code": "try:\n    Thermostat(-300)\n    ok = False\nexcept ValueError as e:\n    ok = str(e) == 'below absolute zero'\nassert ok",
+              "visible": false,
+              "failure_message": "The constructor must go through the setter, which raises ValueError('below absolute zero') for values below -273.15.",
+              "failure_message_tr": "Yapıcı setter'dan geçmeli; setter -273.15'ten küçük değerlerde ValueError('below absolute zero') fırlatmalı."
+            },
+            {
+              "code": "t = Thermostat(5)\ntry:\n    t.celsius = -274\n    ok = False\nexcept ValueError:\n    ok = True\nassert ok and t.celsius == 5 and Thermostat(-273.15).kelvin == 0.0",
+              "visible": false,
+              "failure_message": "A rejected value must not be stored, and exactly -273.15 is still allowed.",
+              "failure_message_tr": "Reddedilen değer saklanmamalı; tam olarak -273.15 ise hâlâ geçerli."
+            }
+          ],
+          "hints": [
+            "You need a property celsius with a getter and a setter, plus a property kelvin. Store the real value in self._celsius.",
+            "In __init__ write self.celsius = celsius so that the setter runs. In the setter, check the value first and only then store it in self._celsius.",
+            "The setter's check is one line of the form: if value < -273.15: raise ValueError('below absolute zero')."
+          ],
+          "hints_tr": [
+            "Getter'ı ve setter'ı olan bir celsius property'si ile bir kelvin property'si gerekiyor. Gerçek değeri self._celsius'ta sakla.",
+            "__init__ içinde self.celsius = celsius yaz ki setter çalışsın. Setter'da önce değeri kontrol et, sonra self._celsius'a kaydet.",
+            "Setter'daki kontrol şu biçimde tek satır: if value < -273.15: raise ValueError('below absolute zero')."
+          ],
+          "solution": {
+            "approach": "The setter validates every assignment, including the one in __init__; kelvin is computed on each read.",
+            "approach_tr": "Setter, __init__ içindeki dahil her atamayı doğrular; kelvin her okumada hesaplanır.",
+            "code": "class Thermostat:\n    def __init__(self, celsius):\n        self.celsius = celsius\n\n    @property\n    def celsius(self):\n        return self._celsius\n\n    @celsius.setter\n    def celsius(self, value):\n        if value < -273.15:\n            raise ValueError('below absolute zero')\n        self._celsius = value\n\n    @property\n    def kelvin(self):\n        return self._celsius + 273.15"
+          },
+          "twin": "d21-b4-e5"
         },
         {
           "id": "d21-b4-e7",
-          "type": "write",
-          "concept": "inheritance",
+          "type": "explain",
+          "concept": "repr-and-property",
           "tags": [
             "classes",
-            "inheritance",
-            "super"
+            "__repr__",
+            "__str__",
+            "property"
           ],
-          "prompt": "Write class Employee(name, salary) and class Manager(Employee) that adds a bonus argument. Manager.total() returns salary + bonus; Employee.total() returns salary. Call super().__init__ in Manager.",
-          "prompt_tr": "Employee(name, salary) ve ondan türeyen, bonus alan Manager sınıfını yaz. Manager.total() salary + bonus döndürsün; Employee.total() salary döndürsün. Manager'da super().__init__ çağır.",
-          "starter_code": "",
-          "signature": "class Employee:",
-          "tests": [
-            {
-              "code": "assert Employee('Ali', 1000).total() == 1000",
-              "visible": true,
-              "label_tr": "Çalışanın toplamı maaştır"
-            },
-            {
-              "code": "m = Manager('Ece', 2000, 500)\nassert m.total() == 2500 and m.name == 'Ece'",
-              "visible": true,
-              "label_tr": "Müdürün toplamı maaş + bonus"
-            },
-            {
-              "code": "assert isinstance(Manager('A', 1, 1), Employee)",
-              "visible": false,
-              "failure_message": "Manager must inherit from Employee.",
-              "failure_message_tr": "Manager, Employee'den türemeli."
-            },
-            {
-              "code": "m = Manager('B', 10, 5)\nm2 = Manager('C', 20, 1)\nassert (m.total(), m2.total()) == (15, 21)",
-              "visible": false,
-              "failure_message": "Each manager must use its own salary and bonus.",
-              "failure_message_tr": "Her müdür kendi maaş ve bonusunu kullanmalı."
-            }
+          "prompt": "Why is a @property area better than storing self.area = w * h in __init__ for a rectangle whose width can change?",
+          "prompt_tr": "Genişliği değişebilen bir dikdörtgende, __init__ içinde self.area = w * h saklamak yerine @property ile area yazmak neden daha iyidir?",
+          "model_answer": "A stored area is computed only once, in __init__, so after the width changes it becomes stale and wrong. A property is recomputed every time it is read, so it always matches the current width and height, and it is still read like an attribute without parentheses.",
+          "model_answer_tr": "Saklanan alan yalnızca bir kez, __init__ içinde hesaplanır; genişlik değişince eskir ve yanlış olur. Property ise her okunduğunda yeniden hesaplanır, bu yüzden her zaman güncel genişlik ve yükseklikle uyuşur ve yine parantezsiz, nitelik gibi okunur.",
+          "keywords": [
+            "stale",
+            "recomputed",
+            "property"
           ],
-          "hints": [
-            "Two classes; the second names the first in parentheses.",
-            "Manager.__init__ takes name, salary and bonus, hands name and salary to the parent, and keeps bonus itself.",
-            "Last step: Manager.total can reuse the parent's logic: super().total() plus the bonus."
+          "keywords_tr": [
+            "eskir",
+            "hesaplanır",
+            "property"
           ],
-          "solution": {
-            "approach": "Child calls the parent's constructor and extends total().",
-            "code": "class Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n    def total(self):\n        return self.salary\n\nclass Manager(Employee):\n    def __init__(self, name, salary, bonus):\n        super().__init__(name, salary)\n        self.bonus = bonus\n    def total(self):\n        return super().total() + self.bonus",
-            "approach_tr": "Alt sınıf ebeveynin yapıcısını çağırır ve total()'i genişletir."
-          },
-          "twin": "d21-b2-e7",
-          "hints_tr": [
-            "İki sınıf; ikincisi birincinin adını parantez içinde alır.",
-            "Manager.__init__ name, salary ve bonus alır; name ile salary'yi ebeveyne verir, bonus'u kendisi saklar.",
-            "Son adım: Manager.total ebeveynin mantığını yeniden kullanabilir: super().total() artı bonus."
-          ]
-        },
-        {
-          "id": "d21-b4-e8",
-          "type": "write",
-          "concept": "inheritance",
-          "tags": [
-            "classes",
-            "inheritance",
-            "super",
-            "interleaving",
-            "day14"
-          ],
-          "prompt": "Write a function names_by_age(people) where people is a list of Student objects (each has .name and .age). Return the names, youngest first, using sorted with a key. Also define a minimal Student(name, age) class.",
-          "prompt_tr": "names_by_age(people) fonksiyonunu yaz; people, .name ve .age özniteliği olan Student nesnelerinin listesi. İsimleri en gençten başlayarak, sorted ve key ile döndür. Küçük bir Student(name, age) sınıfı da tanımla.",
-          "starter_code": "",
-          "signature": "class Student:",
-          "tests": [
-            {
-              "code": "people = [Student('Ece', 30), Student('Ali', 22)]\nassert names_by_age(people) == ['Ali', 'Ece']",
-              "visible": true,
-              "label_tr": "İsimler yaşa göre sıralanır"
-            },
-            {
-              "code": "people = [Student('A', 5), Student('B', 3), Student('C', 4)]\nassert names_by_age(people) == ['B', 'C', 'A']",
-              "visible": false,
-              "failure_message": "Sort by age, not by name.",
-              "failure_message_tr": "İsme göre değil yaşa göre sırala."
-            },
-            {
-              "code": "p = [Student('Z', 1)]\nassert names_by_age(p) == ['Z'] and names_by_age([]) == []",
-              "visible": false,
-              "failure_message": "Handle one element and an empty list.",
-              "failure_message_tr": "Tek elemanlı ve boş listeyi de işle."
-            },
-            {
-              "code": "a = [Student('B', 2), Student('A', 1)]\nnames_by_age(a)\nassert [s.name for s in a] == ['B', 'A']",
-              "visible": false,
-              "failure_message": "Do not reorder the original list (use sorted, not .sort()).",
-              "failure_message_tr": "Asıl listeyi yeniden sıralama (.sort() değil sorted kullan)."
-            }
-          ],
-          "hints": [
-            "You need the Student class and a function; sorted(iterable, key=...) does the work.",
-            "The key function receives one Student and returns the value to sort by: its age.",
-            "Last step: build the result with a list comprehension that takes .name from each sorted student."
-          ],
-          "solution": {
-            "approach": "Sort objects by an attribute with key=lambda, then extract names.",
-            "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\ndef names_by_age(people):\n    return [s.name for s in sorted(people, key=lambda s: s.age)]",
-            "approach_tr": "Nesneleri key=lambda ile bir özniteliğe göre sırala, sonra isimleri çıkar."
-          },
-          "twin": "d21-b3-e3",
-          "hints_tr": [
-            "Student sınıfı ve bir fonksiyon gerekiyor; işi sorted(iterable, key=...) yapar.",
-            "key fonksiyonu bir Student alır ve sıralanacak değeri, yani yaşı döndürür.",
-            "Son adım: sonucu, sıralanmış öğrencilerin .name değerini alan bir liste üretecile oluştur."
-          ]
+          "min_words": 12
         }
-      ],
-      "concept_tr": "Kalıtım (inheritance)"
+      ]
     },
     {
       "id": "d21-b5",
-      "concept": "special-methods",
+      "concept": "inheritance-override",
+      "concept_tr": "Kalıtım, super() ve metodu ezmek",
       "tags": [
         "classes",
-        "__repr__",
-        "class-attributes"
+        "inheritance",
+        "super",
+        "override",
+        "polymorphism"
       ],
       "worked_example": {
-        "code": "class Point:\n    count = 0\n    def __init__(self, x, y):\n        self.x, self.y = x, y\n        Point.count += 1\n    def __repr__(self):\n        return f'Point({self.x}, {self.y})'\n\np = Point(1, 2)\nprint(p, Point.count)",
+        "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n    def info(self): return self.name\nclass Student(Person):\n    def __init__(self, name, school):\n        super().__init__(name)\n        self.school = school\n    def info(self): return super().info() + f' ({self.school})'\nprint(Student('Lidiya', 'Aalto').info())",
         "notes": [
-          "Methods with double underscores (dunder methods) are hooks that Python calls for you: __repr__ when an object must be shown, __eq__ for ==, __len__ for len().",
-          "Without __repr__ an object prints as <__main__.Point object at 0x...>, which tells you nothing. A good __repr__ looks like the code that would build the object.",
-          "An attribute written in the class body (count = 0) belongs to the class and is shared; one set through self belongs to a single object. Use Point.count to change the shared one."
+          "class Student(Person) means: look in Student first, then in Person. Everything Student does not define is inherited.",
+          "Because Student has its own __init__, Person.__init__ no longer runs by itself; super().__init__(name) calls it so that self.name exists.",
+          "Student.info overrides Person.info, and super().info() reuses the parent's text instead of copying it."
         ],
         "notes_tr": [
-          "Çift alt çizgili metotlar (dunder metotlar) Python'un senin yerine çağırdığı kancalardır: nesne gösterilirken __repr__, == için __eq__, len() için __len__.",
-          "__repr__ yoksa nesne <__main__.Point object at 0x...> diye yazılır ve bir şey anlatmaz. İyi bir __repr__, nesneyi kuran koda benzer.",
-          "Sınıf gövdesinde yazılan öznitelik (count = 0) sınıfa aittir ve paylaşılır; self ile atanan tek bir nesneye aittir. Paylaşılanı değiştirmek için Point.count kullan."
+          "class Student(Person) şu demektir: önce Student'a, sonra Person'a bak. Student'ın tanımlamadığı her şey kalıtımla gelir.",
+          "Student'ın kendi __init__'i olduğu için Person.__init__ artık kendiliğinden çalışmaz; super().__init__(name) onu çağırır ki self.name oluşsun.",
+          "Student.info, Person.info'yu ezer; super().info() ise ebeveynin metnini kopyalamak yerine yeniden kullanır."
         ]
       },
       "exercises": [
         {
           "id": "d21-b5-e1",
           "type": "predict",
-          "concept": "special-methods",
+          "concept": "inheritance-override",
           "tags": [
             "classes",
-            "__repr__",
-            "class-attributes"
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
           ],
           "prompt": "What does this code print?",
           "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Pet:\n    def __init__(self, name):\n        self.name = name\n    def __repr__(self):\n        return f'Pet({self.name!r})'\n    def __str__(self):\n        return f'a pet called {self.name}'\n\np = Pet('Rex')\nprint(p)\nprint([p])",
+          "code": "class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return self.name + ' ses çıkarır'\n\nclass Dog(Animal):\n    def speak(self):\n        return self.name + ' havlar'\n\nclass Puppy(Dog):\n    pass\n\nprint(Puppy('Karabaş').speak())",
           "choices": [
-            "Pet('Rex')\na pet called Rex",
-            "a pet called Rex\n[Pet('Rex')]",
-            "a pet called Rex\n[a pet called Rex]",
-            "Pet('Rex')\n[Pet('Rex')]"
+            "Karabaş ses çıkarır",
+            "Error",
+            "None",
+            "Karabaş havlar"
           ],
-          "expected_output": "a pet called Rex\n[Pet('Rex')]",
-          "explanation": "print(p) uses __str__ (friendly text). A list builds its text from repr() of each item, so __repr__ is used inside the brackets.",
+          "expected_output": "Karabaş havlar",
+          "explanation": "Puppy has no methods of its own. __init__ is found in Animal, speak is found first in Dog, so the result is 'Karabaş havlar'.",
+          "explanation_tr": "Puppy'nin kendi metodu yok. __init__ Animal'da, speak ise ilk olarak Dog'da bulunur; sonuç 'Karabaş havlar' olur.",
           "misconceptions": {
-            "a pet called Rex\n[a pet called Rex]": "Lists show their items with repr(), not str().",
-            "Pet('Rex')\n[Pet('Rex')]": "print(p) calls __str__ when it exists; __repr__ is only the fallback.",
-            "Pet('Rex')\na pet called Rex": "The two lines are swapped: print(p) is the friendly text and the list shows repr."
+            "Karabaş ses çıkarır": "The search goes Puppy, then Dog, then Animal and stops at the first match, which is Dog.speak.",
+            "Error": "Puppy inherits __init__ from Animal through Dog, so Puppy('Karabaş') gets a name.",
+            "None": "Dog.speak returns a string; nothing here returns None."
           },
-          "explanation_tr": "print(p) __str__'ı (okunaklı metin) kullanır. Liste, her öğenin repr()'ini kullanarak metin üretir; bu yüzden köşeli parantez içinde __repr__ görünür.",
           "misconceptions_tr": {
-            "a pet called Rex\n[a pet called Rex]": "Listeler öğelerini str() ile değil repr() ile gösterir.",
-            "Pet('Rex')\n[Pet('Rex')]": "print(p), varsa __str__'ı çağırır; __repr__ yalnızca yedektir.",
-            "Pet('Rex')\na pet called Rex": "İki satır yer değiştirmiş: print(p) okunaklı metni, liste ise repr'i gösterir."
+            "Karabaş ses çıkarır": "Arama Puppy, sonra Dog, sonra Animal sırasıyla gider ve ilk eşleşmede, yani Dog.speak'te durur.",
+            "Error": "Puppy, __init__'i Dog üzerinden Animal'dan alır; Puppy('Karabaş') bir isim edinir.",
+            "None": "Dog.speak bir string döndürür; burada None döndüren bir şey yok."
           }
         },
         {
           "id": "d21-b5-e2",
-          "type": "fill_blank",
-          "concept": "special-methods",
+          "type": "parsons",
+          "concept": "inheritance-override",
           "tags": [
             "classes",
-            "__repr__",
-            "class-attributes"
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
           ],
-          "prompt": "Complete the dunder methods so that len(Team(...)) counts members and the object prints nicely.",
-          "prompt_tr": "Dunder metotları tamamla: len(Team(...)) üye sayısını versin ve nesne düzgün yazdırılsın.",
-          "starter_code": "class Team:\n    def __init__(self, *names):\n        self.names = list(names)\n    def ___(self):\n        return len(self.names)\n    def __repr__(self):\n        return f'Team({self.___})'\n\nt = Team('Ada', 'Bob')",
-          "blanks": [
-            {
-              "answer": [
-                "__len__"
-              ]
-            },
-            {
-              "answer": [
-                "names"
-              ]
-            }
+          "prompt": "Put the lines in order: a Student class that inherits from Person, adds a school with super(), and prints the name and the school.",
+          "prompt_tr": "Satırları sırala: Person'dan kalıtım alan, super() ile school ekleyen ve isimle okulu yazdıran bir Student sınıfı.",
+          "lines": [
+            "class Student(Person):",
+            "s = Student('Ece', 'ODTÜ')",
+            "class Person:",
+            "        super().__init__(name)",
+            "        self.name = name",
+            "print(s.name, s.school)",
+            "    def __init__(self, name):",
+            "        self.school = school",
+            "    def __init__(self, name, school):"
+          ],
+          "correct_order": [
+            2,
+            6,
+            4,
+            0,
+            8,
+            3,
+            7,
+            1,
+            5
+          ],
+          "distractors": [
+            "        Person.__init__(name)",
+            "class Student:"
           ],
           "tests": [
             {
-              "code": "assert len(t) == 2",
+              "code": "assert s.name == 'Ece' and s.school == 'ODTÜ'",
               "visible": true,
-              "label_tr": "len(t) üye sayısını verir"
-            },
-            {
-              "code": "assert repr(t) == \"Team(['Ada', 'Bob'])\"",
-              "visible": true,
-              "label_tr": "repr listeyi gösterir"
-            }
-          ]
-        },
-        {
-          "id": "d21-b5-e4",
-          "type": "modify",
-          "concept": "special-methods",
-          "tags": [
-            "classes",
-            "__repr__",
-            "class-attributes"
-          ],
-          "prompt": "Point(1, 2) == Point(1, 2) is False today. Add an __eq__ method so two points with the same x and y are equal.",
-          "prompt_tr": "Bugün Point(1, 2) == Point(1, 2) False veriyor. Aynı x ve y'ye sahip iki noktanın eşit sayılması için __eq__ metodu ekle.",
-          "starter_code": "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y",
-          "tests": [
-            {
-              "code": "assert Point(1, 2) == Point(1, 2)",
-              "visible": true,
-              "label_tr": "Aynı koordinatlar eşit"
-            },
-            {
-              "code": "assert not (Point(1, 2) == Point(2, 1))",
-              "visible": true,
-              "label_tr": "Farklı koordinatlar eşit değil"
-            },
-            {
-              "code": "assert Point(0, 0) == Point(0, 0) and Point(3, 3) != Point(3, 4)",
-              "visible": false,
-              "failure_message": "Compare both coordinates, not just one.",
-              "failure_message_tr": "Yalnızca birini değil, iki koordinatı da karşılaştır."
+              "label": "Both attributes exist",
+              "label_tr": "İki nitelik de var"
             }
           ],
-          "hints": [
-            "== on two objects calls a special method on the left object.",
-            "The method is called __eq__(self, other) and returns True or False.",
-            "Last step: compare self.x with other.x and self.y with other.y, joined with and."
-          ],
-          "solution": {
-            "approach": "__eq__ decides what == means for this class.",
-            "code": "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __eq__(self, other):\n        return self.x == other.x and self.y == other.y",
-            "approach_tr": "__eq__, bu sınıf için == işaretinin ne demek olduğunu belirler."
-          },
-          "hints_tr": [
-            "İki nesne arasındaki == soldaki nesnenin özel bir metodunu çağırır.",
-            "Metodun adı __eq__(self, other) ve True ya da False döndürür.",
-            "Son adım: self.x ile other.x'i, self.y ile other.y'yi karşılaştır ve and ile birleştir."
-          ]
+          "expected_output": "Ece ODTÜ"
         },
         {
           "id": "d21-b5-e3",
-          "type": "predict",
-          "concept": "special-methods",
+          "type": "modify",
+          "concept": "inheritance-override",
           "tags": [
             "classes",
-            "__repr__",
-            "class-attributes"
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
           ],
-          "prompt": "What does this code print?",
-          "prompt_tr": "Bu kod ne yazdırır?",
-          "code": "class Student:\n    school = 'METU'\n    def __init__(self, name):\n        self.name = name\n\na = Student('Ali')\nb = Student('Ece')\nb.school = 'Bilkent'\nprint(a.school, b.school, Student.school)",
-          "choices": [
-            "METU Bilkent METU",
-            "METU METU METU",
-            "Bilkent Bilkent Bilkent",
-            "METU Bilkent Bilkent"
+          "prompt": "ElectricCar inherits describe() from Car. Override describe in ElectricCar so it returns the parent's text plus ', battery 60 kWh' (using the object's battery value). Reuse the parent with super(). Example: ElectricCar('Togg', 2024, 60).describe() returns 'Togg (2024), battery 60 kWh'.",
+          "prompt_tr": "ElectricCar, describe() metodunu Car'dan alıyor. ElectricCar içinde describe'ı ez: ebeveynin metnine ', battery 60 kWh' eklesin (nesnenin battery değeriyle). Ebeveyni super() ile yeniden kullan. Örnek: ElectricCar('Togg', 2024, 60).describe() 'Togg (2024), battery 60 kWh' döndürür.",
+          "starter_code": "class Car:\n    def __init__(self, brand, year):\n        self.brand = brand\n        self.year = year\n\n    def describe(self):\n        return f'{self.brand} ({self.year})'\n\nclass ElectricCar(Car):\n    def __init__(self, brand, year, battery):\n        super().__init__(brand, year)\n        self.battery = battery",
+          "tests": [
+            {
+              "code": "assert ElectricCar('Togg', 2024, 60).describe() == 'Togg (2024), battery 60 kWh'",
+              "visible": true,
+              "label": "An electric car mentions its battery",
+              "label_tr": "Elektrikli araç bataryasını söylüyor"
+            },
+            {
+              "code": "assert Car('Fiat', 1999).describe() == 'Fiat (1999)'",
+              "visible": true,
+              "label": "A plain car is unchanged",
+              "label_tr": "Sıradan araba değişmiyor"
+            },
+            {
+              "code": "assert ElectricCar('Tesla', 2020, 75).describe() == 'Tesla (2020), battery 75 kWh'\nassert 'super().describe()' in __source__.split('class ElectricCar')[1]",
+              "visible": false,
+              "failure_message": "Use the object's own values and build on super().describe() instead of repeating the parent's code.",
+              "failure_message_tr": "Nesnenin kendi değerlerini kullan ve ebeveynin kodunu tekrarlamak yerine super().describe() üzerine kur."
+            }
           ],
-          "expected_output": "METU Bilkent METU",
-          "explanation": "The assignment on b shadows the class attribute with an instance attribute. a still falls back to the class value, and the class itself is unchanged.",
-          "misconceptions": {
-            "METU METU METU": "b.school = ... creates a new attribute on b only; it does not change the class attribute.",
-            "Bilkent Bilkent Bilkent": "Assigning through an instance never rewrites the class attribute.",
-            "METU Bilkent Bilkent": "Student.school is read from the class, which was not modified."
-          },
-          "explanation_tr": "b üzerindeki atama, sınıf özniteliğini bir örnek özniteliğiyle gölgeler. a hâlâ sınıf değerine düşer ve sınıfın kendisi değişmez.",
-          "misconceptions_tr": {
-            "METU METU METU": "b.school = ... yalnızca b'de yeni bir öznitelik yaratır; sınıf özniteliğini değiştirmez.",
-            "Bilkent Bilkent Bilkent": "Bir örnek üzerinden atama sınıf özniteliğini asla yeniden yazmaz.",
-            "METU Bilkent Bilkent": "Student.school sınıftan okunur ve sınıf değiştirilmedi."
+          "hints": [
+            "Add a method named describe inside ElectricCar; the same name overrides the parent's.",
+            "Inside it, get the parent's text with super().describe() and add the battery part with an f-string.",
+            "The return line looks like return super().describe() + f', battery {___} kWh'."
+          ],
+          "hints_tr": [
+            "ElectricCar'ın içine describe adlı bir metot ekle; aynı isim ebeveyninkini ezer.",
+            "İçinde ebeveynin metnini super().describe() ile al ve batarya kısmını bir f-string ile ekle.",
+            "return satırı şuna benziyor: return super().describe() + f', battery {___} kWh'."
+          ],
+          "solution": {
+            "approach": "Override describe and extend the parent's result with super().describe().",
+            "approach_tr": "describe'ı ez ve ebeveynin sonucunu super().describe() ile genişlet.",
+            "code": "class Car:\n    def __init__(self, brand, year):\n        self.brand = brand\n        self.year = year\n\n    def describe(self):\n        return f'{self.brand} ({self.year})'\n\nclass ElectricCar(Car):\n    def __init__(self, brand, year, battery):\n        super().__init__(brand, year)\n        self.battery = battery\n\n    def describe(self):\n        return super().describe() + f', battery {self.battery} kWh'"
           }
         },
         {
-          "id": "d21-b5-e5",
+          "id": "d21-b5-e4",
           "type": "debug",
-          "concept": "special-methods",
+          "concept": "inheritance-override",
           "tags": [
             "classes",
-            "__repr__",
-            "class-attributes"
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
           ],
-          "prompt": "print(Temperature(21)) should show '21 degrees' but raises a TypeError. Fix __str__.",
-          "prompt_tr": "print(Temperature(21)) '21 degrees' göstermeli ama TypeError veriyor. __str__'ı düzelt.",
-          "starter_code": "class Temperature:\n    def __init__(self, value):\n        self.value = value\n    def __str__(self):\n        print(f'{self.value} degrees')\n\nprint(Temperature(21))",
+          "prompt": "This should print 'Lidiya Espoo female' but crashes with AttributeError: 'Student' object has no attribute 'name'. Fix the child class.",
+          "prompt_tr": "Bu kod 'Lidiya Espoo female' yazdırmalı ama AttributeError: 'Student' object has no attribute 'name' veriyor. Alt sınıfı onar.",
+          "starter_code": "class Person:\n    def __init__(self, name, city):\n        self.name = name\n        self.city = city\n\nclass Student(Person):\n    def __init__(self, name, city, gender):\n        self.gender = gender\n\ns = Student('Lidiya', 'Espoo', 'female')\nprint(s.name, s.city, s.gender)",
           "hints": [
-            "The error is TypeError: __str__ returned non-string (type NoneType). So what must __str__ give back, and what does it give back now?",
-            "A function that only prints returns None. print() on an object needs the text back from __str__.",
-            "Last step: in the body, replace print with the keyword that hands a value back."
+            "Which method was supposed to create name and city? Does it ever run for a Student?",
+            "Once Student defines __init__, Person.__init__ is no longer called automatically. You must call it yourself and pass it name and city.",
+            "Add one line at the start of Student.__init__ that starts with super()."
+          ],
+          "hints_tr": [
+            "name ve city'yi hangi metot oluşturacaktı? Student için hiç çalışıyor mu?",
+            "Student __init__ tanımladığı anda Person.__init__ artık otomatik çağrılmaz. Onu kendin çağırmalı ve ona name ile city vermelisin.",
+            "Student.__init__'in başına super() ile başlayan bir satır ekle."
           ],
           "solution": {
-            "approach": "__str__ must return a string, never print it.",
-            "code": "class Temperature:\n    def __init__(self, value):\n        self.value = value\n    def __str__(self):\n        return f'{self.value} degrees'\n\nprint(Temperature(21))",
-            "approach_tr": "__str__ metin döndürmeli, print etmemeli."
+            "approach": "Call the parent constructor: super().__init__(name, city).",
+            "approach_tr": "Ebeveynin yapıcısını çağır: super().__init__(name, city).",
+            "code": "class Person:\n    def __init__(self, name, city):\n        self.name = name\n        self.city = city\n\nclass Student(Person):\n    def __init__(self, name, city, gender):\n        super().__init__(name, city)\n        self.gender = gender\n\ns = Student('Lidiya', 'Espoo', 'female')\nprint(s.name, s.city, s.gender)"
           },
-          "expected_output": "21 degrees",
+          "expected_output": "Lidiya Espoo female"
+        },
+        {
+          "id": "d21-b5-e5",
+          "type": "write",
+          "concept": "inheritance-override",
+          "tags": [
+            "classes",
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
+          ],
+          "prompt": "Write a class Rectangle(w, h) that stores w and h and has a method area() returning w * h. Then write a class Square that inherits from Rectangle; Square(side) must call the parent constructor with super() so that w and h both equal side. Example: Square(3).area() returns 9 and Square(3).w is 3.",
+          "prompt_tr": "w ve h'yi saklayan ve w * h döndüren bir area() metodu olan Rectangle(w, h) sınıfını yaz. Ardından Rectangle'dan kalıtım alan bir Square sınıfı yaz; Square(side), w ve h ikisi de side olsun diye ebeveynin yapıcısını super() ile çağırmalı. Örnek: Square(3).area() 9 döndürür, Square(3).w 3'tür.",
+          "starter_code": "",
+          "signature": "class Rectangle:",
+          "tests": [
+            {
+              "code": "assert Rectangle(2, 5).area() == 10",
+              "visible": true,
+              "label": "A 2 by 5 rectangle has area 10",
+              "label_tr": "2'ye 5 dikdörtgenin alanı 10"
+            },
+            {
+              "code": "assert Square(3).area() == 9 and isinstance(Square(3), Rectangle)",
+              "visible": true,
+              "label": "A square is a rectangle with area side*side",
+              "label_tr": "Kare, alanı kenar*kenar olan bir dikdörtgendir"
+            },
+            {
+              "code": "s = Square(7)\nassert (s.w, s.h, s.area()) == (7, 7, 49)",
+              "visible": false,
+              "failure_message": "Square must store side as both w and h, by calling the parent constructor.",
+              "failure_message_tr": "Square, ebeveynin yapıcısını çağırarak side'ı hem w hem h olarak saklamalı."
+            },
+            {
+              "code": "assert 'super()' in __source__ and 'def area' not in __source__.split('class Square')[1]",
+              "visible": false,
+              "failure_message": "Square should reuse Rectangle: call super().__init__ and do not write a second area method.",
+              "failure_message_tr": "Square, Rectangle'ı yeniden kullanmalı: super().__init__ çağır ve ikinci bir area metodu yazma."
+            }
+          ],
+          "hints": [
+            "Write Rectangle first and check it on its own. Square only needs an __init__.",
+            "Square(Rectangle) has __init__(self, side), and the parent constructor expects a width and a height.",
+            "The body of Square.__init__ is one line of the form super().__init__(___, ___)."
+          ],
           "hints_tr": [
-            "Hata: TypeError: __str__ returned non-string (type NoneType). Peki __str__ ne geri vermeli, şimdi ne veriyor?",
-            "Yalnızca print eden fonksiyon None döndürür. Nesneyi print() ile yazdırmak için __str__'ın metni geri vermesi gerekir.",
-            "Son adım: gövdede print yerine değer geri veren anahtar kelimeyi kullan."
-          ]
+            "Önce Rectangle'ı yaz ve tek başına dene. Square'in yalnızca bir __init__'e ihtiyacı var.",
+            "Square(Rectangle) __init__(self, side) alır; ebeveynin yapıcısı ise bir genişlik ve bir yükseklik bekler.",
+            "Square.__init__'in gövdesi şu biçimde tek bir satırdır: super().__init__(___, ___)."
+          ],
+          "solution": {
+            "approach": "Square passes side twice to the parent constructor and inherits area unchanged.",
+            "approach_tr": "Square, side'ı ebeveynin yapıcısına iki kez verir ve area'yı olduğu gibi kalıtımla alır.",
+            "code": "class Rectangle:\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n\n    def area(self):\n        return self.w * self.h\n\nclass Square(Rectangle):\n    def __init__(self, side):\n        super().__init__(side, side)"
+          },
+          "twin": "d21-b5-e6"
         },
         {
           "id": "d21-b5-e6",
           "type": "write",
-          "concept": "special-methods",
+          "concept": "inheritance-override",
           "tags": [
             "classes",
-            "__repr__",
-            "class-attributes"
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
           ],
-          "prompt": "Write a class Student(name) that counts how many Student objects exist in a class attribute total. total starts at 0 and every new Student increases it by 1.",
-          "prompt_tr": "Student(name) sınıfını yaz; kaç Student nesnesi yaratıldığını total adlı bir sınıf özniteliğinde saysın. total 0'dan başlar, her yeni Student onu 1 artırır.",
+          "prompt": "Write a class Animal with __init__(self, name) and speak() returning name + ' ses çıkarır'. Write Dog(Animal) whose speak returns name + ' havlar' and Cat(Animal) whose speak returns name + ' miyavlar'. Finally write a function chorus(animals) that returns the speak() results of a list of animals joined with ' | '. Example: chorus([Dog('Karabaş'), Cat('Tekir')]) returns 'Karabaş havlar | Tekir miyavlar'.",
+          "prompt_tr": "__init__(self, name) ve name + ' ses çıkarır' döndüren speak() metodu olan bir Animal sınıfı yaz. speak'i name + ' havlar' döndüren Dog(Animal) ve name + ' miyavlar' döndüren Cat(Animal) sınıflarını yaz. Son olarak bir hayvan list'inin speak() sonuçlarını ' | ' ile birleştirip döndüren chorus(animals) fonksiyonunu yaz. Örnek: chorus([Dog('Karabaş'), Cat('Tekir')]) 'Karabaş havlar | Tekir miyavlar' döndürür.",
           "starter_code": "",
-          "signature": "class Student:",
+          "signature": "class Animal:",
           "tests": [
             {
-              "code": "a = Student('A')\nb = Student('B')\nassert Student.total == 2",
+              "code": "assert chorus([Dog('Karabaş'), Cat('Tekir')]) == 'Karabaş havlar | Tekir miyavlar'",
               "visible": true,
-              "label_tr": "İki nesne sonrası total 2"
+              "label": "A dog and a cat",
+              "label_tr": "Bir köpek ve bir kedi"
             },
             {
-              "code": "assert Student('C').name == 'C'",
+              "code": "assert Animal('Kuş').speak() == 'Kuş ses çıkarır'",
               "visible": true,
-              "label_tr": "İsim saklanır"
+              "label": "A plain animal",
+              "label_tr": "Sıradan bir hayvan"
             },
             {
-              "code": "n = Student.total\nStudent('X')\nStudent('Y')\nassert Student.total == n + 2",
+              "code": "assert chorus([Cat('Duman'), Animal('Ayı'), Dog('Çomar')]) == 'Duman miyavlar | Ayı ses çıkarır | Çomar havlar'",
               "visible": false,
-              "failure_message": "total must be shared by the class and grow with every object.",
-              "failure_message_tr": "total sınıf tarafından paylaşılmalı ve her nesneyle artmalı."
+              "failure_message": "chorus must call speak() on each object, in list order, and join with ' | '.",
+              "failure_message_tr": "chorus her nesnede, list sırasıyla speak() çağırmalı ve sonuçları ' | ' ile birleştirmeli."
             },
             {
-              "code": "assert 'total' in vars(Student)",
+              "code": "assert chorus([]) == '' and isinstance(Dog('x'), Animal) and isinstance(Cat('y'), Animal)",
               "visible": false,
-              "failure_message": "Define total in the class body, not inside __init__.",
-              "failure_message_tr": "total'i __init__ içinde değil, sınıf gövdesinde tanımla."
+              "failure_message": "Dog and Cat must inherit from Animal, and an empty list gives an empty string.",
+              "failure_message_tr": "Dog ve Cat, Animal'dan kalıtım almalı; boş list boş string verir."
             }
           ],
           "hints": [
-            "total belongs to the class, so define it in the class body, outside any method.",
-            "Inside __init__, change the shared value through the class name, not through self.",
-            "Last step: one line in __init__ that adds 1 to Student.total."
+            "Dog and Cat need no __init__ of their own; they inherit Animal's. Each only overrides speak.",
+            "chorus does not check types: it asks every object for speak() and lets each class answer (polymorphism). ' | '.join(...) glues strings together.",
+            "chorus is one line of the form return ' | '.join(a.speak() for a in ___)."
+          ],
+          "hints_tr": [
+            "Dog ve Cat'in kendi __init__'ine gerek yok; Animal'ınkini kalıtımla alırlar. Her biri yalnızca speak'i ezer.",
+            "chorus türleri kontrol etmez: her nesneden speak() ister ve cevabı her sınıf kendisi verir (çok biçimlilik). ' | '.join(...) string'leri birleştirir.",
+            "chorus şu biçimde tek bir satırdır: return ' | '.join(a.speak() for a in ___)."
           ],
           "solution": {
-            "approach": "Class attribute for the counter, updated via the class name.",
-            "code": "class Student:\n    total = 0\n    def __init__(self, name):\n        self.name = name\n        Student.total += 1",
-            "approach_tr": "Sayaç için sınıf özniteliği, sınıf adıyla güncellenir."
+            "approach": "Each child overrides speak; chorus calls speak on every object without checking its class.",
+            "approach_tr": "Her alt sınıf speak'i ezer; chorus nesnenin sınıfına bakmadan her birinde speak çağırır.",
+            "code": "class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return self.name + ' ses çıkarır'\n\nclass Dog(Animal):\n    def speak(self):\n        return self.name + ' havlar'\n\nclass Cat(Animal):\n    def speak(self):\n        return self.name + ' miyavlar'\n\ndef chorus(animals):\n    return ' | '.join(a.speak() for a in animals)"
           },
-          "twin": "d21-b1-e3",
-          "hints_tr": [
-            "total sınıfa aittir; sınıf gövdesinde, metotların dışında tanımla.",
-            "__init__ içinde paylaşılan değeri self üzerinden değil sınıf adı üzerinden değiştir.",
-            "Son adım: __init__ içinde Student.total'a 1 ekleyen tek bir satır."
-          ]
+          "twin": "d21-b5-e5"
         },
         {
           "id": "d21-b5-e7",
-          "type": "write",
-          "concept": "special-methods",
+          "type": "predict",
+          "concept": "inheritance-override",
           "tags": [
             "classes",
-            "__repr__",
-            "class-attributes"
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
           ],
-          "prompt": "Write class Vector(x, y) with __add__ (returns a new Vector with summed coordinates) and __repr__ returning 'Vector(x, y)'.",
-          "prompt_tr": "Vector(x, y) sınıfını yaz: __add__ koordinatları toplanmış yeni bir Vector döndürsün, __repr__ 'Vector(x, y)' döndürsün.",
-          "starter_code": "",
-          "signature": "class Vector:",
-          "tests": [
-            {
-              "code": "assert repr(Vector(1, 2)) == 'Vector(1, 2)'",
-              "visible": true,
-              "label_tr": "repr doğru biçimde"
-            },
-            {
-              "code": "v = Vector(1, 2) + Vector(3, 4)\nassert (v.x, v.y) == (4, 6)",
-              "visible": true,
-              "label_tr": "Toplama koordinatları toplar"
-            },
-            {
-              "code": "a, b = Vector(1, 1), Vector(2, 2)\nc = a + b\nassert (a.x, b.x) == (1, 2) and c is not a and c is not b",
-              "visible": false,
-              "failure_message": "Return a NEW Vector; do not change the operands.",
-              "failure_message_tr": "Yeni bir Vector döndür; işlenenleri değiştirme."
-            },
-            {
-              "code": "assert repr(Vector(1, 2) + Vector(0, -5)) == 'Vector(1, -3)'",
-              "visible": false,
-              "failure_message": "The sum must go through __repr__ as well.",
-              "failure_message_tr": "Toplam da __repr__ üzerinden doğru görünmeli."
-            }
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "class Person:\n    pass\n\nclass Student(Person):\n    pass\n\np = Person()\ns = Student()\nprint(isinstance(s, Person), isinstance(p, Student))",
+          "choices": [
+            "True False",
+            "True True",
+            "False False",
+            "False True"
           ],
-          "hints": [
-            "Two dunder methods plus __init__; __add__ is what + calls.",
-            "__add__(self, other) builds and returns Vector(...) from self.x + other.x and so on.",
-            "Last step: __repr__ is a single return with an f-string containing {self.x} and {self.y}."
-          ],
-          "solution": {
-            "approach": "Operators are methods: + calls __add__.",
-            "code": "class Vector:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __add__(self, other):\n        return Vector(self.x + other.x, self.y + other.y)\n    def __repr__(self):\n        return f'Vector({self.x}, {self.y})'",
-            "approach_tr": "Operatörler metottur: + işareti __add__'i çağırır."
+          "expected_output": "True False",
+          "explanation": "Inheritance is a one-way 'is a' relation: every Student is a Person, but a plain Person is not a Student.",
+          "explanation_tr": "Kalıtım tek yönlü bir 'bir tür ...dır' ilişkisidir: her Student bir Person'dır ama sıradan bir Person, Student değildir.",
+          "misconceptions": {
+            "True True": "A person is not necessarily a student; the parent does not inherit from the child.",
+            "False False": "isinstance follows inheritance: a Student object is also a Person.",
+            "False True": "The direction is reversed: the child counts as the parent, never the other way round."
           },
-          "twin": "d21-b5-e6",
-          "hints_tr": [
-            "__init__'in yanında iki dunder metot; + işaretinin çağırdığı __add__'dir.",
-            "__add__(self, other), self.x + other.x gibi değerlerle Vector(...) kurup döndürür.",
-            "Son adım: __repr__, içinde {self.x} ve {self.y} geçen f-string döndüren tek bir return."
-          ]
+          "misconceptions_tr": {
+            "True True": "Her kişi öğrenci değildir; ebeveyn alt sınıftan kalıtım almaz.",
+            "False False": "isinstance kalıtımı izler: Student nesnesi aynı zamanda bir Person'dır.",
+            "False True": "Yön ters: alt sınıf ebeveyn sayılır, tersi asla."
+          }
+        },
+        {
+          "id": "d21-b5-e8",
+          "type": "explain",
+          "concept": "inheritance-override",
+          "tags": [
+            "classes",
+            "inheritance",
+            "super",
+            "override",
+            "polymorphism"
+          ],
+          "prompt": "When a child class defines its own __init__, why does it usually need super().__init__(...)?",
+          "prompt_tr": "Bir alt sınıf kendi __init__'ini tanımladığında neden genellikle super().__init__(...) çağırması gerekir?",
+          "model_answer": "Defining __init__ in the child overrides the parent's constructor, so the parent's __init__ no longer runs on its own. Without super().__init__ the attributes the parent sets up are never created, and later code fails with an AttributeError.",
+          "model_answer_tr": "Alt sınıfta __init__ tanımlamak ebeveynin yapıcısını ezer, bu yüzden ebeveynin __init__'i artık kendiliğinden çalışmaz. super().__init__ olmadan ebeveynin kurduğu nitelikler hiç oluşmaz ve sonraki kod AttributeError ile çöker.",
+          "keywords": [
+            "override",
+            "parent",
+            "AttributeError"
+          ],
+          "keywords_tr": [
+            "ezer",
+            "ebeveyn",
+            "AttributeError"
+          ],
+          "min_words": 12
         }
-      ],
-      "concept_tr": "Özel metotlar ve sınıf öznitelikleri"
+      ]
     }
   ],
   "review_pool": [
     "d21-b1-e1",
-    "d21-b1-e3",
+    "d21-b1-e5",
+    "d21-b2-e5",
     "d21-b3-e1",
-    "d21-b3-e3",
-    "d21-b4-e1",
+    "d21-b4-e5",
     "d21-b5-e1"
-  ],
-  "title_tr": "Sınıflar ve Nesneler"
+  ]
 }
