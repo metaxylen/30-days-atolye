@@ -52,8 +52,8 @@
    "type": "explain",
    "title_tr": "Sınıfı çağırınca nesne çıkar",
    "title": "Calling the class makes an object",
-   "body_tr": "Sınıfı bir fonksiyon gibi çağırırsan yeni bir nesne (**instance**, örnek) elde edersin. Her çağrı **ayrı** bir nesne üretir; hepsinin kendi kimliği vardır. `isinstance(p, Person)` bir nesnenin hangi sınıftan geldiğini sorar. Orijinal derste `print(p)` bellek adresi gösterir; o her çalıştırmada değiştiği için burada `type` ve `isinstance` ile bakıyoruz.",
-   "body": "Call the class like a function and you get a new object (an **instance**). Every call creates a **separate** object with its own identity. `isinstance(p, Person)` asks which class an object came from. The original lesson prints `p` and shows a memory address; it changes on every run, so here we inspect it with `type` and `isinstance`.",
+   "body_tr": "Sınıfı bir fonksiyon gibi çağırırsan yeni bir nesne (**instance**, örnek) elde edersin. Her çağrı **ayrı** bir nesne üretir; `p` ve `q` aynı nesneye bağlı iki ayrı etiket değil, iki ayrı nesneye yapışmış iki etikettir (değişken bir kutu değil, nesneye yapıştırılmış isim etiketidir). `isinstance(p, Person)` bir nesnenin hangi sınıftan geldiğini sorar. Orijinal derste `print(p)` bellek adresi gösterir; o her çalıştırmada değiştiği için burada `type` ve `isinstance` ile bakıyoruz.",
+   "body": "Call the class like a function and you get a new object (an **instance**). Every call creates a **separate** object; `p` and `q` are name tags stuck on two different objects (a variable is a name tag on an object, not a box). `isinstance(p, Person)` asks which class an object came from. The original lesson prints `p` and shows a memory address; it changes on every run, so here we inspect it with `type` and `isinstance`.",
    "code": "class Person:\n    pass\n\np = Person()\nq = Person()\nprint(type(p))\nprint(isinstance(p, Person))\nprint(p is q)",
    "expected_output": "<class '__main__.Person'>\nTrue\nFalse",
    "section": "Creating an Object"
@@ -308,7 +308,7 @@
    "title": "__repr__: printing an object readably",
    "body_tr": "Bir nesneyi `print` edersen varsayılan çıktı `<__main__.Person object at 0x...>` gibi anlamsız bir adres olur. Sınıfa `__repr__` methodu yazarsan Python nesneyi göstermek istediği her yerde (print, debug, list içinde) onu kullanır. Genel kural: `__repr__` geliştirici içindir ve nesneyi yeniden kurabilecek kadar açık olmalıdır, örneğin `Person('Ada', 36)`. İstersen kullanıcıya dönük bir `__str__` de ekleyebilirsin; yoksa `__repr__` kullanılır.",
    "body": "If you `print` an object, the default output is a meaningless address such as `<__main__.Person object at 0x...>`. Give the class a `__repr__` method and Python uses it wherever it needs to show the object (print, debugging, inside lists). The rule of thumb: `__repr__` is for developers and should be clear enough to rebuild the object, like `Person('Ada', 36)`. You may add a user-facing `__str__` too; without it `__repr__` is used.",
-   "code": "class Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    def __repr__(self):\n        return f'Person({self.name!r}, {self.age})'\n\np = Person('Ada', 36)\nprint(p)\nprint([p, Person('Can', 20)])",
+   "code": "class Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    def __repr__(self):\n        return f\"Person('{self.name}', {self.age})\"\n\np = Person('Ada', 36)\nprint(p)\nprint([p, Person('Can', 20)])",
    "expected_output": "Person('Ada', 36)\n[Person('Ada', 36), Person('Can', 20)]",
    "section": "Method to Modify Class Default Values"
   },
@@ -319,9 +319,9 @@
    "prompt": "What is printed?",
    "code": "class Tag:\n    def __init__(self, t):\n        self.t = t\n    def __repr__(self):\n        return 'repr:' + self.t\n    def __str__(self):\n        return 'str:' + self.t\n\nx = Tag('a')\nprint(x)\nprint([x])",
    "choices": [
-    "repr:a\n['repr:a']",
+    "repr:a\n[repr:a]",
+    "str:a\n[str:a]",
     "str:a\n['str:a']",
-    "str:a\n[repr:a]",
     "str:a\n[repr:a]"
    ],
    "answer": "str:a\n[repr:a]",
@@ -334,14 +334,25 @@
    "type": "explain",
    "title_tr": "@property: hesaplanan attribute",
    "title": "@property: a computed attribute",
-   "body_tr": "`@property` ile bir methodu parantezsiz, sanki attribute'muş gibi okuyabilirsin: `p.full_name`. Neden işe yarar? Değer saklanmaz, her okunduğunda hesaplanır; böylece `firstname` değişince `full_name` kendiliğinden güncel kalır. Ayrıca `@x.setter` ile atama sırasında doğrulama yapabilirsin. Dışarıdan kullanım aynı kalır, içeride istediğin kuralı ekleyebilirsin; bu yüzden Python'da \"getter/setter\" yerine property tercih edilir.",
-   "body": "With `@property` you can read a method without parentheses, as if it were an attribute: `p.full_name`. Why is it useful? The value is not stored, it is computed on each read, so when `firstname` changes `full_name` stays current automatically. A `@x.setter` lets you validate on assignment. Outside code looks the same while you add rules inside, which is why Python prefers properties over explicit getter/setter methods.",
-   "code": "class Person:\n    def __init__(self, first, last, age):\n        self.first = first\n        self.last = last\n        self._age = age\n    @property\n    def full_name(self):\n        return f'{self.first} {self.last}'\n    @property\n    def age(self):\n        return self._age\n    @age.setter\n    def age(self, value):\n        if value < 0:\n            raise ValueError('age cannot be negative')\n        self._age = value\n\np = Person('Ada', 'Lovelace', 36)\np.first = 'Augusta'\nprint(p.full_name)\ntry:\n    p.age = -5\nexcept ValueError as e:\n    print('rejected:', e)",
-   "expected_output": "Augusta Lovelace\nrejected: age cannot be negative",
+   "body_tr": "`@property` ile bir methodu parantezsiz, sanki attribute'muş gibi okuyabilirsin: `p.full_name`. Neden işe yarar? Değer saklanmaz, her okunduğunda hesaplanır; böylece `first` değişince `full_name` kendiliğinden güncel kalır. Dışarıdan kullanım attribute gibidir, içeride ise istediğin hesabı yapabilirsin. Bir `@property`'ye atama yapmaya çalışırsan Python `AttributeError` verir, çünkü yalnızca okunabilir bir değerdir.",
+   "body": "With `@property` you can read a method without parentheses, as if it were an attribute: `p.full_name`. Why is it useful? The value is not stored, it is computed on each read, so when `first` changes `full_name` stays current automatically. From outside it looks like an attribute, inside you can do any computation. Trying to assign to a plain `@property` makes Python raise `AttributeError`, because it is read-only.",
+   "code": "class Person:\n    def __init__(self, first, last):\n        self.first = first\n        self.last = last\n    @property\n    def full_name(self):\n        return f'{self.first} {self.last}'\n\np = Person('Ada', 'Lovelace')\np.first = 'Augusta'\nprint(p.full_name)\ntry:\n    p.full_name = 'X Y'\nexcept AttributeError as e:\n    print('AttributeError:', e)",
+   "expected_output": "Augusta Lovelace\nAttributeError: property 'full_name' of 'Person' object has no setter",
    "section": "Method to Modify Class Default Values"
   },
   {
    "id": "d21-c27",
+   "type": "explain",
+   "title_tr": "@property ile doğrulama (setter)",
+   "title": "Validation with a property setter",
+   "body_tr": "Bir attribute'a değer atanırken kural koymak istersen `@x.setter` yazarsın. Atama `p.age = -5` biçiminde kalır, ama arkada senin methodun çalışır ve geçersiz değeri `ValueError` ile reddedebilir. Gerçek değer genelde `_age` gibi başına alt çizgi konmuş bir attribute'ta saklanır; alt çizgi \"bu içeriye ait, dışarıdan dokunma\" demenin gelenekselidir. Böylece kullanan kod değişmeden doğrulama sonradan eklenebilir.",
+   "body": "When you want a rule applied as a value is assigned, you write an `@x.setter`. The assignment still looks like `p.age = -5`, but your method runs behind it and can reject bad values with a `ValueError`. The real value is usually stored in an attribute with a leading underscore like `_age`; the underscore is the convention for \"internal, do not touch from outside\". That way validation can be added later without changing the code that uses the class.",
+   "code": "class Person:\n    def __init__(self, age):\n        self._age = age\n    @property\n    def age(self):\n        return self._age\n    @age.setter\n    def age(self, value):\n        if value < 0:\n            raise ValueError('age cannot be negative')\n        self._age = value\n\np = Person(36)\np.age = 37\nprint(p.age)\ntry:\n    p.age = -5\nexcept ValueError as e:\n    print('rejected:', e)",
+   "expected_output": "37\nrejected: age cannot be negative",
+   "section": "Method to Modify Class Default Values"
+  },
+  {
+   "id": "d21-c28",
    "type": "explain",
    "title_tr": "Kalıtım (inheritance)",
    "title": "Inheritance",
@@ -352,7 +363,7 @@
    "section": "Inheritance"
   },
   {
-   "id": "d21-c28",
+   "id": "d21-c29",
    "type": "truefalse",
    "statement_tr": "`Student(Person)` yazarsak Student nesnesi aynı zamanda bir Person nesnesi sayılır (isinstance True verir).",
    "statement": "With `Student(Person)`, a Student object also counts as a Person (isinstance gives True).",
@@ -362,7 +373,7 @@
    "section": "Inheritance"
   },
   {
-   "id": "d21-c29",
+   "id": "d21-c30",
    "type": "explain",
    "title_tr": "super(): ebeveynin constructor'ını çağırmak",
    "title": "super(): calling the parent's constructor",
@@ -374,7 +385,7 @@
    "section": "Inheritance"
   },
   {
-   "id": "d21-c30",
+   "id": "d21-c31",
    "type": "explain",
    "title_tr": "Sık hata: super()'i unutmak",
    "title": "Common mistake: forgetting super()",
@@ -386,7 +397,7 @@
    "section": "Inheritance"
   },
   {
-   "id": "d21-c31",
+   "id": "d21-c32",
    "type": "fill",
    "prompt_tr": "Ebeveynin constructor'ını çağır.",
    "prompt": "Call the parent constructor.",
@@ -400,7 +411,7 @@
    "section": "Inheritance"
   },
   {
-   "id": "d21-c32",
+   "id": "d21-c33",
    "type": "explain",
    "title_tr": "Method'u ezmek (override)",
    "title": "Overriding a method",
@@ -411,14 +422,14 @@
    "section": "Overriding parent method"
   },
   {
-   "id": "d21-c33",
+   "id": "d21-c34",
    "type": "predict",
    "prompt_tr": "Çıktı ne olur?",
    "prompt": "What is printed?",
    "code": "class A:\n    def hi(self):\n        return 'A'\n\nclass B(A):\n    def hi(self):\n        return 'B'\n\nclass C(B):\n    pass\n\nprint(C().hi())",
    "choices": [
-    "A",
     "B",
+    "A",
     "C",
     "Error"
    ],
@@ -428,7 +439,7 @@
    "section": "Overriding parent method"
   },
   {
-   "id": "d21-c34",
+   "id": "d21-c35",
    "type": "explain",
    "title_tr": "Gerçekçi örnek: maaş hesabı",
    "title": "Realistic example: payroll",
@@ -439,29 +450,29 @@
    "section": "Overriding parent method"
   },
   {
-   "id": "d21-c35",
+   "id": "d21-c36",
    "type": "order",
    "prompt_tr": "Satırları sırala: ebeveyn, alt sınıf ve çağrı.",
    "prompt": "Order the lines: parent, child class and the call.",
    "lines": [
-    "print(Cat().sound())",
     "class Animal:",
+    "print(Cat().sound())",
+    "    def sound(self): return '...'",
     "class Cat(Animal):",
-    "    def sound(self): return 'miyav'",
-    "    def sound(self): return '...'"
+    "    def sound(self): return 'miyav'"
    ],
    "correct_order": [
-    1,
-    4,
+    0,
     2,
     3,
-    0
+    4,
+    1
    ],
    "expected_output": "miyav",
    "section": "Overriding parent method"
   },
   {
-   "id": "d21-c36",
+   "id": "d21-c37",
    "type": "truefalse",
    "statement_tr": "Alt sınıf bir methodu override edince ebeveynin o methoduna artık hiçbir şekilde erişilemez.",
    "statement": "Once a child overrides a method, the parent's version can no longer be reached in any way.",
@@ -471,7 +482,7 @@
    "section": "Overriding parent method"
   },
   {
-   "id": "d21-c37",
+   "id": "d21-c38",
    "type": "recap",
    "points_tr": [
     "Sınıf bir kalıptır, nesne o kalıptan çıkan somut üründür; `__init__` ve `self` ile her nesne kendi verisini taşır.",

@@ -167,7 +167,7 @@ export function MapScene({ fresh = 0 }: { fresh?: number }) {
                   <li>
                     <a className={`slot slot-boss${won ? ' is-won' : open ? ' is-open' : ''}`} href={`#/boss/${pi + 1}`} aria-label={t('boss.tileAria', { name: p.name, state: won ? t('boss.sWon') : open ? t('boss.sOpen') : t('boss.sLocked', { done, total: days.length }) })}>
                       <span className="slot-n">{won ? t('parts.flag') : t('map.lBoss')}</span>
-                      <span className="slot-t">{won ? '' : open ? t('boss.start') : t('boss.dots', { done, total: days.length })}</span>
+                      <span className="slot-t">{won ? '' : open ? t('boss.start') : ''}</span>
                     </a>
                   </li>
                 </ul>
@@ -218,12 +218,12 @@ export function Parts() {
           const open = days.find((d) => !s.done[d.n]) ?? days[0]
           return (
             <article key={p.id} className={`part-card f${p.field}${s.boss[pi]?.done ? ' is-conquered' : ''}`} data-part-card data-reveal>
+              <h3 className="part-tab">
+                {p.name}
+                {s.boss[pi]?.done && <span className="part-flag">{t('parts.flag')}</span>}
+              </h3>
               <div className="part-body">
                 <div className="part-info">
-                  <h3 className="part-tab">
-                    {p.name}
-                    {s.boss[pi]?.done && <span className="part-flag">{t('parts.flag')}</span>}
-                  </h3>
                   <p className="part-days num">{t('parts.days', { from: p.from, to: p.to })}</p>
                   <p className="part-blurb">{p.build}</p>
                   <p className="part-done">
