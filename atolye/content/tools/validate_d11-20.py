@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Validator for atolye/content/exercises/day11..day20.json (TAG d11-20).
 
-Run: <repo>/.venv/bin/python atolye/content/tools/validate_d11-20.py
+Run: <repo>/.venv/bin/python atolye/content/tools/validate_d11-20.py [first last]
+(or ONLY_DAYS=11,12 in the environment)
 """
 import json, os, subprocess, sys, tempfile, collections
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EX_DIR = os.path.join(HERE, "..", "exercises")
 DAYS = [int(x) for x in os.environ.get('ONLY_DAYS', '').split(',') if x] or list(range(11, 21))
+if len(sys.argv) >= 3:
+    DAYS = list(range(int(sys.argv[1]), int(sys.argv[2]) + 1))
 TIMEOUT = 5
 
 HARNESS = r'''

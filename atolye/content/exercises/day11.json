@@ -1,28 +1,29 @@
 {
   "day": 11,
   "title": "Functions",
-  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "title_tr": "Fonksiyonlar",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
   "blocks": [
     {
       "id": "d11-b1",
       "concept": "function-return",
+      "concept_tr": "Fonksiyon def ile tanımlanır, çağrılınca yeni bir yerel çalışma alanında çalışır ve return ile bir değeri çağıran yere geri verir; return yoksa sonuç None olur.",
       "tags": [
         "functions",
-        "return"
+        "return",
+        "None"
       ],
       "worked_example": {
-        "code": "def add_two_numbers():\n    num_one = 2\n    num_two = 3\n    return num_one + num_two\n\nprint(add_two_numbers())",
+        "code": "def line_total(price, qty):\n    total = price * qty\n    return total\n\ncart = line_total(40, 2) + line_total(15, 3)\nprint('Sepet:', cart)",
         "notes": [
-          "A def statement only builds the function object and stores it under a name; the body runs later, every time you call it with parentheses.",
-          "return does two jobs: it sends a value back to the caller and it ends the function immediately, so any line after it in the same path never runs.",
-          "print only writes text on the screen. A function with no return silently gives back None, which is why result = f() followed by result + 1 fails with a TypeError.",
-          "Prefer returning values and printing at the edge of your program: a function that returns can be reused in calculations, tests and other functions."
+          "The def statement only builds the function object and attaches the name line_total to it; the body runs later, once for every call.",
+          "Each call line_total(40, 2) is replaced by the value it returns, so the last line adds 80 and 45 like two ordinary numbers.",
+          "If the body printed the total instead of returning it, both calls would give None and the addition would fail with a TypeError about NoneType."
         ],
         "notes_tr": [
-          "def ifadesi yalnızca fonksiyon nesnesini oluşturup bir isme bağlar; gövde ancak parantezle çağırdığınızda, her çağrıda çalışır.",
-          "return iki iş yapar: değeri çağırana geri gönderir ve fonksiyonu hemen bitirir, bu yüzden aynı yoldaki return sonrası satırlar hiç çalışmaz.",
-          "print yalnızca ekrana yazı yazar. return olmayan fonksiyon sessizce None döndürür; result = f() sonrasında result + 1 yazınca TypeError almanızın nedeni budur.",
-          "Mümkün olduğunca değer döndürün, yazdırmayı programın kenarında yapın: return eden fonksiyon hesaplarda, testlerde ve başka fonksiyonlarda yeniden kullanılabilir."
+          "def ifadesi yalnızca fonksiyon nesnesini oluşturur ve line_total ismini ona bağlar; gövde daha sonra, her çağrıda bir kez çalışır.",
+          "Her line_total(40, 2) çağrısı döndürdüğü değerle yer değiştirir; bu yüzden son satır 80 ile 45'i iki sıradan sayı gibi toplar.",
+          "Gövde toplamı döndürmek yerine yazdırsaydı iki çağrı da None verirdi ve toplama NoneType içeren bir TypeError ile çökerdi."
         ]
       },
       "exercises": [
@@ -31,56 +32,59 @@
           "type": "predict",
           "prompt": "What does this program print?",
           "prompt_tr": "Bu program ne yazdırır?",
-          "code": "def add_two_numbers():\n    total = 2 + 3\n    print(total)\n\nresult = add_two_numbers()\nprint(result)",
+          "code": "def greet():\n    print('Merhaba')\n\nprint('A')\ngreet()\nprint('B')\ngreet()",
           "choices": [
-            "5",
-            "5\nNone",
-            "None"
+            "A\nB",
+            "Merhaba\nA\nB\nMerhaba",
+            "A\nMerhaba\nB\nMerhaba",
+            "A\nMerhaba\nB"
           ],
-          "expected_output": "5\nNone",
-          "explanation": "The function prints 5 itself, but it has no return statement, so result is None. The second print therefore shows None.",
+          "expected_output": "A\nMerhaba\nB\nMerhaba",
+          "explanation": "Python runs the top-level lines in order. The def only stores the function; each greet() call runs the body once, right where it stands.",
+          "explanation_tr": "Python en dıştaki satırları sırayla çalıştırır. def yalnızca fonksiyonu saklar; her greet() çağrısı gövdeyi bulunduğu yerde bir kez çalıştırır.",
           "misconceptions": {
-            "5": "print inside the function shows 5 once; the second print shows what was returned, and nothing was returned.",
-            "None": "The function does print 5 first, so the output has two lines, not one."
+            "A\nB": "The two greet() calls do run the body; each one prints Merhaba at the moment it is called.",
+            "Merhaba\nA\nB\nMerhaba": "The def line does not run the body; the first Merhaba appears only at the first call, after A.",
+            "A\nMerhaba\nB": "Every call runs the body again from the top, so the second greet() prints a second Merhaba."
           },
-          "explanation_tr": "Fonksiyon 5'i kendisi yazdırır ama return olmadığı için result None olur. İkinci print bu yüzden None gösterir.",
           "misconceptions_tr": {
-            "5": "Fonksiyonun içindeki print 5'i bir kez gösterir; ikinci print ise fonksiyonun döndürdüğü şeyi gösterir ve hiçbir şey döndürülmedi.",
-            "None": "Fonksiyon önce 5'i yazdırır, yani çıktı tek satır değil iki satırdır."
-          }
-        },
-        {
-          "id": "d11-b1-e5",
-          "type": "predict",
-          "prompt": "What does this program print?",
-          "prompt_tr": "Bu program ne yazdırır?",
-          "code": "def check(n):\n    if n > 0:\n        return 'positive'\n    return 'not positive'\n    print('done')\n\nprint(check(5))\nprint(check(-1))",
-          "choices": [
-            "positive\ndone\nnot positive\ndone",
-            "positive\nnot positive\ndone",
-            "positive",
-            "positive\nnot positive"
-          ],
-          "expected_output": "positive\nnot positive",
-          "explanation": "check(5) returns 'positive' at the first return and stops. check(-1) skips the if, reaches the second return and stops. The print('done') line is dead code.",
-          "misconceptions": {
-            "positive\ndone\nnot positive\ndone": "print('done') comes after both returns, so it can never run; return leaves the function first.",
-            "positive\nnot positive\ndone": "done is never printed: the last line of the function is unreachable because every path returns before it.",
-            "positive": "The second call also prints its returned value, so there are two lines."
-          },
-          "explanation_tr": "check(5) ilk return'de 'positive' döndürüp durur. check(-1) if'i atlar, ikinci return'e gelir ve durur. print('done') hiç çalışmayan koddur.",
-          "misconceptions_tr": {
-            "positive\ndone\nnot positive\ndone": "print('done') iki return'den de sonra geliyor, hiç çalışmaz; return fonksiyondan önce çıkar.",
-            "positive\nnot positive\ndone": "done hiç yazdırılmaz: her yol önce return ettiği için fonksiyonun son satırına ulaşılamaz.",
-            "positive": "İkinci çağrı da döndürdüğü değeri yazdırır, yani iki satır vardır."
+            "A\nB": "İki greet() çağrısı gövdeyi gerçekten çalıştırır; her biri çağrıldığı anda Merhaba yazdırır.",
+            "Merhaba\nA\nB\nMerhaba": "def satırı gövdeyi çalıştırmaz; ilk Merhaba ancak ilk çağrıda, A'dan sonra çıkar.",
+            "A\nMerhaba\nB": "Her çağrı gövdeyi baştan yeniden çalıştırır; ikinci greet() ikinci bir Merhaba yazdırır."
           }
         },
         {
           "id": "d11-b1-e2",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def double(n):\n    n * 2\n\nresult = double(21)\nprint(result)",
+          "choices": [
+            "42",
+            "None",
+            "21",
+            "Error"
+          ],
+          "expected_output": "None",
+          "explanation": "n * 2 is evaluated and discarded. A function with no return statement gives back None, so result is None.",
+          "explanation_tr": "n * 2 hesaplanır ve atılır. return ifadesi olmayan bir fonksiyon None döndürür; bu yüzden result None olur.",
+          "misconceptions": {
+            "42": "The multiplication is computed, but nothing hands it back: without return the result is thrown away.",
+            "21": "The parameter n is not what the call gives back; a call gives back only what return sends.",
+            "Error": "A function without return is legal; it quietly returns None, and printing None is not an error."
+          },
+          "misconceptions_tr": {
+            "42": "Çarpma hesaplanır ama onu geri veren bir şey yok: return olmadan sonuç atılır.",
+            "21": "Çağrının geri verdiği şey n parametresi değildir; çağrı yalnızca return'ün gönderdiğini verir.",
+            "Error": "return olmayan fonksiyon geçerlidir; sessizce None döndürür ve None yazdırmak hata değildir."
+          }
+        },
+        {
+          "id": "d11-b1-e3",
           "type": "fill_blank",
-          "prompt": "Complete the function so it returns num plus ten.",
-          "prompt_tr": "Fonksiyonu, num ile on toplamını döndürecek şekilde tamamlayın.",
-          "starter_code": "___ add_ten(num):\n    ten = 10\n    ___ num + ten\n\nprint(add_ten(90))",
+          "prompt": "Complete the function so it returns the price with 18% VAT added, then print the result for 200.",
+          "prompt_tr": "Fonksiyonu, fiyata yüzde 18 KDV eklenmiş hâlini döndürecek şekilde tamamla, sonra 200 için sonucu yazdır.",
+          "starter_code": "___ with_vat(price):\n    ___ price * 1.18\n\nprint(with_vat(200))",
           "blanks": [
             {
               "answer": [
@@ -95,1194 +99,1150 @@
           ],
           "tests": [
             {
-              "code": "assert add_ten(90) == 100",
+              "code": "assert abs(with_vat(200) - 236.0) < 1e-9",
               "visible": true,
-              "label_tr": "add_ten(90) 100 döndürüyor"
+              "label": "with_vat(200) returns 236.0",
+              "label_tr": "with_vat(200) 236.0 döndürüyor"
             },
             {
-              "code": "assert add_ten(5) == 15",
+              "code": "assert abs(with_vat(50) - 59.0) < 1e-9",
               "visible": true,
-              "label_tr": "add_ten(5) 15 döndürüyor"
+              "label": "with_vat(50) returns 59.0",
+              "label_tr": "with_vat(50) 59.0 döndürüyor"
             },
             {
-              "code": "assert __stdout__.strip() == '100'",
+              "code": "assert __stdout__.strip() == '236.0'",
               "visible": true,
-              "label_tr": "Program 100 yazdırıyor"
+              "label": "The program prints 236.0",
+              "label_tr": "Program 236.0 yazdırıyor"
             }
           ],
           "hints": [
             "Which keyword starts a function definition?",
-            "The second blank gives the result back to the caller."
+            "The second blank must hand the value back to the caller, not show it.",
+            "The two words are the one that defines and the one that gives back."
           ],
           "hints_tr": [
             "Bir fonksiyon tanımını hangi anahtar kelime başlatır?",
-            "İkinci boşluk, sonucu çağırana geri verir."
+            "İkinci boşluk değeri göstermemeli, çağırana geri vermeli.",
+            "İki kelime: biri tanımlayan, diğeri geri veren."
           ]
         },
         {
-          "id": "d11-b1-e6",
+          "id": "d11-b1-e4",
           "type": "debug",
-          "prompt": "This program should print 'Total: 35' but it crashes. Find out why and fix the function.",
-          "prompt_tr": "Bu program 'Total: 35' yazdırmalı ama hata veriyor. Nedenini bulun ve fonksiyonu düzeltin.",
-          "starter_code": "def line_total(price, qty):\n    price * qty\n\nshipping = 5\ntotal = line_total(10, 3) + shipping\nprint('Total:', total)",
-          "expected_output": "Total: 35",
+          "prompt": "This program should print 'Toplam: 125' but it crashes with a TypeError about NoneType. Fix the function, not the last lines.",
+          "prompt_tr": "Bu program 'Toplam: 125' yazdırmalı ama NoneType içeren bir TypeError ile çöküyor. Son satırları değil, fonksiyonu düzelt.",
+          "starter_code": "def line_total(price, qty):\n    print(price * qty)\n\ntotal = line_total(40, 2) + line_total(15, 3)\nprint('Toplam:', total)",
+          "expected_output": "Toplam: 125",
           "tests": [
             {
               "code": "assert line_total(10, 3) == 30",
               "visible": true,
+              "label": "line_total(10, 3) returns 30",
               "label_tr": "line_total(10, 3) 30 döndürüyor"
             },
             {
-              "code": "assert line_total(4, 0) == 0",
+              "code": "assert __stdout__.strip() == 'Toplam: 125'",
               "visible": true,
-              "label_tr": "Miktar 0 ise 0 dönüyor"
+              "label": "The only output is 'Toplam: 125'",
+              "label_tr": "Tek çıktı 'Toplam: 125'"
+            },
+            {
+              "code": "assert line_total(7, 0) == 0",
+              "visible": false,
+              "failure_message": "line_total must return the product for any price and quantity.",
+              "failure_message_tr": "line_total her fiyat ve adet için çarpımı döndürmeli."
             }
           ],
           "hints": [
-            "Read the last line of the traceback: which two types is + trying to add?",
-            "A function whose body never uses return gives back None.",
-            "The multiplication is correct, but its result is not handed back. Which keyword is missing at the start of that line?"
+            "Read the last line of the error: which value on the left of + is NoneType?",
+            "A function that only prints gives back None to the caller.",
+            "Replace the print inside the function with the keyword that hands the product back."
+          ],
+          "hints_tr": [
+            "Hatanın son satırını oku: + işaretinin solundaki hangi değer NoneType?",
+            "Yalnızca yazdıran bir fonksiyon çağırana None verir.",
+            "Fonksiyonun içindeki print'i, çarpımı geri veren anahtar kelimeyle değiştir."
           ],
           "solution": {
-            "approach": "The expression price * qty was computed and thrown away, so the function returned None and None + 5 raised a TypeError. Add return.",
-            "code": "def line_total(price, qty):\n    return price * qty\n\nshipping = 5\ntotal = line_total(10, 3) + shipping\nprint('Total:', total)",
-            "approach_tr": "price * qty hesaplandı ama atıldı; fonksiyon None döndürdü ve None + 5 TypeError verdi. return ekleyin."
-          },
-          "hints_tr": [
-            "Traceback'in son satırını okuyun: + hangi iki türü toplamaya çalışıyor?",
-            "Gövdesinde return kullanmayan fonksiyon None döndürür.",
-            "Çarpma doğru ama sonucu geri verilmiyor. O satırın başında hangi anahtar kelime eksik?"
-          ]
+            "approach": "The function printed the product and returned None, so None + None failed. Returning the product makes each call a number.",
+            "approach_tr": "Fonksiyon çarpımı yazdırıp None döndürüyordu, bu yüzden None + None hata verdi. Çarpımı döndürünce her çağrı bir sayı olur.",
+            "code": "def line_total(price, qty):\n    return price * qty\n\ntotal = line_total(40, 2) + line_total(15, 3)\nprint('Toplam:', total)"
+          }
         },
         {
-          "id": "d11-b1-e7",
+          "id": "d11-b1-e5",
           "type": "modify",
-          "prompt": "to_fahrenheit prints its result, so the caller cannot use it. Change it to return the value, and make the last line print '100 C = 212.0 F' using the returned value.",
-          "prompt_tr": "to_fahrenheit sonucu yazdırıyor, bu yüzden çağıran onu kullanamıyor. Değeri döndürsün ve son satır, döndürülen değerle '100 C = 212.0 F' yazdırsın.",
+          "prompt": "to_fahrenheit prints its result, so the caller cannot reuse it. Change it to return the value, and make the program print exactly '100 C = 212.0 F' using the returned value.",
+          "prompt_tr": "to_fahrenheit sonucu yazdırıyor, bu yüzden çağıran onu tekrar kullanamıyor. Değeri döndürecek şekilde değiştir ve program, döndürülen değeri kullanarak tam olarak '100 C = 212.0 F' yazdırsın.",
           "starter_code": "def to_fahrenheit(c):\n    f = c * 9 / 5 + 32\n    print(f)\n\nto_fahrenheit(100)",
+          "signature": "def to_fahrenheit(c):",
           "tests": [
             {
               "code": "assert to_fahrenheit(0) == 32.0",
               "visible": true,
+              "label": "to_fahrenheit(0) returns 32.0",
               "label_tr": "to_fahrenheit(0) 32.0 döndürüyor"
             },
             {
               "code": "assert __stdout__.strip() == '100 C = 212.0 F'",
               "visible": true,
+              "label": "The program prints '100 C = 212.0 F'",
               "label_tr": "Program '100 C = 212.0 F' yazdırıyor"
             },
             {
               "code": "assert abs(to_fahrenheit(37) - 98.6) < 1e-9",
               "visible": false,
-              "failure_message": "to_fahrenheit(37) yaklaşık 98.6 olmalı: değerleri elle yazmayın.",
-              "failure_message_tr": "to_fahrenheit(37) yaklaşık 98.6 olmalı: değerleri elle yazmayın."
+              "failure_message": "to_fahrenheit(37) should be about 98.6: compute it with the formula.",
+              "failure_message_tr": "to_fahrenheit(37) yaklaşık 98.6 olmalı: formülle hesapla."
             },
             {
-              "code": "assert 'return' in __source__",
+              "code": "assert to_fahrenheit(-40) == -40.0",
               "visible": false,
-              "failure_message": "The function must use return.",
-              "failure_message_tr": "Fonksiyon return kullanmalı."
+              "failure_message": "-40 C is -40 F: the function must work for any input.",
+              "failure_message_tr": "-40 C, -40 F'tır: fonksiyon her girdiyle çalışmalı."
             }
           ],
           "hints": [
             "What should the function hand back instead of showing?",
-            "After the change, to_fahrenheit(100) is a value you can place inside another print.",
+            "Once it returns, to_fahrenheit(100) is a value you can put inside another print.",
             "print('100 C =', ___, 'F') where the blank is a call to your function."
           ],
-          "solution": {
-            "approach": "Replace the print inside the function with return, and move printing to the caller.",
-            "code": "def to_fahrenheit(c):\n    return c * 9 / 5 + 32\n\nprint('100 C =', to_fahrenheit(100), 'F')",
-            "approach_tr": "Fonksiyondaki print yerine return koyun, yazdırmayı çağıran tarafa taşıyın."
-          },
           "hints_tr": [
-            "Fonksiyon göstermek yerine ne geri vermeli?",
-            "Değişiklikten sonra to_fahrenheit(100) başka bir print'in içine konabilen bir değerdir.",
-            "print('100 C =', ___, 'F') ifadesinde boşluk fonksiyonunuzun çağrısı olsun."
-          ]
+            "Fonksiyon göstermek yerine neyi geri vermeli?",
+            "return ettikten sonra to_fahrenheit(100), başka bir print'in içine koyabileceğin bir değerdir.",
+            "print('100 C =', ___, 'F') ifadesinde boşluk, fonksiyonunun çağrısı olsun."
+          ],
+          "solution": {
+            "approach": "Replace the print inside the function with return and move the printing to the caller.",
+            "approach_tr": "Fonksiyonun içindeki print yerine return yaz, yazdırmayı çağıran tarafa taşı.",
+            "code": "def to_fahrenheit(c):\n    return c * 9 / 5 + 32\n\nprint('100 C =', to_fahrenheit(100), 'F')"
+          }
         },
         {
-          "id": "d11-b1-e3",
+          "id": "d11-b1-e6",
           "type": "write",
-          "prompt": "Write a function is_even(n) that returns True if n is even and False otherwise. It must return the value, not print it.",
-          "prompt_tr": "Çift sayıysa True, değilse False döndüren is_even(n) fonksiyonunu yazın. Değeri yazdırmayın, döndürün.",
+          "prompt": "Write a function is_even(n) that returns True if n is even and False otherwise. Return the value, do not print it. Example: is_even(10) returns True.",
+          "prompt_tr": "Çiftse True, değilse False döndüren is_even(n) fonksiyonunu yaz. Değeri yazdırma, döndür. Örnek: is_even(10) True döndürür.",
           "starter_code": "",
           "signature": "def is_even(n):",
           "tests": [
             {
               "code": "assert is_even(10) is True",
               "visible": true,
-              "label_tr": "10 için True dönüyor"
+              "label": "is_even(10) is True",
+              "label_tr": "is_even(10) True"
             },
             {
               "code": "assert is_even(7) is False",
               "visible": true,
-              "label_tr": "7 için False dönüyor"
+              "label": "is_even(7) is False",
+              "label_tr": "is_even(7) False"
             },
             {
               "code": "assert is_even(0) is True",
               "visible": false,
-              "failure_message": "Zero is an even number: 0 % 2 is 0.",
-              "failure_message_tr": "Sıfır çift bir sayıdır: 0 % 2 sonucu 0'dır."
+              "failure_message": "Zero is even: 0 % 2 is 0.",
+              "failure_message_tr": "Sıfır çifttir: 0 % 2 sonucu 0'dır."
             },
             {
               "code": "assert is_even(-3) is False",
               "visible": false,
-              "failure_message": "Odd negative numbers must give False (a real bool), not None.",
-              "failure_message_tr": "Negatif tek sayılar için gerçek bir False dönmeli, None değil."
+              "failure_message": "Negative odd numbers must give False (a real bool, not None).",
+              "failure_message_tr": "Negatif tek sayılar gerçek bir False vermeli, None değil."
             },
             {
-              "code": "assert is_even(2) is not None",
+              "code": "assert is_even(1234) is True and is_even(1235) is False\nassert all(is_even(n) is (n % 2 == 0) for n in range(-50, 51))",
               "visible": false,
-              "failure_message": "Your function returned None. Use return, not print.",
-              "failure_message_tr": "Fonksiyonun None döndürdü. print değil, return kullan."
-            },
-            {
-              "code": "assert is_even(1234) is True and is_even(1235) is False",
-              "visible": false,
-              "failure_message": "Other numbers must work too: compute the answer with %, do not special-case values.",
-              "failure_message_tr": "Başka sayılarla da çalışmalı: cevabı % ile hesapla, belirli sayıları tek tek yazma."
+              "failure_message": "Compute the answer with %, do not special-case numbers.",
+              "failure_message_tr": "Cevabı % ile hesapla, belirli sayıları tek tek yazma."
             }
           ],
           "hints": [
-            "Which operator gives the remainder after division?",
-            "An even number leaves remainder 0 when divided by 2, and a comparison with == already gives a bool you can return.",
-            "Return the comparison itself: return n % ___ == 0 (which number goes in the blank?)"
+            "Which operator gives the remainder of a division?",
+            "An even number leaves remainder 0 when divided by 2, and a comparison with == is already True or False.",
+            "You can return the comparison itself: return n % ___ == 0"
+          ],
+          "hints_tr": [
+            "Bölmenin kalanını hangi operatör verir?",
+            "Çift sayı 2'ye bölününce 0 kalanını verir; == ile yapılan karşılaştırma zaten True ya da False'tur.",
+            "Karşılaştırmanın kendisini döndürebilirsin: return n % ___ == 0"
           ],
           "solution": {
-            "approach": "The comparison n % 2 == 0 already evaluates to a bool, so we can return it directly.",
-            "code": "def is_even(n):\n    return n % 2 == 0",
-            "approach_tr": "n % 2 == 0 ifadesi zaten bir bool üretir, o yüzden doğrudan döndürebiliriz."
+            "approach": "The comparison n % 2 == 0 already evaluates to a bool, so return it directly.",
+            "approach_tr": "n % 2 == 0 karşılaştırması zaten bir bool üretir; onu doğrudan döndür.",
+            "code": "def is_even(n):\n    return n % 2 == 0"
           },
-          "twin": "d11-b1-e4",
-          "hints_tr": [
-            "Bölmeden kalanı hangi operatör verir?",
-            "Çift sayı 2'ye bölününce kalan 0 olur; == ile yapılan karşılaştırma zaten bir bool verir ve onu döndürebilirsin.",
-            "Karşılaştırmanın kendisini döndür: return n % ___ == 0 (boşluğa hangi sayı gelir?)"
-          ]
+          "twin": "d11-b1-e7"
         },
         {
-          "id": "d11-b1-e4",
+          "id": "d11-b1-e7",
           "type": "write",
-          "prompt": "Write a function is_adult(age) that returns True if age is 18 or more and False otherwise.",
-          "prompt_tr": "Yaş 18 veya daha büyükse True, değilse False döndüren is_adult(age) fonksiyonunu yazın.",
+          "prompt": "Write a function grade(score) that returns 'AA' for 90 and above, 'BB' for 75-89, 'CC' for 60-74 and 'FF' below 60. Use early returns. Example: grade(82) returns 'BB'.",
+          "prompt_tr": "grade(score) fonksiyonunu yaz: 90 ve üstü için 'AA', 75-89 için 'BB', 60-74 için 'CC', 60'ın altı için 'FF' döndürsün. Erken return kullan. Örnek: grade(82) 'BB' döndürür.",
           "starter_code": "",
-          "signature": "def is_adult(age):",
+          "signature": "def grade(score):",
           "tests": [
             {
-              "code": "assert is_adult(30) is True",
+              "code": "assert grade(95) == 'AA'",
               "visible": true,
-              "label_tr": "30 yaş için True dönüyor"
+              "label": "grade(95) is 'AA'",
+              "label_tr": "grade(95) 'AA'"
             },
             {
-              "code": "assert is_adult(10) is False",
+              "code": "assert grade(82) == 'BB'",
               "visible": true,
-              "label_tr": "10 yaş için False dönüyor"
+              "label": "grade(82) is 'BB'",
+              "label_tr": "grade(82) 'BB'"
             },
             {
-              "code": "assert is_adult(18) is True",
+              "code": "assert grade(90) == 'AA' and grade(75) == 'BB' and grade(60) == 'CC'",
               "visible": false,
-              "failure_message": "18 counts as an adult: use >= not >.",
-              "failure_message_tr": "18 yaş yetişkindir: > değil >= kullan."
+              "failure_message": "Check the borders: 90, 75 and 60 belong to the higher grade.",
+              "failure_message_tr": "Sınırları kontrol et: 90, 75 ve 60 üstteki harfe aittir."
             },
             {
-              "code": "assert is_adult(17) is False",
+              "code": "assert grade(59) == 'FF' and grade(0) == 'FF'",
               "visible": false,
-              "failure_message": "17 is not an adult; the function must return False, not None.",
-              "failure_message_tr": "17 yetişkin değil; fonksiyon None değil False döndürmeli."
+              "failure_message": "Everything below 60 must return 'FF'.",
+              "failure_message_tr": "60'ın altındaki her not 'FF' döndürmeli."
             },
             {
-              "code": "assert is_adult(0) is False",
+              "code": "assert grade(74) == 'CC' and grade(89) == 'BB'",
               "visible": false,
-              "failure_message": "Edge case: age 0.",
-              "failure_message_tr": "Uç durum: 0 yaş."
-            },
-            {
-              "code": "assert is_adult(65) is True and is_adult(5) is False",
-              "visible": false,
-              "failure_message": "Other ages must work too: compare age with 18 instead of listing values.",
-              "failure_message_tr": "Başka yaşlarla da çalışmalı: değerleri tek tek yazma, age'i 18 ile karşılaştır."
+              "failure_message": "74 is 'CC' and 89 is 'BB': test the upper end of each band.",
+              "failure_message_tr": "74 'CC', 89 'BB' olmalı: her aralığın üst ucunu dene."
             }
           ],
           "hints": [
-            "What comparison operator means 'greater than or equal'?",
-            "A comparison gives a bool you can return.",
-            "return age ___ 18 (which comparison operator goes in the blank?)"
+            "Check the highest band first, so each later check can assume the earlier ones were false.",
+            "After if score >= 90: return 'AA', the next line only runs for scores below 90.",
+            "Three ifs with >= 90, >= 75 and >= 60, each returning, and one last return for everything else."
+          ],
+          "hints_tr": [
+            "Önce en yüksek aralığı kontrol et; böylece sonraki kontroller öncekilerin yanlış olduğunu varsayabilir.",
+            "if score >= 90: return 'AA' satırından sonraki satır yalnızca 90'ın altındaki notlar için çalışır.",
+            ">= 90, >= 75 ve >= 60 ile her biri return eden üç if, geri kalan her şey için de son bir return."
           ],
           "solution": {
-            "approach": "A comparison expression is already a bool, so return it directly.",
-            "code": "def is_adult(age):\n    return age >= 18",
-            "approach_tr": "Karşılaştırma ifadesi zaten bir bool'dur, doğrudan döndür."
+            "approach": "Each return ends the call, so checking from the top band down needs no else and no upper bounds.",
+            "approach_tr": "Her return çağrıyı bitirir; en üst aralıktan aşağı doğru kontrol edince ne else ne de üst sınır gerekir.",
+            "code": "def grade(score):\n    if score >= 90:\n        return 'AA'\n    if score >= 75:\n        return 'BB'\n    if score >= 60:\n        return 'CC'\n    return 'FF'"
           },
-          "twin": "d11-b1-e3",
-          "hints_tr": [
-            "'Büyük veya eşit' hangi karşılaştırma operatörüyle yazılır?",
-            "Bir karşılaştırma, döndürebileceğin bir bool verir.",
-            "return age ___ 18 (boşluğa hangi karşılaştırma operatörü gelir?)"
-          ]
+          "twin": "d11-b1-e6"
         },
         {
           "id": "d11-b1-e8",
-          "type": "write",
-          "prompt": "Write net_price(price, discount_percent) that returns the price after the discount, rounded to 2 decimals. Example: net_price(200, 15) is 170.0.",
-          "prompt_tr": "İndirimden sonraki fiyatı 2 ondalığa yuvarlayarak döndüren net_price(price, discount_percent) yazın. Örnek: net_price(200, 15) sonucu 170.0.",
-          "starter_code": "",
-          "signature": "def net_price(price, discount_percent):",
-          "tests": [
-            {
-              "code": "assert net_price(200, 15) == 170.0",
-              "visible": true,
-              "label_tr": "200 liranın yüzde 15 indirimlisi 170.0"
-            },
-            {
-              "code": "assert net_price(80, 0) == 80",
-              "visible": true,
-              "label_tr": "İndirim 0 ise fiyat değişmiyor"
-            },
-            {
-              "code": "assert net_price(99.99, 10) == 89.99",
-              "visible": false,
-              "failure_message": "A discount with decimals must be rounded to 2 places.",
-              "failure_message_tr": "Ondalıklı indirimde sonuç 2 basamağa yuvarlanmalı."
-            },
-            {
-              "code": "assert net_price(50, 100) == 0",
-              "visible": false,
-              "failure_message": "A 100 percent discount makes the price 0.",
-              "failure_message_tr": "Yüzde 100 indirimle fiyat 0 olur."
-            },
-            {
-              "code": "assert net_price(1234, 25) == 925.5 and net_price(10, 33) == 6.7",
-              "visible": false,
-              "failure_message": "Other prices and rates must work: compute it, do not special-case.",
-              "failure_message_tr": "Başka fiyat ve oranlar da çalışmalı: hesaplayın, değerleri tek tek yazmayın."
-            }
+          "type": "explain",
+          "prompt": "In your own words: what is the difference between print and return inside a function? Mention what the caller receives in each case.",
+          "prompt_tr": "Kendi cümlelerinle: bir fonksiyonun içindeki print ile return arasındaki fark nedir? Her durumda çağıranın ne aldığını da söyle.",
+          "model_answer": "print only shows text on the screen, and the caller still receives None. return sends a value back to the caller, so it can be stored, added or passed on, and it also ends the function.",
+          "model_answer_tr": "print yalnızca ekrana yazı gösterir ve çağıran yine de None alır. return ise değeri çağırana geri gönderir; böylece değer saklanabilir, toplanabilir ya da başka yere verilebilir. return ayrıca fonksiyonu bitirir.",
+          "keywords": [
+            "return",
+            "None",
+            "caller"
           ],
-          "hints": [
-            "What fraction of the price is left after a 15 percent discount?",
-            "Convert the percent to a fraction with / 100, then multiply by the price.",
-            "Wrap the whole expression in round(..., ___) to get two decimals."
+          "keywords_tr": [
+            "return",
+            "None",
+            "çağıran"
           ],
-          "solution": {
-            "approach": "Multiply by (1 - percent/100) and round the result.",
-            "code": "def net_price(price, discount_percent):\n    return round(price * (1 - discount_percent / 100), 2)",
-            "approach_tr": "(1 - yüzde/100) ile çarpıp sonucu yuvarlayın."
-          },
-          "hints_tr": [
-            "Yüzde 15 indirimden sonra fiyatın hangi kesri kalır?",
-            "Yüzdeyi / 100 ile kesre çevirin, sonra fiyatla çarpın.",
-            "Tüm ifadeyi round(..., ___) içine alıp iki ondalık elde edin."
-          ],
-          "twin": "d11-b1-e9"
-        },
-        {
-          "id": "d11-b1-e9",
-          "type": "write",
-          "prompt": "Write with_vat(price, vat_percent) that returns the price including VAT, rounded to 2 decimals. Example: with_vat(100, 20) is 120.0.",
-          "prompt_tr": "KDV dahil fiyatı 2 ondalığa yuvarlayarak döndüren with_vat(price, vat_percent) yazın. Örnek: with_vat(100, 20) sonucu 120.0.",
-          "starter_code": "",
-          "signature": "def with_vat(price, vat_percent):",
-          "tests": [
-            {
-              "code": "assert with_vat(100, 20) == 120.0",
-              "visible": true,
-              "label_tr": "100 liraya yüzde 20 KDV 120.0"
-            },
-            {
-              "code": "assert with_vat(50, 0) == 50",
-              "visible": true,
-              "label_tr": "KDV 0 ise fiyat değişmiyor"
-            },
-            {
-              "code": "assert with_vat(19.99, 8) == 21.59",
-              "visible": false,
-              "failure_message": "VAT on decimals must be rounded to 2 places.",
-              "failure_message_tr": "Ondalıklı fiyatta KDV sonucu 2 basamağa yuvarlanmalı."
-            },
-            {
-              "code": "assert with_vat(0, 18) == 0",
-              "visible": false,
-              "failure_message": "A price of 0 stays 0.",
-              "failure_message_tr": "Fiyat 0 ise sonuç 0 kalır."
-            },
-            {
-              "code": "assert with_vat(250, 18) == 295.0 and with_vat(10, 1) == 10.1",
-              "visible": false,
-              "failure_message": "Other prices and rates must work: compute it.",
-              "failure_message_tr": "Başka fiyat ve oranlar da çalışmalı: hesaplayın."
-            }
-          ],
-          "hints": [
-            "VAT adds to the price instead of removing from it.",
-            "Think of 20 percent as 1.20 when you multiply.",
-            "return round(price * (___ + vat_percent / 100), 2): what number goes in the blank?"
-          ],
-          "solution": {
-            "approach": "Multiply the price by (1 + percent/100) and round.",
-            "code": "def with_vat(price, vat_percent):\n    return round(price * (1 + vat_percent / 100), 2)",
-            "approach_tr": "Fiyatı (1 + yüzde/100) ile çarpıp yuvarlayın."
-          },
-          "hints_tr": [
-            "KDV fiyatı azaltmaz, artırır.",
-            "Yüzde 20'yi çarpmada 1.20 olarak düşünün.",
-            "return round(price * (___ + vat_percent / 100), 2): boşluğa hangi sayı gelir?"
-          ],
-          "twin": "d11-b1-e8"
+          "min_words": 12
         }
-      ],
-      "concept_tr": "Fonksiyon bir iş paketidir: def ile tanımlanır, çağrılınca çalışır ve return ile bir değeri çağıran tarafa geri verir."
+      ]
     },
     {
       "id": "d11-b2",
-      "concept": "parameters-and-keyword-arguments",
+      "concept": "parameters-and-arguments",
+      "concept_tr": "Parametre tanımdaki isimdir, argüman çağrıdaki değerdir; sıraya göre ya da isim=değer ile isme göre eşleşirler, varsayılan değerler ise zorunlu parametrelerden sonra gelir.",
       "tags": [
         "functions",
         "parameters",
-        "keyword-arguments"
+        "keyword-arguments",
+        "defaults"
       ],
       "worked_example": {
-        "code": "def calculate_age(current_year, birth_year):\n    return current_year - birth_year\n\nprint(calculate_age(2024, 2000))\nprint(calculate_age(birth_year=2000, current_year=2024))\nprint(calculate_age(2000, 2024))",
+        "code": "def describe_trip(city, days, budget=5000):\n    per_day = budget / days\n    return f'{city}: {days} gün, günlük {per_day:.0f} TL'\n\nprint(describe_trip('Antalya', 4))\nprint(describe_trip(days=2, city='Mardin', budget=3000))",
         "notes": [
-          "Parameters are the names in the def line; arguments are the actual values you pass when you call. Python binds them to each other when the call happens.",
-          "Positional arguments are matched by order, so swapping them silently changes the result with no error. Keyword arguments name the parameter, which makes calls self-documenting and order-independent.",
-          "Passing too few or too many arguments raises a TypeError that names the function and how many arguments it expected; read that message before guessing.",
-          "Once you use a keyword argument in a call, every argument after it must also be a keyword argument; positional ones must come first."
+          "Positional arguments are matched to parameters from left to right, so 'Antalya' becomes city and 4 becomes days.",
+          "budget has a default, so the first call may leave it out and the function uses 5000 automatically.",
+          "Keyword arguments are matched by name, which is why the second call can list days before city and still be correct."
         ],
         "notes_tr": [
-          "Parametreler def satırındaki isimlerdir; argümanlar ise çağırırken verdiğiniz gerçek değerlerdir. Python bunları çağrı anında eşleştirir.",
-          "Konumsal (positional) argümanlar sıraya göre eşleşir; sırayı karıştırırsanız hata almadan sonuç sessizce değişir. Anahtar kelimeli argümanlar parametre adını yazar, çağrıyı okunur yapar ve sıradan bağımsızdır.",
-          "Eksik ya da fazla argüman vermek, fonksiyonun adını ve kaç argüman beklediğini söyleyen bir TypeError üretir; tahmin etmeden önce bu mesajı okuyun.",
-          "Çağrıda bir kez anahtar kelimeli argüman kullandıktan sonra, sonraki tüm argümanlar da anahtar kelimeli olmalıdır; konumsal olanlar önce gelir."
+          "Pozisyonel argümanlar soldan sağa parametrelerle eşleşir; 'Antalya' city, 4 ise days olur.",
+          "budget'ın varsayılan değeri var; ilk çağrı onu vermeyebilir ve fonksiyon otomatik olarak 5000 kullanır.",
+          "İsimli argümanlar isme göre eşleşir; ikinci çağrının days'i city'den önce yazıp yine doğru çalışmasının nedeni budur."
         ]
       },
       "exercises": [
         {
           "id": "d11-b2-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "def calculate_age(current_year, birth_year):\n    return current_year - birth_year\n\nprint(calculate_age(birth_year=2000, current_year=2024))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def intro(name, city='İstanbul'):\n    return name + ' - ' + city\n\nprint(intro('Ece'))\nprint(intro('Can', 'Konya'))\nprint(intro(city='Van', name='Ali'))",
           "choices": [
-            "24",
-            "-24",
-            "TypeError"
+            "Ece - İstanbul\nCan - İstanbul\nAli - Van",
+            "Ece - İstanbul\nCan - Konya\nVan - Ali",
+            "Ece - İstanbul\nCan - Konya\nAli - Van",
+            "Ece\nCan - Konya\nAli - Van"
           ],
-          "expected_output": "24",
-          "explanation": "Each value goes to the parameter with that name, so current_year is 2024 and birth_year is 2000: 2024 - 2000 = 24.",
+          "expected_output": "Ece - İstanbul\nCan - Konya\nAli - Van",
+          "explanation": "The first call uses the default city, the second overrides it by position, the third matches both by name.",
+          "explanation_tr": "İlk çağrı varsayılan şehri kullanır, ikincisi onu sırayla değiştirir, üçüncüsü ikisini de isimle eşleştirir.",
           "misconceptions": {
-            "-24": "Keywords are matched by name, not by position, so current_year is still 2024.",
-            "TypeError": "Mixing the order is fine when you name each argument."
+            "Ece - İstanbul\nCan - İstanbul\nAli - Van": "A passed argument replaces the default, so the second call uses Konya.",
+            "Ece - İstanbul\nCan - Konya\nVan - Ali": "Keyword arguments go to the parameter with that name, not by position.",
+            "Ece\nCan - Konya\nAli - Van": "When city is not passed, its default is used; it does not disappear."
           },
-          "explanation_tr": "Her değer, adı aynı olan parametreye gider: current_year 2024, birth_year 2000 olur ve 2024 - 2000 = 24 çıkar.",
           "misconceptions_tr": {
-            "-24": "İsimli argümanlar konuma göre değil isme göre eşleşir, yani current_year yine 2024'tür.",
-            "TypeError": "Her argümanı adıyla verdiğinde sırayı karıştırmak sorun olmaz."
-          }
-        },
-        {
-          "id": "d11-b2-e5",
-          "type": "predict",
-          "prompt": "What does this print? Watch the order of the arguments.",
-          "prompt_tr": "Bu ne yazdırır? Argümanların sırasına dikkat edin.",
-          "code": "def divide(a, b):\n    return a / b\n\nprint(divide(10, 4))\nprint(divide(4, 10))\nprint(divide(b=4, a=10))",
-          "choices": [
-            "2.5\n2.5\n2.5",
-            "2.5\n0.4\n0.4",
-            "2.5\n0.4\n2.5",
-            "2\n0\n2"
-          ],
-          "expected_output": "2.5\n0.4\n2.5",
-          "explanation": "Positional arguments follow order: divide(4, 10) is 0.4. Keyword arguments are matched by name, so divide(b=4, a=10) is 10 / 4 = 2.5.",
-          "misconceptions": {
-            "2.5\n2.5\n2.5": "Division is not symmetric: 10 / 4 and 4 / 10 are different numbers.",
-            "2.5\n0.4\n0.4": "The third call uses keywords, so a is still 10 and b is 4, regardless of the order written.",
-            "2\n0\n2": "/ is true division and always returns a float, it does not floor like //."
-          },
-          "explanation_tr": "Konumsal argümanlar sıraya uyar: divide(4, 10) sonucu 0.4. Anahtar kelimeli argümanlar ada göre eşleşir, bu yüzden divide(b=4, a=10) = 10 / 4 = 2.5.",
-          "misconceptions_tr": {
-            "2.5\n2.5\n2.5": "Bölme simetrik değildir: 10 / 4 ile 4 / 10 farklı sayılardır.",
-            "2.5\n0.4\n0.4": "Üçüncü çağrı anahtar kelime kullanır; yazılış sırası ne olursa olsun a yine 10, b yine 4'tür.",
-            "2\n0\n2": "/ gerçek bölmedir ve her zaman float döndürür; // gibi aşağı yuvarlamaz."
+            "Ece - İstanbul\nCan - İstanbul\nAli - Van": "Verilen argüman varsayılanın yerine geçer; ikinci çağrı Konya'yı kullanır.",
+            "Ece - İstanbul\nCan - Konya\nVan - Ali": "İsimli argümanlar sıraya göre değil, o isimdeki parametreye gider.",
+            "Ece\nCan - Konya\nAli - Van": "city verilmezse varsayılan değeri kullanılır; ortadan kaybolmaz."
           }
         },
         {
           "id": "d11-b2-e2",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def divide(total, people):\n    return total / people\n\nprint(divide(people=4, total=200))\nprint(divide(4, 200))",
+          "choices": [
+            "50.0\n50.0",
+            "50.0\n0.02",
+            "0.02\n50.0",
+            "50\n0.02"
+          ],
+          "expected_output": "50.0\n0.02",
+          "explanation": "By name, total=200 and people=4 give 50.0. By position, 4 goes to total and 200 to people, giving 0.02.",
+          "explanation_tr": "İsme göre total=200 ve people=4 olur ve 50.0 çıkar. Sıraya göre 4 total'a, 200 people'a gider ve 0.02 çıkar.",
+          "misconceptions": {
+            "50.0\n50.0": "Positional arguments do not look at names: the second call means total=4, people=200.",
+            "0.02\n50.0": "The keyword call matches by name, so it is 200 / 4 = 50.0, not 4 / 200.",
+            "50\n0.02": "The / operator always gives a float in Python 3, so 200 / 4 is 50.0."
+          },
+          "misconceptions_tr": {
+            "50.0\n50.0": "Pozisyonel argümanlar isimlere bakmaz: ikinci çağrı total=4, people=200 demektir.",
+            "0.02\n50.0": "İsimli çağrı isme göre eşleşir; yani 4 / 200 değil, 200 / 4 = 50.0'dır.",
+            "50\n0.02": "Python 3'te / operatörü her zaman float verir; 200 / 4 sonucu 50.0'dır."
+          }
+        },
+        {
+          "id": "d11-b2-e3",
           "type": "parsons",
-          "prompt": "Put the lines in order to build full_name and print the result.",
-          "prompt_tr": "Satırları doğru sıraya koyarak full_name fonksiyonunu oluşturun ve sonucu yazdırın.",
+          "prompt": "Build the function full_name with a default separator and print 'Yılmaz, Ayşe'. One line is a distractor.",
+          "prompt_tr": "Varsayılan ayırıcısı olan full_name fonksiyonunu kur ve 'Yılmaz, Ayşe' yazdır. Satırlardan biri çeldirici.",
           "lines": [
-            "print(full_name('Asabeneh', 'Yetayeh'))",
-            "def full_name(first_name, last_name):",
-            "    return first_name + space + last_name",
-            "    space = ' '"
+            "print(full_name('Ayşe', 'Yılmaz', ', '))",
+            "def full_name(first, last, sep=' '):",
+            "    return last + sep + first"
           ],
           "correct_order": [
             1,
-            3,
             2,
             0
           ],
           "distractors": [
-            "    return first_name + last_name"
+            "def full_name(sep=' ', first, last):"
           ],
-          "expected_output": "Asabeneh Yetayeh"
-        },
-        {
-          "id": "d11-b2-e6",
-          "type": "debug",
-          "prompt": "The program should print 'Hello, Ayşe Demir!' but it fails with a TypeError. Fix the call, not the function.",
-          "prompt_tr": "Program 'Hello, Ayşe Demir!' yazdırmalı ama TypeError veriyor. Fonksiyonu değil, çağrıyı düzeltin.",
-          "starter_code": "def greet(first_name, last_name):\n    return 'Hello, ' + first_name + ' ' + last_name + '!'\n\nprint(greet('Ayşe Demir'))",
-          "expected_output": "Hello, Ayşe Demir!",
-          "tests": [
-            {
-              "code": "assert greet('A', 'B') == 'Hello, A B!'",
-              "visible": true,
-              "label_tr": "greet iki parametreyle çalışıyor"
-            },
-            {
-              "code": "assert __stdout__.strip() == 'Hello, Ayşe Demir!'",
-              "visible": true,
-              "label_tr": "Program doğru selamı yazdırıyor"
-            }
-          ],
-          "hints": [
-            "Read the TypeError: how many arguments are missing?",
-            "'Ayşe Demir' is a single string, so it fills only the first parameter.",
-            "Give greet two separate strings, separated by a comma."
-          ],
-          "solution": {
-            "approach": "The function needs two arguments but the call passed one string containing both names. Pass them separately.",
-            "code": "def greet(first_name, last_name):\n    return 'Hello, ' + first_name + ' ' + last_name + '!'\n\nprint(greet('Ayşe', 'Demir'))",
-            "approach_tr": "Fonksiyon iki argüman bekliyor ama çağrı iki ismi içeren tek bir string verdi. İsimleri ayrı ayrı verin."
-          },
-          "hints_tr": [
-            "TypeError'u okuyun: kaç argüman eksik?",
-            "'Ayşe Demir' tek bir string'dir, yalnızca ilk parametreyi doldurur.",
-            "greet'e virgülle ayrılmış iki ayrı string verin."
-          ]
-        },
-        {
-          "id": "d11-b2-e7",
-          "type": "modify",
-          "prompt": "The call below mixes up the argument order and prints a negative age. Change only the call so that it uses keyword arguments and prints 24.",
-          "prompt_tr": "Aşağıdaki çağrıda argüman sırası karışmış ve negatif yaş yazdırıyor. Yalnızca çağrıyı, anahtar kelimeli argüman kullanıp 24 yazdıracak şekilde değiştirin.",
-          "starter_code": "def calculate_age(current_year, birth_year):\n    return current_year - birth_year\n\nprint(calculate_age(2000, 2024))",
-          "tests": [
-            {
-              "code": "assert __stdout__.strip() == '24'",
-              "visible": true,
-              "label_tr": "Program 24 yazdırıyor"
-            },
-            {
-              "code": "assert 'birth_year=' in __source__ and 'current_year=' in __source__",
-              "visible": false,
-              "failure_message": "Use keyword arguments for both parameters.",
-              "failure_message_tr": "İki parametre için de anahtar kelimeli argüman kullanın."
-            },
-            {
-              "code": "assert calculate_age(birth_year=1990, current_year=2020) == 30",
-              "visible": false,
-              "failure_message": "The function itself must stay unchanged.",
-              "failure_message_tr": "Fonksiyonun kendisi değişmeden kalmalı."
-            }
-          ],
-          "hints": [
-            "Which parameter is the birth year, and which is the current year?",
-            "A keyword argument looks like name=value.",
-            "calculate_age(birth_year=___, current_year=___): fill the two years."
-          ],
-          "solution": {
-            "approach": "Name both arguments so their order stops mattering.",
-            "code": "def calculate_age(current_year, birth_year):\n    return current_year - birth_year\n\nprint(calculate_age(birth_year=2000, current_year=2024))",
-            "approach_tr": "İki argümanı da adıyla yazın, böylece sıralarının önemi kalmaz."
-          },
-          "hints_tr": [
-            "Hangi parametre doğum yılı, hangisi bugünkü yıl?",
-            "Anahtar kelimeli argüman ad=değer biçimindedir.",
-            "calculate_age(birth_year=___, current_year=___): iki yılı doldurun."
-          ]
-        },
-        {
-          "id": "d11-b2-e3",
-          "type": "write",
-          "prompt": "Write weight_of_object(mass, gravity) that returns the weight as a string in the form '<value> N', where value is mass * gravity. Example: weight_of_object(10, 10) returns '100 N'.",
-          "prompt_tr": "Ağırlığı '<değer> N' biçiminde bir string olarak döndüren weight_of_object(mass, gravity) yazın; değer mass * gravity'dir. Örnek: weight_of_object(10, 10) sonucu '100 N' olur.",
-          "starter_code": "",
-          "signature": "def weight_of_object(mass, gravity):",
-          "tests": [
-            {
-              "code": "assert weight_of_object(10, 10) == '100 N'",
-              "visible": true,
-              "label_tr": "weight_of_object(10, 10) '100 N' döndürüyor"
-            },
-            {
-              "code": "assert weight_of_object(2, 1.5) == '3.0 N'",
-              "visible": true,
-              "label_tr": "weight_of_object(2, 1.5) '3.0 N' döndürüyor"
-            },
-            {
-              "code": "assert weight_of_object(gravity=2, mass=5) == '10 N'",
-              "visible": false,
-              "failure_message": "Keyword calls must work: use the parameter names mass and gravity exactly.",
-              "failure_message_tr": "İsimli çağrılar çalışmalı: parametre adlarını (mass ve gravity) aynen kullan."
-            },
-            {
-              "code": "assert isinstance(weight_of_object(1, 1), str)",
-              "visible": false,
-              "failure_message": "Return a string, not a number. Convert with str().",
-              "failure_message_tr": "Sayı değil string döndür. str() ile çevir."
-            },
-            {
-              "code": "assert weight_of_object(0, 9) == '0 N'",
-              "visible": false,
-              "failure_message": "Check the zero case: there must be a single space before N.",
-              "failure_message_tr": "Sıfır durumuna bak: N'den önce tek bir boşluk olmalı."
-            },
-            {
-              "code": "assert weight_of_object(7, 3) == '21 N'",
-              "visible": false,
-              "failure_message": "Compute the weight from the arguments; do not hard-code results.",
-              "failure_message_tr": "Ağırlığı verilen argümanlardan hesapla; sonuçları elle yazma."
-            }
-          ],
-          "hints": [
-            "The number must become text before you can add ' N' to it.",
-            "Multiply first, convert the product to text with a built-in function, then join ' N' with +.",
-            "return ___(mass * gravity) + ' N' (which built-in turns a number into text?)"
-          ],
-          "solution": {
-            "approach": "Multiply, convert to str with str(), then join with ' N' using +.",
-            "code": "def weight_of_object(mass, gravity):\n    return str(mass * gravity) + ' N'",
-            "approach_tr": "Çarp, str() ile string'e çevir, sonra + ile ' N' ekle."
-          },
-          "twin": "d11-b2-e4",
-          "hints_tr": [
-            "' N' eklemeden önce sayıyı yazıya çevirmen gerekir.",
-            "Önce çarp, çıkan sonucu hazır bir fonksiyonla yazıya çevir, sonra + ile ' N' ekle.",
-            "return ___(mass * gravity) + ' N' (sayıyı yazıya çeviren hazır fonksiyon hangisi?)"
-          ]
+          "expected_output": "Yılmaz, Ayşe"
         },
         {
           "id": "d11-b2-e4",
-          "type": "write",
-          "prompt": "Write generate_full_name(first_name, last_name) that returns the two names joined by one space. Example: generate_full_name('Lidiya', 'Tadesse') returns 'Lidiya Tadesse'.",
-          "prompt_tr": "İki ismi tek boşlukla birleştirip döndüren generate_full_name(first_name, last_name) yazın. Örnek: generate_full_name('Lidiya', 'Tadesse') sonucu 'Lidiya Tadesse' olur.",
-          "starter_code": "",
-          "signature": "def generate_full_name(first_name, last_name):",
+          "type": "debug",
+          "prompt": "calculate_age should print 'Yaş: 30'. Python refuses to even start. Read the error and fix the definition so that calculate_age(1995) uses 2025 as the current year.",
+          "prompt_tr": "calculate_age 'Yaş: 30' yazdırmalı ama Python programı başlatmayı bile reddediyor. Hatayı oku ve tanımı, calculate_age(1995) çağrısı güncel yıl olarak 2025'i kullanacak şekilde düzelt.",
+          "starter_code": "def calculate_age(current_year=2025, birth_year):\n    return current_year - birth_year\n\nprint('Yaş:', calculate_age(1995))",
+          "expected_output": "Yaş: 30",
           "tests": [
             {
-              "code": "assert generate_full_name('Lidiya', 'Tadesse') == 'Lidiya Tadesse'",
+              "code": "assert calculate_age(1995) == 30",
               "visible": true,
-              "label_tr": "generate_full_name('Lidiya', 'Tadesse') doğru döndürüyor"
+              "label": "calculate_age(1995) returns 30",
+              "label_tr": "calculate_age(1995) 30 döndürüyor"
             },
             {
-              "code": "assert generate_full_name('Ermias', 'Bekele') == 'Ermias Bekele'",
+              "code": "assert __stdout__.strip() == 'Yaş: 30'",
               "visible": true,
-              "label_tr": "generate_full_name('Ermias', 'Bekele') doğru döndürüyor"
+              "label": "The program prints 'Yaş: 30'",
+              "label_tr": "Program 'Yaş: 30' yazdırıyor"
             },
             {
-              "code": "assert generate_full_name(last_name='Smith', first_name='David') == 'David Smith'",
+              "code": "assert calculate_age(2000, 2010) == 10",
               "visible": false,
-              "failure_message": "Keyword calls must work: use the parameter names first_name and last_name.",
-              "failure_message_tr": "İsimli çağrılar çalışmalı: parametre adlarını (first_name ve last_name) aynen kullan."
-            },
-            {
-              "code": "assert generate_full_name('A', 'B') == 'A B'",
-              "visible": false,
-              "failure_message": "Exactly one space between the names.",
-              "failure_message_tr": "İsimler arasında tam olarak bir boşluk olmalı."
-            },
-            {
-              "code": "assert generate_full_name('A', 'B') is not None",
-              "visible": false,
-              "failure_message": "The function returned None. Use return, not print.",
-              "failure_message_tr": "Fonksiyon None döndürdü. print değil, return kullan."
-            },
-            {
-              "code": "assert generate_full_name('Zeynep', 'Kaya') == 'Zeynep Kaya'",
-              "visible": false,
-              "failure_message": "Names you have not seen must work too; build the string from the arguments.",
-              "failure_message_tr": "Görmediğin isimlerle de çalışmalı; string'i argümanlardan oluştur."
+              "failure_message": "A second argument must still override the current year.",
+              "failure_message_tr": "İkinci argüman yine güncel yılın yerine geçebilmeli."
             }
           ],
           "hints": [
-            "You need a string with a single space between the two names.",
-            "Join the three pieces with +; the space is itself a one-character string.",
-            "return first_name + ___ + last_name (what goes between the two names?)"
+            "The error says: parameter without a default follows parameter with a default.",
+            "Required parameters must come first; the one with a default must move to the end.",
+            "Swap the two parameters in the header, keeping =2025 attached to current_year."
+          ],
+          "hints_tr": [
+            "Hata diyor ki: varsayılanı olmayan parametre, varsayılanı olandan sonra geliyor.",
+            "Zorunlu parametreler önce gelmeli; varsayılanlı olan sona taşınmalı.",
+            "Başlıktaki iki parametrenin yerini değiştir; =2025, current_year'a bağlı kalsın."
           ],
           "solution": {
-            "approach": "Concatenate first name, a space and last name, then return it.",
-            "code": "def generate_full_name(first_name, last_name):\n    return first_name + ' ' + last_name",
-            "approach_tr": "Ad, bir boşluk ve soyadı birleştirip döndür."
-          },
-          "twin": "d11-b2-e3",
-          "hints_tr": [
-            "İki isim arasında tek bir boşluk olan bir string lazım.",
-            "Üç parçayı + ile birleştir; boşluk da tek karakterlik bir string'dir.",
-            "return first_name + ___ + last_name (iki ismin arasına ne gelir?)"
-          ]
+            "approach": "A parameter with a default may not come before one without. Putting birth_year first fixes the SyntaxError and keeps the default.",
+            "approach_tr": "Varsayılanı olan parametre, olmayandan önce gelemez. birth_year'ı başa almak SyntaxError'ı giderir ve varsayılanı korur.",
+            "code": "def calculate_age(birth_year, current_year=2025):\n    return current_year - birth_year\n\nprint('Yaş:', calculate_age(1995))"
+          }
         },
         {
-          "id": "d11-b2-e8",
-          "type": "write",
-          "prompt": "Review of Day 4 (strings): write log_level(line) for lines like '2024-05-01 ERROR disk full'. It returns the second word of the line (the level), here 'ERROR'.",
-          "prompt_tr": "Gün 4 tekrarı (string): '2024-05-01 ERROR disk full' gibi satırlar için log_level(line) yazın. Satırın ikinci kelimesini (seviyeyi) döndürsün, burada 'ERROR'.",
-          "starter_code": "",
-          "signature": "def log_level(line):",
+          "id": "d11-b2-e5",
+          "type": "modify",
+          "prompt": "add_item has the mutable-default trap: calling it twice without a cart makes the items pile up. Change it so the default is None and a new list is created inside. The program must then print ['elma'] and ['armut'].",
+          "prompt_tr": "add_item değiştirilebilir varsayılan tuzağına düşüyor: sepet vermeden iki kez çağırınca elemanlar birikiyor. Varsayılan None olacak ve yeni list içeride oluşturulacak şekilde değiştir. Program sonra ['elma'] ve ['armut'] yazdırmalı.",
+          "starter_code": "def add_item(item, cart=[]):\n    cart.append(item)\n    return cart\n\nprint(add_item('elma'))\nprint(add_item('armut'))",
+          "signature": "def add_item(item, cart=None):",
           "tests": [
             {
-              "code": "assert log_level('2024-05-01 ERROR disk full') == 'ERROR'",
+              "code": "assert __stdout__.split('\\n')[:2] == [\"['elma']\", \"['armut']\"]",
               "visible": true,
-              "label_tr": "Satırdan ERROR okunuyor"
+              "label": "The program prints ['elma'] then ['armut']",
+              "label_tr": "Program önce ['elma'], sonra ['armut'] yazdırıyor"
             },
             {
-              "code": "assert log_level('2024-05-02 INFO started') == 'INFO'",
+              "code": "assert add_item('x', ['a']) == ['a', 'x']",
               "visible": true,
-              "label_tr": "Satırdan INFO okunuyor"
+              "label": "A given cart is extended",
+              "label_tr": "Verilen sepete ekleniyor"
             },
             {
-              "code": "assert log_level('2023-12-31 WARNING low memory soon') == 'WARNING'",
+              "code": "a = add_item('k'); b = add_item('m'); assert a == ['k'] and b == ['m'] and a is not b",
               "visible": false,
-              "failure_message": "Extra words after the level must not matter.",
-              "failure_message_tr": "Seviyeden sonraki fazladan kelimeler önemli olmamalı."
+              "failure_message": "Each call without a cart must get its own new list.",
+              "failure_message_tr": "Sepetsiz her çağrı kendi yeni list'ini almalı."
             },
             {
-              "code": "assert log_level('x DEBUG y') == 'DEBUG' and log_level('1 FATAL') == 'FATAL'",
+              "code": "assert 'None' in __source__",
               "visible": false,
-              "failure_message": "Compute the level from the line, do not look for fixed words.",
-              "failure_message_tr": "Seviyeyi satırdan hesaplayın, sabit kelime aramayın."
+              "failure_message": "Use None as the default value.",
+              "failure_message_tr": "Varsayılan değer olarak None kullan."
             }
           ],
           "hints": [
-            "How can you turn a string into a list of words?",
-            "After splitting, which index holds the second word?",
-            "return line.split()[___]"
+            "A default is created once, when def runs. Which immutable value can stand for 'no cart given'?",
+            "Set cart=None in the header and check for it at the start of the body.",
+            "if cart is None: then attach cart to a brand-new empty list before appending."
+          ],
+          "hints_tr": [
+            "Varsayılan değer def çalışırken bir kez oluşur. 'Sepet verilmedi' anlamına hangi değiştirilemez değer gelebilir?",
+            "Başlıkta cart=None yaz ve gövdenin başında bunu kontrol et.",
+            "if cart is None: sonra append'ten önce cart'ı yepyeni boş bir list'e bağla."
           ],
           "solution": {
-            "approach": "split() cuts the line at spaces into a list; the level is at index 1.",
-            "code": "def log_level(line):\n    return line.split()[1]",
-            "approach_tr": "split() satırı boşluklardan listeye böler; seviye 1. indekstedir."
-          },
-          "hints_tr": [
-            "Bir string'i kelime listesine nasıl çevirirsiniz?",
-            "Bölünce ikinci kelime hangi indekste?",
-            "return line.split()[___]"
-          ],
-          "twin": "d11-b2-e9"
+            "approach": "None is immutable and safe as a default; creating the list inside the body gives every call a fresh list.",
+            "approach_tr": "None değiştirilemez ve varsayılan olarak güvenlidir; list'i gövdede oluşturmak her çağrıya yeni bir list verir.",
+            "code": "def add_item(item, cart=None):\n    if cart is None:\n        cart = []\n    cart.append(item)\n    return cart\n\nprint(add_item('elma'))\nprint(add_item('armut'))"
+          }
         },
         {
-          "id": "d11-b2-e9",
+          "id": "d11-b2-e6",
           "type": "write",
-          "prompt": "Write log_message(line) that returns everything after the level, joined by single spaces. For '2024-05-01 ERROR disk full' it returns 'disk full'.",
-          "prompt_tr": "Seviyeden sonraki her şeyi tek boşlukla birleştirerek döndüren log_message(line) yazın. '2024-05-01 ERROR disk full' için 'disk full' döner.",
+          "prompt": "Write a function price_with_discount(price, rate=10) that returns the price after a rate percent discount, rounded to 2 decimals with round(). Example: price_with_discount(200) returns 180.0 and price_with_discount(80, rate=25) returns 60.0.",
+          "prompt_tr": "price_with_discount(price, rate=10) fonksiyonunu yaz: yüzde rate kadar indirim uygulanmış fiyatı round() ile 2 ondalığa yuvarlayıp döndürsün. Örnek: price_with_discount(200) 180.0, price_with_discount(80, rate=25) 60.0 döndürür.",
           "starter_code": "",
-          "signature": "def log_message(line):",
+          "signature": "def price_with_discount(price, rate=10):",
           "tests": [
             {
-              "code": "assert log_message('2024-05-01 ERROR disk full') == 'disk full'",
+              "code": "assert price_with_discount(200) == 180.0",
               "visible": true,
-              "label_tr": "İki kelimelik mesaj çıkıyor"
+              "label": "price_with_discount(200) is 180.0",
+              "label_tr": "price_with_discount(200) 180.0"
             },
             {
-              "code": "assert log_message('2024-05-02 INFO started') == 'started'",
+              "code": "assert price_with_discount(80, rate=25) == 60.0",
               "visible": true,
-              "label_tr": "Tek kelimelik mesaj çıkıyor"
+              "label": "price_with_discount(80, rate=25) is 60.0",
+              "label_tr": "price_with_discount(80, rate=25) 60.0"
             },
             {
-              "code": "assert log_message('2024-05-03 WARNING cpu temperature is high') == 'cpu temperature is high'",
+              "code": "assert price_with_discount(99.99, 15) == 84.99",
               "visible": false,
-              "failure_message": "Longer messages must be kept whole.",
-              "failure_message_tr": "Uzun mesajlar bütün olarak korunmalı."
+              "failure_message": "Round the result to 2 decimals with round(value, 2).",
+              "failure_message_tr": "Sonucu round(değer, 2) ile 2 ondalığa yuvarla."
             },
             {
-              "code": "assert log_message('d L') == '' and log_message('d L a b c') == 'a b c'",
+              "code": "assert price_with_discount(50, 0) == 50.0",
               "visible": false,
-              "failure_message": "A line with no message gives an empty string.",
-              "failure_message_tr": "Mesajı olmayan satır boş string vermeli."
+              "failure_message": "A rate of 0 must leave the price unchanged.",
+              "failure_message_tr": "rate 0 ise fiyat değişmemeli."
+            },
+            {
+              "code": "assert price_with_discount(rate=50, price=10) == 5.0",
+              "visible": false,
+              "failure_message": "Keyword arguments in any order must work: use the parameter names price and rate.",
+              "failure_message_tr": "İsimli argümanlar her sırayla çalışmalı: parametre adları price ve rate olsun."
             }
           ],
           "hints": [
-            "The first two words are the date and the level; the rest is the message.",
-            "words[2:] is a slice that starts at index 2.",
-            "' '.join(...) turns a list of words back into one string."
+            "The header needs a required price and a rate with a default of 10.",
+            "A rate percent discount leaves price * (100 - rate) / 100.",
+            "Wrap the calculation in round(..., 2) and return it."
+          ],
+          "hints_tr": [
+            "Başlıkta zorunlu bir price ve varsayılanı 10 olan bir rate olmalı.",
+            "Yüzde rate indirimden sonra geriye price * (100 - rate) / 100 kalır.",
+            "Hesabı round(..., 2) içine al ve döndür."
           ],
           "solution": {
-            "approach": "Split into words, slice from index 2 to the end, and join them back with spaces.",
-            "code": "def log_message(line):\n    words = line.split()\n    return ' '.join(words[2:])",
-            "approach_tr": "Kelimelere bölün, 2. indeksten sona dilimleyin ve boşlukla geri birleştirin."
+            "approach": "The default rate makes the common case short; round(..., 2) keeps the money value to two decimals.",
+            "approach_tr": "Varsayılan rate sık kullanılan durumu kısaltır; round(..., 2) para değerini iki ondalıkta tutar.",
+            "code": "def price_with_discount(price, rate=10):\n    return round(price * (100 - rate) / 100, 2)"
           },
-          "hints_tr": [
-            "İlk iki kelime tarih ve seviyedir; geri kalanı mesajdır.",
-            "words[2:] 2. indeksten başlayan bir dilimdir.",
-            "' '.join(...) kelime listesini yeniden tek bir string yapar."
+          "twin": "d11-b2-e7"
+        },
+        {
+          "id": "d11-b2-e7",
+          "type": "write",
+          "prompt": "Write a function make_username(first, last, year=2025) that returns the lowercase first name, a dot, the lowercase last name and the last two digits of year. Example: make_username('Ayşe', 'Kaya') returns 'ayşe.kaya25'; make_username('Can', 'Demir', 1999) returns 'can.demir99'.",
+          "prompt_tr": "make_username(first, last, year=2025) fonksiyonunu yaz: küçük harfli ad, bir nokta, küçük harfli soyad ve year'ın son iki hanesini döndürsün. Örnek: make_username('Ayşe', 'Kaya') 'ayşe.kaya25', make_username('Can', 'Demir', 1999) 'can.demir99' döndürür.",
+          "starter_code": "",
+          "signature": "def make_username(first, last, year=2025):",
+          "tests": [
+            {
+              "code": "assert make_username('Ayşe', 'Kaya') == 'ayşe.kaya25'",
+              "visible": true,
+              "label": "Default year gives 'ayşe.kaya25'",
+              "label_tr": "Varsayılan yılla 'ayşe.kaya25'"
+            },
+            {
+              "code": "assert make_username('Can', 'Demir', 1999) == 'can.demir99'",
+              "visible": true,
+              "label": "Year 1999 gives 'can.demir99'",
+              "label_tr": "1999 yılıyla 'can.demir99'"
+            },
+            {
+              "code": "assert make_username('Elif', 'SU', year=2007) == 'elif.su07'",
+              "visible": false,
+              "failure_message": "Keep two digits even for years like 2007 (07), and lowercase with .lower().",
+              "failure_message_tr": "2007 gibi yıllarda da iki hane kalmalı (07); küçültmek için .lower() kullan."
+            },
+            {
+              "code": "assert make_username(last='Ak', first='Bora', year=2010) == 'bora.ak10'",
+              "visible": false,
+              "failure_message": "Name the parameters first, last and year so keyword calls work.",
+              "failure_message_tr": "İsimli çağrılar çalışsın diye parametre adları first, last ve year olsun."
+            }
           ],
-          "twin": "d11-b2-e8"
+          "hints": [
+            "Turn the year into a string first; the last two characters of a string s are s[-2:].",
+            "str(2007)[-2:] is '07', which keeps the leading zero that % 100 would lose.",
+            "Glue first.lower(), a dot, last.lower() and the two digits with +."
+          ],
+          "hints_tr": [
+            "Önce yılı string'e çevir; bir s string'inin son iki karakteri s[-2:]'dir.",
+            "str(2007)[-2:] sonucu '07'dir; % 100 bu baştaki sıfırı kaybederdi.",
+            "first.lower(), nokta, last.lower() ve iki haneyi + ile birleştir."
+          ],
+          "solution": {
+            "approach": "String methods and slicing from earlier days combine inside one return; the default year covers the usual case.",
+            "approach_tr": "Önceki günlerden string metotları ve dilimleme tek bir return içinde birleşiyor; varsayılan yıl olağan durumu karşılıyor.",
+            "code": "def make_username(first, last, year=2025):\n    return first.lower() + '.' + last.lower() + str(year)[-2:]"
+          },
+          "twin": "d11-b2-e6"
         }
-      ],
-      "concept_tr": "Parametreler fonksiyona veri taşır. Değerler sıraya göre (positional) ya da isme göre (keyword argument) verilebilir."
+      ]
     },
     {
       "id": "d11-b3",
-      "concept": "default-and-arbitrary-arguments",
+      "concept": "args-and-kwargs",
+      "concept_tr": "Tanımda *args fazladan pozisyonel argümanları bir tuple'da, **kwargs fazladan isimli argümanları bir dict'te toplar; çağrıda * ve ** bir list'i ya da dict'i argümanlara dağıtır.",
       "tags": [
         "functions",
-        "default-parameters",
-        "args"
+        "args",
+        "kwargs",
+        "unpacking"
       ],
       "worked_example": {
-        "code": "def greetings(name='Peter'):\n    return name + ', welcome!'\n\nprint(greetings())\nprint(greetings('Asabeneh'))",
+        "code": "def receipt(customer, *prices, **info):\n    total = sum(prices)\n    print(customer, len(prices), 'ürün,', total, 'TL')\n    for key, value in info.items():\n        print(' ', key, '=', value)\n\nreceipt('Ali', 30, 45, 25, paid='kart', note='hediye')",
         "notes": [
-          "A default value is used only when the caller passes nothing.",
-          "*nums would collect any number of extra arguments into a tuple."
+          "The first positional argument fills the normal parameter customer, and *prices collects the three remaining positional values into a tuple.",
+          "**info collects every keyword argument that no named parameter took, as a dict, so .items() gives key and value pairs.",
+          "The order in the header is fixed: normal parameters, then *args, then **kwargs; any other order is a SyntaxError."
         ],
         "notes_tr": [
-          "Varsayılan değer, çağıran hiçbir şey vermediğinde kullanılır.",
-          "*nums fazladan gelen tüm argümanları bir tuple içinde toplar."
+          "İlk pozisyonel argüman normal customer parametresini doldurur; *prices kalan üç pozisyonel değeri bir tuple'da toplar.",
+          "**info, hiçbir isimli parametrenin almadığı tüm isimli argümanları bir dict olarak toplar; .items() bu yüzden anahtar-değer çiftleri verir.",
+          "Başlıktaki sıra sabittir: önce normal parametreler, sonra *args, en son **kwargs; başka bir sıra SyntaxError verir."
         ]
       },
       "exercises": [
         {
           "id": "d11-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "def greetings(name='Peter'):\n    return name + ', welcome to Python for Everyone!'\n\nprint(greetings())\nprint(greetings('Asabeneh'))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def count_args(*args):\n    return len(args), args\n\nprint(count_args(4, 'a', [1, 2]))\nprint(count_args())",
           "choices": [
-            "Peter, welcome to Python for Everyone!",
-            "Peter, welcome to Python for Everyone!\nPeter, welcome to Python for Everyone!",
-            "Peter, welcome to Python for Everyone!\nAsabeneh, welcome to Python for Everyone!"
+            "(3, [4, 'a', [1, 2]])\n(0, [])",
+            "(4, (4, 'a', 1, 2))\n(0, ())",
+            "(3, (4, 'a', [1, 2]))\nError",
+            "(3, (4, 'a', [1, 2]))\n(0, ())"
           ],
-          "expected_output": "Peter, welcome to Python for Everyone!\nAsabeneh, welcome to Python for Everyone!",
-          "explanation": "The first call passes nothing, so name is 'Peter'. The second call passes 'Asabeneh', which replaces the default.",
+          "expected_output": "(3, (4, 'a', [1, 2]))\n(0, ())",
+          "explanation": "Three arguments are collected into one tuple of length 3. With no arguments, args is the empty tuple ().",
+          "explanation_tr": "Üç argüman 3 uzunluğunda tek bir tuple'da toplanır. Argüman yoksa args boş tuple () olur.",
           "misconceptions": {
-            "Peter, welcome to Python for Everyone!": "Only the first call uses the default; the second call passes its own name.",
-            "Peter, welcome to Python for Everyone!\nPeter, welcome to Python for Everyone!": "A value you pass overrides the default."
+            "(3, [4, 'a', [1, 2]])\n(0, [])": "*args always collects into a tuple, shown with round brackets, not a list.",
+            "(4, (4, 'a', 1, 2))\n(0, ())": "The list [1, 2] is a single argument; it stays one item inside the tuple.",
+            "(3, (4, 'a', [1, 2]))\nError": "Calling with no arguments is allowed: args is just the empty tuple."
           },
-          "explanation_tr": "İlk çağrıda hiçbir şey verilmediği için name 'Peter' olur. İkinci çağrıda 'Asabeneh' verilir ve varsayılanın yerini alır.",
           "misconceptions_tr": {
-            "Peter, welcome to Python for Everyone!": "Varsayılanı sadece ilk çağrı kullanır; ikinci çağrı kendi ismini verir.",
-            "Peter, welcome to Python for Everyone!\nPeter, welcome to Python for Everyone!": "Verdiğin değer varsayılan değerin üzerine yazılır."
+            "(3, [4, 'a', [1, 2]])\n(0, [])": "*args her zaman bir tuple'da toplar; köşeli değil, yuvarlak parantezle gösterilir.",
+            "(4, (4, 'a', 1, 2))\n(0, ())": "[1, 2] list'i tek bir argümandır; tuple'ın içinde tek bir eleman olarak kalır.",
+            "(3, (4, 'a', [1, 2]))\nError": "Argümansız çağırmak serbesttir: args yalnızca boş tuple olur."
           }
         },
         {
           "id": "d11-b3-e2",
-          "type": "fill_blank",
-          "prompt": "Complete both functions: a default current_year of 2021, and a function that accepts any number of numbers.",
-          "prompt_tr": "İki fonksiyonu tamamlayın: varsayılan current_year değeri 2021 olsun ve diğer fonksiyon istenen sayıda sayıyı kabul etsin.",
-          "starter_code": "def calculate_age(birth_year, current_year ___ 2021):\n    return current_year - birth_year\n\ndef sum_all_nums(___nums):\n    total = 0\n    for num in nums:\n        total += num\n    return total\n\nprint(calculate_age(1990))\nprint(sum_all_nums(2, 3, 5))",
-          "blanks": [
-            {
-              "answer": [
-                "="
-              ]
-            },
-            {
-              "answer": [
-                "*"
-              ]
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def book(title, **extra):\n    return title + ' ' + str(sorted(extra))\n\ndata = {'title': 'Kuyucaklı Yusuf', 'year': 1937, 'pages': 220}\nprint(book(**data))",
+          "choices": [
+            "Kuyucaklı Yusuf ['pages', 'title', 'year']",
+            "Kuyucaklı Yusuf {'year': 1937, 'pages': 220}",
+            "TypeError",
+            "Kuyucaklı Yusuf ['pages', 'year']"
           ],
-          "tests": [
-            {
-              "code": "assert calculate_age(1990) == 31",
-              "visible": true,
-              "label_tr": "calculate_age(1990) 31 döndürüyor"
-            },
-            {
-              "code": "assert calculate_age(1990, 2000) == 10",
-              "visible": true,
-              "label_tr": "calculate_age(1990, 2000) 10 döndürüyor"
-            },
-            {
-              "code": "assert sum_all_nums(2, 3, 5) == 10",
-              "visible": true,
-              "label_tr": "sum_all_nums(2, 3, 5) 10 döndürüyor"
-            },
-            {
-              "code": "assert sum_all_nums() == 0",
-              "visible": true,
-              "label_tr": "sum_all_nums() hiç argümansız 0 döndürüyor"
-            }
-          ],
-          "hints": [
-            "A default value uses the = sign inside the parentheses.",
-            "One star before a parameter name collects extra positional arguments."
-          ],
-          "hints_tr": [
-            "Varsayılan değer, parantez içinde = işaretiyle verilir.",
-            "Bir parametre adının önündeki tek yıldız, fazladan gelen argümanları toplar."
-          ]
+          "expected_output": "Kuyucaklı Yusuf ['pages', 'year']",
+          "explanation": "**data spreads the dict into keyword arguments. title fills the parameter title; year and pages are left over and land in extra, whose sorted keys are ['pages', 'year'].",
+          "explanation_tr": "**data dict'i isimli argümanlara dağıtır. title, title parametresini doldurur; year ve pages artar ve extra'ya düşer; extra'nın sıralı anahtarları ['pages', 'year'] olur.",
+          "misconceptions": {
+            "Kuyucaklı Yusuf ['pages', 'title', 'year']": "title matches the named parameter, so it is not collected into extra.",
+            "Kuyucaklı Yusuf {'year': 1937, 'pages': 220}": "sorted() on a dict returns a sorted list of its keys, not the dict.",
+            "TypeError": "Extra keys are fine here, because **extra accepts any keyword that is left over."
+          },
+          "misconceptions_tr": {
+            "Kuyucaklı Yusuf ['pages', 'title', 'year']": "title isimli parametreyle eşleşir, bu yüzden extra'ya toplanmaz.",
+            "Kuyucaklı Yusuf {'year': 1937, 'pages': 220}": "Bir dict'e sorted() uygulamak dict'i değil, anahtarlarının sıralı list'ini verir.",
+            "TypeError": "Fazla anahtarlar burada sorun değil, çünkü **extra artan her isimli argümanı kabul eder."
+          }
         },
         {
           "id": "d11-b3-e3",
-          "type": "write",
-          "prompt": "Write average(*nums) that returns the average of all the numbers given. If no numbers are given, return 0.",
-          "prompt_tr": "Verilen tüm sayıların ortalamasını döndüren average(*nums) yazın. Hiç sayı verilmezse 0 döndürsün.",
-          "starter_code": "",
-          "signature": "def average(*nums):",
+          "type": "fill_blank",
+          "prompt": "Complete average(*nums) so it returns the mean of any number of arguments, or 0 when called with none.",
+          "prompt_tr": "average(*nums) fonksiyonunu tamamla: istenen sayıda argümanın ortalamasını, hiç argüman yoksa 0 döndürsün.",
+          "starter_code": "def average(___):\n    if len(nums) == 0:\n        return 0\n    return sum(nums) / len(nums)\n\nprint(average(70, 80, 90))",
+          "blanks": [
+            {
+              "answer": [
+                "*nums"
+              ]
+            }
+          ],
           "tests": [
             {
-              "code": "assert average(2, 4, 6) == 4",
+              "code": "assert average(70, 80, 90) == 80.0",
               "visible": true,
-              "label_tr": "average(2, 4, 6) 4 döndürüyor"
-            },
-            {
-              "code": "assert average(1, 2) == 1.5",
-              "visible": true,
-              "label_tr": "average(1, 2) 1.5 döndürüyor"
+              "label": "average(70, 80, 90) is 80.0",
+              "label_tr": "average(70, 80, 90) 80.0"
             },
             {
               "code": "assert average() == 0",
-              "visible": false,
-              "failure_message": "With no arguments there is nothing to divide: return 0 (avoid ZeroDivisionError).",
-              "failure_message_tr": "Argüman yoksa bölünecek bir şey yok: 0 döndür (ZeroDivisionError'dan kaçın)."
+              "visible": true,
+              "label": "average() is 0",
+              "label_tr": "average() 0"
             },
             {
-              "code": "assert average(5) == 5",
-              "visible": false,
-              "failure_message": "A single number is its own average.",
-              "failure_message_tr": "Tek bir sayının ortalaması kendisidir."
-            },
-            {
-              "code": "assert average(10, 20, 30, 40) == 25",
-              "visible": false,
-              "failure_message": "Divide the total by how many numbers were given (len(nums)).",
-              "failure_message_tr": "Toplamı kaç sayı verildiğine (len(nums)) böl."
-            },
-            {
-              "code": "assert average(7, 9, 11, 13) == 10",
-              "visible": false,
-              "failure_message": "Compute the average from the numbers given; do not hard-code results.",
-              "failure_message_tr": "Ortalamayı verilen sayılardan hesapla; sonuçları elle yazma."
+              "code": "assert average(5) == 5.0",
+              "visible": true,
+              "label": "average(5) is 5.0",
+              "label_tr": "average(5) 5.0"
             }
           ],
           "hints": [
-            "Inside the function nums behaves like a tuple, so len and sum work.",
-            "Handle the empty case first, then divide the sum by the count.",
-            "return sum(nums) / ___(nums) (after you have handled the empty case with an if)"
+            "The body uses a name nums that must hold all the arguments together.",
+            "A single star before a parameter name collects positional arguments into a tuple.",
+            "Write the parameter name with one star in front of it."
           ],
-          "solution": {
-            "approach": "Handle the empty tuple first, then divide the sum by the count.",
-            "code": "def average(*nums):\n    if len(nums) == 0:\n        return 0\n    return sum(nums) / len(nums)",
-            "approach_tr": "Önce boş tuple'ı ele al, sonra toplamı eleman sayısına böl."
-          },
-          "twin": "d11-b3-e4",
           "hints_tr": [
-            "Fonksiyonun içinde nums bir tuple gibi davranır, bu yüzden len ve sum çalışır.",
-            "Önce boş durumu ele al, sonra toplamı eleman sayısına böl.",
-            "return sum(nums) / ___(nums) (boş durumu bir if ile ele aldıktan sonra)"
+            "Gövde, bütün argümanları bir arada tutan nums adında bir isim kullanıyor.",
+            "Parametre adının önündeki tek yıldız pozisyonel argümanları bir tuple'da toplar.",
+            "Parametre adını önüne tek yıldız koyarak yaz."
           ]
         },
         {
           "id": "d11-b3-e4",
-          "type": "write",
-          "prompt": "Write longest_name(*names) that returns the longest name given. If there are several of the same longest length, return the first one. With no names, return an empty string.",
-          "prompt_tr": "Verilen isimler arasından en uzununu döndüren longest_name(*names) yazın. Eşit uzunlukta birden fazla varsa ilkini döndürün. Hiç isim verilmezse boş string döndürün.",
-          "starter_code": "",
-          "signature": "def longest_name(*names):",
+          "type": "debug",
+          "prompt": "show_profile should print 'Elif (Ankara)' using the dict profile. The call crashes with a TypeError. Fix only the call line so it spreads the dict into keyword arguments.",
+          "prompt_tr": "show_profile, profile dict'ini kullanarak 'Elif (Ankara)' yazdırmalı. Çağrı TypeError ile çöküyor. Yalnızca çağrı satırını, dict'i isimli argümanlara dağıtacak şekilde düzelt.",
+          "starter_code": "def show_profile(name, city):\n    print(name + ' (' + city + ')')\n\nprofile = {'name': 'Elif', 'city': 'Ankara'}\nshow_profile(profile)",
           "tests": [
             {
-              "code": "assert longest_name('Asabeneh', 'Lidiya') == 'Asabeneh'",
+              "code": "assert __stdout__.strip() == 'Elif (Ankara)'",
               "visible": true,
-              "label_tr": "longest_name('Asabeneh', 'Lidiya') 'Asabeneh' döndürüyor"
+              "label": "The program prints 'Elif (Ankara)'",
+              "label_tr": "Program 'Elif (Ankara)' yazdırıyor"
             },
             {
-              "code": "assert longest_name('Ermias', 'Abraham', 'Eyob') == 'Abraham'",
-              "visible": true,
-              "label_tr": "longest_name('Ermias', 'Abraham', 'Eyob') 'Abraham' döndürüyor"
-            },
-            {
-              "code": "assert longest_name() == ''",
+              "code": "assert 'show_profile(**profile)' in __source__.replace(' ', '')",
               "visible": false,
-              "failure_message": "No names given: return an empty string ''.",
-              "failure_message_tr": "İsim verilmediyse boş string '' döndür."
-            },
-            {
-              "code": "assert longest_name('ab', 'cd') == 'ab'",
-              "visible": false,
-              "failure_message": "On a tie, return the first name, so compare with > not >=.",
-              "failure_message_tr": "Eşit uzunlukta ilk ismi döndür; bu yüzden >= değil > kullan."
-            },
-            {
-              "code": "assert longest_name('Brook') == 'Brook'",
-              "visible": false,
-              "failure_message": "A single name is the longest.",
-              "failure_message_tr": "Tek bir isim, en uzun olandır."
-            },
-            {
-              "code": "assert longest_name('kedi', 'aslan', 'fil') == 'aslan'",
-              "visible": false,
-              "failure_message": "Compare the lengths of the names given; do not hard-code results.",
-              "failure_message_tr": "Verilen isimlerin uzunluklarını karşılaştır; sonuçları elle yazma."
+              "failure_message": "Spread the dict in the call instead of typing the values by hand.",
+              "failure_message_tr": "Değerleri elle yazmak yerine dict'i çağrıda dağıt."
             }
           ],
           "hints": [
-            "Start from an empty string and compare lengths as you loop.",
-            "Replace the current best only when the new name is strictly longer.",
-            "Inside the loop: if len(name) ___ len(best): ... (> or >=? think about ties)"
+            "The error says one required argument is missing. How many arguments did the call really pass?",
+            "The whole dict went into name. You need its keys to become keyword arguments.",
+            "Put the unpacking operator for dicts in front of profile in the call."
+          ],
+          "hints_tr": [
+            "Hata bir zorunlu argümanın eksik olduğunu söylüyor. Çağrı gerçekte kaç argüman verdi?",
+            "Bütün dict name'e gitti. Anahtarlarının isimli argümanlara dönüşmesi gerekiyor.",
+            "Çağrıda profile'ın önüne dict'ler için açma operatörünü koy."
           ],
           "solution": {
-            "approach": "Loop over names keeping the best so far; use a strict comparison so ties keep the first.",
-            "code": "def longest_name(*names):\n    best = ''\n    for name in names:\n        if len(name) > len(best):\n            best = name\n    return best",
-            "approach_tr": "Döngüde şimdiye kadarki en uzun ismi tut; eşitlikte ilk isim kalsın diye kesin büyüktür (>) karşılaştırması kullan."
-          },
-          "twin": "d11-b3-e3",
+            "approach": "Passing profile gives one positional argument, the dict itself. **profile spreads it into name='Elif', city='Ankara'.",
+            "approach_tr": "profile vermek tek bir pozisyonel argüman, yani dict'in kendisini verir. **profile onu name='Elif', city='Ankara' olarak dağıtır.",
+            "code": "def show_profile(name, city):\n    print(name + ' (' + city + ')')\n\nprofile = {'name': 'Elif', 'city': 'Ankara'}\nshow_profile(**profile)"
+          }
+        },
+        {
+          "id": "d11-b3-e5",
+          "type": "modify",
+          "prompt": "add_all_nums only accepts exactly two numbers. Change it to accept any number of arguments and return their sum, keeping the name. add_all_nums(1, 2, 3, 4) must return 10 and add_all_nums() must return 0.",
+          "prompt_tr": "add_all_nums yalnızca tam iki sayı kabul ediyor. İsmini koruyarak, istenen sayıda argüman alıp toplamlarını döndürecek şekilde değiştir. add_all_nums(1, 2, 3, 4) 10, add_all_nums() 0 döndürmeli.",
+          "starter_code": "def add_all_nums(a, b):\n    return a + b\n\nprint(add_all_nums(2, 3))",
+          "signature": "def add_all_nums(*nums):",
+          "tests": [
+            {
+              "code": "assert add_all_nums(1, 2, 3, 4) == 10",
+              "visible": true,
+              "label": "Four numbers give 10",
+              "label_tr": "Dört sayı 10 veriyor"
+            },
+            {
+              "code": "assert add_all_nums() == 0",
+              "visible": true,
+              "label": "No numbers give 0",
+              "label_tr": "Sayı yoksa 0"
+            },
+            {
+              "code": "assert add_all_nums(2.5, 2.5, 5) == 10.0",
+              "visible": false,
+              "failure_message": "Floats must be summed too.",
+              "failure_message_tr": "Ondalıklı sayılar da toplanmalı."
+            },
+            {
+              "code": "assert add_all_nums(7) == 7",
+              "visible": false,
+              "failure_message": "A single number is its own sum.",
+              "failure_message_tr": "Tek bir sayının toplamı kendisidir."
+            }
+          ],
+          "hints": [
+            "Which parameter form collects any number of positional arguments?",
+            "With *nums, nums is a tuple you can loop over or pass to sum().",
+            "Replace (a, b) with a starred parameter and return the total of that tuple."
+          ],
           "hints_tr": [
-            "Boş bir string'le başla ve döngüde uzunlukları karşılaştır.",
-            "Mevcut en iyiyi yalnızca yeni isim kesinlikle daha uzunsa değiştir.",
-            "Döngünün içinde: if len(name) ___ len(best): ... (> mi >= mi? eşitlik durumunu düşün)"
-          ]
+            "Hangi parametre biçimi istenen sayıda pozisyonel argümanı toplar?",
+            "*nums ile nums, üzerinde döngü kurabileceğin ya da sum()'a verebileceğin bir tuple olur.",
+            "(a, b) yerine yıldızlı bir parametre yaz ve o tuple'ın toplamını döndür."
+          ],
+          "solution": {
+            "approach": "A starred parameter collects every argument into a tuple; summing an empty tuple gives 0, which covers the no-argument case.",
+            "approach_tr": "Yıldızlı parametre her argümanı bir tuple'da toplar; boş tuple'ın toplamı 0'dır, bu da argümansız durumu karşılar.",
+            "code": "def add_all_nums(*nums):\n    total = 0\n    for n in nums:\n        total += n\n    return total\n\nprint(add_all_nums(2, 3))"
+          }
+        },
+        {
+          "id": "d11-b3-e6",
+          "type": "write",
+          "prompt": "Write a function longest(*words) that returns the longest of the given words; if several have the same length, return the first of them. With no words return ''. Example: longest('elma', 'karpuz', 'kiraz') returns 'karpuz'.",
+          "prompt_tr": "longest(*words) fonksiyonunu yaz: verilen kelimelerin en uzununu döndürsün; birden fazlası aynı uzunluktaysa ilkini döndürsün. Hiç kelime yoksa '' döndürsün. Örnek: longest('elma', 'karpuz', 'kiraz') 'karpuz' döndürür.",
+          "starter_code": "",
+          "signature": "def longest(*words):",
+          "tests": [
+            {
+              "code": "assert longest('elma', 'karpuz', 'kiraz') == 'karpuz'",
+              "visible": true,
+              "label": "Returns 'karpuz'",
+              "label_tr": "'karpuz' döndürüyor"
+            },
+            {
+              "code": "assert longest() == ''",
+              "visible": true,
+              "label": "No words give ''",
+              "label_tr": "Kelime yoksa ''"
+            },
+            {
+              "code": "assert longest('ab', 'cd', 'e') == 'ab'",
+              "visible": false,
+              "failure_message": "On a tie, keep the first word: replace only when a word is strictly longer.",
+              "failure_message_tr": "Eşitlikte ilk kelimeyi koru: yalnızca kesinlikle daha uzun bir kelime gelince değiştir."
+            },
+            {
+              "code": "assert longest('a', 'bbb', 'cc', 'dddd') == 'dddd'",
+              "visible": false,
+              "failure_message": "Check every word, including the last one.",
+              "failure_message_tr": "Son kelime dahil her kelimeyi kontrol et."
+            }
+          ],
+          "hints": [
+            "Start with best = '' and look at every word in the tuple words.",
+            "Replace best only when len(word) > len(best); >= would keep the last of equal words instead.",
+            "A for loop with one if inside, and return best after the loop."
+          ],
+          "hints_tr": [
+            "best = '' ile başla ve words tuple'ındaki her kelimeye bak.",
+            "best'i yalnızca len(word) > len(best) olduğunda değiştir; >= kullanırsan eşit kelimelerin sonuncusu kalır.",
+            "İçinde tek bir if olan bir for döngüsü, döngüden sonra da return best."
+          ],
+          "solution": {
+            "approach": "Keep the best word so far and replace it only on a strictly longer word; the empty tuple leaves the starting ''.",
+            "approach_tr": "O ana kadarki en iyi kelimeyi tut ve yalnızca kesinlikle daha uzun bir kelimede değiştir; boş tuple başlangıçtaki '' değerini bırakır.",
+            "code": "def longest(*words):\n    best = ''\n    for word in words:\n        if len(word) > len(best):\n            best = word\n    return best"
+          },
+          "twin": "d11-b3-e7"
+        },
+        {
+          "id": "d11-b3-e7",
+          "type": "write",
+          "prompt": "Write a function show_args(**kwargs) that returns one string 'Received: ' followed by every key: value pair in the order given, separated by ', '. Example: show_args(name='Alice', age=30) returns 'Received: name: Alice, age: 30'. With no arguments it returns 'Received: '.",
+          "prompt_tr": "show_args(**kwargs) fonksiyonunu yaz: 'Received: ' ile başlayan ve ardından her anahtar: değer çiftini verildiği sırayla ', ' ile ayırarak içeren tek bir string döndürsün. Örnek: show_args(name='Alice', age=30) 'Received: name: Alice, age: 30' döndürür. Argüman yoksa 'Received: ' döndürür.",
+          "starter_code": "",
+          "signature": "def show_args(**kwargs):",
+          "tests": [
+            {
+              "code": "assert show_args(name='Alice', age=30) == 'Received: name: Alice, age: 30'",
+              "visible": true,
+              "label": "Two pairs in order",
+              "label_tr": "Sırasıyla iki çift"
+            },
+            {
+              "code": "assert show_args() == 'Received: '",
+              "visible": true,
+              "label": "No arguments give 'Received: '",
+              "label_tr": "Argüman yoksa 'Received: '"
+            },
+            {
+              "code": "assert show_args(pet='Fluffy, the bunny') == 'Received: pet: Fluffy, the bunny'",
+              "visible": false,
+              "failure_message": "A single pair must have no trailing comma.",
+              "failure_message_tr": "Tek bir çiftte sonda virgül olmamalı."
+            },
+            {
+              "code": "assert show_args(a=1, b=2, c=3) == 'Received: a: 1, b: 2, c: 3'",
+              "visible": false,
+              "failure_message": "Keep the order of the keyword arguments and turn values into strings.",
+              "failure_message_tr": "İsimli argümanların sırasını koru ve değerleri string'e çevir."
+            }
+          ],
+          "hints": [
+            "kwargs is a dict; build one 'key: value' string per item from kwargs.items().",
+            "Collect those pieces in a list and join them with ', '.join(parts), which puts commas only between items.",
+            "Return 'Received: ' plus the joined string; values need str() before you can glue them."
+          ],
+          "hints_tr": [
+            "kwargs bir dict'tir; kwargs.items()'daki her eleman için bir 'anahtar: değer' string'i kur.",
+            "Bu parçaları bir list'te topla ve ', '.join(parts) ile birleştir; bu, virgülleri yalnızca elemanların arasına koyar.",
+            "'Received: ' ile birleştirilmiş string'i toplayıp döndür; değerleri yapıştırmadan önce str() gerekir."
+          ],
+          "solution": {
+            "approach": "**kwargs keeps the call order. Building a list of pieces and joining them avoids an extra comma at the end.",
+            "approach_tr": "**kwargs çağrı sırasını korur. Parçaları bir list'te toplayıp birleştirmek, sonda fazladan virgül oluşmasını önler.",
+            "code": "def show_args(**kwargs):\n    parts = []\n    for key, value in kwargs.items():\n        parts.append(key + ': ' + str(value))\n    return 'Received: ' + ', '.join(parts)"
+          },
+          "twin": "d11-b3-e6"
         }
-      ],
-      "concept_tr": "Parametreye varsayılan değer verebilir (name='Peter') ya da *nums ile istediğin kadar argüman kabul edebilirsin."
+      ]
     },
     {
       "id": "d11-b4",
-      "concept": "functions-as-arguments-and-unpacking",
+      "concept": "functions-as-values",
+      "concept_tr": "Fonksiyon da bir nesnedir: parantezsiz yazılan adı başka bir fonksiyona argüman olarak verilebilir, list'te ya da dict'te saklanabilir ve daha sonra çağrılabilir.",
       "tags": [
         "functions",
-        "higher-order",
-        "unpacking"
+        "first-class",
+        "callbacks",
+        "interleaving"
       ],
       "worked_example": {
-        "code": "def square(n):\n    return n * n\n\ndef do_something(f, x):\n    return f(x)\n\nprint(do_something(square, 4))",
+        "code": "def to_upper(text):\n    return text.upper()\n\ndef apply_to_all(f, items):\n    result = []\n    for item in items:\n        result.append(f(item))\n    return result\n\nprint(apply_to_all(to_upper, ['ankara', 'izmir']))\nprint(apply_to_all(len, ['ankara', 'izmir']))",
         "notes": [
-          "square (no parentheses) is the function itself, not a call.",
-          "do_something calls whatever function it receives."
+          "to_upper is passed without parentheses, so apply_to_all receives the function object itself, not a result.",
+          "Inside apply_to_all the parameter f is a second name tag on the same function, and f(item) calls it once per item.",
+          "Because any one-argument function fits, the same helper works with a built-in like len just as well as with your own function."
         ],
         "notes_tr": [
-          "square (parantezsiz) fonksiyonun kendisidir, çağrısı değildir.",
-          "do_something, kendisine verilen fonksiyonu çağırır."
+          "to_upper parantezsiz verilir; bu yüzden apply_to_all bir sonucu değil, fonksiyon nesnesinin kendisini alır.",
+          "apply_to_all içinde f parametresi aynı fonksiyona takılı ikinci bir isim etiketidir ve f(item) onu her eleman için bir kez çağırır.",
+          "Tek argüman alan her fonksiyon uyduğu için aynı yardımcı, kendi fonksiyonun kadar len gibi hazır bir fonksiyonla da çalışır."
         ]
       },
       "exercises": [
         {
           "id": "d11-b4-e1",
           "type": "predict",
-          "prompt": "What does this print? Look carefully at the body of square_number.",
-          "prompt_tr": "Bu ne yazdırır? square_number'ın gövdesine dikkatle bakın.",
-          "code": "def square_number(n):\n    return n ** n\n\ndef do_something(f, x):\n    return f(x)\n\nprint(do_something(square_number, 3))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def square(n):\n    return n ** 2\n\ndef do_twice(f, x):\n    return f(f(x))\n\nprint(do_twice(square, 3))",
           "choices": [
             "9",
+            "81",
             "27",
-            "6"
+            "18"
           ],
-          "expected_output": "27",
-          "explanation": "do_something calls f(3), which is square_number(3). The body computes 3 ** 3 = 27 (the lesson's function name is misleading: it is not a real square).",
+          "expected_output": "81",
+          "explanation": "The inner call square(3) gives 9, and the outer call square(9) gives 81.",
+          "explanation_tr": "İçteki square(3) çağrısı 9 verir, dıştaki square(9) çağrısı 81 verir.",
           "misconceptions": {
-            "9": "n ** n is 3 to the power 3, not 3 squared.",
-            "6": "** is exponentiation, not multiplication."
+            "9": "f(f(x)) calls square twice: once on 3, then again on the result.",
+            "27": "square is n ** 2, not n ** n; 3 ** 3 = 27 is the bug of the original course.",
+            "18": "Calling twice means applying the function to its own result, not doubling it."
           },
-          "explanation_tr": "do_something f(3) çağırır, yani square_number(3). Gövde 3 ** 3 = 27 hesaplar (fonksiyonun adı yanıltıcı: gerçek bir kare almıyor).",
           "misconceptions_tr": {
-            "9": "n ** n, 3'ün 3. kuvvetidir; 3'ün karesi değil.",
-            "6": "** üs almadır, çarpma değil."
+            "9": "f(f(x)), square'i iki kez çağırır: önce 3 ile, sonra sonucu ile.",
+            "27": "square n ** 2'dir, n ** n değil; 3 ** 3 = 27 orijinal kursun hatasıdır.",
+            "18": "İki kez çağırmak, fonksiyonu kendi sonucuna uygulamaktır; sonucu ikiyle çarpmak değil."
           }
         },
         {
           "id": "d11-b4-e2",
-          "type": "parsons",
-          "prompt": "Order the lines so the dictionary is unpacked into the keyword arguments of greet.",
-          "prompt_tr": "Sözlük, greet fonksiyonunun anahtar kelime argümanlarına açılacak şekilde satırları sıralayın.",
-          "lines": [
-            "print(greet(**info))",
-            "def greet(name, location):",
-            "info = {'name': 'Alice', 'location': 'Oslo'}",
-            "    return 'Hi ' + name + ', how is the weather in ' + location + '?'"
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def hello():\n    return 'Merhaba'\n\nf = hello\nprint(f())\nprint(f is hello)",
+          "choices": [
+            "Merhaba\nFalse",
+            "Merhaba\nTrue",
+            "hello\nTrue",
+            "Error"
           ],
-          "correct_order": [
-            1,
-            3,
-            2,
-            0
-          ],
-          "distractors": [
-            "print(greet(info))"
-          ],
-          "expected_output": "Hi Alice, how is the weather in Oslo?"
+          "expected_output": "Merhaba\nTrue",
+          "explanation": "f = hello puts a second name tag on the same function object. f() runs it, and f is hello is True because both tags point to one object.",
+          "explanation_tr": "f = hello aynı fonksiyon nesnesine ikinci bir isim etiketi takar. f() onu çalıştırır; f is hello True'dur çünkü iki etiket de tek bir nesneyi gösterir.",
+          "misconceptions": {
+            "Merhaba\nFalse": "f = hello does not copy the function; both names are tags on one object, so is gives True.",
+            "hello\nTrue": "f() calls the function, so it prints what the function returns, not its name.",
+            "Error": "Assigning a function to a new name is allowed; functions are values like any other."
+          },
+          "misconceptions_tr": {
+            "Merhaba\nFalse": "f = hello fonksiyonu kopyalamaz; iki isim de tek bir nesneye takılı etikettir, bu yüzden is True verir.",
+            "hello\nTrue": "f() fonksiyonu çağırır; yani adını değil, fonksiyonun döndürdüğünü yazdırır.",
+            "Error": "Bir fonksiyonu yeni bir isme atamak serbesttir; fonksiyonlar da diğerleri gibi değerdir."
+          }
         },
         {
           "id": "d11-b4-e3",
-          "type": "write",
-          "prompt": "Write apply_twice(f, x) that calls the function f on x, then calls f again on that result, and returns it. Example: if f adds 3, apply_twice(f, 1) is 7.",
-          "prompt_tr": "f fonksiyonunu x üzerinde, sonra çıkan sonuç üzerinde bir kez daha çağıran ve sonucu döndüren apply_twice(f, x) yazın. Örnek: f 3 ekliyorsa apply_twice(f, 1) sonucu 7 olur.",
-          "starter_code": "",
-          "signature": "def apply_twice(f, x):",
-          "tests": [
-            {
-              "code": "def add_three(n):\n    return n + 3\nassert apply_twice(add_three, 1) == 7",
-              "visible": true,
-              "label_tr": "add_three ile apply_twice(add_three, 1) 7 veriyor"
-            },
-            {
-              "code": "def double(n):\n    return n * 2\nassert apply_twice(double, 5) == 20",
-              "visible": true,
-              "label_tr": "double ile apply_twice(double, 5) 20 veriyor"
-            },
-            {
-              "code": "assert apply_twice(abs, -5) == 5",
-              "visible": false,
-              "failure_message": "Pass the function without calling it; call f(f(x)).",
-              "failure_message_tr": "Fonksiyonu çağırmadan ver; içeride f(f(x)) çağır."
-            },
-            {
-              "code": "assert apply_twice(str.upper, 'ab') == 'AB'",
-              "visible": false,
-              "failure_message": "It must work for any function, not only numbers.",
-              "failure_message_tr": "Sadece sayılarda değil, her fonksiyonla çalışmalı."
-            },
-            {
-              "code": "def inc(n):\n    return n + 1\nassert apply_twice(inc, 0) == 2",
-              "visible": false,
-              "failure_message": "f must be called exactly twice.",
-              "failure_message_tr": "f tam olarak iki kez çağrılmalı."
-            },
-            {
-              "code": "assert apply_twice(lambda n: n * 3, 2) == 18",
-              "visible": false,
-              "failure_message": "Use the function you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen fonksiyonu kullan; sonuçları elle yazma."
-            }
+          "type": "parsons",
+          "prompt": "Build calculate(op, a, b) that calls the function op with a and b, and print the result 12 for multiply. One line is a distractor.",
+          "prompt_tr": "op fonksiyonunu a ve b ile çağıran calculate(op, a, b) fonksiyonunu kur ve multiply için 12 sonucunu yazdır. Satırlardan biri çeldirici.",
+          "lines": [
+            "    return a * b",
+            "def multiply(a, b):",
+            "print(calculate(multiply, 3, 4))",
+            "def calculate(op, a, b):",
+            "    return op(a, b)"
           ],
-          "hints": [
-            "f is a parameter; you can call it like any function: f(x).",
-            "The second call must use the result of the first call.",
-            "return f(___) where the blank is the result of the first call"
+          "correct_order": [
+            1,
+            0,
+            3,
+            4,
+            2
           ],
-          "solution": {
-            "approach": "Call f on x, then call f again on that result.",
-            "code": "def apply_twice(f, x):\n    return f(f(x))",
-            "approach_tr": "f'yi x üzerinde çağır, sonra çıkan sonuç üzerinde f'yi bir kez daha çağır."
-          },
-          "twin": "d11-b4-e4",
-          "hints_tr": [
-            "f bir parametre; diğer fonksiyonlar gibi f(x) diye çağırabilirsin.",
-            "İkinci çağrı, ilk çağrının sonucunu kullanmalı.",
-            "return f(___) (boşluk ilk çağrının sonucudur)"
-          ]
+          "distractors": [
+            "print(calculate(multiply(), 3, 4))"
+          ],
+          "expected_output": "12"
         },
         {
           "id": "d11-b4-e4",
-          "type": "write",
-          "prompt": "Write compose(f, g, x) that returns f applied to g applied to x. Example: with g doubling and f adding one, compose(f, g, 5) is 11.",
-          "prompt_tr": "g'yi x üzerine, ardından f'yi bu sonuç üzerine uygulayıp döndüren compose(f, g, x) yazın. Örnek: g ikiyle çarpıyor, f bir ekliyorsa compose(f, g, 5) sonucu 11 olur.",
-          "starter_code": "",
-          "signature": "def compose(f, g, x):",
+          "type": "debug",
+          "prompt": "count_matching should count the words for which the check function returns True; the program should print 2. It crashes. Fix the bug.",
+          "prompt_tr": "count_matching, kontrol fonksiyonunun True döndürdüğü kelimeleri saymalı; program 2 yazdırmalı. Program çöküyor. Hatayı düzelt.",
+          "starter_code": "def is_long(word):\n    return len(word) > 5\n\ndef count_matching(check, words):\n    count = 0\n    for w in words:\n        if check(w):\n            count += 1\n    return count\n\nprint(count_matching(is_long(), ['elma', 'portakal', 'karpuz']))",
           "tests": [
             {
-              "code": "def g(n):\n    return n * 2\ndef f(n):\n    return n + 1\nassert compose(f, g, 5) == 11",
+              "code": "assert __stdout__.strip() == '2'",
               "visible": true,
-              "label_tr": "f(g(5)) 11 veriyor (g iki katı, f bir ekler)"
+              "label": "The program prints 2",
+              "label_tr": "Program 2 yazdırıyor"
             },
             {
-              "code": "assert compose(str.upper, str.strip, '  hi ') == 'HI'",
+              "code": "assert count_matching(is_long, ['a', 'abcdefg']) == 1",
               "visible": true,
-              "label_tr": "compose(str.upper, str.strip, '  hi ') 'HI' veriyor"
-            },
-            {
-              "code": "def g(n):\n    return n * 2\ndef f(n):\n    return n + 1\nassert compose(g, f, 5) == 12",
-              "visible": false,
-              "failure_message": "Order matters: the first function given is applied last.",
-              "failure_message_tr": "Sıra önemli: verilen ilk fonksiyon en son uygulanır."
-            },
-            {
-              "code": "assert compose(len, str, 12345) == 5",
-              "visible": false,
-              "failure_message": "It must work for any pair of functions.",
-              "failure_message_tr": "Her fonksiyon çiftiyle çalışmalı."
-            },
-            {
-              "code": "assert compose(abs, abs, -2) == 2",
-              "visible": false,
-              "failure_message": "Both functions must be called.",
-              "failure_message_tr": "İki fonksiyon da çağrılmalı."
-            },
-            {
-              "code": "assert compose(lambda n: n - 1, lambda n: n * 10, 4) == 39",
-              "visible": false,
-              "failure_message": "Apply the given functions in the right order; do not hard-code results.",
-              "failure_message_tr": "Verilen fonksiyonları doğru sırayla uygula; sonuçları elle yazma."
+              "label": "count_matching works with is_long",
+              "label_tr": "count_matching is_long ile çalışıyor"
             }
           ],
           "hints": [
-            "Work from the inside out: g(x) happens first.",
-            "The result of g(x) becomes the argument of f.",
-            "return f(___) where the blank is the call to g"
+            "The error says is_long() is missing an argument. Where is is_long being called with no argument?",
+            "count_matching wants the function itself, so it can call it later for each word.",
+            "In the last line, pass the function name without the parentheses."
+          ],
+          "hints_tr": [
+            "Hata is_long() için bir argümanın eksik olduğunu söylüyor. is_long nerede argümansız çağrılıyor?",
+            "count_matching fonksiyonun kendisini istiyor; böylece onu her kelime için sonra çağırabilir.",
+            "Son satırda fonksiyon adını parantezsiz ver."
           ],
           "solution": {
-            "approach": "Inner call g(x) first, then pass its result to f.",
-            "code": "def compose(f, g, x):\n    return f(g(x))",
-            "approach_tr": "Önce içteki g(x) çağrısı, sonra sonucu f'ye ver."
-          },
-          "twin": "d11-b4-e3",
-          "hints_tr": [
-            "İçten dışa doğru çalış: önce g(x) çalışır.",
-            "g(x)'in sonucu f'nin argümanı olur.",
-            "return f(___) (boşluk g'nin çağrısıdır)"
-          ]
+            "approach": "is_long() called the function right away with no word. Passing is_long hands over the function, which count_matching calls for each word.",
+            "approach_tr": "is_long() fonksiyonu hemen, kelimesiz çağırıyordu. is_long vermek fonksiyonun kendisini teslim eder; count_matching onu her kelime için çağırır.",
+            "code": "def is_long(word):\n    return len(word) > 5\n\ndef count_matching(check, words):\n    count = 0\n    for w in words:\n        if check(w):\n            count += 1\n    return count\n\nprint(count_matching(is_long, ['elma', 'portakal', 'karpuz']))"
+          }
         },
         {
           "id": "d11-b4-e5",
-          "type": "debug",
-          "prompt": "This function should return the sum, and the program should print 'Sum: 5'. It prints something else. Fix it.",
-          "prompt_tr": "Bu fonksiyon toplamı döndürmeli ve program 'Sum: 5' yazdırmalı. Şu an başka bir şey yazdırıyor. Düzeltin.",
-          "starter_code": "def add_two_numbers(num_one, num_two):\n    total = num_one + num_two\n    print(total)\n\nresult = add_two_numbers(2, 3)\nprint('Sum:', result)",
-          "expected_output": "Sum: 5",
+          "type": "modify",
+          "prompt": "total_price always applies a fixed 10% discount. Change it to take a third parameter rule, a function that receives the subtotal and returns the final price, and return rule(subtotal). The given lines must print 90.0 and 100.",
+          "prompt_tr": "total_price her zaman sabit yüzde 10 indirim uyguluyor. Üçüncü bir rule parametresi alacak şekilde değiştir: rule, ara toplamı alıp son fiyatı döndüren bir fonksiyon olsun ve total_price rule(subtotal) döndürsün. Verilen satırlar 90.0 ve 100 yazdırmalı.",
+          "starter_code": "def ten_off(subtotal):\n    return subtotal * 0.9\n\ndef no_discount(subtotal):\n    return subtotal\n\ndef total_price(prices, qty):\n    subtotal = prices * qty\n    return subtotal * 0.9\n\nprint(total_price(25, 4, ten_off))\nprint(total_price(25, 4, no_discount))",
+          "signature": "def total_price(prices, qty, rule):",
           "tests": [
             {
-              "code": "assert result == 5",
+              "code": "assert __stdout__.split() == ['90.0', '100']",
               "visible": true,
-              "label_tr": "result 5 olmalı"
+              "label": "The program prints 90.0 and 100",
+              "label_tr": "Program 90.0 ve 100 yazdırıyor"
+            },
+            {
+              "code": "assert total_price(10, 3, lambda s: s - 5) == 25",
+              "visible": false,
+              "failure_message": "total_price must call the rule function it receives on the subtotal.",
+              "failure_message_tr": "total_price aldığı rule fonksiyonunu ara toplamla çağırmalı."
+            },
+            {
+              "code": "assert total_price(7, 2, no_discount) == 14",
+              "visible": false,
+              "failure_message": "With no_discount the subtotal must come back unchanged.",
+              "failure_message_tr": "no_discount ile ara toplam değişmeden dönmeli."
             }
           ],
           "hints": [
-            "Run it and read both printed lines. What is result?",
-            "A function without return gives back None.",
-            "Replace print(total) with return ___ (which variable holds the sum?)"
+            "The header needs a third parameter; call it rule.",
+            "rule is a function: you call it like any other function, with the subtotal in parentheses.",
+            "Replace the fixed * 0.9 with a call of rule on subtotal."
+          ],
+          "hints_tr": [
+            "Başlığın üçüncü bir parametreye ihtiyacı var; adı rule olsun.",
+            "rule bir fonksiyondur: onu diğer fonksiyonlar gibi, ara toplamı parantez içinde vererek çağırırsın.",
+            "Sabit * 0.9 yerine rule'u subtotal ile çağır."
           ],
           "solution": {
-            "approach": "The function printed instead of returning, so result was None. Use return.",
-            "code": "def add_two_numbers(num_one, num_two):\n    total = num_one + num_two\n    return total\n\nresult = add_two_numbers(2, 3)\nprint('Sum:', result)",
-            "approach_tr": "Fonksiyon döndürmek yerine yazdırdı, bu yüzden result None oldu. return kullan."
-          },
-          "hints_tr": [
-            "Çalıştır ve basılan iki satırı oku. result nedir?",
-            "return olmayan bir fonksiyon None döndürür.",
-            "print(total) yerine return ___ yaz (toplamı hangi değişken tutuyor?)"
-          ]
+            "approach": "Passing the pricing rule as a function keeps total_price unchanged when new rules appear.",
+            "approach_tr": "Fiyat kuralını fonksiyon olarak vermek, yeni kurallar eklendiğinde total_price'ı değiştirmeden bırakır.",
+            "code": "def ten_off(subtotal):\n    return subtotal * 0.9\n\ndef no_discount(subtotal):\n    return subtotal\n\ndef total_price(prices, qty, rule):\n    subtotal = prices * qty\n    return rule(subtotal)\n\nprint(total_price(25, 4, ten_off))\nprint(total_price(25, 4, no_discount))"
+          }
         },
         {
           "id": "d11-b4-e6",
-          "type": "explain",
-          "prompt": "In your own words: what is the difference between print and return inside a function?",
-          "prompt_tr": "Kendi cümlelerinizle: bir fonksiyonun içindeki print ile return arasındaki fark nedir?",
-          "model_answer": "print only displays a value on the screen, and the function still gives back None. return sends a value back to the caller so it can be stored in a variable or used in more calculations, and it also ends the function.",
-          "keywords": [
-            "return",
-            "None",
-            "caller"
+          "type": "write",
+          "prompt": "Interleaving with dicts and loops: write a function apply_to_values(f, data) that takes a function f and a dict data and returns a NEW dict with the same keys and f(value) as values. Do not change data. Example: apply_to_values(len, {'a': 'elma', 'b': 'üzüm'}) returns {'a': 4, 'b': 4}.",
+          "prompt_tr": "Dict ve döngü tekrarı: apply_to_values(f, data) fonksiyonunu yaz: bir f fonksiyonu ve bir data dict'i alsın, aynı anahtarlara ve değer olarak f(değer)'e sahip YENİ bir dict döndürsün. data değişmesin. Örnek: apply_to_values(len, {'a': 'elma', 'b': 'üzüm'}) {'a': 4, 'b': 4} döndürür.",
+          "starter_code": "",
+          "signature": "def apply_to_values(f, data):",
+          "tests": [
+            {
+              "code": "assert apply_to_values(len, {'a': 'elma', 'b': 'üzüm'}) == {'a': 4, 'b': 4}",
+              "visible": true,
+              "label": "len on each value",
+              "label_tr": "Her değere len"
+            },
+            {
+              "code": "assert apply_to_values(abs, {}) == {}",
+              "visible": true,
+              "label": "Empty dict gives empty dict",
+              "label_tr": "Boş dict boş dict veriyor"
+            },
+            {
+              "code": "d = {'x': -3, 'y': 2}; r = apply_to_values(abs, d); assert r == {'x': 3, 'y': 2} and d == {'x': -3, 'y': 2}",
+              "visible": false,
+              "failure_message": "Return a new dict and leave the input unchanged.",
+              "failure_message_tr": "Yeni bir dict döndür, girdiyi değiştirme."
+            },
+            {
+              "code": "assert apply_to_values(str.upper, {'k': 'ab'}) == {'k': 'AB'}",
+              "visible": false,
+              "failure_message": "Call the given function f on every value; do not assume it is len.",
+              "failure_message_tr": "Verilen f fonksiyonunu her değer için çağır; len olduğunu varsayma."
+            }
           ],
-          "model_answer_tr": "print yalnızca değeri ekrana gösterir ve fonksiyon yine de None döndürür. return ise değeri çağırana geri gönderir; böylece bir değişkende saklanabilir ya da başka hesaplarda kullanılabilir, ayrıca fonksiyonu sonlandırır.",
-          "keywords_tr": [
-            "return",
-            "None",
-            "çağıran",
-            "geri",
-            "ekran"
+          "hints": [
+            "Start an empty dict result = {} and loop over data.items().",
+            "For each key and value, store f(value) under the same key in result.",
+            "result[key] = ... inside the loop, and return result after it."
           ],
-          "min_words": 6
+          "hints_tr": [
+            "Boş bir result = {} dict'i başlat ve data.items() üzerinde döngü kur.",
+            "Her anahtar ve değer için f(value)'yu result içinde aynı anahtarın altına kaydet.",
+            "Döngünün içinde result[key] = ..., döngüden sonra da return result."
+          ],
+          "solution": {
+            "approach": "Building a fresh dict leaves data untouched, and calling the received f keeps the helper general.",
+            "approach_tr": "Yeni bir dict kurmak data'ya dokunmaz; alınan f'yi çağırmak da yardımcıyı genel tutar.",
+            "code": "def apply_to_values(f, data):\n    result = {}\n    for key, value in data.items():\n        result[key] = f(value)\n    return result"
+          },
+          "twin": "d11-b4-e7"
+        },
+        {
+          "id": "d11-b4-e7",
+          "type": "write",
+          "prompt": "Write a function count_if(check, items) that returns how many items make check(item) return True. Example: with def is_negative(n): return n < 0, count_if(is_negative, [3, -1, -7, 0]) returns 2.",
+          "prompt_tr": "count_if(check, items) fonksiyonunu yaz: check(item) çağrısının True döndürdüğü eleman sayısını döndürsün. Örnek: def is_negative(n): return n < 0 tanımıyla count_if(is_negative, [3, -1, -7, 0]) 2 döndürür.",
+          "starter_code": "",
+          "signature": "def count_if(check, items):",
+          "tests": [
+            {
+              "code": "def is_negative(n):\n    return n < 0\nassert count_if(is_negative, [3, -1, -7, 0]) == 2",
+              "visible": true,
+              "label": "Two negatives",
+              "label_tr": "İki negatif"
+            },
+            {
+              "code": "assert count_if(str.isdigit, []) == 0",
+              "visible": true,
+              "label": "Empty list gives 0",
+              "label_tr": "Boş list 0 veriyor"
+            },
+            {
+              "code": "assert count_if(str.isdigit, ['1', 'a', '22', '']) == 2",
+              "visible": false,
+              "failure_message": "Call check on every item and count only the True results.",
+              "failure_message_tr": "check'i her eleman için çağır ve yalnızca True sonuçları say."
+            },
+            {
+              "code": "assert count_if(lambda w: len(w) > 3, ['ev', 'okul', 'araba']) == 2",
+              "visible": false,
+              "failure_message": "Do not assume a particular check; use the function you receive.",
+              "failure_message_tr": "Belirli bir kontrol varsayma; aldığın fonksiyonu kullan."
+            }
+          ],
+          "hints": [
+            "Keep a counter that starts at 0.",
+            "Loop over items and call check(item); it gives True or False.",
+            "Add 1 to the counter only when that call is true, and return the counter after the loop."
+          ],
+          "hints_tr": [
+            "0'dan başlayan bir sayaç tut.",
+            "items üzerinde döngü kur ve check(item)'ı çağır; True ya da False verir.",
+            "Sayaca yalnızca o çağrı doğru olduğunda 1 ekle, döngüden sonra sayacı döndür."
+          ],
+          "solution": {
+            "approach": "The function receives the rule as a value and calls it per item, so one helper counts anything.",
+            "approach_tr": "Fonksiyon kuralı bir değer olarak alır ve her eleman için çağırır; böylece tek bir yardımcı her şeyi sayabilir.",
+            "code": "def count_if(check, items):\n    count = 0\n    for item in items:\n        if check(item):\n            count += 1\n    return count"
+          },
+          "twin": "d11-b4-e6"
         }
-      ],
-      "concept_tr": "Fonksiyonlar da değerdir: başka bir fonksiyona argüman olarak verilebilir. Bir dict de ** ile isimli argümanlara açılabilir."
+      ]
     }
   ],
   "review_pool": [
     "d11-b1-e1",
-    "d11-b1-e3",
+    "d11-b1-e6",
+    "d11-b2-e6",
     "d11-b3-e1",
-    "d11-b3-e3",
-    "d11-b4-e1",
-    "d11-b4-e3"
-  ],
-  "title_tr": "Fonksiyonlar"
+    "d11-b4-e6"
+  ]
 }

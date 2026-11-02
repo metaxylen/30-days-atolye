@@ -1,658 +1,1213 @@
 {
   "day": 13,
-  "title": "List comprehension",
-  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "title": "List Comprehension and Lambda",
+  "title_tr": "List Comprehension ve Lambda",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
   "blocks": [
     {
       "id": "d13-b1",
-      "concept": "list-comprehension-basics",
+      "concept": "list-comprehension",
+      "concept_tr": "[ifade for x in items] her eleman için ifadeyi hesaplayıp sonuçları yeni bir list'te toplar; orijinal list değişmez ve döngü değişkeni köşeli parantezlerin dışında yoktur.",
       "tags": [
-        "list-comprehension",
-        "lists",
-        "loops"
+        "comprehension",
+        "lists"
       ],
       "worked_example": {
-        "code": "squares = [i * i for i in range(5)]\nprint(squares)",
+        "code": "prices = [100, 250, 40]\n\nwith_vat = []\nfor p in prices:\n    with_vat.append(p * 1.2)\n\nsame = [p * 1.2 for p in prices]\nprint(with_vat == same, same)",
         "notes": [
-          "Read it as: for each i in range(5), put i * i into a new list.",
-          "The expression comes first, then the for part."
+          "The loop version has three parts: an empty list, a for header and an append; the comprehension keeps the same three ideas in one line.",
+          "Inside the brackets the expression p * 1.2 comes first and the for clause second, which reads as the value for each p in prices.",
+          "Both versions produce a new list and leave prices unchanged, so the comparison prints True."
         ],
         "notes_tr": [
-          "Şöyle oku: range(5) içindeki her i için i * i'yi yeni listeye koy.",
-          "Önce ifade, sonra for kısmı gelir."
+          "Döngü sürümünün üç parçası var: boş bir list, bir for başlığı ve bir append; comprehension aynı üç fikri tek satırda tutar.",
+          "Köşeli parantezlerin içinde önce p * 1.2 ifadesi, sonra for kısmı gelir; prices içindeki her p için değer diye okunur.",
+          "İki sürüm de yeni bir list üretir ve prices'ı değiştirmez; bu yüzden karşılaştırma True yazdırır."
         ]
       },
       "exercises": [
         {
           "id": "d13-b1-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "language = 'Python'\nletters = [i for i in language]\nprint(letters)",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "words = ['Python', 'is', 'fun']\nprint([w[0] for w in words])",
           "choices": [
-            "Python",
-            "['Python']",
-            "['P', 'y', 't', 'h', 'o', 'n']"
+            "['Python', 'is', 'fun']",
+            "Pif",
+            "['P']",
+            "['P', 'i', 'f']"
           ],
-          "expected_output": "['P', 'y', 't', 'h', 'o', 'n']",
-          "explanation": "A string is iterable, so the loop visits each character. The comprehension builds a list of single characters.",
+          "expected_output": "['P', 'i', 'f']",
+          "explanation": "For each word the expression w[0] gives its first letter; the results form a new list of three strings.",
+          "explanation_tr": "Her kelime için w[0] ifadesi ilk harfi verir; sonuçlar üç string'lik yeni bir list oluşturur.",
           "misconceptions": {
-            "Python": "The result is a list, so it prints with brackets and quotes.",
-            "['Python']": "The loop goes over each character, not the whole string at once."
+            "['Python', 'is', 'fun']": "The expression w[0] takes only the first character of each word.",
+            "Pif": "A comprehension builds a list, not a joined string.",
+            "['P']": "The expression is evaluated once for every word, so there are three items."
           },
-          "explanation_tr": "String üzerinde dolaşılabilir, bu yüzden döngü her karakteri ziyaret eder. Comprehension tek karakterlerden oluşan bir liste kurar.",
           "misconceptions_tr": {
-            "Python": "Sonuç bir liste olduğu için köşeli parantez ve tırnaklarla yazdırılır.",
-            "['Python']": "Döngü kelimenin tamamını değil, her karakteri tek tek dolaşır."
+            "['Python', 'is', 'fun']": "w[0] ifadesi her kelimenin yalnızca ilk karakterini alır.",
+            "Pif": "Comprehension birleştirilmiş bir string değil, bir list kurar.",
+            "['P']": "İfade her kelime için bir kez hesaplanır; yani üç eleman vardır."
           }
         },
         {
           "id": "d13-b1-e2",
-          "type": "fill_blank",
-          "prompt": "Complete the comprehension so squares holds the squares of 0 to 5.",
-          "prompt_tr": "squares listesi 0'dan 5'e kadar sayıların karelerini tutacak şekilde liste üretecini tamamlayın.",
-          "starter_code": "squares = [___ for i in ___(6)]\nprint(squares)",
-          "blanks": [
-            {
-              "answer": [
-                "i * i",
-                "i*i",
-                "i ** 2"
-              ]
-            },
-            {
-              "answer": [
-                "range"
-              ]
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "nums = [1, 2, 3]\ndoubled = [n * 2 for n in nums]\nnums.append(4)\nprint(doubled, len(nums))",
+          "choices": [
+            "[2, 4, 6, 8] 4",
+            "[2, 4, 6] 4",
+            "[2, 4, 6] 3",
+            "[1, 2, 3] 4"
           ],
-          "tests": [
-            {
-              "code": "assert squares == [0, 1, 4, 9, 16, 25]",
-              "visible": true,
-              "label_tr": "squares, 0'dan 5'e kadar sayıların karelerini tutuyor"
-            }
-          ],
-          "hints": [
-            "The part before 'for' is the value that goes into the list.",
-            "range(6) gives 0, 1, 2, 3, 4, 5."
-          ],
-          "hints_tr": [
-            "'for'dan önceki kısım listeye girecek değerdir.",
-            "range(6) 0, 1, 2, 3, 4, 5 üretir."
-          ]
+          "expected_output": "[2, 4, 6] 4",
+          "explanation": "The comprehension created a separate new list [2, 4, 6] at that moment. Appending to nums later changes only nums.",
+          "explanation_tr": "Comprehension o anda ayrı ve yeni bir [2, 4, 6] list'i oluşturdu. Daha sonra nums'a eklemek yalnızca nums'ı değiştirir.",
+          "misconceptions": {
+            "[2, 4, 6, 8] 4": "doubled was built once, before the append; it does not watch nums for later changes.",
+            "[2, 4, 6] 3": "append really adds 4 to nums, so its length becomes 4.",
+            "[1, 2, 3] 4": "The comprehension computed n * 2, so the new list holds doubled values."
+          },
+          "misconceptions_tr": {
+            "[2, 4, 6, 8] 4": "doubled append'ten önce bir kez kuruldu; nums'taki sonraki değişiklikleri izlemez.",
+            "[2, 4, 6] 3": "append gerçekten nums'a 4 ekler; uzunluğu 4 olur.",
+            "[1, 2, 3] 4": "Comprehension n * 2'yi hesapladı; yeni list iki katına çıkmış değerleri tutar."
+          }
         },
         {
           "id": "d13-b1-e3",
-          "type": "write",
-          "prompt": "Write squares_up_to(n) that returns a list of the squares of 1, 2, ..., n. Use a list comprehension. Example: squares_up_to(3) returns [1, 4, 9].",
-          "prompt_tr": "1, 2, ..., n sayılarının karelerinden oluşan bir liste döndüren squares_up_to(n) yazın. Liste üreteci kullanın. Örnek: squares_up_to(3) sonucu [1, 4, 9] olur.",
-          "starter_code": "",
-          "signature": "def squares_up_to(n):",
+          "type": "fill_blank",
+          "prompt": "Complete the comprehension so it converts the Celsius temperatures to Fahrenheit (c * 9 / 5 + 32).",
+          "prompt_tr": "Comprehension'ı Celsius sıcaklıklarını Fahrenheit'a (c * 9 / 5 + 32) çevirecek şekilde tamamla.",
+          "starter_code": "celsius = [0, 100, 37]\nfahrenheit = [___ for c in celsius]\nprint(fahrenheit)",
+          "blanks": [
+            {
+              "answer": [
+                "c * 9 / 5 + 32",
+                "c*9/5+32",
+                "32 + c * 9 / 5"
+              ]
+            }
+          ],
           "tests": [
             {
-              "code": "assert squares_up_to(3) == [1, 4, 9]",
+              "code": "assert fahrenheit[:2] == [32.0, 212.0] and abs(fahrenheit[2] - 98.6) < 1e-9",
               "visible": true,
-              "label_tr": "squares_up_to(3) [1, 4, 9] veriyor"
+              "label": "Values are 32.0, 212.0 and about 98.6",
+              "label_tr": "Değerler 32.0, 212.0 ve yaklaşık 98.6"
             },
             {
-              "code": "assert squares_up_to(1) == [1]",
+              "code": "assert len(fahrenheit) == 3",
               "visible": true,
-              "label_tr": "squares_up_to(1) [1] veriyor"
-            },
-            {
-              "code": "assert squares_up_to(0) == []",
-              "visible": false,
-              "failure_message": "For n = 0 there are no numbers: return an empty list.",
-              "failure_message_tr": "n = 0 için sayı yok: boş liste döndür."
-            },
-            {
-              "code": "assert squares_up_to(5) == [1, 4, 9, 16, 25]",
-              "visible": false,
-              "failure_message": "Start at 1 and include n: range(1, n + 1).",
-              "failure_message_tr": "1'den başla ve n'yi de kat: range(1, n + 1)."
-            },
-            {
-              "code": "assert squares_up_to(6)[-1] == 36",
-              "visible": false,
-              "failure_message": "The last item must be n squared.",
-              "failure_message_tr": "Son eleman n'nin karesi olmalı."
-            },
-            {
-              "code": "assert squares_up_to(8) == [1, 4, 9, 16, 25, 36, 49, 64]",
-              "visible": false,
-              "failure_message": "Build the list from n; do not hard-code results.",
-              "failure_message_tr": "Listeyi n'den üret; sonuçları elle yazma."
+              "label": "One value per temperature",
+              "label_tr": "Her sıcaklık için bir değer"
             }
           ],
           "hints": [
-            "range(start, stop) stop'tan ÖNCE durur.",
-            "Use range(1, n + 1) and square each item.",
-            "return [i * i for i in range(1, ___)] (what makes the range include n?)"
+            "The blank is the expression part: what should go into the new list for each c?",
+            "Use the conversion formula written in the prompt with the loop variable c.",
+            "Write the formula from the prompt with c as the temperature; no extra brackets are needed, because * and / run before +."
           ],
-          "solution": {
-            "approach": "Loop from 1 to n inclusive and square every item inside one comprehension.",
-            "code": "def squares_up_to(n):\n    return [i * i for i in range(1, n + 1)]",
-            "approach_tr": "1'den n'ye (n dahil) git ve her sayının karesini tek bir comprehension içinde al."
-          },
-          "twin": "d13-b1-e4",
           "hints_tr": [
-            "range(start, stop) stop değerinden ÖNCE durur.",
-            "range(1, n + 1) kullan ve her elemanın karesini al.",
-            "return [i * i for i in range(1, ___)] (aralığın n'yi de kapsaması için ne yazılmalı?)"
+            "Boşluk ifade kısmıdır: her c için yeni list'e ne girmeli?",
+            "Görevde yazan dönüşüm formülünü döngü değişkeni c ile kullan.",
+            "Görevdeki formülü sıcaklık yerine c koyarak yaz; ek parantez gerekmez, çünkü * ve / işlemleri +'dan önce yapılır."
           ]
         },
         {
           "id": "d13-b1-e4",
-          "type": "write",
-          "prompt": "Write cubes_up_to(n) that returns a list of the cubes of 1, 2, ..., n. Use a list comprehension. Example: cubes_up_to(3) returns [1, 8, 27].",
-          "prompt_tr": "1, 2, ..., n sayılarının küplerinden oluşan bir liste döndüren cubes_up_to(n) yazın. Liste üreteci kullanın. Örnek: cubes_up_to(3) sonucu [1, 8, 27] olur.",
-          "starter_code": "",
-          "signature": "def cubes_up_to(n):",
+          "type": "debug",
+          "prompt": "The program should print the squares [1, 4, 9, 16]. It crashes with NameError. Fix the comprehension so the program works.",
+          "prompt_tr": "Program kareleri, [1, 4, 9, 16], yazdırmalı. NameError ile çöküyor. Program çalışsın diye comprehension'ı düzelt.",
+          "starter_code": "numbers = [1, 2, 3, 4]\nsquares = [x * x for n in numbers]\nprint(squares)",
           "tests": [
             {
-              "code": "assert cubes_up_to(3) == [1, 8, 27]",
+              "code": "assert squares == [1, 4, 9, 16]",
               "visible": true,
-              "label_tr": "cubes_up_to(3) [1, 8, 27] veriyor"
+              "label": "squares is [1, 4, 9, 16]",
+              "label_tr": "squares [1, 4, 9, 16]"
             },
             {
-              "code": "assert cubes_up_to(1) == [1]",
-              "visible": true,
-              "label_tr": "cubes_up_to(1) [1] veriyor"
-            },
-            {
-              "code": "assert cubes_up_to(0) == []",
+              "code": "assert 'for' in __source__ and '[' in __source__",
               "visible": false,
-              "failure_message": "For n = 0 return an empty list.",
-              "failure_message_tr": "n = 0 için boş liste döndür."
-            },
-            {
-              "code": "assert cubes_up_to(4) == [1, 8, 27, 64]",
-              "visible": false,
-              "failure_message": "Include n itself: range(1, n + 1).",
-              "failure_message_tr": "n'yi de kat: range(1, n + 1)."
-            },
-            {
-              "code": "assert cubes_up_to(5)[-1] == 125",
-              "visible": false,
-              "failure_message": "The last item must be n cubed.",
-              "failure_message_tr": "Son eleman n'nin küpü olmalı."
-            },
-            {
-              "code": "assert cubes_up_to(6) == [1, 8, 27, 64, 125, 216]",
-              "visible": false,
-              "failure_message": "Build the list from n; do not hard-code results.",
-              "failure_message_tr": "Listeyi n'den üret; sonuçları elle yazma."
+              "failure_message": "Keep the comprehension; fix the names.",
+              "failure_message_tr": "Comprehension'ı koru; isimleri düzelt."
             }
           ],
           "hints": [
-            "range(1, n + 1) gives 1 to n.",
-            "Cube means raising to the third power.",
-            "return [i ___ 3 for i in range(1, n + 1)] (which operator raises to a power?)"
+            "Read the error: which name is not defined?",
+            "The loop variable is named in the for clause; the expression must use that same name.",
+            "Make the expression and the for clause agree on one name."
+          ],
+          "hints_tr": [
+            "Hatayı oku: hangi isim tanımlı değil?",
+            "Döngü değişkeni for kısmında adlandırılır; ifade aynı ismi kullanmalı.",
+            "İfade ile for kısmı tek bir isimde anlaşsın."
           ],
           "solution": {
-            "approach": "Same pattern as squares, with the power 3.",
-            "code": "def cubes_up_to(n):\n    return [i ** 3 for i in range(1, n + 1)]",
-            "approach_tr": "Kareler ile aynı kalıp, sadece üs 3."
-          },
-          "twin": "d13-b1-e3",
+            "approach": "The expression used x while the loop variable was n. Inside a comprehension only the name from the for clause exists.",
+            "approach_tr": "İfade x kullanıyordu ama döngü değişkeni n'di. Comprehension içinde yalnızca for kısmındaki isim vardır.",
+            "code": "numbers = [1, 2, 3, 4]\nsquares = [n * n for n in numbers]\nprint(squares)"
+          }
+        },
+        {
+          "id": "d13-b1-e5",
+          "type": "modify",
+          "prompt": "This loop builds a list of name lengths. Rewrite it as a single list comprehension assigned to lengths, with the same result.",
+          "prompt_tr": "Bu döngü isim uzunluklarından bir list kuruyor. Aynı sonucu veren, lengths'e atanmış tek bir list comprehension olarak yeniden yaz.",
+          "starter_code": "names = ['Ayşe', 'Mehmet', 'Su']\nlengths = []\nfor name in names:\n    lengths.append(len(name))\nprint(lengths)",
+          "tests": [
+            {
+              "code": "assert lengths == [4, 6, 2]",
+              "visible": true,
+              "label": "lengths is [4, 6, 2]",
+              "label_tr": "lengths [4, 6, 2]"
+            },
+            {
+              "code": "assert __stdout__.strip() == '[4, 6, 2]'",
+              "visible": true,
+              "label": "Prints [4, 6, 2]",
+              "label_tr": "[4, 6, 2] yazdırıyor"
+            },
+            {
+              "code": "assert 'append' not in __source__",
+              "visible": false,
+              "failure_message": "Use a comprehension instead of append.",
+              "failure_message_tr": "append yerine comprehension kullan."
+            },
+            {
+              "code": "assert 'len(' in __source__ and 'for' in __source__",
+              "visible": false,
+              "failure_message": "Compute the lengths with len inside the comprehension.",
+              "failure_message_tr": "Uzunlukları comprehension içinde len ile hesapla."
+            }
+          ],
+          "hints": [
+            "The expression part is what was inside append(...).",
+            "The for clause is the loop header without its colon.",
+            "lengths = [___ for name in names]"
+          ],
           "hints_tr": [
-            "range(1, n + 1), 1'den n'ye kadar üretir.",
-            "Küp, üçüncü kuvvete almaktır.",
-            "return [i ___ 3 for i in range(1, n + 1)] (üs alma için hangi operatör?)"
-          ]
+            "İfade kısmı append(...) içinde olan şeydir.",
+            "for kısmı, iki noktası olmayan döngü başlığıdır.",
+            "lengths = [___ for name in names]"
+          ],
+          "solution": {
+            "approach": "The appended expression becomes the first part of the comprehension, and the loop header becomes its for clause.",
+            "approach_tr": "Eklenen ifade comprehension'ın ilk kısmı, döngü başlığı da onun for kısmı olur.",
+            "code": "names = ['Ayşe', 'Mehmet', 'Su']\nlengths = [len(name) for name in names]\nprint(lengths)"
+          }
+        },
+        {
+          "id": "d13-b1-e6",
+          "type": "write",
+          "prompt": "Write a function to_upper_list(words) that returns a new list with every word in uppercase, using a list comprehension. Example: to_upper_list(['ankara', 'van']) returns ['ANKARA', 'VAN'].",
+          "prompt_tr": "to_upper_list(words) fonksiyonunu yaz: list comprehension kullanarak her kelimenin büyük harfli olduğu yeni bir list döndürsün. Örnek: to_upper_list(['ankara', 'van']) ['ANKARA', 'VAN'] döndürür.",
+          "starter_code": "",
+          "signature": "def to_upper_list(words):",
+          "tests": [
+            {
+              "code": "assert to_upper_list(['ankara', 'van']) == ['ANKARA', 'VAN']",
+              "visible": true,
+              "label": "Two cities in uppercase",
+              "label_tr": "Büyük harfli iki şehir"
+            },
+            {
+              "code": "assert to_upper_list([]) == []",
+              "visible": true,
+              "label": "Empty list gives []",
+              "label_tr": "Boş list [] veriyor"
+            },
+            {
+              "code": "w = ['a', 'b']; r = to_upper_list(w); assert r == ['A', 'B'] and w == ['a', 'b']",
+              "visible": false,
+              "failure_message": "Return a new list and do not change the input.",
+              "failure_message_tr": "Yeni bir list döndür, girdiyi değiştirme."
+            },
+            {
+              "code": "assert '[' in __source__ and 'for' in __source__ and 'append' not in __source__",
+              "visible": false,
+              "failure_message": "Use a list comprehension.",
+              "failure_message_tr": "list comprehension kullan."
+            }
+          ],
+          "hints": [
+            "Which string method makes all letters uppercase?",
+            "The comprehension's expression calls that method on each word.",
+            "return [___ for w in words]"
+          ],
+          "hints_tr": [
+            "Hangi string metodu bütün harfleri büyütür?",
+            "Comprehension'ın ifadesi o metodu her kelime için çağırır.",
+            "return [___ for w in words]"
+          ],
+          "solution": {
+            "approach": "One expression per item and a direct return make this a one-line function.",
+            "approach_tr": "Her eleman için bir ifade ve doğrudan return bunu tek satırlık bir fonksiyon yapar.",
+            "code": "def to_upper_list(words):\n    return [w.upper() for w in words]"
+          },
+          "twin": "d13-b1-e7"
+        },
+        {
+          "id": "d13-b1-e7",
+          "type": "write",
+          "prompt": "Write a function line_totals(cart) that receives a list of (name, price, qty) tuples and returns a list of price * qty values, using a comprehension. Example: line_totals([('çay', 15, 2), ('su', 5, 3)]) returns [30, 15].",
+          "prompt_tr": "line_totals(cart) fonksiyonunu yaz: (isim, fiyat, adet) tuple'larından oluşan bir list alsın ve comprehension kullanarak fiyat * adet değerlerinin list'ini döndürsün. Örnek: line_totals([('çay', 15, 2), ('su', 5, 3)]) [30, 15] döndürür.",
+          "starter_code": "",
+          "signature": "def line_totals(cart):",
+          "tests": [
+            {
+              "code": "assert line_totals([('çay', 15, 2), ('su', 5, 3)]) == [30, 15]",
+              "visible": true,
+              "label": "Two lines give [30, 15]",
+              "label_tr": "İki satır [30, 15] veriyor"
+            },
+            {
+              "code": "assert line_totals([]) == []",
+              "visible": true,
+              "label": "Empty cart gives []",
+              "label_tr": "Boş sepet [] veriyor"
+            },
+            {
+              "code": "assert line_totals([('a', 2.5, 4), ('b', 10, 0)]) == [10.0, 0]",
+              "visible": false,
+              "failure_message": "Multiply price by quantity for every tuple, including qty 0.",
+              "failure_message_tr": "Her tuple için fiyatı adetle çarp; adet 0 olsa bile."
+            },
+            {
+              "code": "assert 'for' in __source__ and 'append' not in __source__",
+              "visible": false,
+              "failure_message": "Use a comprehension.",
+              "failure_message_tr": "comprehension kullan."
+            }
+          ],
+          "hints": [
+            "Each item of cart is a tuple of three values.",
+            "You can unpack in the for clause: for name, price, qty in cart.",
+            "The expression is price * qty."
+          ],
+          "hints_tr": [
+            "cart'ın her elemanı üç değerlik bir tuple'dır.",
+            "for kısmında açabilirsin: for name, price, qty in cart.",
+            "İfade price * qty'dir."
+          ],
+          "solution": {
+            "approach": "Unpacking each tuple in the for clause gives readable names for the expression.",
+            "approach_tr": "Her tuple'ı for kısmında açmak ifade için okunaklı isimler verir.",
+            "code": "def line_totals(cart):\n    return [price * qty for name, price, qty in cart]"
+          },
+          "twin": "d13-b1-e6"
         }
-      ],
-      "concept_tr": "List comprehension, tek satırda yeni bir liste kurmanın kısa yoludur: önce değer ifadesi, sonra for kısmı yazılır."
+      ]
     },
     {
       "id": "d13-b2",
-      "concept": "comprehension-with-condition",
+      "concept": "filter-and-choose",
+      "concept_tr": "Sondaki if elemanları eler ve sonuç kısalabilir; for'dan önce yazılan a if koşul else b ise her eleman için bir değer seçer ve uzunluk aynı kalır.",
       "tags": [
-        "list-comprehension",
-        "filtering",
-        "nested-loops"
+        "comprehension",
+        "filter",
+        "conditional-expression"
       ],
       "worked_example": {
-        "code": "numbers = [1, 2, 3, 4, 5, 6]\nevens = [i for i in numbers if i % 2 == 0]\nprint(evens)",
+        "code": "scores = [72, 45, 90, 38, 65]\n\npassed = [s for s in scores if s >= 50]\nlabels = ['geçti' if s >= 50 else 'kaldı' for s in scores]\nprint(passed)\nprint(labels)",
         "notes": [
-          "The if at the end filters: only items that pass go into the list.",
-          "Without if you get one result per item."
+          "A trailing if is a filter: scores that fail the condition are skipped, so passed has only three items.",
+          "A conditional expression before for is part of the value, so labels has one item for each of the five scores.",
+          "A trailing if can never have an else; if you need two possible values, move the condition before for."
         ],
         "notes_tr": [
-          "Sondaki if süzer: yalnızca şartı geçen elemanlar listeye girer.",
-          "if olmazsa her eleman için bir sonuç elde edersin."
+          "Sondaki if bir filtredir: koşulu sağlamayan notlar atlanır, bu yüzden passed'in yalnızca üç elemanı vardır.",
+          "for'dan önceki koşullu ifade değerin bir parçasıdır; bu yüzden labels'ta beş notun her biri için bir eleman vardır.",
+          "Sondaki if'in hiçbir zaman else'i olamaz; iki olası değer gerekiyorsa koşulu for'dan önceye taşı."
         ]
       },
       "exercises": [
         {
           "id": "d13-b2-e1",
           "type": "predict",
-          "prompt": "What does this print? Think about 0 and the negative numbers.",
-          "prompt_tr": "Bu ne yazdırır? 0'ı ve negatif sayıları düşünün.",
-          "code": "numbers = [-8, -7, -3, -1, 0, 1, 3, 4, 5, 7, 6, 8, 10]\nprint([i for i in numbers if i % 2 == 0 and i > 0])",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "nums = [3, -1, 0, 8, -5]\nprint([n for n in nums if n < 0])\nprint([abs(n) if n < 0 else n for n in nums])",
           "choices": [
-            "[0, 4, 6, 8, 10]",
-            "[-8, 0, 4, 6, 8, 10]",
-            "[4, 6, 8, 10]"
+            "[-1, -5]\n[-1, -5]",
+            "[-1, 0, -5]\n[3, 1, 0, 8, 5]",
+            "[-1, -5]\n[3, 1, 0, 8, 5]",
+            "[3, 0, 8]\n[3, 1, 0, 8, 5]"
           ],
-          "expected_output": "[4, 6, 8, 10]",
-          "explanation": "An item is kept only if it is even AND positive. That leaves 4, 6, 8, 10 in their original order. (The lesson's printed comment shows a different list; run the code to see the real result.)",
+          "expected_output": "[-1, -5]\n[3, 1, 0, 8, 5]",
+          "explanation": "The filter keeps only -1 and -5. The conditional expression keeps every item and turns negatives into their absolute value.",
+          "explanation_tr": "Filtre yalnızca -1 ve -5'i tutar. Koşullu ifade her elemanı tutar ve negatifleri mutlak değerlerine çevirir.",
           "misconceptions": {
-            "[0, 4, 6, 8, 10]": "0 is even but 0 > 0 is False, so 0 is filtered out.",
-            "[-8, 0, 4, 6, 8, 10]": "Both conditions must be true: negative numbers fail i > 0."
+            "[-1, -5]\n[-1, -5]": "The second line chooses a value for every item, so it keeps all five.",
+            "[-1, 0, -5]\n[3, 1, 0, 8, 5]": "0 is not less than 0, so the filter drops it.",
+            "[3, 0, 8]\n[3, 1, 0, 8, 5]": "The filter keeps the items for which n < 0 is True: the negatives."
           },
-          "explanation_tr": "Bir eleman sadece hem çift HEM pozitifse tutulur. Geriye 4, 6, 8, 10 kalır, özgün sıralarıyla. (Dersin yorumunda yazan liste farklı; gerçek sonucu görmek için kodu çalıştır.)",
           "misconceptions_tr": {
-            "[0, 4, 6, 8, 10]": "0 çifttir ama 0 > 0 yanlıştır, bu yüzden 0 elenir.",
-            "[-8, 0, 4, 6, 8, 10]": "İki şart da doğru olmalı: negatif sayılar i > 0'ı geçemez."
+            "[-1, -5]\n[-1, -5]": "İkinci satır her eleman için bir değer seçer; beşini de tutar.",
+            "[-1, 0, -5]\n[3, 1, 0, 8, 5]": "0, 0'dan küçük değildir; filtre onu atar.",
+            "[3, 0, 8]\n[3, 1, 0, 8, 5]": "Filtre n < 0'ın True olduğu elemanları tutar: negatifleri."
           }
         },
         {
           "id": "d13-b2-e2",
-          "type": "parsons",
-          "prompt": "Order the lines to flatten the list of lists into one list.",
-          "prompt_tr": "İç içe listeyi tek bir listeye düzleştirmek için satırları sıralayın.",
-          "lines": [
-            "flattened = [number for row in list_of_lists for number in row]",
-            "print(flattened)",
-            "list_of_lists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]"
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "words = ['ev', 'okul', 'a', 'kitap']\nprint(len([w for w in words if len(w) > 2]))",
+          "choices": [
+            "4",
+            "2",
+            "['okul', 'kitap']",
+            "3"
           ],
-          "correct_order": [
-            2,
-            0,
-            1
-          ],
-          "distractors": [
-            "flattened = [number for number in list_of_lists for row in number]"
-          ],
-          "expected_output": "[1, 2, 3, 4, 5, 6, 7, 8, 9]"
+          "expected_output": "2",
+          "explanation": "Only okul and kitap are longer than 2 characters, so the filtered list has 2 items.",
+          "explanation_tr": "Yalnızca okul ve kitap 2 karakterden uzundur; filtrelenmiş list'in 2 elemanı vardır.",
+          "misconceptions": {
+            "4": "The filter drops words of length 2 or less: ev and a.",
+            "['okul', 'kitap']": "len(...) is applied to the filtered list, so a number is printed.",
+            "3": "ev has length 2, and 2 > 2 is False, so it is not kept."
+          },
+          "misconceptions_tr": {
+            "4": "Filtre uzunluğu 2 ya da daha az olan kelimeleri atar: ev ve a.",
+            "['okul', 'kitap']": "len(...) filtrelenmiş list'e uygulanır; yani bir sayı yazdırılır.",
+            "3": "ev'in uzunluğu 2'dir ve 2 > 2 False'tur; tutulmaz."
+          }
         },
         {
           "id": "d13-b2-e3",
-          "type": "write",
-          "prompt": "Write positive_evens(numbers) that returns the positive even numbers from the list, in the same order. Use a list comprehension with a condition.",
-          "prompt_tr": "Listedeki pozitif çift sayıları aynı sırayla döndüren positive_evens(numbers) yazın. Koşullu liste üreteci kullanın.",
-          "starter_code": "",
-          "signature": "def positive_evens(numbers):",
-          "tests": [
-            {
-              "code": "assert positive_evens([-4, 0, 2, 3, 6]) == [2, 6]",
-              "visible": true,
-              "label_tr": "positive_evens([-4, 0, 2, 3, 6]) [2, 6] veriyor"
-            },
-            {
-              "code": "assert positive_evens([1, 3, 5]) == []",
-              "visible": true,
-              "label_tr": "positive_evens([1, 3, 5]) boş liste veriyor"
-            },
-            {
-              "code": "assert positive_evens([0]) == []",
-              "visible": false,
-              "failure_message": "0 is not positive.",
-              "failure_message_tr": "0 pozitif değildir."
-            },
-            {
-              "code": "assert positive_evens([-2, -4]) == []",
-              "visible": false,
-              "failure_message": "Negative even numbers must be left out.",
-              "failure_message_tr": "Negatif çift sayılar dışarıda kalmalı."
-            },
-            {
-              "code": "assert positive_evens([8, 2, 6]) == [8, 2, 6]",
-              "visible": false,
-              "failure_message": "Keep the original order; do not sort.",
-              "failure_message_tr": "Özgün sırayı koru; sıralama yapma."
-            },
-            {
-              "code": "assert positive_evens([12, -6, 5, 10, 0, 4]) == [12, 10, 4]",
-              "visible": false,
-              "failure_message": "Filter the list given; do not hard-code results.",
-              "failure_message_tr": "Verilen listeyi filtrele; sonuçları elle yazma."
-            }
+          "type": "parsons",
+          "prompt": "Build the list of odd numbers from 1 to 19 with a comprehension and print it. One line is a distractor.",
+          "prompt_tr": "1'den 19'a kadar tek sayıların list'ini bir comprehension ile kur ve yazdır. Satırlardan biri çeldirici.",
+          "lines": [
+            "print(odds)",
+            "odds = [i for i in range(1, 20) if i % 2 != 0]"
           ],
-          "hints": [
-            "You need two conditions at once.",
-            "Join the two conditions with a logical keyword after the if.",
-            "return [i for i in numbers if i % 2 == 0 ___ i > 0] (which keyword joins two conditions?)"
+          "correct_order": [
+            1,
+            0
           ],
-          "solution": {
-            "approach": "One comprehension with a combined condition.",
-            "code": "def positive_evens(numbers):\n    return [i for i in numbers if i % 2 == 0 and i > 0]",
-            "approach_tr": "Birleşik şartlı tek bir comprehension."
-          },
-          "twin": "d13-b2-e4",
-          "hints_tr": [
-            "Aynı anda iki şarta ihtiyacın var.",
-            "if'ten sonra iki şartı mantıksal bir anahtar kelimeyle birleştir.",
-            "return [i for i in numbers if i % 2 == 0 ___ i > 0] (iki şartı hangi anahtar kelime birleştirir?)"
-          ]
+          "distractors": [
+            "odds = [i for i in range(1, 20) if i % 2 != 0 else 0]"
+          ],
+          "expected_output": "[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]"
         },
         {
           "id": "d13-b2-e4",
-          "type": "write",
-          "prompt": "Write long_words(words, n) that returns the words with more than n letters, in the same order. Use a list comprehension.",
-          "prompt_tr": "n harften uzun kelimeleri aynı sırayla döndüren long_words(words, n) yazın. Liste üreteci kullanın.",
-          "starter_code": "",
-          "signature": "def long_words(words, n):",
+          "type": "debug",
+          "prompt": "The program should replace failing scores (below 50) with 0 and keep the others: [72, 0, 90, 0]. It is a SyntaxError. Fix the comprehension.",
+          "prompt_tr": "Program kalan notları (50'nin altı) 0 ile değiştirmeli, diğerlerini korumalı: [72, 0, 90, 0]. Kod bir SyntaxError. Comprehension'ı düzelt.",
+          "starter_code": "scores = [72, 45, 90, 38]\nfixed = [s for s in scores if s >= 50 else 0]\nprint(fixed)",
           "tests": [
             {
-              "code": "assert long_words(['Asabeneh', 'Lidiya', 'Eyob'], 5) == ['Asabeneh', 'Lidiya']",
+              "code": "assert fixed == [72, 0, 90, 0]",
               "visible": true,
-              "label_tr": "long_words(['Asabeneh', 'Lidiya', 'Eyob'], 5) ['Asabeneh', 'Lidiya'] veriyor"
+              "label": "fixed is [72, 0, 90, 0]",
+              "label_tr": "fixed [72, 0, 90, 0]"
             },
             {
-              "code": "assert long_words(['a', 'bb'], 5) == []",
-              "visible": true,
-              "label_tr": "long_words(['a', 'bb'], 5) boş liste veriyor"
-            },
-            {
-              "code": "assert long_words(['Ermias', 'Brook'], 5) == ['Ermias']",
+              "code": "assert 'for' in __source__ and ' else ' in __source__ and '72, 0' not in __source__",
               "visible": false,
-              "failure_message": "'more than n' means len(word) > n, so a 5-letter word is not included when n is 5.",
-              "failure_message_tr": "'n'den fazla' demek len(word) > n demektir; n 5 iken 5 harfli kelime girmez."
-            },
-            {
-              "code": "assert long_words([], 3) == []",
-              "visible": false,
-              "failure_message": "An empty input gives an empty list.",
-              "failure_message_tr": "Boş girdi boş liste verir."
-            },
-            {
-              "code": "assert long_words(['abcd', 'abc', 'ab'], 2) == ['abcd', 'abc']",
-              "visible": false,
-              "failure_message": "Keep the original order.",
-              "failure_message_tr": "Özgün sırayı koru."
-            },
-            {
-              "code": "assert long_words(['kedi', 'aslan', 'fil', 'zürafa'], 3) == ['kedi', 'aslan', 'zürafa']",
-              "visible": false,
-              "failure_message": "Filter the words given; do not hard-code results.",
-              "failure_message_tr": "Verilen kelimeleri filtrele; sonuçları elle yazma."
+              "failure_message": "Keep a comprehension and choose each value with a conditional expression instead of typing the result.",
+              "failure_message_tr": "Comprehension'ı koru ve sonucu elle yazmak yerine her değeri bir koşullu ifadeyle seç."
             }
           ],
           "hints": [
-            "len(word) gives the number of letters.",
-            "Compare the length with n inside the if part.",
-            "return [w for w in words if ___ > n] (what goes in the blank to get the length of w?)"
+            "A trailing if is a filter; filters have no else.",
+            "You want a value for every score, so the condition belongs in the expression part.",
+            "Move the if ... else ... in front of for, right after the value s."
+          ],
+          "hints_tr": [
+            "Sondaki if bir filtredir; filtrelerin else'i yoktur.",
+            "Her not için bir değer istiyorsun; koşul ifade kısmına aittir.",
+            "if ... else ... kısmını for'un önüne, s değerinin hemen arkasına taşı."
           ],
           "solution": {
-            "approach": "Filter with len(w) > n inside a comprehension.",
-            "code": "def long_words(words, n):\n    return [w for w in words if len(w) > n]",
-            "approach_tr": "Comprehension içinde len(w) > n ile filtrele."
-          },
-          "twin": "d13-b2-e3",
+            "approach": "To choose between two values, write a conditional expression before for: s if s >= 50 else 0.",
+            "approach_tr": "İki değer arasında seçim yapmak için for'dan önce bir koşullu ifade yaz: s if s >= 50 else 0.",
+            "code": "scores = [72, 45, 90, 38]\nfixed = [s if s >= 50 else 0 for s in scores]\nprint(fixed)"
+          }
+        },
+        {
+          "id": "d13-b2-e5",
+          "type": "modify",
+          "prompt": "negatives_and_zero(numbers) returns only the negative numbers. Change the filter so zero is kept too. Example: negatives_and_zero([-4, -3, 0, 2, 4]) returns [-4, -3, 0].",
+          "prompt_tr": "negatives_and_zero(numbers) yalnızca negatif sayıları döndürüyor. Filtreyi sıfır da tutulacak şekilde değiştir. Örnek: negatives_and_zero([-4, -3, 0, 2, 4]) [-4, -3, 0] döndürür.",
+          "starter_code": "def negatives_and_zero(numbers):\n    return [n for n in numbers if n < 0]\n\nprint(negatives_and_zero([-4, -3, -2, -1, 0, 2, 4, 6]))",
+          "signature": "def negatives_and_zero(numbers):",
+          "tests": [
+            {
+              "code": "assert negatives_and_zero([-4, -3, 0, 2, 4]) == [-4, -3, 0]",
+              "visible": true,
+              "label": "Keeps -4, -3 and 0",
+              "label_tr": "-4, -3 ve 0'ı tutuyor"
+            },
+            {
+              "code": "assert __stdout__.strip() == '[-4, -3, -2, -1, 0]'",
+              "visible": true,
+              "label": "Prints [-4, -3, -2, -1, 0]",
+              "label_tr": "[-4, -3, -2, -1, 0] yazdırıyor"
+            },
+            {
+              "code": "assert negatives_and_zero([0, 0, 1]) == [0, 0]",
+              "visible": false,
+              "failure_message": "Every zero must be kept.",
+              "failure_message_tr": "Her sıfır tutulmalı."
+            },
+            {
+              "code": "assert negatives_and_zero([5, 7]) == []",
+              "visible": false,
+              "failure_message": "Positive numbers must be dropped.",
+              "failure_message_tr": "Pozitif sayılar atılmalı."
+            }
+          ],
+          "hints": [
+            "Only the condition needs to change.",
+            "Which comparison is True for negatives and for 0?",
+            "Use less than or equal to."
+          ],
           "hints_tr": [
-            "len(word) harf sayısını verir.",
-            "if kısmında uzunluğu n ile karşılaştır.",
-            "return [w for w in words if ___ > n] (w'nin uzunluğunu almak için boşluğa ne yazılır?)"
-          ]
+            "Yalnızca koşulun değişmesi gerekiyor.",
+            "Hangi karşılaştırma negatifler ve 0 için True'dur?",
+            "Küçük ya da eşit kullan."
+          ],
+          "solution": {
+            "approach": "Changing < to <= widens the filter so 0 passes too.",
+            "approach_tr": "< yerine <= yazmak filtreyi genişletir ve 0 da geçer.",
+            "code": "def negatives_and_zero(numbers):\n    return [n for n in numbers if n <= 0]\n\nprint(negatives_and_zero([-4, -3, -2, -1, 0, 2, 4, 6]))"
+          }
+        },
+        {
+          "id": "d13-b2-e6",
+          "type": "write",
+          "prompt": "Write a function long_words(text, min_len) that splits text on spaces and returns the words whose length is at least min_len, in lowercase, using a comprehension. Example: long_words('Python çok Güzel bir dil', 4) returns ['python', 'güzel'].",
+          "prompt_tr": "long_words(text, min_len) fonksiyonunu yaz: text'i boşluklardan bölsün ve comprehension kullanarak uzunluğu en az min_len olan kelimeleri küçük harfle döndürsün. Örnek: long_words('Python çok Güzel bir dil', 4) ['python', 'güzel'] döndürür.",
+          "starter_code": "",
+          "signature": "def long_words(text, min_len):",
+          "tests": [
+            {
+              "code": "assert long_words('Python çok Güzel bir dil', 4) == ['python', 'güzel']",
+              "visible": true,
+              "label": "Two long words in lowercase",
+              "label_tr": "Küçük harfli iki uzun kelime"
+            },
+            {
+              "code": "assert long_words('', 3) == []",
+              "visible": true,
+              "label": "Empty text gives []",
+              "label_tr": "Boş metin [] veriyor"
+            },
+            {
+              "code": "assert long_words('ab abc ABCD', 3) == ['abc', 'abcd']",
+              "visible": false,
+              "failure_message": "At least min_len means length >= min_len.",
+              "failure_message_tr": "En az min_len demek uzunluk >= min_len demektir."
+            },
+            {
+              "code": "assert long_words('Ev OKUL ev', 1) == ['ev', 'okul', 'ev']",
+              "visible": false,
+              "failure_message": "Keep duplicates and the original order, and lowercase every kept word.",
+              "failure_message_tr": "Tekrarları ve özgün sırayı koru, tutulan her kelimeyi küçük harfe çevir."
+            }
+          ],
+          "hints": [
+            "text.split() gives the list of words.",
+            "Filter with if len(w) >= min_len at the end.",
+            "The expression part lowercases each kept word: w.lower()."
+          ],
+          "hints_tr": [
+            "text.split() kelimelerin list'ini verir.",
+            "Sonda if len(w) >= min_len ile filtrele.",
+            "İfade kısmı tutulan her kelimeyi küçültür: w.lower()."
+          ],
+          "solution": {
+            "approach": "split gives the words, the trailing if filters by length and the expression lowercases what is kept.",
+            "approach_tr": "split kelimeleri verir, sondaki if uzunluğa göre filtreler, ifade de tutulanı küçültür.",
+            "code": "def long_words(text, min_len):\n    return [w.lower() for w in text.split() if len(w) >= min_len]"
+          },
+          "twin": "d13-b2-e7"
+        },
+        {
+          "id": "d13-b2-e7",
+          "type": "write",
+          "prompt": "Write a function grade_labels(scores) that returns a list with 'geçti' for every score of at least 50 and 'kaldı' otherwise, using a conditional expression inside a comprehension. Example: grade_labels([50, 49]) returns ['geçti', 'kaldı'].",
+          "prompt_tr": "grade_labels(scores) fonksiyonunu yaz: comprehension içinde koşullu ifade kullanarak 50 ve üstü her not için 'geçti', diğerleri için 'kaldı' içeren bir list döndürsün. Örnek: grade_labels([50, 49]) ['geçti', 'kaldı'] döndürür.",
+          "starter_code": "",
+          "signature": "def grade_labels(scores):",
+          "tests": [
+            {
+              "code": "assert grade_labels([50, 49]) == ['geçti', 'kaldı']",
+              "visible": true,
+              "label": "50 passes, 49 fails",
+              "label_tr": "50 geçiyor, 49 kalıyor"
+            },
+            {
+              "code": "assert grade_labels([]) == []",
+              "visible": true,
+              "label": "No scores give []",
+              "label_tr": "Not yoksa []"
+            },
+            {
+              "code": "assert grade_labels([100, 0, 75, 20]) == ['geçti', 'kaldı', 'geçti', 'kaldı']",
+              "visible": false,
+              "failure_message": "One label per score, in the same order.",
+              "failure_message_tr": "Her not için aynı sırada bir etiket."
+            },
+            {
+              "code": "assert ' else ' in __source__",
+              "visible": false,
+              "failure_message": "Use a conditional expression: 'geçti' if ... else 'kaldı'.",
+              "failure_message_tr": "Koşullu ifade kullan: 'geçti' if ... else 'kaldı'."
+            }
+          ],
+          "hints": [
+            "The result must have the same length as scores, so you need a value for every score.",
+            "Put the choice before for: 'geçti' if s >= 50 else 'kaldı'.",
+            "return [___ for s in scores]"
+          ],
+          "hints_tr": [
+            "Sonuç scores ile aynı uzunlukta olmalı; her not için bir değer gerekiyor.",
+            "Seçimi for'dan önce yaz: 'geçti' if s >= 50 else 'kaldı'.",
+            "return [___ for s in scores]"
+          ],
+          "solution": {
+            "approach": "A conditional expression in the value position gives exactly one label per score.",
+            "approach_tr": "Değer konumundaki koşullu ifade her not için tam olarak bir etiket verir.",
+            "code": "def grade_labels(scores):\n    return ['geçti' if s >= 50 else 'kaldı' for s in scores]"
+          },
+          "twin": "d13-b2-e6"
+        },
+        {
+          "id": "d13-b2-e8",
+          "type": "explain",
+          "prompt": "Explain the difference between [x for x in data if x > 0] and [x if x > 0 else 0 for x in data]. Which one can return a shorter list, and why?",
+          "prompt_tr": "[x for x in data if x > 0] ile [x if x > 0 else 0 for x in data] arasındaki farkı açıkla. Hangisi daha kısa bir list döndürebilir ve neden?",
+          "model_answer": "The first is a filter: items where x > 0 is false are skipped, so the result can be shorter than data. The second chooses a value for every item, x or 0, so its length is always the same as data.",
+          "model_answer_tr": "İlki bir filtredir: x > 0'ın yanlış olduğu elemanlar atlanır, bu yüzden sonuç data'dan kısa olabilir. İkincisi her eleman için bir değer seçer, x ya da 0; bu yüzden uzunluğu her zaman data ile aynıdır.",
+          "keywords": [
+            "filter",
+            "every",
+            "shorter"
+          ],
+          "keywords_tr": [
+            "filtre",
+            "her",
+            "kısa"
+          ],
+          "min_words": 14
         }
-      ],
-      "concept_tr": "Sonuna eklenen if bir filtre gibi çalışır: sadece şartı sağlayan elemanlar yeni listeye girer."
+      ]
     },
     {
       "id": "d13-b3",
-      "concept": "lambda-functions",
+      "concept": "nested-dict-set-generator",
+      "concept_tr": "Birden fazla for kısmı iç içe döngüler gibi soldan sağa çalışır; {k: v for ...} dict, {x for ...} set kurar; sum, any, all ve max içinde köşeli parantez olmadan generator ifadesi kullanılabilir.",
       "tags": [
-        "lambda",
-        "functions"
+        "comprehension",
+        "nested",
+        "dict-comprehension",
+        "generator",
+        "interleaving"
       ],
       "worked_example": {
-        "code": "square = lambda x: x ** 2\nadd = lambda a, b: a + b\n\nprint(square(3))\nprint(add(2, 3))",
+        "code": "classes = {'9A': [80, 55, 91], '9B': [45, 62], '9C': []}\n\naverages = {name: sum(s) / len(s) for name, s in classes.items() if s}\nall_scores = [x for s in classes.values() for x in s]\nprint(averages)\nprint(all_scores, any(x < 50 for x in all_scores))",
         "notes": [
-          "lambda has no name, no return keyword and only one expression.",
-          "The expression after the colon is returned automatically."
+          "The dict comprehension pairs each class name with its average, and the trailing if s skips the empty class 9C, which would divide by zero.",
+          "In all_scores the first for walks over the lists and the second for walks inside each list, exactly like two nested loops written top to bottom.",
+          "any(x < 50 for x in all_scores) needs no brackets, produces values one at a time and stops at the first score below 50."
         ],
         "notes_tr": [
-          "lambda'nın adı yoktur, return anahtar kelimesi kullanılmaz ve tek bir ifadesi olur.",
-          "İki noktadan sonraki ifade otomatik olarak döndürülür."
+          "Dict comprehension her sınıf adını ortalamasıyla eşler; sondaki if s, sıfıra bölmeye yol açacak boş 9C sınıfını atlar.",
+          "all_scores'ta ilk for list'lerin üzerinden, ikinci for her list'in içinden geçer; tıpkı yukarıdan aşağı yazılmış iki iç içe döngü gibi.",
+          "any(x < 50 for x in all_scores) köşeli parantez istemez, değerleri tek tek üretir ve 50'nin altındaki ilk notta durur."
         ]
       },
       "exercises": [
         {
           "id": "d13-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "def power(x):\n    return lambda n: x ** n\n\nprint(power(2)(5))\ncube = power(2)\nprint(cube(3))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "grid = [[1, 2], [3, 4], [5, 6]]\nprint([row[1] for row in grid])\nprint([n for row in grid for n in row if n % 2 == 1])",
           "choices": [
-            "10\n6",
-            "32\n9",
-            "32\n8"
+            "[2, 4, 6]\n[2, 4, 6]",
+            "[3, 4]\n[1, 3, 5]",
+            "[2, 4, 6]\n[1, 3, 5]",
+            "[2, 4, 6]\n[[1], [3], [5]]"
           ],
-          "expected_output": "32\n8",
-          "explanation": "power(2) returns a lambda that remembers x = 2. Calling it with 5 gives 2 ** 5 = 32; calling cube(3) gives 2 ** 3 = 8.",
+          "expected_output": "[2, 4, 6]\n[1, 3, 5]",
+          "explanation": "The first line takes index 1 from every row. The second flattens all numbers and keeps the odd ones.",
+          "explanation_tr": "İlk satır her satırdan 1 indeksini alır. İkincisi bütün sayıları düzleştirir ve tek olanları tutar.",
           "misconceptions": {
-            "10\n6": "** is exponentiation: 2 ** 5 is 32, not 2 * 5.",
-            "32\n9": "power(2) remembers x = 2, so cube(3) is 2 ** 3, not 3 ** 2."
+            "[2, 4, 6]\n[2, 4, 6]": "The second line keeps odd numbers: n % 2 == 1 is True for 1, 3 and 5.",
+            "[3, 4]\n[1, 3, 5]": "row[1] is the second item of every row, not the second row.",
+            "[2, 4, 6]\n[[1], [3], [5]]": "Two for clauses flatten the rows into one list of numbers."
           },
-          "explanation_tr": "power(2), x = 2'yi hatırlayan bir lambda döndürür. 5 ile çağırınca 2 ** 5 = 32, cube(3) ise 2 ** 3 = 8 olur.",
           "misconceptions_tr": {
-            "10\n6": "** üs almadır: 2 ** 5, 32 eder; 2 * 5 değil.",
-            "32\n9": "power(2) x = 2'yi hatırlar, yani cube(3) hesabı 2 ** 3'tür, 3 ** 2 değil."
+            "[2, 4, 6]\n[2, 4, 6]": "İkinci satır tek sayıları tutar: n % 2 == 1, 1, 3 ve 5 için True'dur.",
+            "[3, 4]\n[1, 3, 5]": "row[1] ikinci satır değil, her satırın ikinci elemanıdır.",
+            "[2, 4, 6]\n[[1], [3], [5]]": "İki for kısmı satırları tek bir sayı list'ine düzleştirir."
           }
         },
         {
           "id": "d13-b3-e2",
-          "type": "fill_blank",
-          "prompt": "Turn the two functions into lambda functions.",
-          "prompt_tr": "İki fonksiyonu lambda fonksiyonlarına dönüştürün.",
-          "starter_code": "square = ___ x: x ** 2\nmultiply = lambda a, b___ a * b\nprint(square(3))\nprint(multiply(4, 5))",
-          "blanks": [
-            {
-              "answer": [
-                "lambda"
-              ]
-            },
-            {
-              "answer": [
-                ":"
-              ]
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "words = ['Elma', 'armut', 'ELMA', 'kiraz']\nunique = {w.lower() for w in words}\nlengths = {w: len(w) for w in unique}\nprint(len(unique), lengths['elma'])",
+          "choices": [
+            "4 4",
+            "3 Elma",
+            "3 4",
+            "KeyError"
           ],
-          "tests": [
-            {
-              "code": "assert square(3) == 9",
-              "visible": true,
-              "label_tr": "square(3) 9 veriyor"
-            },
-            {
-              "code": "assert multiply(4, 5) == 20",
-              "visible": true,
-              "label_tr": "multiply(4, 5) 20 veriyor"
-            }
-          ],
-          "hints": [
-            "The keyword that creates an anonymous function is lambda.",
-            "A colon separates the parameters from the expression."
-          ],
-          "hints_tr": [
-            "İsimsiz fonksiyon oluşturan anahtar kelime lambda'dır.",
-            "İki nokta üst üste, parametreleri ifadeden ayırır."
-          ]
+          "expected_output": "3 4",
+          "explanation": "Lowercasing makes 'Elma' and 'ELMA' equal, so the set has 3 words. The dict maps 'elma' to 4.",
+          "explanation_tr": "Küçültme 'Elma' ile 'ELMA'yı eşit yapar; set'te 3 kelime kalır. Dict 'elma'yı 4'e eşler.",
+          "misconceptions": {
+            "4 4": "The set holds lowercase words, and 'elma' appears only once in a set.",
+            "3 Elma": "The dict maps each word to its length, a number.",
+            "KeyError": "All words were lowercased first, so the key 'elma' exists."
+          },
+          "misconceptions_tr": {
+            "4 4": "Set küçük harfli kelimeleri tutar ve 'elma' bir set'te yalnızca bir kez bulunur.",
+            "3 Elma": "Dict her kelimeyi uzunluğuna, bir sayıya eşler.",
+            "KeyError": "Bütün kelimeler önce küçültüldü; 'elma' anahtarı var."
+          }
         },
         {
           "id": "d13-b3-e3",
-          "type": "write",
-          "prompt": "Write make_multiplier(n) that returns a lambda function. The returned function takes one number and returns that number multiplied by n.",
-          "prompt_tr": "Bir lambda fonksiyonu döndüren make_multiplier(n) yazın. Dönen fonksiyon bir sayı alıp onu n ile çarpmalıdır.",
-          "starter_code": "",
-          "signature": "def make_multiplier(n):",
+          "type": "fill_blank",
+          "prompt": "Complete the dict comprehension so it maps each product to its price with 20% VAT, rounded to 2 decimals.",
+          "prompt_tr": "Dict comprehension'ı her ürünü yüzde 20 KDV'li, 2 ondalığa yuvarlanmış fiyatına eşleyecek şekilde tamamla.",
+          "starter_code": "prices = {'çay': 15, 'simit': 12.5}\nwith_vat = {name: round(p * 1.2, 2) for name, p in prices.___}\nprint(with_vat)",
+          "blanks": [
+            {
+              "answer": [
+                "items()"
+              ]
+            }
+          ],
           "tests": [
             {
-              "code": "assert make_multiplier(3)(4) == 12",
+              "code": "assert with_vat == {'çay': 18.0, 'simit': 15.0}",
               "visible": true,
-              "label_tr": "make_multiplier(3)(4) 12 veriyor"
-            },
-            {
-              "code": "assert make_multiplier(2)(5) == 10",
-              "visible": true,
-              "label_tr": "make_multiplier(2)(5) 10 veriyor"
-            },
-            {
-              "code": "assert make_multiplier(0)(9) == 0",
-              "visible": false,
-              "failure_message": "Multiplying by 0 gives 0.",
-              "failure_message_tr": "0 ile çarpmak 0 verir."
-            },
-            {
-              "code": "double = make_multiplier(2)\ntriple = make_multiplier(3)\nassert (double(5), triple(5)) == (10, 15)",
-              "visible": false,
-              "failure_message": "Each call to make_multiplier must remember its own n.",
-              "failure_message_tr": "make_multiplier'ın her çağrısı kendi n değerini hatırlamalı."
-            },
-            {
-              "code": "assert callable(make_multiplier(2))",
-              "visible": false,
-              "failure_message": "make_multiplier must RETURN a function, not a number.",
-              "failure_message_tr": "make_multiplier bir sayı değil, bir FONKSİYON döndürmeli."
-            },
-            {
-              "code": "assert make_multiplier(11)(6) == 66 and make_multiplier(-2)(5) == -10",
-              "visible": false,
-              "failure_message": "Use n from the call; do not hard-code results.",
-              "failure_message_tr": "n değerini çağrıdan al; sonuçları elle yazma."
+              "label": "with_vat is {'çay': 18.0, 'simit': 15.0}",
+              "label_tr": "with_vat {'çay': 18.0, 'simit': 15.0}"
             }
           ],
           "hints": [
-            "The outer function returns a function.",
-            "A lambda defined inside can use the n of the outer call.",
-            "return lambda x: ___ (what should the inner function compute from x and n?)"
+            "The for clause unpacks two names: a key and a value.",
+            "Which dict method gives key-value pairs?",
+            "Call it with parentheses after prices."
           ],
-          "solution": {
-            "approach": "Return a lambda that uses the n of the outer call.",
-            "code": "def make_multiplier(n):\n    return lambda x: x * n",
-            "approach_tr": "Dış çağrının n değerini kullanan bir lambda döndür."
-          },
-          "twin": "d13-b3-e4",
           "hints_tr": [
-            "Dıştaki fonksiyon bir fonksiyon döndürür.",
-            "İçeride tanımlanan lambda, dış çağrının n değerini kullanabilir.",
-            "return lambda x: ___ (iç fonksiyon x ve n ile ne hesaplamalı?)"
+            "for kısmı iki isim açıyor: bir anahtar ve bir değer.",
+            "Hangi dict metodu anahtar-değer çiftleri verir?",
+            "prices'tan sonra onu parantezle çağır."
           ]
         },
         {
           "id": "d13-b3-e4",
-          "type": "write",
-          "prompt": "Write make_adder(n) that returns a lambda function. The returned function takes one number and returns that number plus n.",
-          "prompt_tr": "Bir lambda fonksiyonu döndüren make_adder(n) yazın. Dönen fonksiyon bir sayı alıp ona n eklemelidir.",
-          "starter_code": "",
-          "signature": "def make_adder(n):",
+          "type": "debug",
+          "prompt": "flatten should turn [[1, 2], [3]] into [1, 2, 3]. The program crashes with NameError: name 'row' is not defined. Fix the order of the for clauses.",
+          "prompt_tr": "flatten, [[1, 2], [3]] list'ini [1, 2, 3] yapmalı. Program NameError: name 'row' is not defined ile çöküyor. for kısımlarının sırasını düzelt.",
+          "starter_code": "def flatten(rows):\n    return [x for x in row for row in rows]\n\nprint(flatten([[1, 2], [3]]))",
           "tests": [
             {
-              "code": "assert make_adder(3)(4) == 7",
+              "code": "assert flatten([[1, 2], [3]]) == [1, 2, 3]",
               "visible": true,
-              "label_tr": "make_adder(3)(4) 7 veriyor"
+              "label": "flatten([[1, 2], [3]]) is [1, 2, 3]",
+              "label_tr": "flatten([[1, 2], [3]]) [1, 2, 3]"
             },
             {
-              "code": "assert make_adder(10)(5) == 15",
-              "visible": true,
-              "label_tr": "make_adder(10)(5) 15 veriyor"
-            },
-            {
-              "code": "assert make_adder(0)(9) == 9",
+              "code": "assert flatten([]) == [] and flatten([[], [5]]) == [5]",
               "visible": false,
-              "failure_message": "Adding 0 changes nothing.",
-              "failure_message_tr": "0 eklemek hiçbir şeyi değiştirmez."
-            },
-            {
-              "code": "add2 = make_adder(2)\nadd7 = make_adder(7)\nassert (add2(1), add7(1)) == (3, 8)",
-              "visible": false,
-              "failure_message": "Each call to make_adder must remember its own n.",
-              "failure_message_tr": "make_adder'ın her çağrısı kendi n değerini hatırlamalı."
-            },
-            {
-              "code": "assert callable(make_adder(2))",
-              "visible": false,
-              "failure_message": "make_adder must RETURN a function, not a number.",
-              "failure_message_tr": "make_adder bir sayı değil, bir FONKSİYON döndürmeli."
-            },
-            {
-              "code": "assert make_adder(25)(17) == 42 and make_adder(-3)(1) == -2",
-              "visible": false,
-              "failure_message": "Use n from the call; do not hard-code results.",
-              "failure_message_tr": "n değerini çağrıdan al; sonuçları elle yazma."
+              "failure_message": "Empty rows must work too.",
+              "failure_message_tr": "Boş satırlar da çalışmalı."
             }
           ],
           "hints": [
-            "The outer function returns a function.",
-            "A lambda defined inside can use the n of the outer call.",
-            "return lambda x: ___ (what should the inner function compute from x and n?)"
+            "Write the same comprehension as two nested for loops on paper. Which loop must come first?",
+            "The outer loop creates row; the inner loop needs row to exist.",
+            "Swap the two for clauses, keeping x as the expression."
+          ],
+          "hints_tr": [
+            "Aynı comprehension'ı kâğıda iki iç içe for döngüsü olarak yaz. Hangi döngü önce gelmeli?",
+            "Dıştaki döngü row'u oluşturur; içteki döngünün row'un var olmasına ihtiyacı vardır.",
+            "İfade olarak x'i koruyarak iki for kısmının yerini değiştir."
           ],
           "solution": {
-            "approach": "Return a lambda that adds the n of the outer call.",
-            "code": "def make_adder(n):\n    return lambda x: x + n",
-            "approach_tr": "Dış çağrının n değerini toplayan bir lambda döndür."
-          },
-          "twin": "d13-b3-e3",
-          "hints_tr": [
-            "Dıştaki fonksiyon bir fonksiyon döndürür.",
-            "İçeride tanımlanan lambda, dış çağrının n değerini kullanabilir.",
-            "return lambda x: ___ (iç fonksiyon x ve n ile ne hesaplamalı?)"
-          ]
+            "approach": "for clauses run left to right like nested loops, so the loop over rows must come before the loop over each row.",
+            "approach_tr": "for kısımları iç içe döngüler gibi soldan sağa çalışır; rows üzerindeki döngü her row üzerindeki döngüden önce gelmelidir.",
+            "code": "def flatten(rows):\n    return [x for row in rows for x in row]\n\nprint(flatten([[1, 2], [3]]))"
+          }
         },
         {
           "id": "d13-b3-e5",
-          "type": "debug",
-          "prompt": "This lambda should add two numbers, but the program does not even start. Fix it.",
-          "prompt_tr": "Bu lambda iki sayıyı toplamalı ama program başlamıyor bile. Düzeltin.",
-          "starter_code": "add_two_nums = lambda a, b: return a + b\nprint(add_two_nums(2, 3))",
-          "expected_output": "5",
+          "type": "modify",
+          "prompt": "count_failed(scores) builds a full list only to take its length. Change it to return sum(1 for ...) with a generator expression (no square brackets), with the same result. Example: count_failed([40, 70, 30]) returns 2.",
+          "prompt_tr": "count_failed(scores) yalnızca uzunluğunu almak için tam bir list kuruyor. Aynı sonucu veren, generator ifadeli (köşeli parantezsiz) sum(1 for ...) döndürecek şekilde değiştir. Örnek: count_failed([40, 70, 30]) 2 döndürür.",
+          "starter_code": "def count_failed(scores):\n    return len([s for s in scores if s < 50])\n\nprint(count_failed([40, 70, 30]))",
+          "signature": "def count_failed(scores):",
           "tests": [
             {
-              "code": "assert add_two_nums(1, 1) == 2",
+              "code": "assert count_failed([40, 70, 30]) == 2",
               "visible": true,
-              "label_tr": "add_two_nums(1, 1) 2 veriyor"
+              "label": "Two failing scores",
+              "label_tr": "İki düşük not"
+            },
+            {
+              "code": "assert count_failed([]) == 0",
+              "visible": true,
+              "label": "No scores give 0",
+              "label_tr": "Not yoksa 0"
+            },
+            {
+              "code": "assert count_failed([49, 50, 51, 0]) == 2",
+              "visible": false,
+              "failure_message": "Below 50 means s < 50; 50 itself passes.",
+              "failure_message_tr": "50'nin altı s < 50 demektir; 50'nin kendisi geçer."
+            },
+            {
+              "code": "assert 'sum(' in __source__ and '[' not in __source__.split('def count_failed')[1].split('print')[0]",
+              "visible": false,
+              "failure_message": "Use sum with a generator expression, without square brackets.",
+              "failure_message_tr": "Köşeli parantez olmadan, generator ifadeli sum kullan."
             }
           ],
           "hints": [
-            "Read the SyntaxError message and look at where the arrow points.",
-            "A lambda body is a single expression, and it is returned automatically.",
-            "Delete one keyword from the lambda line: the one that is not allowed there."
+            "A generator expression is a comprehension without the square brackets.",
+            "Produce the number 1 for every failing score and add them up.",
+            "return sum(1 for s in scores if ___)"
+          ],
+          "hints_tr": [
+            "Generator ifadesi köşeli parantezleri olmayan bir comprehension'dır.",
+            "Her düşük not için 1 sayısını üret ve hepsini topla.",
+            "return sum(1 for s in scores if ___)"
           ],
           "solution": {
-            "approach": "lambda never uses the return keyword; the expression after the colon is the result.",
-            "code": "add_two_nums = lambda a, b: a + b\nprint(add_two_nums(2, 3))",
-            "approach_tr": "lambda'da return kullanılmaz; iki noktadan sonraki ifade sonucun kendisidir."
-          },
-          "hints_tr": [
-            "SyntaxError mesajını oku ve okun nereyi gösterdiğine bak.",
-            "lambda gövdesi tek bir ifadedir ve otomatik döndürülür.",
-            "lambda satırından bir anahtar kelimeyi sil: orada kullanılmaması gereken kelimeyi."
-          ]
+            "approach": "Summing a 1 for each matching item counts them without building a list in memory.",
+            "approach_tr": "Eşleşen her eleman için 1 toplamak, bellekte bir list kurmadan onları sayar.",
+            "code": "def count_failed(scores):\n    return sum(1 for s in scores if s < 50)\n\nprint(count_failed([40, 70, 30]))"
+          }
         },
         {
           "id": "d13-b3-e6",
-          "type": "explain",
-          "prompt": "In your own words, read this comprehension aloud step by step: [x * 2 for x in nums if x > 0]",
-          "prompt_tr": "Kendi cümlelerinizle bu liste üretecini adım adım okuyun: [x * 2 for x in nums if x > 0]",
-          "model_answer": "For each x in nums, check if x is greater than 0. If it is, calculate x * 2 and put it into a new list. Items that fail the if are skipped.",
-          "keywords": [
-            "for each",
-            "if",
-            "new list"
+          "type": "write",
+          "prompt": "Interleaving with Day 8 dicts: write a function word_lengths(text) that returns a dict mapping each distinct lowercase word of text (split on spaces) to its length, using a dict comprehension. Example: word_lengths('Bir iki bir') returns {'bir': 3, 'iki': 3}.",
+          "prompt_tr": "8. günün dict'leriyle tekrar: word_lengths(text) fonksiyonunu yaz: dict comprehension kullanarak text'teki (boşluklardan bölünmüş) her farklı küçük harfli kelimeyi uzunluğuna eşleyen bir dict döndürsün. Örnek: word_lengths('Bir iki bir') {'bir': 3, 'iki': 3} döndürür.",
+          "starter_code": "",
+          "signature": "def word_lengths(text):",
+          "tests": [
+            {
+              "code": "assert word_lengths('Bir iki bir') == {'bir': 3, 'iki': 3}",
+              "visible": true,
+              "label": "Duplicates collapse into one key",
+              "label_tr": "Tekrarlar tek anahtarda birleşiyor"
+            },
+            {
+              "code": "assert word_lengths('') == {}",
+              "visible": true,
+              "label": "Empty text gives {}",
+              "label_tr": "Boş metin {} veriyor"
+            },
+            {
+              "code": "assert word_lengths('Python ÇOK güzel') == {'python': 6, 'çok': 3, 'güzel': 5}",
+              "visible": false,
+              "failure_message": "Lowercase every word before using it as a key.",
+              "failure_message_tr": "Her kelimeyi anahtar yapmadan önce küçült."
+            },
+            {
+              "code": "assert '{' in __source__ and 'for' in __source__",
+              "visible": false,
+              "failure_message": "Use a dict comprehension.",
+              "failure_message_tr": "dict comprehension kullan."
+            }
           ],
-          "model_answer_tr": "nums içindeki her x için x'in 0'dan büyük olup olmadığına bakılır. Büyükse x * 2 hesaplanıp yeni bir listeye konur. if şartını geçemeyen elemanlar atlanır.",
-          "keywords_tr": [
-            "her",
-            "if",
-            "liste",
-            "büyük"
+          "hints": [
+            "text.lower().split() gives lowercase words.",
+            "A dict comprehension has a key: value pair before for.",
+            "{w: len(w) for w in ___}; repeated keys simply overwrite with the same value."
           ],
-          "min_words": 6
+          "hints_tr": [
+            "text.lower().split() küçük harfli kelimeleri verir.",
+            "Dict comprehension'da for'dan önce bir anahtar: değer çifti olur.",
+            "{w: len(w) for w in ___}; tekrar eden anahtarlar aynı değerle üzerine yazılır."
+          ],
+          "solution": {
+            "approach": "Keys in a dict are unique, so repeated words collapse naturally; lowercasing first makes Bir and bir the same key.",
+            "approach_tr": "Dict'te anahtarlar tektir; tekrar eden kelimeler kendiliğinden birleşir. Önce küçültmek Bir ile bir'i aynı anahtar yapar.",
+            "code": "def word_lengths(text):\n    return {w: len(w) for w in text.lower().split()}"
+          },
+          "twin": "d13-b3-e7"
+        },
+        {
+          "id": "d13-b3-e7",
+          "type": "write",
+          "prompt": "Write a function flatten_names(groups) that receives a list of lists of names and returns one flat list with every name stripped of surrounding spaces and title-cased, skipping names that are empty after stripping. Use one comprehension with two for clauses. Example: flatten_names([[' ali ', 'ECE'], ['  ']]) returns ['Ali', 'Ece'].",
+          "prompt_tr": "flatten_names(groups) fonksiyonunu yaz: isim list'lerinden oluşan bir list alsın ve her ismin etrafındaki boşluklar silinmiş ve baş harfi büyütülmüş (title) tek düz bir list döndürsün; boşluklar silindikten sonra boş kalan isimleri atlasın. İki for kısmı olan tek bir comprehension kullan. Örnek: flatten_names([[' ali ', 'ECE'], ['  ']]) ['Ali', 'Ece'] döndürür.",
+          "starter_code": "",
+          "signature": "def flatten_names(groups):",
+          "tests": [
+            {
+              "code": "assert flatten_names([[' ali ', 'ECE'], ['  ']]) == ['Ali', 'Ece']",
+              "visible": true,
+              "label": "Two clean names",
+              "label_tr": "İki temiz isim"
+            },
+            {
+              "code": "assert flatten_names([]) == []",
+              "visible": true,
+              "label": "No groups give []",
+              "label_tr": "Grup yoksa []"
+            },
+            {
+              "code": "assert flatten_names([['zeynep kaya'], [], ['can', '']]) == ['Zeynep Kaya', 'Can']",
+              "visible": false,
+              "failure_message": "Skip empty names and keep the order of groups and names.",
+              "failure_message_tr": "Boş isimleri atla, grupların ve isimlerin sırasını koru."
+            },
+            {
+              "code": "assert __source__.count('for') >= 2",
+              "visible": false,
+              "failure_message": "Use one comprehension with two for clauses.",
+              "failure_message_tr": "İki for kısmı olan tek bir comprehension kullan."
+            }
+          ],
+          "hints": [
+            "First for: each group in groups. Second for: each name in group.",
+            "Filter at the end with if name.strip(), because an empty string is falsy.",
+            "The expression is name.strip().title()."
+          ],
+          "hints_tr": [
+            "İlk for: groups içindeki her group. İkinci for: group içindeki her name.",
+            "Sonda if name.strip() ile filtrele, çünkü boş string falsy'dir.",
+            "İfade name.strip().title()'dır."
+          ],
+          "solution": {
+            "approach": "Two for clauses flatten the groups, the trailing if drops blanks and the expression cleans each name.",
+            "approach_tr": "İki for kısmı grupları düzleştirir, sondaki if boşları atar, ifade de her ismi temizler.",
+            "code": "def flatten_names(groups):\n    return [name.strip().title() for group in groups for name in group if name.strip()]"
+          },
+          "twin": "d13-b3-e6"
         }
+      ]
+    },
+    {
+      "id": "d13-b4",
+      "concept": "lambda",
+      "concept_tr": "lambda parametreler: ifade tek ifadelik, return'ü otomatik bir fonksiyondur; en çok sorted, min ve max'in key argümanında ve başka bir fonksiyonun döndürdüğü küçük fonksiyon olarak işe yarar.",
+      "tags": [
+        "lambda",
+        "sorted-key",
+        "closures"
       ],
-      "concept_tr": "lambda, adı olmayan ve tek bir ifadeden oluşan küçük fonksiyondur. Başka bir fonksiyonun döndürdüğü fonksiyon olarak da kullanılır."
+      "worked_example": {
+        "code": "products = [('defter', 45), ('kalem', 12), ('çanta', 300)]\n\ncheapest_first = sorted(products, key=lambda p: p[1])\npriciest = max(products, key=lambda p: p[1])\nprint(cheapest_first)\nprint(priciest[0])",
+        "notes": [
+          "key=lambda p: p[1] tells sorted to compare the products by their price, the item at index 1, instead of by name.",
+          "The lambda's single expression p[1] is returned automatically, so no return keyword appears.",
+          "max with the same key returns the whole tuple of the most expensive product, which is why priciest[0] is its name."
+        ],
+        "notes_tr": [
+          "key=lambda p: p[1], sorted'a ürünleri ad yerine fiyatlarına, yani 1 indeksindeki elemana göre karşılaştırmasını söyler.",
+          "Lambda'nın tek ifadesi p[1] otomatik olarak döndürülür; bu yüzden return anahtar kelimesi görünmez.",
+          "Aynı key ile max en pahalı ürünün bütün tuple'ını döndürür; priciest[0]'ın ürünün adı olmasının nedeni budur."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d13-b4-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "add = lambda a, b=10: a + b\nprint(add(5), add(5, 1))",
+          "choices": [
+            "15 6",
+            "15 15",
+            "5 6",
+            "Error"
+          ],
+          "expected_output": "15 6",
+          "explanation": "Lambda parameters work like def parameters: add(5) uses b=10 and gives 15, add(5, 1) gives 6.",
+          "explanation_tr": "Lambda parametreleri def parametreleri gibi çalışır: add(5) b=10 kullanır ve 15 verir, add(5, 1) 6 verir.",
+          "misconceptions": {
+            "15 15": "A passed b replaces the default 10, so add(5, 1) is 6.",
+            "5 6": "When b is not passed, its default 10 is used: 5 + 10.",
+            "Error": "Lambdas accept default values just like def parameters."
+          },
+          "misconceptions_tr": {
+            "15 15": "Verilen b varsayılan 10'un yerine geçer; add(5, 1) 6'dır.",
+            "5 6": "b verilmezse varsayılan 10 kullanılır: 5 + 10.",
+            "Error": "Lambda'lar def parametreleri gibi varsayılan değerleri kabul eder."
+          }
+        },
+        {
+          "id": "d13-b4-e2",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def multiplier(n):\n    return lambda x: x * n\n\ntriple = multiplier(3)\nprint(triple(4), multiplier(2)(7))",
+          "choices": [
+            "7 9",
+            "12 9",
+            "12 14",
+            "<function <lambda>> 14"
+          ],
+          "expected_output": "12 14",
+          "explanation": "multiplier(3) returns a lambda that remembers n = 3, so triple(4) is 12. multiplier(2)(7) is 14.",
+          "explanation_tr": "multiplier(3), n = 3'ü hatırlayan bir lambda döndürür; triple(4) 12'dir. multiplier(2)(7) ise 14'tür.",
+          "misconceptions": {
+            "7 9": "triple is the lambda that remembers n = 3; calling it multiplies.",
+            "12 9": "multiplier(2)(7) calls the returned lambda with 7, giving 7 * 2.",
+            "<function <lambda>> 14": "triple(4) is a call, so it prints the number the lambda returns."
+          },
+          "misconceptions_tr": {
+            "7 9": "triple, n = 3'ü hatırlayan lambda'dır; onu çağırmak çarpma yapar.",
+            "12 9": "multiplier(2)(7) döndürülen lambda'yı 7 ile çağırır: 7 * 2.",
+            "<function <lambda>> 14": "triple(4) bir çağrıdır; lambda'nın döndürdüğü sayıyı yazdırır."
+          }
+        },
+        {
+          "id": "d13-b4-e3",
+          "type": "fill_blank",
+          "prompt": "Complete the sort so the words are ordered by their last letter.",
+          "prompt_tr": "Sıralamayı, kelimeler son harflerine göre dizilecek şekilde tamamla.",
+          "starter_code": "words = ['kalem', 'masa', 'defter']\nby_last = sorted(words, key=lambda w: ___)\nprint(by_last)",
+          "blanks": [
+            {
+              "answer": [
+                "w[-1]",
+                "w[len(w) - 1]",
+                "w[len(w)-1]"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert by_last == ['masa', 'kalem', 'defter']",
+              "visible": true,
+              "label": "by_last is ['masa', 'kalem', 'defter']",
+              "label_tr": "by_last ['masa', 'kalem', 'defter']"
+            }
+          ],
+          "hints": [
+            "The key must return, for one word, the value to compare by.",
+            "The last character of a string is at a negative index.",
+            "Negative indexes count from the end: w[-2] would be the second-to-last letter, so which index is the very last one?"
+          ],
+          "hints_tr": [
+            "key, bir kelime için karşılaştırmada kullanılacak değeri döndürmeli.",
+            "Bir string'in son karakteri negatif bir indekstedir.",
+            "Negatif indeksler sondan sayar: w[-2] sondan ikinci harf olurdu; peki en son harf hangi indekste?"
+          ]
+        },
+        {
+          "id": "d13-b4-e4",
+          "type": "debug",
+          "prompt": "The program should print [('Can', 95), ('Ece', 82), ('Ada', 67)], highest score first. It is a SyntaxError. Fix the lambda.",
+          "prompt_tr": "Program en yüksek not önce olacak şekilde [('Can', 95), ('Ece', 82), ('Ada', 67)] yazdırmalı. Kod bir SyntaxError. Lambda'yı düzelt.",
+          "starter_code": "students = [('Ece', 82), ('Can', 95), ('Ada', 67)]\nranked = sorted(students, key=lambda s: return s[1], reverse=True)\nprint(ranked)",
+          "tests": [
+            {
+              "code": "assert ranked == [('Can', 95), ('Ece', 82), ('Ada', 67)]",
+              "visible": true,
+              "label": "Sorted by score, highest first",
+              "label_tr": "Nota göre, en yüksek önce"
+            },
+            {
+              "code": "assert 'sorted(' in __source__ and 'lambda' in __source__ and \"('Can', 95), ('Ece', 82)\" not in __source__",
+              "visible": false,
+              "failure_message": "Keep sorted with a key lambda; fix the lambda instead of typing the sorted list.",
+              "failure_message_tr": "key lambda'lı sorted'ı koru; sıralı list'i elle yazmak yerine lambda'yı düzelt."
+            }
+          ],
+          "hints": [
+            "Where is the SyntaxError pointing?",
+            "A lambda body is a single expression whose value is returned automatically.",
+            "Delete the return keyword inside the lambda."
+          ],
+          "hints_tr": [
+            "SyntaxError nereyi gösteriyor?",
+            "Lambda gövdesi değeri otomatik olarak döndürülen tek bir ifadedir.",
+            "Lambda'nın içindeki return anahtar kelimesini sil."
+          ],
+          "solution": {
+            "approach": "return is a statement and cannot appear in a lambda; the expression s[1] is already the returned value.",
+            "approach_tr": "return bir deyimdir ve lambda içinde yer alamaz; s[1] ifadesi zaten döndürülen değerdir.",
+            "code": "students = [('Ece', 82), ('Can', 95), ('Ada', 67)]\nranked = sorted(students, key=lambda s: s[1], reverse=True)\nprint(ranked)"
+          }
+        },
+        {
+          "id": "d13-b4-e5",
+          "type": "modify",
+          "prompt": "sort_by_price sorts by product name. Change the key so it sorts by price (index 1), and add a parameter descending=False that, when True, puts the most expensive first. Example: sort_by_price([('a', 5), ('b', 2)]) returns [('b', 2), ('a', 5)].",
+          "prompt_tr": "sort_by_price ürün adına göre sıralıyor. key'i fiyata (1 indeksi) göre sıralayacak şekilde değiştir ve True olduğunda en pahalıyı başa alan descending=False parametresini ekle. Örnek: sort_by_price([('a', 5), ('b', 2)]) [('b', 2), ('a', 5)] döndürür.",
+          "starter_code": "def sort_by_price(products):\n    return sorted(products, key=lambda p: p[0])\n\nprint(sort_by_price([('defter', 45), ('kalem', 12)]))",
+          "signature": "def sort_by_price(products, descending=False):",
+          "tests": [
+            {
+              "code": "assert sort_by_price([('a', 5), ('b', 2)]) == [('b', 2), ('a', 5)]",
+              "visible": true,
+              "label": "Cheapest first by default",
+              "label_tr": "Varsayılan olarak en ucuz önce"
+            },
+            {
+              "code": "assert sort_by_price([('a', 5), ('b', 2)], descending=True) == [('a', 5), ('b', 2)]",
+              "visible": true,
+              "label": "descending=True puts the priciest first",
+              "label_tr": "descending=True en pahalıyı başa alıyor"
+            },
+            {
+              "code": "assert sort_by_price([('z', 1), ('y', 3), ('x', 2)]) == [('z', 1), ('x', 2), ('y', 3)]",
+              "visible": false,
+              "failure_message": "Sort by price, not by name.",
+              "failure_message_tr": "Ada göre değil, fiyata göre sırala."
+            },
+            {
+              "code": "assert sort_by_price([]) == []",
+              "visible": false,
+              "failure_message": "An empty list stays empty.",
+              "failure_message_tr": "Boş list boş kalır."
+            }
+          ],
+          "hints": [
+            "Change the index inside the lambda from 0 to 1.",
+            "sorted has a reverse parameter; you can pass your new parameter straight to it.",
+            "def sort_by_price(products, descending=False): and reverse=descending."
+          ],
+          "hints_tr": [
+            "Lambda'nın içindeki indeksi 0'dan 1'e değiştir.",
+            "sorted'ın bir reverse parametresi var; yeni parametreni doğrudan ona verebilirsin.",
+            "def sort_by_price(products, descending=False): ve reverse=descending."
+          ],
+          "solution": {
+            "approach": "The key decides what is compared; reverse decides the direction, and a default keeps the old call valid.",
+            "approach_tr": "key neyin karşılaştırılacağına, reverse ise yöne karar verir; varsayılan değer eski çağrıyı geçerli tutar.",
+            "code": "def sort_by_price(products, descending=False):\n    return sorted(products, key=lambda p: p[1], reverse=descending)\n\nprint(sort_by_price([('defter', 45), ('kalem', 12)]))"
+          }
+        },
+        {
+          "id": "d13-b4-e6",
+          "type": "write",
+          "prompt": "Write a function top_student(students) that receives a list of (name, score) tuples and returns the name of the student with the highest score, using max with a key lambda. Return None for an empty list. Example: top_student([('Ece', 82), ('Can', 95)]) returns 'Can'.",
+          "prompt_tr": "top_student(students) fonksiyonunu yaz: (isim, not) tuple'larından oluşan bir list alsın ve key lambda'lı max kullanarak en yüksek notu alan öğrencinin adını döndürsün. Boş list için None döndürsün. Örnek: top_student([('Ece', 82), ('Can', 95)]) 'Can' döndürür.",
+          "starter_code": "",
+          "signature": "def top_student(students):",
+          "tests": [
+            {
+              "code": "assert top_student([('Ece', 82), ('Can', 95)]) == 'Can'",
+              "visible": true,
+              "label": "Can has the highest score",
+              "label_tr": "En yüksek not Can'da"
+            },
+            {
+              "code": "assert top_student([]) is None",
+              "visible": true,
+              "label": "Empty list gives None",
+              "label_tr": "Boş list None veriyor"
+            },
+            {
+              "code": "assert top_student([('A', 10), ('B', 70), ('C', 30)]) == 'B'",
+              "visible": false,
+              "failure_message": "Compare by score (index 1) and return only the name.",
+              "failure_message_tr": "Nota (1 indeksi) göre karşılaştır ve yalnızca adı döndür."
+            },
+            {
+              "code": "assert top_student([('Zed', 50)]) == 'Zed'",
+              "visible": false,
+              "failure_message": "A single student is the top student.",
+              "failure_message_tr": "Tek öğrenci en iyi öğrencidir."
+            },
+            {
+              "code": "assert 'lambda' in __source__ and 'max(' in __source__",
+              "visible": false,
+              "failure_message": "Use max with key=lambda ....",
+              "failure_message_tr": "max'i key=lambda ... ile kullan."
+            }
+          ],
+          "hints": [
+            "max(students) alone would compare names first; you need a key.",
+            "key=lambda s: s[1] compares scores; max then returns the whole tuple.",
+            "Handle the empty list first with an early return, then take [0] of the winning tuple."
+          ],
+          "hints_tr": [
+            "Tek başına max(students) önce isimleri karşılaştırırdı; bir key gerekiyor.",
+            "key=lambda s: s[1] notları karşılaştırır; max sonra bütün tuple'ı döndürür.",
+            "Önce boş list'i erken return ile ele al, sonra kazanan tuple'ın [0] elemanını al."
+          ],
+          "solution": {
+            "approach": "max with a key compares by score but returns the whole tuple, so [0] extracts the name; an empty list needs its own early return.",
+            "approach_tr": "key'li max nota göre karşılaştırır ama bütün tuple'ı döndürür; [0] adı çıkarır. Boş list için ayrı bir erken return gerekir.",
+            "code": "def top_student(students):\n    if not students:\n        return None\n    return max(students, key=lambda s: s[1])[0]"
+          },
+          "twin": "d13-b4-e7"
+        },
+        {
+          "id": "d13-b4-e7",
+          "type": "write",
+          "prompt": "Write a function make_greeter(greeting) that returns a lambda which takes a name and returns greeting + ', ' + name + '!'. Example: hi = make_greeter('Merhaba'); hi('Ada') returns 'Merhaba, Ada!'.",
+          "prompt_tr": "make_greeter(greeting) fonksiyonunu yaz: bir isim alıp greeting + ', ' + name + '!' döndüren bir lambda döndürsün. Örnek: hi = make_greeter('Merhaba'); hi('Ada') 'Merhaba, Ada!' döndürür.",
+          "starter_code": "",
+          "signature": "def make_greeter(greeting):",
+          "tests": [
+            {
+              "code": "hi = make_greeter('Merhaba')\nassert hi('Ada') == 'Merhaba, Ada!'",
+              "visible": true,
+              "label": "make_greeter('Merhaba')('Ada')",
+              "label_tr": "make_greeter('Merhaba')('Ada')"
+            },
+            {
+              "code": "assert callable(make_greeter('Selam'))",
+              "visible": true,
+              "label": "make_greeter returns a function",
+              "label_tr": "make_greeter bir fonksiyon döndürüyor"
+            },
+            {
+              "code": "a = make_greeter('Hi'); b = make_greeter('Günaydın'); assert a('Can') == 'Hi, Can!' and b('Su') == 'Günaydın, Su!'",
+              "visible": false,
+              "failure_message": "Each returned function must remember its own greeting.",
+              "failure_message_tr": "Döndürülen her fonksiyon kendi selamını hatırlamalı."
+            },
+            {
+              "code": "assert make_greeter('')('X') == ', X!'",
+              "visible": false,
+              "failure_message": "Glue exactly greeting, ', ', name and '!'.",
+              "failure_message_tr": "Tam olarak greeting, ', ', name ve '!' birleştir."
+            }
+          ],
+          "hints": [
+            "make_greeter returns a function, not a string.",
+            "The returned lambda takes one parameter, name, and can use greeting from the outer call.",
+            "return lambda name: ___"
+          ],
+          "hints_tr": [
+            "make_greeter bir string değil, bir fonksiyon döndürür.",
+            "Döndürülen lambda tek bir parametre, name, alır ve dış çağrıdaki greeting'i kullanabilir.",
+            "return lambda name: ___"
+          ],
+          "solution": {
+            "approach": "The lambda remembers greeting from the call that created it, so each greeter keeps its own greeting.",
+            "approach_tr": "Lambda onu oluşturan çağrıdaki greeting'i hatırlar; böylece her selamlayıcı kendi selamını korur.",
+            "code": "def make_greeter(greeting):\n    return lambda name: greeting + ', ' + name + '!'"
+          },
+          "twin": "d13-b4-e6"
+        }
+      ]
     }
   ],
   "review_pool": [
     "d13-b1-e1",
-    "d13-b1-e3",
+    "d13-b1-e6",
     "d13-b2-e1",
-    "d13-b2-e3",
-    "d13-b3-e1",
-    "d13-b3-e3"
-  ],
-  "title_tr": "List comprehension"
+    "d13-b2-e6",
+    "d13-b4-e1",
+    "d13-b4-e6"
+  ]
 }
