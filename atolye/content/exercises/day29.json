@@ -1,668 +1,1468 @@
 {
- "day": 29,
- "title": "Building an API",
- "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
- "blocks": [
-  {
-   "id": "d29-b1",
-   "concept": "json-responses",
-   "tags": [
-    "api",
-    "json",
-    "flask",
-    "responses"
-   ],
-   "worked_example": {
-    "code": "import json\nstudents = [{'name': 'Asabeneh', 'country': 'Finland'}]\nbody = json.dumps(students)\nresponse = {'body': body, 'mimetype': 'application/json'}\nprint(response['body'])",
-    "notes": [
-     "An API view returns JSON text plus a mimetype that tells the client how to read it.",
-     "Flask's Response(json.dumps(data), mimetype='application/json') does this."
-    ],
-    "notes_tr": [
-     "Bir API view'ı JSON metni ve istemciye nasıl okuyacağını söyleyen bir mimetype döndürür.",
-     "Flask'ta Response(json.dumps(data), mimetype='application/json') bunu yapar."
-    ]
-   },
-   "exercises": [
+  "day": 29,
+  "title": "Building an API (CRUD)",
+  "title_tr": "API Kurmak (CRUD)",
+  "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+  "blocks": [
     {
-     "id": "d29-b1-e1",
-     "type": "predict",
-     "concept": "json-responses",
-     "tags": [
-      "api",
-      "json",
-      "flask",
-      "responses"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "import json\ndef json_response(data, status=200):\n    return {'body': json.dumps(data), 'mimetype': 'application/json', 'status': status}\n\nr = json_response({'name': 'Sami'})\nprint(r['status'], r['body'], json.loads(r['body'])['name'])",
-     "choices": [
-      "200 {\"name\": \"Sami\"} Sami",
-      "200 {'name': 'Sami'} Sami",
-      "200 {\"name\": \"Sami\"} {\"name\": \"Sami\"}",
-      "200 {\"name\": \"Sami\"} name"
-     ],
-     "expected_output": "200 {\"name\": \"Sami\"} Sami",
-     "explanation": "status defaults to 200. r['body'] is JSON text with double quotes. json.loads turns it back into a dict, whose 'name' is Sami.",
-     "misconceptions": {
-      "200 {'name': 'Sami'} Sami": "json.dumps writes JSON text, which uses double quotes.",
-      "200 {\"name\": \"Sami\"} {\"name\": \"Sami\"}": "json.loads(...) gives a dict and ['name'] selects the value 'Sami'.",
-      "200 {\"name\": \"Sami\"} name": "['name'] on the loaded dict returns the value, not the key."
-     },
-     "explanation_tr": "status varsayılan olarak 200'dür. r['body'] çift tırnaklı JSON metnidir. json.loads onu tekrar dict yapar ve 'name' değeri Sami'dir.",
-     "misconceptions_tr": {
-      "200 {'name': 'Sami'} Sami": "json.dumps JSON metni yazar ve JSON çift tırnak kullanır.",
-      "200 {\"name\": \"Sami\"} {\"name\": \"Sami\"}": "json.loads(...) bir dict verir ve ['name'] 'Sami' değerini seçer.",
-      "200 {\"name\": \"Sami\"} name": "Yüklenen dict'te ['name'] anahtarı değil değeri döndürür."
-     }
+      "id": "d29-b1",
+      "concept": "json-responses",
+      "concept_tr": "JSON yanıtları ve serileştirme",
+      "tags": [
+        "api",
+        "json",
+        "datetime",
+        "serialization"
+      ],
+      "worked_example": {
+        "code": "import json\nfrom datetime import datetime\ndef to_json(doc):\n    return {k: v.isoformat() if isinstance(v, datetime) else v for k, v in doc.items()}\ndoc = {'id': 1, 'name': 'Ayşe', 'created_at': datetime(2026, 11, 2, 9, 30)}\nbody = json.dumps(to_json(doc), ensure_ascii=False)\nprint(body)\nprint(doc['created_at'].year)",
+        "notes": [
+          "`json.dumps` only knows dicts, lists, strings, numbers, booleans and None; a datetime must be converted first.",
+          "The comprehension builds a new dict, so the stored document keeps its real datetime object.",
+          "`isoformat()` gives a standard text form that JavaScript and other languages can parse back into a date."
+        ],
+        "notes_tr": [
+          "`json.dumps` yalnızca dict, list, string, sayı, boolean ve None tanır; bir datetime önce dönüştürülmeli.",
+          "Comprehension yeni bir dict kurar; saklanan belge gerçek datetime nesnesini korur.",
+          "`isoformat()`, JavaScript'in ve diğer dillerin yeniden tarihe çevirebildiği standart bir metin biçimi verir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d29-b1-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\nfrom datetime import date\n\nprint(json.dumps({'day': date(2026, 11, 2), 'n': 3}, default=str))",
+          "choices": [
+            "{\"day\": \"2026-11-02\", \"n\": 3}",
+            "{\"day\": \"2026-11-02\", \"n\": \"3\"}",
+            "TypeError",
+            "{\"day\": 2026-11-02, \"n\": 3}"
+          ],
+          "expected_output": "{\"day\": \"2026-11-02\", \"n\": 3}",
+          "explanation": "`default=str` is called only for values json cannot handle, here the date, and `str(date)` is '2026-11-02'. The number 3 is valid JSON and stays a number.",
+          "explanation_tr": "`default=str` yalnızca json'un işleyemediği değerler için, burada tarih için, çağrılır ve `str(date)` '2026-11-02'dir. 3 sayısı geçerli JSON'dur ve sayı olarak kalır.",
+          "misconceptions": {
+            "{\"day\": \"2026-11-02\", \"n\": \"3\"}": "`default` is not applied to values that are already JSON-friendly, such as ints.",
+            "TypeError": "The TypeError only happens without `default`; here str converts the date.",
+            "{\"day\": 2026-11-02, \"n\": 3}": "`str` returns a string, so the date appears in double quotes."
+          },
+          "misconceptions_tr": {
+            "{\"day\": \"2026-11-02\", \"n\": \"3\"}": "`default`, int gibi zaten JSON'a uygun değerlere uygulanmaz.",
+            "TypeError": "TypeError yalnızca `default` olmadan olur; burada str tarihi dönüştürür.",
+            "{\"day\": 2026-11-02, \"n\": 3}": "`str` bir string döndürür; tarih çift tırnak içinde görünür."
+          },
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        },
+        {
+          "id": "d29-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so `json.dumps` turns the datetime into text instead of failing.",
+          "prompt_tr": "Boşluğu doldur: `json.dumps` başarısız olmak yerine datetime'ı metne çevirsin.",
+          "starter_code": "import json\nfrom datetime import datetime\n\ndoc = {'name': 'Can', 'created_at': datetime(2026, 1, 15, 8, 0)}\nbody = json.dumps(doc, default=___)",
+          "blanks": [
+            {
+              "answer": [
+                "str"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert body == '{\"name\": \"Can\", \"created_at\": \"2026-01-15 08:00:00\"}'",
+              "visible": true,
+              "label": "The date becomes a string",
+              "label_tr": "Tarih string oluyor"
+            }
+          ],
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        },
+        {
+          "id": "d29-b1-e3",
+          "type": "modify",
+          "prompt": "`serialize(doc)` converts datetimes to ISO text. Extend it: the key '_id' must become 'id' with its value turned into a string, and set values must become sorted lists. The original document must not change.",
+          "prompt_tr": "`serialize(doc)` datetime'ları ISO metnine çeviriyor. Onu genişlet: '_id' anahtarı, değeri string'e çevrilmiş 'id' olsun ve set değerleri sıralı list'lere dönüşsün. Orijinal belge değişmemeli.",
+          "starter_code": "from datetime import datetime\n\ndef serialize(doc):\n    out = {}\n    for key, value in doc.items():\n        if isinstance(value, datetime):\n            value = value.isoformat()\n        out[key] = value\n    return out",
+          "tests": [
+            {
+              "code": "assert serialize({'_id': 7, 'tags': {'b', 'a'}}) == {'id': '7', 'tags': ['a', 'b']}",
+              "visible": true,
+              "label": "_id renamed, set sorted",
+              "label_tr": "_id yeniden adlandırıldı, set sıralandı"
+            },
+            {
+              "code": "assert serialize({'t': datetime(2026, 1, 2)}) == {'t': '2026-01-02T00:00:00'}",
+              "visible": true,
+              "label": "Datetimes still converted",
+              "label_tr": "Datetime'lar hâlâ çevriliyor"
+            },
+            {
+              "code": "import json\nd = {'_id': 3, 'name': 'Ece', 'skills': {'SQL', 'Python'}, 'at': datetime(2026, 5, 1, 12, 0)}\nassert json.loads(json.dumps(serialize(d))) == {'id': '3', 'name': 'Ece', 'skills': ['Python', 'SQL'], 'at': '2026-05-01T12:00:00'}",
+              "visible": false,
+              "failure_message": "The result must be fully JSON-serialisable: all three conversions together.",
+              "failure_message_tr": "Sonuç tamamen JSON'a çevrilebilir olmalı: üç dönüşüm birlikte."
+            },
+            {
+              "code": "d = {'_id': 1, 's': {2, 1}}\nserialize(d)\nassert d == {'_id': 1, 's': {2, 1}}",
+              "visible": false,
+              "failure_message": "Build a new dict; do not change or rename keys in the original document.",
+              "failure_message_tr": "Yeni bir dict kur; orijinal belgedeki anahtarları değiştirme ya da yeniden adlandırma."
+            }
+          ],
+          "hints": [
+            "Keep the loop; add two more cases next to the datetime check.",
+            "For '_id', change both the key and the value (`'id'`, `str(value)`); for `isinstance(value, set)`, use `sorted(value)`.",
+            "Inside the loop, add an `if key == '_id':` branch that rebinds key and value, then an `elif` for sets, keeping the datetime case, before storing into `out`."
+          ],
+          "hints_tr": [
+            "Döngüyü koru; datetime kontrolünün yanına iki durum daha ekle.",
+            "'_id' için hem anahtarı hem değeri değiştir (`'id'`, `str(value)`); `isinstance(value, set)` için `sorted(value)` kullan.",
+            "Döngünün içinde, `out`'a yazmadan önce key ve value'yu yeniden bağlayan bir `if key == '_id':` dalı, sonra set'ler için bir `elif` ekle ve datetime durumunu koru."
+          ],
+          "solution": {
+            "approach": "Handle _id, datetime and set as separate cases while copying into a new dict.",
+            "approach_tr": "Yeni bir dict'e kopyalarken _id, datetime ve set'i ayrı durumlar olarak ele al.",
+            "code": "from datetime import datetime\n\ndef serialize(doc):\n    out = {}\n    for key, value in doc.items():\n        if key == '_id':\n            key, value = 'id', str(value)\n        elif isinstance(value, datetime):\n            value = value.isoformat()\n        elif isinstance(value, set):\n            value = sorted(value)\n        out[key] = value\n    return out"
+          },
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        },
+        {
+          "id": "d29-b1-e4",
+          "type": "debug",
+          "prompt": "`respond(student)` should print the JSON body of the student, but it crashes with `TypeError: Object of type datetime is not JSON serializable`. Fix `respond` so dates are sent in ISO format.",
+          "prompt_tr": "`respond(student)` öğrencinin JSON gövdesini yazdırmalı ama `TypeError: Object of type datetime is not JSON serializable` ile çöküyor. `respond`'u, tarihler ISO biçiminde gönderilecek şekilde düzelt.",
+          "starter_code": "import json\nfrom datetime import datetime\n\ndef respond(student):\n    return json.dumps(student)\n\nstudent = {'name': 'Ayşe', 'created_at': datetime(2026, 11, 2, 9, 30)}\nprint(respond(student))",
+          "tests": [
+            {
+              "code": "assert json.loads(respond({'a': datetime(2026, 1, 1)})) == {'a': '2026-01-01T00:00:00'}",
+              "visible": true,
+              "label": "ISO format with a T",
+              "label_tr": "T içeren ISO biçimi"
+            }
+          ],
+          "hints": [
+            "The message names the type json cannot handle. Where is that value in the dict?",
+            "Convert datetimes before dumping; `value.isoformat()` gives text like '2026-11-02T09:30:00'.",
+            "Inside `respond`, dump a dict comprehension that uses `isoformat()` for datetime values and keeps other values as they are."
+          ],
+          "hints_tr": [
+            "Mesaj, json'un işleyemediği tipi adıyla söylüyor. O değer dict'in neresinde?",
+            "Dökmeden önce datetime'ları çevir; `value.isoformat()` '2026-11-02T09:30:00' gibi bir metin verir.",
+            "`respond` içinde, datetime değerleri için `isoformat()` kullanan ve diğer değerleri olduğu gibi tutan bir dict comprehension'ı dök."
+          ],
+          "solution": {
+            "approach": "Convert datetime values with isoformat() before json.dumps.",
+            "approach_tr": "json.dumps'tan önce datetime değerlerini isoformat() ile çevir.",
+            "code": "import json\nfrom datetime import datetime\n\ndef respond(student):\n    clean = {k: v.isoformat() if isinstance(v, datetime) else v for k, v in student.items()}\n    return json.dumps(clean, ensure_ascii=False)\n\nstudent = {'name': 'Ayşe', 'created_at': datetime(2026, 11, 2, 9, 30)}\nprint(respond(student))"
+          },
+          "expected_output": "{\"name\": \"Ayşe\", \"created_at\": \"2026-11-02T09:30:00\"}",
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        },
+        {
+          "id": "d29-b1-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\ndata = {1: ('Ece', 'İzmir')}\ntext = json.dumps(data, ensure_ascii=False)\nprint(text, json.loads(text) == data)",
+          "choices": [
+            "{\"1\": [\"Ece\", \"İzmir\"]} False",
+            "{1: (\"Ece\", \"İzmir\")} True",
+            "{\"1\": [\"Ece\", \"İzmir\"]} True",
+            "TypeError"
+          ],
+          "expected_output": "{\"1\": [\"Ece\", \"İzmir\"]} False",
+          "explanation": "JSON object keys are always strings, so 1 becomes \"1\"; JSON has no tuple, so the tuple becomes an array. Loading it back gives {'1': ['Ece', 'İzmir']}, which is not equal to the original.",
+          "explanation_tr": "JSON nesne anahtarları her zaman string'dir, 1 \"1\" olur; JSON'da tuple yoktur, tuple bir diziye dönüşür. Geri yüklemek {'1': ['Ece', 'İzmir']} verir; bu orijinale eşit değildir.",
+          "misconceptions": {
+            "{1: (\"Ece\", \"İzmir\")} True": "JSON text uses double-quoted string keys and square brackets for arrays.",
+            "{\"1\": [\"Ece\", \"İzmir\"]} True": "The round trip changes the key's type (int to str) and the tuple to a list.",
+            "TypeError": "ints as keys and tuples are allowed; json converts them instead of failing."
+          },
+          "misconceptions_tr": {
+            "{1: (\"Ece\", \"İzmir\")} True": "JSON metni çift tırnaklı string anahtarlar ve diziler için köşeli parantez kullanır.",
+            "{\"1\": [\"Ece\", \"İzmir\"]} True": "Gidiş-dönüş anahtarın tipini (int'ten str'ye) ve tuple'ı list'e değiştirir.",
+            "TypeError": "Anahtar olarak int ve tuple'a izin verilir; json başarısız olmak yerine onları dönüştürür."
+          },
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        },
+        {
+          "id": "d29-b1-e6",
+          "type": "write",
+          "prompt": "Write `serialize(doc)` that returns a new dict where every `datetime` value is replaced by its `isoformat()` text and every other value is kept. The original dict must not change. Import `datetime` yourself. Example: `serialize({'a': datetime(2026, 1, 2, 3, 4)})` returns `{'a': '2026-01-02T03:04:00'}`.",
+          "prompt_tr": "Her `datetime` değerinin `isoformat()` metniyle değiştirildiği, diğer değerlerin korunduğu yeni bir dict döndüren `serialize(doc)` yaz. Orijinal dict değişmemeli. `datetime`'ı kendin içe aktar. Örnek: `serialize({'a': datetime(2026, 1, 2, 3, 4)})` `{'a': '2026-01-02T03:04:00'}` döndürür.",
+          "starter_code": "",
+          "signature": "def serialize(doc):",
+          "tests": [
+            {
+              "code": "assert serialize({'a': datetime(2026, 1, 2, 3, 4)}) == {'a': '2026-01-02T03:04:00'}",
+              "visible": true,
+              "label": "One datetime",
+              "label_tr": "Bir datetime"
+            },
+            {
+              "code": "assert serialize({'n': 'Ece', 'k': 3}) == {'n': 'Ece', 'k': 3}",
+              "visible": true,
+              "label": "Other values unchanged",
+              "label_tr": "Diğer değerler değişmiyor"
+            },
+            {
+              "code": "d = {'t': datetime(2026, 11, 2, 9, 30), 'x': [1]}\nr = serialize(d)\nassert r == {'t': '2026-11-02T09:30:00', 'x': [1]} and isinstance(d['t'], datetime)",
+              "visible": false,
+              "failure_message": "Return a new dict; the original must still hold the datetime object.",
+              "failure_message_tr": "Yeni bir dict döndür; orijinal hâlâ datetime nesnesini tutmalı."
+            },
+            {
+              "code": "assert serialize({}) == {}",
+              "visible": false,
+              "failure_message": "An empty document gives an empty dict.",
+              "failure_message_tr": "Boş bir belge boş bir dict verir."
+            }
+          ],
+          "hints": [
+            "Go through the key-value pairs and decide, for each value, whether it is a datetime.",
+            "`isinstance(value, datetime)` checks the type; `from datetime import datetime` imports the class.",
+            "Return a dict comprehension over `doc.items()` whose value is `v.isoformat()` when it is a datetime and `v` otherwise."
+          ],
+          "hints_tr": [
+            "Anahtar-değer çiftlerini gez ve her değer için onun bir datetime olup olmadığına karar ver.",
+            "`isinstance(value, datetime)` tipi kontrol eder; `from datetime import datetime` sınıfı içe aktarır.",
+            "`doc.items()` üzerinde, değeri datetime ise `v.isoformat()`, değilse `v` olan bir dict comprehension döndür."
+          ],
+          "solution": {
+            "approach": "A dict comprehension converts datetime values with isoformat() and keeps the rest.",
+            "approach_tr": "Bir dict comprehension datetime değerlerini isoformat() ile çevirir ve gerisini korur.",
+            "code": "from datetime import datetime\n\ndef serialize(doc):\n    return {k: v.isoformat() if isinstance(v, datetime) else v for k, v in doc.items()}"
+          },
+          "twin": "d29-b1-e7",
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        },
+        {
+          "id": "d29-b1-e7",
+          "type": "write",
+          "prompt": "Write `list_response(store, fields)` for `GET /students`. `store` maps int ids to student dicts. Return a JSON string (made with `ensure_ascii=False`) of a dict `{'count': N, 'items': [...]}` where items are the students in ascending id order, each reduced to the keys in `fields` that it has. Example: `list_response({2: {'name': 'Can', 'city': 'Bursa'}}, ['name'])` returns `'{\"count\": 1, \"items\": [{\"name\": \"Can\"}]}'`.",
+          "prompt_tr": "`GET /students` için `list_response(store, fields)` yaz. `store` int id'leri öğrenci dict'lerine eşler. `{'count': N, 'items': [...]}` dict'inin (`ensure_ascii=False` ile üretilmiş) JSON string'ini döndür; items, artan id sırasıyla öğrenciler olsun ve her biri `fields` içinde olup kendisinde bulunan anahtarlara indirgensin. Örnek: `list_response({2: {'name': 'Can', 'city': 'Bursa'}}, ['name'])` `'{\"count\": 1, \"items\": [{\"name\": \"Can\"}]}'` döndürür.",
+          "starter_code": "",
+          "signature": "def list_response(store, fields):",
+          "tests": [
+            {
+              "code": "assert list_response({2: {'name': 'Can', 'city': 'Bursa'}}, ['name']) == '{\"count\": 1, \"items\": [{\"name\": \"Can\"}]}'",
+              "visible": true,
+              "label": "One student, one field",
+              "label_tr": "Bir öğrenci, bir alan"
+            },
+            {
+              "code": "assert list_response({}, ['name']) == '{\"count\": 0, \"items\": []}'",
+              "visible": true,
+              "label": "Empty store",
+              "label_tr": "Boş depo"
+            },
+            {
+              "code": "s = {3: {'name': 'Ece', 'city': 'İzmir'}, 1: {'name': 'Ali'}}\nassert list_response(s, ['name', 'city']) == '{\"count\": 2, \"items\": [{\"name\": \"Ali\"}, {\"name\": \"Ece\", \"city\": \"İzmir\"}]}'",
+              "visible": false,
+              "failure_message": "Sort by id, skip fields a student does not have, and keep Turkish letters (ensure_ascii=False).",
+              "failure_message_tr": "id'ye göre sırala, öğrencide olmayan alanları atla ve Türkçe harfleri koru (ensure_ascii=False)."
+            },
+            {
+              "code": "s = {1: {'name': 'A', 'pw': 'x'}}\nassert 'pw' not in list_response(s, ['name']) and s[1] == {'name': 'A', 'pw': 'x'}",
+              "visible": false,
+              "failure_message": "Only the requested fields may appear, and the stored dicts must not change.",
+              "failure_message_tr": "Yalnızca istenen alanlar görünebilir ve saklanan dict'ler değişmemeli."
+            }
+          ],
+          "hints": [
+            "Two steps: build the list of reduced students in id order, then dump the wrapper dict.",
+            "`sorted(store)` gives the ids in order; `{k: s[k] for k in fields if k in s}` reduces one student.",
+            "Import json, build the items with a comprehension over the sorted ids, and return `json.dumps` of a dict with 'count' and 'items' using `ensure_ascii=False`."
+          ],
+          "hints_tr": [
+            "İki adım: indirgenmiş öğrencilerin list'ini id sırasıyla kur, sonra sarmalayıcı dict'i dök.",
+            "`sorted(store)` id'leri sırayla verir; `{k: s[k] for k in fields if k in s}` bir öğrenciyi indirger.",
+            "json'u içe aktar, öğeleri sıralı id'ler üzerinde bir comprehension ile kur ve 'count' ve 'items' içeren bir dict'in `ensure_ascii=False` ile `json.dumps` sonucunu döndür."
+          ],
+          "solution": {
+            "approach": "Project each student in sorted id order, then dump {'count', 'items'} with ensure_ascii=False.",
+            "approach_tr": "Her öğrenciyi sıralı id düzeninde indirge, sonra {'count', 'items'}'i ensure_ascii=False ile dök.",
+            "code": "import json\n\ndef list_response(store, fields):\n    items = [{k: store[i][k] for k in fields if k in store[i]} for i in sorted(store)]\n    return json.dumps({'count': len(items), 'items': items}, ensure_ascii=False)"
+          },
+          "twin": "d29-b1-e6",
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        },
+        {
+          "id": "d29-b1-e8",
+          "type": "explain",
+          "prompt": "Why does `json.dumps` fail on a MongoDB document that contains an ObjectId or a datetime, and what are two ways to fix it?",
+          "prompt_tr": "`json.dumps`, ObjectId ya da datetime içeren bir MongoDB belgesinde neden başarısız olur ve bunu düzeltmenin iki yolu nedir?",
+          "model_answer": "JSON only has strings, numbers, booleans, null, arrays and objects, so json.dumps does not know how to write an ObjectId or a datetime and raises a TypeError. You can pass default=str so unknown values are turned into strings, or serialise each document first, for example with str(_id) and isoformat() for dates.",
+          "model_answer_tr": "JSON'da yalnızca string, sayı, boolean, null, dizi ve nesne vardır; json.dumps bir ObjectId'yi ya da datetime'ı nasıl yazacağını bilmez ve TypeError verir. Bilinmeyen değerler string'e dönsün diye default=str verebilir ya da her belgeyi önce serileştirebilirsin; örneğin str(_id) ve tarihler için isoformat() ile.",
+          "keywords": [
+            "typeerror",
+            "default=str",
+            "isoformat"
+          ],
+          "keywords_tr": [
+            "typeerror",
+            "default=str",
+            "isoformat"
+          ],
+          "min_words": 12,
+          "concept": "json-responses",
+          "tags": [
+            "api",
+            "json",
+            "datetime",
+            "serialization"
+          ]
+        }
+      ]
     },
     {
-     "id": "d29-b1-e2",
-     "type": "fill_blank",
-     "concept": "json-responses",
-     "tags": [
-      "api",
-      "json",
-      "flask",
-      "responses"
-     ],
-     "prompt": "Complete students_view so it returns the list as JSON text with the right mimetype.",
-     "prompt_tr": "students_view fonksiyonunu tamamla: listeyi doğru mimetype ile JSON metni olarak döndürsün.",
-     "starter_code": "import json\ndef students_view():\n    student_list = [{'name': 'Asabeneh'}, {'name': 'David'}]\n    return {'body': json.___(student_list), 'mimetype': ___}",
-     "blanks": [
-      {
-       "answer": [
-        "dumps"
-       ]
+      "id": "d29-b2",
+      "concept": "routing-path-params",
+      "concept_tr": "Yönlendirme ve yol parametreleri",
+      "tags": [
+        "api",
+        "routing",
+        "strings",
+        "dicts"
+      ],
+      "worked_example": {
+        "code": "def match(pattern, path):\n    p_parts, parts = pattern.strip('/').split('/'), path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    pairs = list(zip(p_parts, parts))\n    if any(p != v for p, v in pairs if not p.startswith('<')):\n        return None\n    return {p[1:-1]: v for p, v in pairs if p.startswith('<')}\nprint(match('/students/<id>', '/students/5'), match('/students/<id>', '/teachers/5'))",
+        "notes": [
+          "Both pattern and path are cut into segments; a different number of segments means no match.",
+          "A segment like `<id>` captures whatever is in that position; `p[1:-1]` strips the angle brackets to get the name.",
+          "Captured values are strings, and the function returns None (not an empty dict) when there is no match, so callers can tell the two apart."
+        ],
+        "notes_tr": [
+          "Hem kalıp hem yol bölümlere ayrılır; bölüm sayısı farklıysa eşleşme yoktur.",
+          "`<id>` gibi bir bölüm o konumdaki değeri yakalar; `p[1:-1]` açılı parantezleri silip adı verir.",
+          "Yakalanan değerler string'dir ve eşleşme yoksa fonksiyon (boş dict değil) None döndürür; böylece çağıran ikisini ayırt edebilir."
+        ]
       },
-      {
-       "answer": [
-        "'application/json'"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "r = students_view()\nassert json.loads(r['body'])[1]['name'] == 'David'",
-       "visible": true,
-       "label_tr": "JSON gövdesi doğru çözülüyor"
-      },
-      {
-       "code": "assert students_view()['mimetype'] == 'application/json'",
-       "visible": true,
-       "label_tr": "Mimetype application/json"
-      }
-     ]
+      "exercises": [
+        {
+          "id": "d29-b2-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def match(pattern, path):\n    p_parts, parts = pattern.strip('/').split('/'), path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    params = {}\n    for p, value in zip(p_parts, parts):\n        if p.startswith('<'):\n            params[p[1:-1]] = value\n        elif p != value:\n            return None\n    return params\n\nprint(match('/students', '/students'), match('/students/<id>', '/students/abc'), match('/students/<id>', '/students'))",
+          "choices": [
+            "{} {'id': 'abc'} None",
+            "None {'id': 'abc'} None",
+            "{} None None",
+            "{} {'id': 'abc'} {}"
+          ],
+          "expected_output": "{} {'id': 'abc'} None",
+          "explanation": "An exact path with no parameters matches with an empty dict. `<id>` accepts any text, even 'abc'. '/students' has fewer segments than the pattern, so None.",
+          "explanation_tr": "Parametresiz tam bir yol boş bir dict ile eşleşir. `<id>` 'abc' dahil her metni kabul eder. '/students' kalıptan daha az bölüme sahip, bu yüzden None.",
+          "misconceptions": {
+            "None {'id': 'abc'} None": "A match without parameters returns {}, not None; None means 'no match'.",
+            "{} None None": "The plain `<id>` segment does not check the type; any text is captured.",
+            "{} {'id': 'abc'} {}": "The length check runs first: 1 segment against 2 gives None."
+          },
+          "misconceptions_tr": {
+            "None {'id': 'abc'} None": "Parametresiz bir eşleşme None değil {} döndürür; None 'eşleşme yok' demektir.",
+            "{} None None": "Düz `<id>` bölümü tipi kontrol etmez; her metin yakalanır.",
+            "{} {'id': 'abc'} {}": "Önce uzunluk kontrolü çalışır: 2'ye karşı 1 bölüm None verir."
+          },
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b2-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order: `get_student` converts the path parameter, looks it up and returns 200 or 404.",
+          "prompt_tr": "Satırları sırala: `get_student` yol parametresini dönüştürür, arar ve 200 ya da 404 döndürür.",
+          "lines": [
+            "    return 200, student",
+            "    if student is None:",
+            "store = {1: {'name': 'Ece'}}",
+            "print(get_student('1'), get_student('7'))",
+            "    student = store.get(int(student_id))",
+            "        return 404, {'error': 'student not found'}",
+            "def get_student(student_id):"
+          ],
+          "correct_order": [
+            2,
+            6,
+            4,
+            1,
+            5,
+            0,
+            3
+          ],
+          "distractors": [
+            "    student = store.get(student_id)"
+          ],
+          "expected_output": "(200, {'name': 'Ece'}) (404, {'error': 'student not found'})",
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b2-e3",
+          "type": "modify",
+          "prompt": "`match(pattern, path)` captures every parameter as a string. Extend it so a segment written as `<int:name>` only matches digits and stores the value as an int (a non-digit value means no match: None). Plain `<name>` keeps working as before.",
+          "prompt_tr": "`match(pattern, path)` her parametreyi string olarak yakalıyor. Onu genişlet: `<int:isim>` diye yazılan bir bölüm yalnızca rakamlarla eşleşsin ve değeri int olarak saklasın (rakam olmayan bir değer eşleşme yok demek: None). Düz `<isim>` eskisi gibi çalışmaya devam etsin.",
+          "starter_code": "def match(pattern, path):\n    p_parts, parts = pattern.strip('/').split('/'), path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    params = {}\n    for p, value in zip(p_parts, parts):\n        if p.startswith('<'):\n            params[p[1:-1]] = value\n        elif p != value:\n            return None\n    return params",
+          "tests": [
+            {
+              "code": "assert match('/students/<int:student_id>', '/students/5') == {'student_id': 5}",
+              "visible": true,
+              "label": "Digits become an int",
+              "label_tr": "Rakamlar int oluyor"
+            },
+            {
+              "code": "assert match('/students/<int:student_id>', '/students/abc') is None",
+              "visible": true,
+              "label": "Non-digits do not match",
+              "label_tr": "Rakam olmayanlar eşleşmiyor"
+            },
+            {
+              "code": "assert match('/u/<name>/posts/<int:n>', '/u/ece/posts/12') == {'name': 'ece', 'n': 12}",
+              "visible": false,
+              "failure_message": "Mix both kinds in one pattern: <name> stays a string, <int:n> becomes an int.",
+              "failure_message_tr": "İki türü tek kalıpta karıştır: <name> string kalır, <int:n> int olur."
+            },
+            {
+              "code": "assert match('/a/<int:x>', '/a/-3') is None and match('/a/<x>', '/a/-3') == {'x': '-3'}",
+              "visible": false,
+              "failure_message": "Only digit strings match <int:...>; a plain parameter still accepts anything.",
+              "failure_message_tr": "<int:...> ile yalnızca rakam string'leri eşleşir; düz parametre hâlâ her şeyi kabul eder."
+            }
+          ],
+          "hints": [
+            "Inside the parameter branch, look at the text between the brackets: does it start with 'int:'?",
+            "`name = p[1:-1]`; if it starts with 'int:', the real name is `name[4:]`, and `value.isdigit()` decides whether it matches.",
+            "In the parameter branch, split off the 'int:' prefix when present, return None if the value is not all digits, otherwise store `int(value)` under the real name; keep the plain case unchanged."
+          ],
+          "hints_tr": [
+            "Parametre dalının içinde parantezlerin arasındaki metne bak: 'int:' ile mi başlıyor?",
+            "`name = p[1:-1]`; 'int:' ile başlıyorsa asıl ad `name[4:]`'tür ve eşleşip eşleşmediğine `value.isdigit()` karar verir.",
+            "Parametre dalında varsa 'int:' önekini ayır, değer tamamen rakam değilse None döndür, değilse asıl adın altına `int(value)` sakla; düz durumu değiştirme."
+          ],
+          "solution": {
+            "approach": "Detect the int: prefix, reject non-digit values, and store int(value) under the real name.",
+            "approach_tr": "int: önekini algıla, rakam olmayan değerleri reddet ve int(value)'yu asıl adın altına sakla.",
+            "code": "def match(pattern, path):\n    p_parts, parts = pattern.strip('/').split('/'), path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    params = {}\n    for p, value in zip(p_parts, parts):\n        if p.startswith('<'):\n            name = p[1:-1]\n            if name.startswith('int:'):\n                if not value.isdigit():\n                    return None\n                params[name[4:]] = int(value)\n            else:\n                params[name] = value\n        elif p != value:\n            return None\n    return params"
+          },
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b2-e4",
+          "type": "debug",
+          "prompt": "`GET /students/1` should print `(200, {'name': 'Ece'})`, but it prints `(404, None)`. Find out why the lookup fails and fix it.",
+          "prompt_tr": "`GET /students/1` `(200, {'name': 'Ece'})` yazdırmalı ama `(404, None)` yazdırıyor. Aramanın neden başarısız olduğunu bul ve düzelt.",
+          "starter_code": "store = {1: {'name': 'Ece'}}\n\ndef get_student(params):\n    student = store.get(params['id'])\n    if student is None:\n        return 404, None\n    return 200, student\n\nparams = {'id': '1'}\nprint(get_student(params))",
+          "tests": [
+            {
+              "code": "assert get_student({'id': '9'}) == (404, None)",
+              "visible": true,
+              "label": "A missing id is still 404",
+              "label_tr": "Olmayan id hâlâ 404"
+            }
+          ],
+          "hints": [
+            "Print `params['id']` and its type, then look at the type of the keys in `store`.",
+            "Path parameters arrive as strings; '1' and 1 are different dict keys.",
+            "Convert the parameter to the key type of the store before calling `get`."
+          ],
+          "hints_tr": [
+            "`params['id']`'yi ve tipini yazdır, sonra `store`'daki anahtarların tipine bak.",
+            "Yol parametreleri string olarak gelir; '1' ve 1 farklı dict anahtarlarıdır.",
+            "`get`'i çağırmadan önce parametreyi depodaki anahtar tipine çevir."
+          ],
+          "solution": {
+            "approach": "Convert the string path parameter to int before looking it up.",
+            "approach_tr": "Aramadan önce string yol parametresini int'e çevir.",
+            "code": "store = {1: {'name': 'Ece'}}\n\ndef get_student(params):\n    student = store.get(int(params['id']))\n    if student is None:\n        return 404, None\n    return 200, student\n\nparams = {'id': '1'}\nprint(get_student(params))"
+          },
+          "expected_output": "(200, {'name': 'Ece'})",
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b2-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "routes = {'/students': {'GET': lambda: 200, 'POST': lambda: 201}}\n\ndef dispatch(method, path):\n    methods = routes.get(path)\n    if methods is None:\n        return 404\n    if method not in methods:\n        return 405\n    return methods[method]()\n\nprint(dispatch('POST', '/students'), dispatch('PUT', '/students'), dispatch('GET', '/teachers'))",
+          "choices": [
+            "201 405 404",
+            "201 404 404",
+            "201 405 405",
+            "200 405 404"
+          ],
+          "expected_output": "201 405 404",
+          "explanation": "POST exists on /students, so its view returns 201. PUT is not among the path's methods: 405. /teachers is not a path at all: 404.",
+          "explanation_tr": "POST /students'ta var, view'ı 201 döndürür. PUT bu yolun metotları arasında yok: 405. /teachers hiç bir yol değil: 404.",
+          "misconceptions": {
+            "201 404 404": "The path /students exists; only the method is wrong, which is 405, not 404.",
+            "201 405 405": "For /teachers the path lookup fails first, so it is 404.",
+            "200 405 404": "The POST view returns 201, not the GET view's 200."
+          },
+          "misconceptions_tr": {
+            "201 404 404": "/students yolu var; yalnızca metot yanlış, bu 404 değil 405'tir.",
+            "201 405 405": "/teachers için önce yol araması başarısız olur, bu yüzden 404.",
+            "200 405 404": "POST view'ı GET view'ının 200'ünü değil, 201'i döndürür."
+          },
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b2-e6",
+          "type": "write",
+          "prompt": "Write `match(pattern, path)`. Split both on '/' after stripping slashes from the ends. If the segment counts differ, return None. A pattern segment like `<name>` captures the path segment as a string under 'name'; any other segment must be equal, otherwise return None. Return the dict of captured values. Example: `match('/students/<id>', '/students/5')` returns `{'id': '5'}`.",
+          "prompt_tr": "`match(pattern, path)` yaz. İkisini de uçlardaki eğik çizgileri sildikten sonra '/' ile böl. Bölüm sayıları farklıysa None döndür. `<isim>` gibi bir kalıp bölümü yol bölümünü string olarak 'isim' altında yakalar; diğer her bölüm eşit olmalı, değilse None döndür. Yakalanan değerlerin dict'ini döndür. Örnek: `match('/students/<id>', '/students/5')` `{'id': '5'}` döndürür.",
+          "starter_code": "",
+          "signature": "def match(pattern, path):",
+          "tests": [
+            {
+              "code": "assert match('/students/<id>', '/students/5') == {'id': '5'}",
+              "visible": true,
+              "label": "One parameter",
+              "label_tr": "Bir parametre"
+            },
+            {
+              "code": "assert match('/students', '/teachers') is None",
+              "visible": true,
+              "label": "Different fixed segment",
+              "label_tr": "Farklı sabit bölüm"
+            },
+            {
+              "code": "assert match('/students', '/students/') == {} and match('/', '/') == {}",
+              "visible": false,
+              "failure_message": "A match with no parameters returns an empty dict, not None; trailing slashes are ignored.",
+              "failure_message_tr": "Parametresiz bir eşleşme None değil boş dict döndürür; sondaki eğik çizgiler yok sayılır."
+            },
+            {
+              "code": "assert match('/a/<x>/b/<y>', '/a/1/b/2') == {'x': '1', 'y': '2'} and match('/a/<x>/b/<y>', '/a/1/c/2') is None",
+              "visible": false,
+              "failure_message": "Capture several parameters, and still reject a fixed segment that differs.",
+              "failure_message_tr": "Birden çok parametreyi yakala ve farklı olan sabit bir bölümü yine reddet."
+            },
+            {
+              "code": "assert match('/a/<x>', '/a/1/2') is None and match('/a/<x>/<y>', '/a/1') is None",
+              "visible": false,
+              "failure_message": "Different segment counts never match.",
+              "failure_message_tr": "Farklı bölüm sayıları asla eşleşmez."
+            }
+          ],
+          "hints": [
+            "First turn both strings into lists of segments and compare their lengths.",
+            "Walk both lists together with `zip`; `seg.startswith('<')` marks a parameter and `seg[1:-1]` is its name.",
+            "After the length check, loop over the zipped pairs, store a value for parameter segments, return None for a fixed segment that differs, and return the dict after the loop."
+          ],
+          "hints_tr": [
+            "Önce iki string'i de bölüm list'lerine çevir ve uzunluklarını karşılaştır.",
+            "İki list'i `zip` ile birlikte gez; `seg.startswith('<')` bir parametreyi işaretler ve `seg[1:-1]` onun adıdır.",
+            "Uzunluk kontrolünden sonra zip'lenmiş çiftler üzerinde dön, parametre bölümleri için değeri sakla, farklı sabit bölüm için None döndür ve döngüden sonra dict'i döndür."
+          ],
+          "solution": {
+            "approach": "Compare segment by segment: capture <name> segments, require equality elsewhere, and check the lengths first.",
+            "approach_tr": "Bölüm bölüm karşılaştır: <isim> bölümlerini yakala, diğerlerinde eşitlik iste ve önce uzunlukları kontrol et.",
+            "code": "def match(pattern, path):\n    p_parts = pattern.strip('/').split('/')\n    parts = path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    params = {}\n    for p, value in zip(p_parts, parts):\n        if p.startswith('<'):\n            params[p[1:-1]] = value\n        elif p != value:\n            return None\n    return params"
+          },
+          "twin": "d29-b2-e7",
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b2-e7",
+          "type": "write",
+          "prompt": "Write `dispatch(routes, method, path)`. `routes` is a list of `(method, pattern, view)` tuples; patterns may contain `<name>` segments (strip slashes, split on '/', equal segment counts, capture as strings). Call the first view whose pattern matches the path and whose method equals `method`, as `view(**params)`, and return its result. If some pattern matches the path but no method does, return `(405, {'error': 'method not allowed'})`; if no pattern matches, return `(404, {'error': 'not found'})`.",
+          "prompt_tr": "`dispatch(routes, method, path)` yaz. `routes`, `(metot, kalıp, view)` tuple'larından oluşan bir list; kalıplar `<isim>` bölümleri içerebilir (eğik çizgileri sil, '/' ile böl, bölüm sayıları eşit olsun, string olarak yakala). Kalıbı yolla eşleşen ve metodu `method`'a eşit olan ilk view'ı `view(**params)` biçiminde çağır ve sonucunu döndür. Bir kalıp yolla eşleşiyor ama hiçbir metot eşleşmiyorsa `(405, {'error': 'method not allowed'})`; hiçbir kalıp eşleşmiyorsa `(404, {'error': 'not found'})` döndür.",
+          "starter_code": "",
+          "signature": "def dispatch(routes, method, path):",
+          "tests": [
+            {
+              "code": "routes = [('GET', '/students/<sid>', lambda sid: (200, sid))]\nassert dispatch(routes, 'GET', '/students/7') == (200, '7')",
+              "visible": true,
+              "label": "A matching route is called with its parameter",
+              "label_tr": "Eşleşen route parametresiyle çağrılıyor"
+            },
+            {
+              "code": "assert dispatch(routes, 'GET', '/teachers') == (404, {'error': 'not found'})",
+              "visible": true,
+              "label": "Unknown path is 404",
+              "label_tr": "Bilinmeyen yol 404"
+            },
+            {
+              "code": "assert dispatch(routes, 'DELETE', '/students/7') == (405, {'error': 'method not allowed'})",
+              "visible": false,
+              "failure_message": "The path matches but the method does not: that is 405, not 404.",
+              "failure_message_tr": "Yol eşleşiyor ama metot eşleşmiyor: bu 404 değil 405'tir."
+            },
+            {
+              "code": "r2 = [('GET', '/s', lambda: (200, 'list')), ('POST', '/s', lambda: (201, 'new')), ('GET', '/s/<a>/<b>', lambda a, b: (200, a + b))]\nassert dispatch(r2, 'POST', '/s') == (201, 'new') and dispatch(r2, 'GET', '/s/x/y') == (200, 'xy')",
+              "visible": false,
+              "failure_message": "Try every route in order, and pass all captured parameters as keyword arguments.",
+              "failure_message_tr": "Her route'u sırayla dene ve yakalanan tüm parametreleri anahtar kelimeli argüman olarak geçir."
+            },
+            {
+              "code": "assert dispatch([], 'GET', '/') == (404, {'error': 'not found'})",
+              "visible": false,
+              "failure_message": "With no routes at all, every request is 404.",
+              "failure_message_tr": "Hiç route yoksa her istek 404'tür."
+            }
+          ],
+          "hints": [
+            "You need the matching logic from `match`; write it as a helper function first, then loop over the routes.",
+            "Keep a flag such as `path_found = False`; set it when a pattern matches even if the method differs. `view(**params)` passes the captured dict as keyword arguments.",
+            "Loop over the routes; skip ones whose pattern does not match; if the method is equal return the view's result, otherwise remember that the path exists; after the loop return 405 or 404 depending on that flag."
+          ],
+          "hints_tr": [
+            "`match`'teki eşleştirme mantığına ihtiyacın var; önce onu yardımcı bir fonksiyon olarak yaz, sonra route'lar üzerinde dön.",
+            "`path_found = False` gibi bir bayrak tut; metot farklı olsa bile kalıp eşleşince onu True yap. `view(**params)` yakalanan dict'i anahtar kelimeli argümanlar olarak geçirir.",
+            "Route'lar üzerinde dön; kalıbı eşleşmeyenleri atla; metot eşitse view'ın sonucunu döndür, değilse yolun var olduğunu hatırla; döngüden sonra o bayrağa göre 405 ya da 404 döndür."
+          ],
+          "solution": {
+            "approach": "Match each route's pattern, call the view with **params when the method agrees, and fall back to 405 or 404.",
+            "approach_tr": "Her route'un kalıbını eşleştir, metot uyuyorsa view'ı **params ile çağır, değilse 405 ya da 404'e düş.",
+            "code": "def match(pattern, path):\n    p_parts, parts = pattern.strip('/').split('/'), path.strip('/').split('/')\n    if len(p_parts) != len(parts):\n        return None\n    params = {}\n    for p, value in zip(p_parts, parts):\n        if p.startswith('<'):\n            params[p[1:-1]] = value\n        elif p != value:\n            return None\n    return params\n\ndef dispatch(routes, method, path):\n    path_found = False\n    for route_method, pattern, view in routes:\n        params = match(pattern, path)\n        if params is None:\n            continue\n        if route_method == method:\n            return view(**params)\n        path_found = True\n    if path_found:\n        return 405, {'error': 'method not allowed'}\n    return 404, {'error': 'not found'}"
+          },
+          "twin": "d29-b2-e6",
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b2-e8",
+          "type": "explain",
+          "prompt": "When should an API answer 404 and when 405? Give an example request for each, using the endpoints `GET /students` and `POST /students`.",
+          "prompt_tr": "Bir API ne zaman 404, ne zaman 405 ile yanıt vermeli? `GET /students` ve `POST /students` endpoint'lerini kullanarak her biri için bir örnek istek ver.",
+          "model_answer": "404 Not Found means the path itself does not exist, for example GET /teachers. 405 Method Not Allowed means the path exists but this method is not supported on it, for example DELETE /students when only GET and POST are defined. The difference tells the client whether the address or the method is wrong.",
+          "model_answer_tr": "404 Not Found, yolun kendisinin olmadığı anlamına gelir, örneğin GET /teachers. 405 Method Not Allowed ise yolun var olduğu ama bu metodun orada desteklenmediği anlamına gelir, örneğin yalnızca GET ve POST tanımlıyken DELETE /students. Fark, istemciye adresin mi yoksa metodun mu yanlış olduğunu söyler.",
+          "keywords": [
+            "404",
+            "405",
+            "method"
+          ],
+          "keywords_tr": [
+            "404",
+            "405",
+            "metod"
+          ],
+          "min_words": 12,
+          "concept": "routing-path-params",
+          "tags": [
+            "api",
+            "routing",
+            "strings",
+            "dicts"
+          ]
+        }
+      ]
     },
     {
-     "id": "d29-b1-e3",
-     "type": "write",
-     "concept": "json-responses",
-     "tags": [
-      "api",
-      "json",
-      "flask",
-      "responses"
-     ],
-     "prompt": "Write json_response(data, status=200). Return a dict {'body': <data as JSON text>, 'mimetype': 'application/json', 'status': status}.",
-     "prompt_tr": "json_response(data, status=200) yaz. {'body': <data'nın JSON metni>, 'mimetype': 'application/json', 'status': status} biçiminde bir dict döndür.",
-     "starter_code": "",
-     "signature": "def json_response(data, status=200):",
-     "tests": [
-      {
-       "code": "import json\nr = json_response({'a': 1})\nassert json.loads(r['body']) == {'a': 1} and r['status'] == 200",
-       "visible": true,
-       "label_tr": "Gövde JSON olarak çözülebiliyor, durum 200"
+      "id": "d29-b3",
+      "concept": "create-and-validate",
+      "concept_tr": "Oluşturma ve doğrulama (POST)",
+      "tags": [
+        "api",
+        "post",
+        "validation",
+        "dicts"
+      ],
+      "worked_example": {
+        "code": "REQUIRED = ('name', 'country')\ndef create_student(store, data):\n    errors = [f'{f} is required' for f in REQUIRED if not str(data.get(f, '')).strip()]\n    if errors:\n        return 400, {'errors': errors}\n    new_id = max(store, default=0) + 1\n    store[new_id] = {'id': new_id, 'name': data['name'], 'country': data['country']}\n    return 201, store[new_id]\nprint(create_student({}, {'name': 'Ece'}), create_student({}, {'name': 'Ece', 'country': 'TR'}))",
+        "notes": [
+          "All problems are collected before anything is saved, so the client gets every error in one 400 response.",
+          "`str(...).strip()` treats missing, empty and whitespace-only values the same way.",
+          "The new id is one more than the largest existing id, so ids are never reused after a delete; success is 201 with the new document."
+        ],
+        "notes_tr": [
+          "Bir şey kaydedilmeden önce bütün sorunlar toplanır; istemci her hatayı tek bir 400 yanıtında alır.",
+          "`str(...).strip()` eksik, boş ve yalnızca boşluk içeren değerleri aynı şekilde ele alır.",
+          "Yeni id mevcut en büyük id'nin bir fazlasıdır; böylece silmeden sonra id'ler tekrar kullanılmaz; başarı, yeni belgeyle 201'dir."
+        ]
       },
-      {
-       "code": "assert json_response([1, 2])['mimetype'] == 'application/json'",
-       "visible": true,
-       "label_tr": "Mimetype application/json"
-      },
-      {
-       "code": "assert json_response({}, 201)['status'] == 201",
-       "visible": false,
-       "failure_message": "The status argument must be stored in the result; 200 is only the default.",
-       "failure_message_tr": "status argümanı sonuçta saklanmalı; 200 yalnızca varsayılandır."
-      },
-      {
-       "code": "assert isinstance(json_response([1])['body'], str)",
-       "visible": false,
-       "failure_message": "The body must be JSON TEXT (a str), so use json.dumps.",
-       "failure_message_tr": "Gövde JSON METNİ (str) olmalı, bu yüzden json.dumps kullan."
-      }
-     ],
-     "hints": [
-      "You need the json module to turn data into text.",
-      "{'body': json.dumps(data), 'mimetype': ..., 'status': status}",
-      "Last step: import json, then return a dict with three keys; the body value must be the result of json.dumps on data, and the other two keys hold the mimetype text and the status argument."
-     ],
-     "solution": {
-      "approach": "Dump the data to JSON text and package it with the mimetype and status.",
-      "code": "import json\n\ndef json_response(data, status=200):\n    return {'body': json.dumps(data), 'mimetype': 'application/json', 'status': status}",
-      "approach_tr": "Veriyi JSON metnine çevir ve mimetype ile status ile birlikte paketle."
-     },
-     "twin": "d29-b1-e4",
-     "hints_tr": [
-      "Veriyi metne çevirmek için json modülü gerekiyor.",
-      "{'body': json.dumps(data), 'mimetype': ..., 'status': status}",
-      "Son adım: json'u içe aktar, sonra üç anahtarlı bir dict döndür; body değeri data üzerinde json.dumps sonucu olsun, diğer iki anahtar mimetype metnini ve status argümanını tutsun."
-     ]
+      "exercises": [
+        {
+          "id": "d29-b3-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "REQUIRED = ('name', 'country')\ndata = {'name': 'Can', 'country': '   ', 'city': ''}\nprint([f for f in REQUIRED if not data.get(f, '').strip()])",
+          "choices": [
+            "['country']",
+            "['country', 'city']",
+            "[]",
+            "['name', 'country']"
+          ],
+          "expected_output": "['country']",
+          "explanation": "Only the required fields are checked. 'Can' is fine; '   ' becomes '' after strip, which is falsy, so country is reported. city is not required.",
+          "explanation_tr": "Yalnızca zorunlu alanlar kontrol edilir. 'Can' sorunsuz; '   ' strip'ten sonra '' olur ve yanlış (falsy) sayılır, bu yüzden country bildirilir. city zorunlu değil.",
+          "misconceptions": {
+            "['country', 'city']": "The loop goes over REQUIRED only; city is not in it.",
+            "[]": "'   ' is not empty, but after `strip()` it is, and that is what the condition tests.",
+            "['name', 'country']": "'Can' stays 'Can' after strip, which is truthy."
+          },
+          "misconceptions_tr": {
+            "['country', 'city']": "Döngü yalnızca REQUIRED üzerinde döner; city onun içinde değil.",
+            "[]": "'   ' boş değil ama `strip()`'ten sonra boş; koşulun test ettiği de bu.",
+            "['name', 'country']": "'Can' strip'ten sonra da 'Can' kalır ve doğru (truthy) sayılır."
+          },
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the comprehension so `missing` lists the required fields that are not keys of `data`.",
+          "prompt_tr": "Comprehension'ı tamamla: `missing`, `data`'nın anahtarı olmayan zorunlu alanları listelesin.",
+          "starter_code": "REQUIRED = ['name', 'country', 'city']\ndata = {'name': 'Ece', 'city': 'İzmir'}\nmissing = [f for f in REQUIRED if f ___ data]",
+          "blanks": [
+            {
+              "answer": [
+                "not in"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert missing == ['country']",
+              "visible": true,
+              "label": "Only country is missing",
+              "label_tr": "Yalnızca country eksik"
+            }
+          ],
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b3-e3",
+          "type": "modify",
+          "prompt": "`create_student(store, data)` saves anything it receives. Add validation: if 'name' or 'country' is missing or empty (after strip), return `(400, {'errors': [...]})` with one message `'<field> is required'` per problem in the order name, country, and do not save. Otherwise behave as now.",
+          "prompt_tr": "`create_student(store, data)` aldığı her şeyi kaydediyor. Doğrulama ekle: 'name' ya da 'country' eksik veya (strip'ten sonra) boşsa, her sorun için name, country sırasıyla bir `'<alan> is required'` mesajı içeren `(400, {'errors': [...]})` döndür ve kaydetme. Aksi halde şimdiki gibi davransın.",
+          "starter_code": "def create_student(store, data):\n    new_id = max(store, default=0) + 1\n    store[new_id] = {'id': new_id, 'name': data.get('name'), 'country': data.get('country')}\n    return 201, store[new_id]",
+          "tests": [
+            {
+              "code": "s = {}\nassert create_student(s, {'name': 'Ece'}) == (400, {'errors': ['country is required']}) and s == {}",
+              "visible": true,
+              "label": "Missing country, nothing saved",
+              "label_tr": "country eksik, hiçbir şey kaydedilmedi"
+            },
+            {
+              "code": "assert create_student(s, {'name': 'Ece', 'country': 'TR'}) == (201, {'id': 1, 'name': 'Ece', 'country': 'TR'})",
+              "visible": true,
+              "label": "Valid data is saved",
+              "label_tr": "Geçerli veri kaydediliyor"
+            },
+            {
+              "code": "s = {4: {}}\nassert create_student(s, {'name': ' ', 'country': ''}) == (400, {'errors': ['name is required', 'country is required']}) and list(s) == [4]",
+              "visible": false,
+              "failure_message": "Whitespace-only and empty values both count as missing; report both in order.",
+              "failure_message_tr": "Yalnızca boşluk içeren ve boş değerler eksik sayılır; ikisini de sırayla bildir."
+            },
+            {
+              "code": "s = {4: {}}\nassert create_student(s, {'name': 'Can', 'country': 'UK'})[1]['id'] == 5",
+              "visible": false,
+              "failure_message": "Valid creation still uses the largest id plus one.",
+              "failure_message_tr": "Geçerli oluşturma hâlâ en büyük id'nin bir fazlasını kullanır."
+            }
+          ],
+          "hints": [
+            "Build the list of errors first and return early if it is not empty.",
+            "`str(data.get(field, '')).strip()` is empty for missing, empty and blank values.",
+            "At the top of the function, make a list comprehension over ('name', 'country') producing the messages; if it is not empty return 400 with it; keep the existing code below."
+          ],
+          "hints_tr": [
+            "Önce hata list'ini kur ve boş değilse erken döndür.",
+            "`str(data.get(field, '')).strip()` eksik, boş ve boşluklu değerler için boştur.",
+            "Fonksiyonun başında ('name', 'country') üzerinde mesajları üreten bir list comprehension kur; boş değilse onunla 400 döndür; mevcut kodu altta bırak."
+          ],
+          "solution": {
+            "approach": "Collect the errors first and return 400 before saving if there are any.",
+            "approach_tr": "Önce hataları topla ve varsa kaydetmeden önce 400 döndür.",
+            "code": "def create_student(store, data):\n    errors = [f'{f} is required' for f in ('name', 'country') if not str(data.get(f, '')).strip()]\n    if errors:\n        return 400, {'errors': errors}\n    new_id = max(store, default=0) + 1\n    store[new_id] = {'id': new_id, 'name': data.get('name'), 'country': data.get('country')}\n    return 201, store[new_id]"
+          },
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b3-e4",
+          "type": "debug",
+          "prompt": "A user typed their skills as 'Python,SQL, Git'. The program should print `['Python', 'SQL', 'Git']`, but it prints `['Python,SQL', 'Git']`. Fix `parse_skills`.",
+          "prompt_tr": "Bir kullanıcı becerilerini 'Python,SQL, Git' diye yazdı. Program `['Python', 'SQL', 'Git']` yazdırmalı, ama `['Python,SQL', 'Git']` yazdırıyor. `parse_skills`'i düzelt.",
+          "starter_code": "def parse_skills(text):\n    return text.split(', ')\n\nprint(parse_skills('Python,SQL, Git'))",
+          "tests": [
+            {
+              "code": "assert parse_skills(' a ,b,, c ') == ['a', 'b', 'c'] and parse_skills('') == []",
+              "visible": true,
+              "label": "Spaces and empty pieces are cleaned",
+              "label_tr": "Boşluklar ve boş parçalar temizleniyor"
+            }
+          ],
+          "hints": [
+            "What exact separator does `split(', ')` look for, and is it always there?",
+            "Split on the comma alone, then clean the spaces from each piece.",
+            "Use a list comprehension over `text.split(',')` that strips each piece and keeps only the pieces that are not empty after stripping."
+          ],
+          "hints_tr": [
+            "`split(', ')` tam olarak hangi ayırıcıyı arıyor ve bu ayırıcı her zaman var mı?",
+            "Yalnızca virgülden böl, sonra her parçadaki boşlukları temizle.",
+            "`text.split(',')` üzerinde her parçayı strip eden ve strip'ten sonra boş olmayan parçaları tutan bir list comprehension kullan."
+          ],
+          "solution": {
+            "approach": "Split on ',' only, strip each piece and drop empty ones.",
+            "approach_tr": "Yalnızca ',' ile böl, her parçayı strip ile temizle ve boşları at.",
+            "code": "def parse_skills(text):\n    return [s.strip() for s in text.split(',') if s.strip()]\n\nprint(parse_skills('Python,SQL, Git'))"
+          },
+          "expected_output": "['Python', 'SQL', 'Git']",
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b3-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "store = {1: 'Ece', 2: 'Can', 3: 'Ali'}\ndel store[3]\nprint(len(store) + 1, max(store, default=0) + 1)\ndel store[1]\nprint(len(store) + 1, max(store, default=0) + 1)",
+          "choices": [
+            "3 3\n2 3",
+            "3 3\n2 2",
+            "4 4\n3 3",
+            "3 3\n3 3"
+          ],
+          "expected_output": "3 3\n2 3",
+          "explanation": "After deleting 3, both formulas give 3. After deleting 1, only id 2 is left: `len + 1` gives 2, which is already taken, while `max + 1` gives 3. Using len for new ids collides after a delete.",
+          "explanation_tr": "3 silindikten sonra iki formül de 3 verir. 1 silinince yalnızca 2 kalır: `len + 1` 2 verir ve bu id zaten kullanılıyor; `max + 1` ise 3 verir. Yeni id için len kullanmak silmeden sonra çakışır.",
+          "misconceptions": {
+            "3 3\n2 2": "`max(store)` is the largest remaining key, 2, so max + 1 is 3.",
+            "4 4\n3 3": "After the first delete there are 2 items and the largest key is 2.",
+            "3 3\n3 3": "After the second delete only one item is left, so len + 1 is 2."
+          },
+          "misconceptions_tr": {
+            "3 3\n2 2": "`max(store)` kalan en büyük anahtar olan 2'dir; max + 1 3 olur.",
+            "4 4\n3 3": "İlk silmeden sonra 2 öğe var ve en büyük anahtar 2.",
+            "3 3\n3 3": "İkinci silmeden sonra tek öğe kalır; len + 1 2 olur."
+          },
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b3-e6",
+          "type": "write",
+          "prompt": "Write `validate_student(data)` that returns a list of error messages (empty if valid), checked in this order: 'name is required' if name is missing or blank; 'country is required' if country is missing or blank; and, only if 'birthyear' is present, 'birthyear must be a number' if it is not an int, or 'birthyear out of range' if it is not between 1900 and 2026 inclusive. Example: `validate_student({'name': 'Ece', 'country': 'TR', 'birthyear': 1890})` returns `['birthyear out of range']`.",
+          "prompt_tr": "Hata mesajlarının bir list'ini döndüren (geçerliyse boş) `validate_student(data)` yaz; kontroller şu sırayla: name eksik ya da boşsa 'name is required'; country eksik ya da boşsa 'country is required'; ve yalnızca 'birthyear' varsa, int değilse 'birthyear must be a number', 1900 ile 2026 (ikisi dahil) arasında değilse 'birthyear out of range'. Örnek: `validate_student({'name': 'Ece', 'country': 'TR', 'birthyear': 1890})` `['birthyear out of range']` döndürür.",
+          "starter_code": "",
+          "signature": "def validate_student(data):",
+          "tests": [
+            {
+              "code": "assert validate_student({'name': 'Ece', 'country': 'TR', 'birthyear': 1890}) == ['birthyear out of range']",
+              "visible": true,
+              "label": "Year too early",
+              "label_tr": "Yıl çok erken"
+            },
+            {
+              "code": "assert validate_student({'name': 'Ece', 'country': 'TR'}) == []",
+              "visible": true,
+              "label": "Valid without a year",
+              "label_tr": "Yılsız geçerli"
+            },
+            {
+              "code": "assert validate_student({}) == ['name is required', 'country is required'] and validate_student({'name': '  ', 'country': 'UK'}) == ['name is required']",
+              "visible": false,
+              "failure_message": "Missing and blank names and countries are errors, reported in the order name, country.",
+              "failure_message_tr": "Eksik ve boş ad ve ülke hatadır; name, country sırasıyla bildirilir."
+            },
+            {
+              "code": "assert validate_student({'name': 'A', 'country': 'B', 'birthyear': '1999'}) == ['birthyear must be a number'] and validate_student({'name': 'A', 'country': 'B', 'birthyear': 2026}) == []",
+              "visible": false,
+              "failure_message": "A string is not an int, and the range includes both 1900 and 2026.",
+              "failure_message_tr": "Bir string int değildir ve aralık hem 1900'ü hem 2026'yı kapsar."
+            }
+          ],
+          "hints": [
+            "Start with an empty list and append one message for each failed check, in the given order.",
+            "`str(data.get('name', '')).strip()` handles missing and blank; `isinstance(year, int)` checks the type before the range.",
+            "Append the two required-field messages with two `if`s, then inside `if 'birthyear' in data:` use an if/elif for the type and the range; return the list."
+          ],
+          "hints_tr": [
+            "Boş bir list'le başla ve başarısız olan her kontrol için verilen sırayla bir mesaj ekle.",
+            "`str(data.get('name', '')).strip()` eksik ve boş durumu halleder; `isinstance(year, int)` aralıktan önce tipi kontrol eder.",
+            "İki zorunlu alan mesajını iki `if` ile ekle, sonra `if 'birthyear' in data:` içinde tip ve aralık için bir if/elif kullan; list'i döndür."
+          ],
+          "solution": {
+            "approach": "Check required fields, then the optional birthyear's type before its range, collecting messages in order.",
+            "approach_tr": "Zorunlu alanları, sonra isteğe bağlı birthyear'ın önce tipini sonra aralığını kontrol et ve mesajları sırayla topla.",
+            "code": "def validate_student(data):\n    errors = []\n    if not str(data.get('name', '')).strip():\n        errors.append('name is required')\n    if not str(data.get('country', '')).strip():\n        errors.append('country is required')\n    if 'birthyear' in data:\n        year = data['birthyear']\n        if not isinstance(year, int):\n            errors.append('birthyear must be a number')\n        elif not 1900 <= year <= 2026:\n            errors.append('birthyear out of range')\n    return errors"
+          },
+          "twin": "d29-b3-e7",
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b3-e7",
+          "type": "write",
+          "prompt": "Write `create_student(store, data)`. `store` maps int ids to student dicts. If 'name' or 'country' is missing or blank, return `(400, {'errors': [...]})` with `'<field> is required'` messages (order: name, country). Otherwise create `{'id': new_id, 'name': ..., 'country': ..., 'skills': [...]}` where new_id is the largest existing id plus one (1 if empty) and skills comes from the optional comma-separated string `data['skills']` (strip each, drop empties; [] if absent). Store it and return `(201, student)`.",
+          "prompt_tr": "`create_student(store, data)` yaz. `store` int id'leri öğrenci dict'lerine eşler. 'name' ya da 'country' eksik veya boşsa `'<alan> is required'` mesajlarıyla (sıra: name, country) `(400, {'errors': [...]})` döndür. Aksi halde `{'id': new_id, 'name': ..., 'country': ..., 'skills': [...]}` oluştur: new_id mevcut en büyük id'nin bir fazlası (boşsa 1), skills ise isteğe bağlı, virgülle ayrılmış `data['skills']` string'inden gelsin (her birini strip et, boşları at; yoksa []). Onu sakla ve `(201, student)` döndür.",
+          "starter_code": "",
+          "signature": "def create_student(store, data):",
+          "tests": [
+            {
+              "code": "s = {}\nassert create_student(s, {'name': 'Ece', 'country': 'TR', 'skills': 'Python, SQL'}) == (201, {'id': 1, 'name': 'Ece', 'country': 'TR', 'skills': ['Python', 'SQL']}) and 1 in s",
+              "visible": true,
+              "label": "A valid student is created and stored",
+              "label_tr": "Geçerli bir öğrenci oluşturulup saklanıyor"
+            },
+            {
+              "code": "assert create_student({}, {'country': 'TR'}) == (400, {'errors': ['name is required']})",
+              "visible": true,
+              "label": "Missing name gives 400",
+              "label_tr": "Eksik ad 400 veriyor"
+            },
+            {
+              "code": "s = {3: {'id': 3}, 7: {'id': 7}}\ncode, st = create_student(s, {'name': 'Can', 'country': 'UK'})\nassert code == 201 and st == {'id': 8, 'name': 'Can', 'country': 'UK', 'skills': []} and s[8] is st",
+              "visible": false,
+              "failure_message": "Use the largest id plus one, default skills to [], and store the same dict you return.",
+              "failure_message_tr": "En büyük id'nin bir fazlasını kullan, skills varsayılanı [] olsun ve döndürdüğün dict'in aynısını sakla."
+            },
+            {
+              "code": "s = {}\nassert create_student(s, {'name': ' ', 'country': ''}) == (400, {'errors': ['name is required', 'country is required']}) and s == {}",
+              "visible": false,
+              "failure_message": "Blank values are invalid too, and nothing may be stored when there are errors.",
+              "failure_message_tr": "Boş değerler de geçersizdir ve hata varken hiçbir şey saklanmamalı."
+            },
+            {
+              "code": "assert create_student({}, {'name': 'A', 'country': 'B', 'skills': 'Git,,  Docker ,'})[1]['skills'] == ['Git', 'Docker']",
+              "visible": false,
+              "failure_message": "Split skills on ',' alone, strip each piece and drop empty ones.",
+              "failure_message_tr": "Becerileri yalnızca ',' ile böl, her parçayı strip et ve boşları at."
+            }
+          ],
+          "hints": [
+            "Three parts: validate, build the document, store and return it.",
+            "Errors: a comprehension over ('name', 'country'). Skills: `[s.strip() for s in data.get('skills', '').split(',') if s.strip()]`. Id: `max(store, default=0) + 1`.",
+            "Return 400 early if the error list is not empty; otherwise compute the id and the skills list, build the dict, store it under the id and return 201 with it."
+          ],
+          "hints_tr": [
+            "Üç bölüm: doğrula, belgeyi kur, sakla ve döndür.",
+            "Hatalar: ('name', 'country') üzerinde bir comprehension. Beceriler: `[s.strip() for s in data.get('skills', '').split(',') if s.strip()]`. Id: `max(store, default=0) + 1`.",
+            "Hata list'i boş değilse erken 400 döndür; değilse id'yi ve beceri list'ini hesapla, dict'i kur, id altında sakla ve onunla 201 döndür."
+          ],
+          "solution": {
+            "approach": "Validate, compute max id + 1, parse skills robustly, store the new dict and return 201.",
+            "approach_tr": "Doğrula, max id + 1'i hesapla, becerileri sağlam ayrıştır, yeni dict'i sakla ve 201 döndür.",
+            "code": "def create_student(store, data):\n    errors = [f'{f} is required' for f in ('name', 'country') if not str(data.get(f, '')).strip()]\n    if errors:\n        return 400, {'errors': errors}\n    new_id = max(store, default=0) + 1\n    skills = [s.strip() for s in data.get('skills', '').split(',') if s.strip()]\n    student = {'id': new_id, 'name': data['name'], 'country': data['country'], 'skills': skills}\n    store[new_id] = student\n    return 201, student"
+          },
+          "twin": "d29-b3-e6",
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        },
+        {
+          "id": "d29-b3-e8",
+          "type": "explain",
+          "prompt": "Why should a POST endpoint validate the incoming data and answer 400 with a list of errors, instead of just saving what it receives?",
+          "prompt_tr": "Bir POST endpoint'i neden aldığını doğrudan kaydetmek yerine gelen veriyi doğrulamalı ve bir hata list'iyle 400 yanıtı vermeli?",
+          "model_answer": "The client can send anything: missing fields, blank strings or wrong types. Saving that would put broken records in the database that crash other code later. Validating first and returning 400 Bad Request with all the errors tells the client exactly what to fix, and nothing invalid is stored.",
+          "model_answer_tr": "İstemci her şeyi gönderebilir: eksik alanlar, boş string'ler ya da yanlış tipler. Bunları kaydetmek veritabanına sonradan başka kodları çökertecek bozuk kayıtlar koyar. Önce doğrulamak ve bütün hatalarla 400 Bad Request döndürmek istemciye tam olarak neyi düzelteceğini söyler ve geçersiz hiçbir şey saklanmaz.",
+          "keywords": [
+            "missing",
+            "400",
+            "fix"
+          ],
+          "keywords_tr": [
+            "eksik",
+            "400",
+            "düzelt"
+          ],
+          "min_words": 12,
+          "concept": "create-and-validate",
+          "tags": [
+            "api",
+            "post",
+            "validation",
+            "dicts"
+          ]
+        }
+      ]
     },
     {
-     "id": "d29-b1-e4",
-     "type": "write",
-     "concept": "json-responses",
-     "tags": [
-      "api",
-      "json",
-      "flask",
-      "responses"
-     ],
-     "prompt": "Write error_response(message, status=404). Return a dict {'body': <JSON text of {'error': message}>, 'mimetype': 'application/json', 'status': status}.",
-     "prompt_tr": "error_response(message, status=404) yaz. {'body': <{'error': message} dict'inin JSON metni>, 'mimetype': 'application/json', 'status': status} biçiminde bir dict döndür.",
-     "starter_code": "",
-     "signature": "def error_response(message, status=404):",
-     "tests": [
-      {
-       "code": "import json\nr = error_response('Not found')\nassert json.loads(r['body']) == {'error': 'Not found'} and r['status'] == 404",
-       "visible": true,
-       "label_tr": "Hata mesajı JSON gövdede, durum 404"
+      "id": "d29-b4",
+      "concept": "update-and-delete",
+      "concept_tr": "Güncelleme ve silme (PUT, DELETE)",
+      "tags": [
+        "api",
+        "put",
+        "delete",
+        "status-codes"
+      ],
+      "worked_example": {
+        "code": "ALLOWED = {'name', 'country', 'city'}\nstore = {1: {'id': 1, 'name': 'Ece', 'city': 'İzmir', 'created_at': '2026-11-02'}}\ndef update_student(student_id, data):\n    student = store.get(student_id)\n    if student is None:\n        return 404, {'error': 'student not found'}\n    student.update({k: v for k, v in data.items() if k in ALLOWED})\n    return 200, student\nprint(update_student(1, {'city': 'Bursa', 'id': 99}), update_student(2, {}))",
+        "notes": [
+          "A missing record is a 404 before any change is attempted.",
+          "The allow-list keeps clients from changing `id` or `created_at`; unknown fields are dropped.",
+          "`dict.update` plays the role of `$set`: only the given fields change, and the stored dict is changed in place."
+        ],
+        "notes_tr": [
+          "Olmayan bir kayıt, herhangi bir değişiklik denenmeden önce 404'tür.",
+          "İzin listesi istemcilerin `id` ya da `created_at`'i değiştirmesini engeller; bilinmeyen alanlar atılır.",
+          "`dict.update` `$set`'in rolünü oynar: yalnızca verilen alanlar değişir ve saklanan dict yerinde değişir."
+        ]
       },
-      {
-       "code": "assert error_response('x')['mimetype'] == 'application/json'",
-       "visible": true,
-       "label_tr": "Mimetype application/json"
-      },
-      {
-       "code": "assert error_response('bad', 400)['status'] == 400",
-       "visible": false,
-       "failure_message": "The status argument must be stored; 404 is only the default.",
-       "failure_message_tr": "status argümanı saklanmalı; 404 yalnızca varsayılandır."
-      },
-      {
-       "code": "import json\nassert json.loads(error_response('boom', 500)['body'])['error'] == 'boom'",
-       "visible": false,
-       "failure_message": "The message goes under the key 'error' in the JSON body.",
-       "failure_message_tr": "Mesaj JSON gövdesinde 'error' anahtarının altında olmalı."
-      }
-     ],
-     "hints": [
-      "Build the data dict first: {'error': message}.",
-      "Then dump it and add the mimetype and status.",
-      "Last step: the same package as json_response, but the data you dump is a dict with the single key 'error'."
-     ],
-     "solution": {
-      "approach": "Same package as json_response, with the data {'error': message}.",
-      "code": "import json\n\ndef error_response(message, status=404):\n    return {'body': json.dumps({'error': message}), 'mimetype': 'application/json', 'status': status}",
-      "approach_tr": "json_response ile aynı paket, veri olarak {'error': message} kullan."
-     },
-     "twin": "d29-b1-e3",
-     "hints_tr": [
-      "Önce veri dict'ini kur: {'error': message}.",
-      "Sonra onu metne çevir ve mimetype ile status ekle.",
-      "Son adım: json_response ile aynı paket, ama metne çevirdiğin veri yalnızca 'error' anahtarı olan bir dict olsun."
-     ]
-    },
-    {
-     "id": "d29-b1-e5",
-     "type": "explain",
-     "concept": "json-responses",
-     "tags": [
-      "api",
-      "json",
-      "flask",
-      "responses"
-     ],
-     "prompt": "In your own words: why does an API return JSON instead of an HTML page, and what is the mimetype for?",
-     "prompt_tr": "Kendi cümlelerinle anlat: bir API neden HTML sayfası yerine JSON döndürür ve mimetype ne işe yarar?",
-     "model_answer": "JSON is plain structured data that any client (a browser script, a mobile app, another server) can parse easily, while HTML is made for showing a page. The mimetype, sent as the Content-Type header, tells the client that the body is JSON so it knows how to read it.",
-     "keywords": [
-      "json",
-      "client",
-      "mimetype"
-     ],
-     "model_answer_tr": "JSON, her istemcinin (tarayıcıdaki bir betik, mobil uygulama, başka bir sunucu) kolayca ayrıştırabildiği düz yapılandırılmış veridir; HTML ise sayfa göstermek için yapılmıştır. Content-Type başlığı olarak gönderilen mimetype, istemciye gövdenin JSON olduğunu söyler, böylece onu nasıl okuyacağını bilir.",
-     "keywords_tr": [
-      "json",
-      "istemci",
-      "mimetype"
-     ],
-     "min_words": 6
+      "exercises": [
+        {
+          "id": "d29-b4-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "ALLOWED = {'name', 'city'}\nstudent = {'id': 1, 'name': 'Ece', 'city': 'İzmir'}\ndata = {'id': 5, 'city': 'Bursa', 'age': 30}\nstudent.update({k: v for k, v in data.items() if k in ALLOWED})\nprint(student)",
+          "choices": [
+            "{'id': 1, 'name': 'Ece', 'city': 'Bursa'}",
+            "{'id': 5, 'name': 'Ece', 'city': 'Bursa', 'age': 30}",
+            "{'city': 'Bursa'}",
+            "{'id': 1, 'name': 'Ece', 'city': 'İzmir'}"
+          ],
+          "expected_output": "{'id': 1, 'name': 'Ece', 'city': 'Bursa'}",
+          "explanation": "The comprehension keeps only 'city', because 'id' and 'age' are not in ALLOWED. `update` then changes city and leaves id and name alone.",
+          "explanation_tr": "Comprehension yalnızca 'city'yi tutar, çünkü 'id' ve 'age' ALLOWED içinde değil. `update` sonra city'yi değiştirir, id ve name'e dokunmaz.",
+          "misconceptions": {
+            "{'id': 5, 'name': 'Ece', 'city': 'Bursa', 'age': 30}": "That would be updating with the raw data; the allow-list removes id and age first.",
+            "{'city': 'Bursa'}": "`update` merges into the existing dict; it does not replace it.",
+            "{'id': 1, 'name': 'Ece', 'city': 'İzmir'}": "'city' is allowed, so its new value is written."
+          },
+          "misconceptions_tr": {
+            "{'id': 5, 'name': 'Ece', 'city': 'Bursa', 'age': 30}": "Bu, ham veriyle güncellemek olurdu; izin listesi önce id ve age'i çıkarır.",
+            "{'city': 'Bursa'}": "`update` mevcut dict'e birleştirir; onu değiştirip yerine koymaz.",
+            "{'id': 1, 'name': 'Ece', 'city': 'İzmir'}": "'city' izinli; yeni değeri yazılır."
+          },
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        },
+        {
+          "id": "d29-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Complete `delete_student`: `pop` with a default so a missing id does not raise, and return 404 in that case.",
+          "prompt_tr": "`delete_student`'ı tamamla: olmayan bir id hata vermesin diye varsayılanlı `pop` kullan ve o durumda 404 döndür.",
+          "starter_code": "store = {1: 'Ece', 2: 'Can'}\n\ndef delete_student(student_id):\n    if store.pop(student_id, ___) is None:\n        return 404\n    return 204",
+          "blanks": [
+            {
+              "answer": [
+                "None"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert delete_student(2) == 204 and store == {1: 'Ece'}",
+              "visible": true,
+              "label": "Existing id is removed",
+              "label_tr": "Var olan id siliniyor"
+            },
+            {
+              "code": "assert delete_student(9) == 404",
+              "visible": true,
+              "label": "Missing id gives 404",
+              "label_tr": "Olmayan id 404 veriyor"
+            }
+          ],
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        },
+        {
+          "id": "d29-b4-e3",
+          "type": "modify",
+          "prompt": "This `update_student` copies the lesson's bug: it rewrites `created_at` on every update, and it lets the client change `id`. Change it so `created_at` and `id` never change, any other field in `data` is applied, and an `updated_at` field is set to the given `now` value.",
+          "prompt_tr": "Bu `update_student` dersin hatasını kopyalıyor: her güncellemede `created_at`'i yeniden yazıyor ve istemcinin `id`'yi değiştirmesine izin veriyor. Onu değiştir: `created_at` ve `id` asla değişmesin, `data`'daki diğer her alan uygulansın ve `updated_at` alanı verilen `now` değerine ayarlansın.",
+          "starter_code": "def update_student(store, student_id, data, now):\n    student = store.get(student_id)\n    if student is None:\n        return 404, {'error': 'student not found'}\n    student.update(data)\n    student['created_at'] = now\n    return 200, student",
+          "tests": [
+            {
+              "code": "s = {1: {'id': 1, 'name': 'Ece', 'created_at': 'mon'}}\ncode, st = update_student(s, 1, {'name': 'Ece K.'}, 'tue')\nassert st == {'id': 1, 'name': 'Ece K.', 'created_at': 'mon', 'updated_at': 'tue'}",
+              "visible": true,
+              "label": "created_at stays, updated_at is set",
+              "label_tr": "created_at kalıyor, updated_at ayarlanıyor"
+            },
+            {
+              "code": "assert update_student({}, 1, {}, 'tue') == (404, {'error': 'student not found'})",
+              "visible": true,
+              "label": "Missing id is 404",
+              "label_tr": "Olmayan id 404"
+            },
+            {
+              "code": "s = {2: {'id': 2, 'created_at': 'mon'}}\nupdate_student(s, 2, {'id': 50, 'created_at': 'x', 'city': 'Ankara'}, 'wed')\nassert s[2] == {'id': 2, 'created_at': 'mon', 'city': 'Ankara', 'updated_at': 'wed'}",
+              "visible": false,
+              "failure_message": "Ignore id and created_at even when the client sends them; apply the other fields.",
+              "failure_message_tr": "İstemci gönderse bile id ve created_at'i yok say; diğer alanları uygula."
+            },
+            {
+              "code": "s = {3: {'id': 3, 'created_at': 'mon', 'updated_at': 'tue'}}\nupdate_student(s, 3, {'updated_at': 'hack'}, 'thu')\nassert s[3]['updated_at'] == 'thu'",
+              "visible": false,
+              "failure_message": "updated_at must come from `now`, not from the client's data.",
+              "failure_message_tr": "updated_at istemcinin verisinden değil, `now`'dan gelmeli."
+            }
+          ],
+          "hints": [
+            "Two changes: filter what goes into `update`, and set `updated_at` instead of `created_at`.",
+            "A dict comprehension can drop the protected keys: `{k: v for k, v in data.items() if k not in PROTECTED}`.",
+            "Update with the filtered dict, then assign `now` to `student['updated_at']` as the last change; remove the line that touches created_at."
+          ],
+          "hints_tr": [
+            "İki değişiklik: `update`'e gireni süz ve `created_at` yerine `updated_at`'i ayarla.",
+            "Bir dict comprehension korunan anahtarları atabilir: `{k: v for k, v in data.items() if k not in PROTECTED}`.",
+            "Süzülmüş dict ile güncelle, sonra son değişiklik olarak `now`'u `student['updated_at']`'e ata; created_at'e dokunan satırı kaldır."
+          ],
+          "solution": {
+            "approach": "Filter out protected keys before update and set updated_at from now.",
+            "approach_tr": "Güncellemeden önce korunan anahtarları süz ve updated_at'i now'dan ayarla.",
+            "code": "PROTECTED = {'id', 'created_at', 'updated_at'}\n\ndef update_student(store, student_id, data, now):\n    student = store.get(student_id)\n    if student is None:\n        return 404, {'error': 'student not found'}\n    student.update({k: v for k, v in data.items() if k not in PROTECTED})\n    student['updated_at'] = now\n    return 200, student"
+          },
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        },
+        {
+          "id": "d29-b4-e4",
+          "type": "debug",
+          "prompt": "The lesson's delete view ends with a bare `return`, so it gives no response. This program should print `(204, None)` and then `(404, {'error': 'student not found'})`. Fix the function.",
+          "prompt_tr": "Dersteki silme view'ı çıplak bir `return` ile bitiyor, bu yüzden hiçbir yanıt vermiyor. Bu program önce `(204, None)`, sonra `(404, {'error': 'student not found'})` yazdırmalı. Fonksiyonu düzelt.",
+          "starter_code": "store = {1: {'name': 'Ece'}}\n\ndef delete_student(student_id):\n    store.pop(student_id, None)\n    return\n\nprint(delete_student(1))\nprint(delete_student(1))",
+          "tests": [
+            {
+              "code": "store[5] = {}\nassert delete_student(5) == (204, None) and 5 not in store",
+              "visible": true,
+              "label": "Another id is deleted with 204",
+              "label_tr": "Başka bir id 204 ile siliniyor"
+            }
+          ],
+          "hints": [
+            "What does a bare `return` give back to the caller?",
+            "You need two outcomes, so look at what `pop` returned: None means there was nothing to delete.",
+            "Store the result of `pop` in a variable; if it is None return the 404 tuple, otherwise return 204 with None as the body."
+          ],
+          "hints_tr": [
+            "Çıplak bir `return` çağırana ne döndürür?",
+            "İki sonuca ihtiyacın var; `pop`'un ne döndürdüğüne bak: None, silinecek bir şey olmadığı demektir.",
+            "`pop`'un sonucunu bir değişkende tut; None ise 404 tuple'ını, değilse gövde olarak None ile 204 döndür."
+          ],
+          "solution": {
+            "approach": "Check the result of pop and return 204 or 404; a view must always return a response.",
+            "approach_tr": "pop'un sonucunu kontrol et ve 204 ya da 404 döndür; bir view her zaman bir yanıt döndürmeli.",
+            "code": "store = {1: {'name': 'Ece'}}\n\ndef delete_student(student_id):\n    removed = store.pop(student_id, None)\n    if removed is None:\n        return 404, {'error': 'student not found'}\n    return 204, None\n\nprint(delete_student(1))\nprint(delete_student(1))"
+          },
+          "expected_output": "(204, None)\n(404, {'error': 'student not found'})",
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        },
+        {
+          "id": "d29-b4-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def update_student(student_id):\n    return 'update', student_id\n\nhandlers = {'PUT': update_student}\n\ndef update_student(student_id):\n    return 'delete', student_id\n\nprint(handlers['PUT'](1), update_student(1))",
+          "choices": [
+            "('update', 1) ('delete', 1)",
+            "('delete', 1) ('delete', 1)",
+            "('update', 1) ('update', 1)",
+            "SyntaxError"
+          ],
+          "expected_output": "('update', 1) ('delete', 1)",
+          "explanation": "The dict stored the first function object before the name was moved. The second `def` binds the name `update_student` to a new function, but the dict still holds the old one.",
+          "explanation_tr": "Dict, isim taşınmadan önce ilk fonksiyon nesnesini sakladı. İkinci `def`, `update_student` ismini yeni bir fonksiyona bağlar ama dict hâlâ eskisini tutar.",
+          "misconceptions": {
+            "('delete', 1) ('delete', 1)": "The dict holds the object the name pointed to at that moment; moving the name later does not change the dict.",
+            "('update', 1) ('update', 1)": "After the second `def`, the name `update_student` refers to the new function.",
+            "SyntaxError": "Redefining a function is legal Python; it just rebinds the name."
+          },
+          "misconceptions_tr": {
+            "('delete', 1) ('delete', 1)": "Dict, ismin o anda gösterdiği nesneyi tutar; ismi sonradan taşımak dict'i değiştirmez.",
+            "('update', 1) ('update', 1)": "İkinci `def`'ten sonra `update_student` ismi yeni fonksiyonu gösterir.",
+            "SyntaxError": "Bir fonksiyonu yeniden tanımlamak geçerli Python'dur; yalnızca ismi yeniden bağlar."
+          },
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        },
+        {
+          "id": "d29-b4-e6",
+          "type": "write",
+          "prompt": "Write `update_student(store, student_id, data)` for `PATCH /students/<id>`. Return `(404, {'error': 'student not found'})` if the id is not in `store`. Otherwise apply only the keys of `data` that are in `{'name', 'country', 'city', 'skills'}` to the stored dict (in place) and return `(200, student)`. Example: with `store = {1: {'id': 1, 'name': 'Ece'}}`, `update_student(store, 1, {'city': 'İzmir', 'id': 7})` returns `(200, {'id': 1, 'name': 'Ece', 'city': 'İzmir'})`.",
+          "prompt_tr": "`PATCH /students/<id>` için `update_student(store, student_id, data)` yaz. id `store` içinde yoksa `(404, {'error': 'student not found'})` döndür. Aksi halde `data`'nın yalnızca `{'name', 'country', 'city', 'skills'}` içindeki anahtarlarını saklanan dict'e (yerinde) uygula ve `(200, student)` döndür. Örnek: `store = {1: {'id': 1, 'name': 'Ece'}}` iken `update_student(store, 1, {'city': 'İzmir', 'id': 7})` `(200, {'id': 1, 'name': 'Ece', 'city': 'İzmir'})` döndürür.",
+          "starter_code": "",
+          "signature": "def update_student(store, student_id, data):",
+          "tests": [
+            {
+              "code": "store = {1: {'id': 1, 'name': 'Ece'}}\nassert update_student(store, 1, {'city': 'İzmir', 'id': 7}) == (200, {'id': 1, 'name': 'Ece', 'city': 'İzmir'})",
+              "visible": true,
+              "label": "Allowed field applied, id ignored",
+              "label_tr": "İzinli alan uygulandı, id yok sayıldı"
+            },
+            {
+              "code": "assert update_student({}, 1, {'name': 'x'}) == (404, {'error': 'student not found'})",
+              "visible": true,
+              "label": "Missing id",
+              "label_tr": "Olmayan id"
+            },
+            {
+              "code": "s = {2: {'id': 2, 'name': 'Can', 'country': 'TR'}}\ncode, st = update_student(s, 2, {'country': 'UK', 'skills': ['Git'], 'role': 'admin'})\nassert code == 200 and s[2] == {'id': 2, 'name': 'Can', 'country': 'UK', 'skills': ['Git']} and st is s[2]",
+              "visible": false,
+              "failure_message": "Change the stored dict in place, apply every allowed key and drop the others.",
+              "failure_message_tr": "Saklanan dict'i yerinde değiştir, izinli her anahtarı uygula ve diğerlerini at."
+            },
+            {
+              "code": "s = {3: {'id': 3, 'name': 'Ali'}}\nassert update_student(s, 3, {}) == (200, {'id': 3, 'name': 'Ali'})",
+              "visible": false,
+              "failure_message": "An empty update is still a valid 200 that changes nothing.",
+              "failure_message_tr": "Boş bir güncelleme yine de hiçbir şeyi değiştirmeyen geçerli bir 200'dür."
+            }
+          ],
+          "hints": [
+            "First handle the missing id, then filter the data, then update.",
+            "`store.get(student_id)` gives None for a missing id; `{k: v for k, v in data.items() if k in ALLOWED}` filters.",
+            "Define the allowed set, return the 404 tuple when the lookup is None, call `update` on the stored dict with the filtered comprehension, and return 200 with the dict."
+          ],
+          "hints_tr": [
+            "Önce olmayan id'yi ele al, sonra veriyi süz, sonra güncelle.",
+            "`store.get(student_id)` olmayan id için None verir; `{k: v for k, v in data.items() if k in ALLOWED}` süzer.",
+            "İzinli set'i tanımla, arama None ise 404 tuple'ını döndür, saklanan dict'te süzülmüş comprehension ile `update` çağır ve dict'le 200 döndür."
+          ],
+          "solution": {
+            "approach": "Return 404 for a missing id, otherwise update the stored dict with only the allowed keys.",
+            "approach_tr": "Olmayan id için 404 döndür, değilse saklanan dict'i yalnızca izinli anahtarlarla güncelle.",
+            "code": "ALLOWED = {'name', 'country', 'city', 'skills'}\n\ndef update_student(store, student_id, data):\n    student = store.get(student_id)\n    if student is None:\n        return 404, {'error': 'student not found'}\n    student.update({k: v for k, v in data.items() if k in ALLOWED})\n    return 200, student"
+          },
+          "twin": "d29-b4-e7",
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        },
+        {
+          "id": "d29-b4-e7",
+          "type": "write",
+          "prompt": "Write `delete_student(store, raw_id)` for `DELETE /students/<id>`, where `raw_id` is the string from the URL. If it is not made of digits, return `(400, {'error': 'invalid id'})`. If the int id is not in `store`, return `(404, {'error': 'student not found'})`. Otherwise remove it and return `(204, None)`. Example: `delete_student({1: {}}, '1')` returns `(204, None)`.",
+          "prompt_tr": "`DELETE /students/<id>` için `delete_student(store, raw_id)` yaz; `raw_id` URL'den gelen string'dir. Rakamlardan oluşmuyorsa `(400, {'error': 'invalid id'})` döndür. int id `store` içinde yoksa `(404, {'error': 'student not found'})` döndür. Aksi halde onu sil ve `(204, None)` döndür. Örnek: `delete_student({1: {}}, '1')` `(204, None)` döndürür.",
+          "starter_code": "",
+          "signature": "def delete_student(store, raw_id):",
+          "tests": [
+            {
+              "code": "s = {1: {}}\nassert delete_student(s, '1') == (204, None) and s == {}",
+              "visible": true,
+              "label": "Deleted with 204",
+              "label_tr": "204 ile silindi"
+            },
+            {
+              "code": "assert delete_student({}, 'abc') == (400, {'error': 'invalid id'})",
+              "visible": true,
+              "label": "Non-digit id is 400",
+              "label_tr": "Rakam olmayan id 400"
+            },
+            {
+              "code": "s = {2: {}}\nassert delete_student(s, '3') == (404, {'error': 'student not found'}) and s == {2: {}}",
+              "visible": false,
+              "failure_message": "A valid but unknown id is 404 and must not change the store.",
+              "failure_message_tr": "Geçerli ama bilinmeyen bir id 404'tür ve depoyu değiştirmemeli."
+            },
+            {
+              "code": "s = {7: {}}\nassert delete_student(s, '7') == (204, None) and delete_student(s, '7') == (404, {'error': 'student not found'})",
+              "visible": false,
+              "failure_message": "Deleting twice: the second call finds nothing and returns 404.",
+              "failure_message_tr": "İki kez silmek: ikinci çağrı hiçbir şey bulamaz ve 404 döndürür."
+            },
+            {
+              "code": "assert delete_student({1: {}}, '-1') == (400, {'error': 'invalid id'}) and delete_student({1: {}}, '') == (400, {'error': 'invalid id'})",
+              "visible": false,
+              "failure_message": "Only strings made of digits are valid ids; '-1' and '' are invalid.",
+              "failure_message_tr": "Yalnızca rakamlardan oluşan string'ler geçerli id'dir; '-1' ve '' geçersizdir."
+            }
+          ],
+          "hints": [
+            "Three checks in order: is the text a number, does the id exist, then delete.",
+            "`raw_id.isdigit()` is False for '' and '-1'; convert with `int(raw_id)` only after that check.",
+            "Return the 400 tuple when `isdigit` fails; convert; return the 404 tuple when the int is not `in store`; otherwise `del` it and return 204 with None."
+          ],
+          "hints_tr": [
+            "Sırayla üç kontrol: metin bir sayı mı, id var mı, sonra sil.",
+            "`raw_id.isdigit()` '' ve '-1' için False'tur; `int(raw_id)` ile ancak bu kontrolden sonra çevir.",
+            "`isdigit` başarısızsa 400 tuple'ını döndür; çevir; int `store` içinde değilse 404 tuple'ını döndür; değilse onu `del` ile sil ve None ile 204 döndür."
+          ],
+          "solution": {
+            "approach": "Reject non-digit ids with 400, missing ids with 404, otherwise delete and return 204.",
+            "approach_tr": "Rakam olmayan id'leri 400 ile, olmayanları 404 ile reddet; değilse sil ve 204 döndür.",
+            "code": "def delete_student(store, raw_id):\n    if not raw_id.isdigit():\n        return 400, {'error': 'invalid id'}\n    student_id = int(raw_id)\n    if student_id not in store:\n        return 404, {'error': 'student not found'}\n    del store[student_id]\n    return 204, None"
+          },
+          "twin": "d29-b4-e6",
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        },
+        {
+          "id": "d29-b4-e8",
+          "type": "explain",
+          "prompt": "Name three bugs in the lesson's PUT and DELETE code and say how you fixed each one.",
+          "prompt_tr": "Dersteki PUT ve DELETE kodundan üç hata say ve her birini nasıl düzelttiğini söyle.",
+          "model_answer": "The update calls update_one without $set, which pymongo rejects, so the change must be wrapped in {'$set': ...}. It also rewrites created_at on every update, so the creation time is lost; keep created_at and set updated_at instead. And the views end with a bare return, so they give no response; they must return a status code such as 200, 204 or 404 with a body.",
+          "model_answer_tr": "Güncelleme update_one'ı $set olmadan çağırıyor ve pymongo bunu reddediyor; değişiklik {'$set': ...} içine alınmalı. Ayrıca her güncellemede created_at'i yeniden yazıyor ve oluşturulma zamanı kayboluyor; created_at korunmalı, onun yerine updated_at ayarlanmalı. Ve view'lar çıplak bir return ile bitiyor, yani hiçbir yanıt vermiyor; 200, 204 ya da 404 gibi bir durum kodu ve gövde döndürmeliler.",
+          "keywords": [
+            "$set",
+            "created_at",
+            "return"
+          ],
+          "keywords_tr": [
+            "$set",
+            "created_at",
+            "return"
+          ],
+          "min_words": 15,
+          "concept": "update-and-delete",
+          "tags": [
+            "api",
+            "put",
+            "delete",
+            "status-codes"
+          ]
+        }
+      ]
     }
-   ],
-   "concept_tr": "JSON yanıtları"
-  },
-  {
-   "id": "d29-b2",
-   "concept": "path-parameters",
-   "tags": [
-    "api",
-    "routes",
-    "lookup"
-   ],
-   "worked_example": {
-    "code": "path = '/api/v1.0/students/5df68a21'\nstudent_id = path.split('/')[-1]\nprint(student_id)",
-    "notes": [
-     "In /students/<id> the last part of the path is the id.",
-     "The view looks the document up by that id and answers 404 when it does not exist."
-    ],
-    "notes_tr": [
-     "/students/<id> içinde yolun son parçası id'dir.",
-     "View, dokümanı bu id ile arar ve yoksa 404 yanıtı verir."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d29-b2-e1",
-     "type": "predict",
-     "concept": "path-parameters",
-     "tags": [
-      "api",
-      "routes",
-      "lookup"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "students = [{'_id': '1', 'name': 'Asabeneh'}, {'_id': '2', 'name': 'David'}]\n\ndef single_student(student_id):\n    for s in students:\n        if s['_id'] == student_id:\n            return {'status': 200, 'student': s['name']}\n    return {'status': 404}\n\nprint(single_student('2'), single_student('9'))",
-     "choices": [
-      "{'status': 200, 'student': 'David'} {'status': 404}",
-      "{'status': 200, 'student': 'Asabeneh'} {'status': 404}",
-      "{'status': 200, 'student': 'David'} {'status': 200, 'student': 'David'}",
-      "{'status': 404} {'status': 404}"
-     ],
-     "expected_output": "{'status': 200, 'student': 'David'} {'status': 404}",
-     "explanation": "Id '2' belongs to David, so the first call returns status 200. No student has id '9', so the loop ends and the function returns the 404 dict.",
-     "misconceptions": {
-      "{'status': 200, 'student': 'Asabeneh'} {'status': 404}": "Asabeneh has id '1'. The call asks for id '2'.",
-      "{'status': 200, 'student': 'David'} {'status': 200, 'student': 'David'}": "Id '9' does not exist, so the loop finishes without a return and the 404 line runs.",
-      "{'status': 404} {'status': 404}": "Id '2' exists, so the first call returns 200."
-     },
-     "explanation_tr": "'2' id'si David'e aittir, bu yüzden ilk çağrı 200 durumunu döndürür. '9' id'li öğrenci yoktur; döngü biter ve fonksiyon 404 dict'ini döndürür.",
-     "misconceptions_tr": {
-      "{'status': 200, 'student': 'Asabeneh'} {'status': 404}": "Asabeneh'in id'si '1'. Çağrı '2' id'sini istiyor.",
-      "{'status': 200, 'student': 'David'} {'status': 200, 'student': 'David'}": "'9' id'si yok, bu yüzden döngü return olmadan biter ve 404 satırı çalışır.",
-      "{'status': 404} {'status': 404}": "'2' id'si var, bu yüzden ilk çağrı 200 döndürür."
-     }
-    },
-    {
-     "id": "d29-b2-e2",
-     "type": "parsons",
-     "concept": "path-parameters",
-     "tags": [
-      "api",
-      "routes",
-      "lookup"
-     ],
-     "prompt": "Put the lines in order: split the path and print the resource name and the id.",
-     "prompt_tr": "Satırları sırala: yolu böl ve kaynak adıyla id'yi yazdır.",
-     "lines": [
-      "student_id = parts[-1]",
-      "path = '/api/v1.0/students/2'",
-      "print(parts[-2], student_id)",
-      "parts = path.split('/')"
-     ],
-     "correct_order": [
-      1,
-      3,
-      0,
-      2
-     ],
-     "distractors": [
-      "student_id = parts[0]"
-     ],
-     "expected_output": "students 2"
-    },
-    {
-     "id": "d29-b2-e3",
-     "type": "write",
-     "concept": "path-parameters",
-     "tags": [
-      "api",
-      "routes",
-      "lookup"
-     ],
-     "prompt": "Write single_student(students, student_id). students is a list of dicts with an '_id' key. Return {'status': 200, 'student': <the dict>} for the matching id, or {'status': 404} when no student has that id.",
-     "prompt_tr": "single_student(students, student_id) yaz. students, '_id' anahtarı olan dict'lerin listesidir. Eşleşen id için {'status': 200, 'student': <dict>} döndür; hiçbir öğrencinin o id'si yoksa {'status': 404} döndür.",
-     "starter_code": "",
-     "signature": "def single_student(students, student_id):",
-     "tests": [
-      {
-       "code": "s = [{'_id': '1', 'name': 'A'}, {'_id': '2', 'name': 'B'}]\nassert single_student(s, '2') == {'status': 200, 'student': {'_id': '2', 'name': 'B'}}",
-       "visible": true,
-       "label_tr": "Var olan id öğrenciyi 200 ile döndürüyor"
-      },
-      {
-       "code": "assert single_student([], '1') == {'status': 404}",
-       "visible": true,
-       "label_tr": "Boş listede 404 dönüyor"
-      },
-      {
-       "code": "s = [{'_id': '1'}]\nassert single_student(s, '9') == {'status': 404}",
-       "visible": false,
-       "failure_message": "When no student matches, return exactly {'status': 404}.",
-       "failure_message_tr": "Hiçbir öğrenci eşleşmezse tam olarak {'status': 404} döndür."
-      },
-      {
-       "code": "s = [{'_id': '1', 'n': 'a'}, {'_id': '1', 'n': 'b'}]\nassert single_student(s, '1')['student']['n'] == 'a'",
-       "visible": false,
-       "failure_message": "Return the first matching student.",
-       "failure_message_tr": "İlk eşleşen öğrenciyi döndür."
-      }
-     ],
-     "hints": [
-      "Loop through the list and compare the ids.",
-      "Return the 200 dict as soon as the id matches; after the loop return the 404 dict.",
-      "Last step: loop over students and compare each '_id' with student_id; return the 200 dict inside the loop on a match, and the 404 dict after the loop."
-     ],
-     "solution": {
-      "approach": "Linear search by _id, with a 404 fallback.",
-      "code": "def single_student(students, student_id):\n    for s in students:\n        if s['_id'] == student_id:\n            return {'status': 200, 'student': s}\n    return {'status': 404}",
-      "approach_tr": "_id ile doğrusal arama yap ve bulunamazsa 404 döndür."
-     },
-     "twin": "d29-b2-e4",
-     "hints_tr": [
-      "Listede dön ve id'leri karşılaştır.",
-      "id eşleşince hemen 200 dict'ini döndür; döngüden sonra 404 dict'ini döndür.",
-      "Son adım: students üzerinde dön ve her '_id'yi student_id ile karşılaştır; eşleşince döngü içinde 200 dict'ini, döngüden sonra 404 dict'ini döndür."
-     ]
-    },
-    {
-     "id": "d29-b2-e4",
-     "type": "write",
-     "concept": "path-parameters",
-     "tags": [
-      "api",
-      "routes",
-      "lookup"
-     ],
-     "prompt": "Write delete_student(students, student_id). Remove the student whose '_id' equals student_id from the list and return {'status': 200}. If there is no such student return {'status': 404} and leave the list unchanged.",
-     "prompt_tr": "delete_student(students, student_id) yaz. '_id' değeri student_id olan öğrenciyi listeden sil ve {'status': 200} döndür. Böyle bir öğrenci yoksa {'status': 404} döndür ve listeyi değiştirme.",
-     "starter_code": "",
-     "signature": "def delete_student(students, student_id):",
-     "tests": [
-      {
-       "code": "s = [{'_id': '1'}, {'_id': '2'}]\nassert delete_student(s, '1') == {'status': 200} and s == [{'_id': '2'}]",
-       "visible": true,
-       "label_tr": "Öğrenci siliniyor ve 200 dönüyor"
-      },
-      {
-       "code": "s = [{'_id': '1'}]\nassert delete_student(s, '5') == {'status': 404} and s == [{'_id': '1'}]",
-       "visible": true,
-       "label_tr": "Olmayan id için 404 dönüyor, liste aynı kalıyor"
-      },
-      {
-       "code": "s = []\nassert delete_student(s, '1') == {'status': 404}",
-       "visible": false,
-       "failure_message": "An empty list has no student, so the answer is 404.",
-       "failure_message_tr": "Boş listede öğrenci yoktur, yanıt 404 olur."
-      },
-      {
-       "code": "s = [{'_id': '1'}, {'_id': '2'}, {'_id': '3'}]\ndelete_student(s, '2')\nassert [d['_id'] for d in s] == ['1', '3']",
-       "visible": false,
-       "failure_message": "Only the matching student is removed; the others stay in order.",
-       "failure_message_tr": "Yalnızca eşleşen öğrenci silinir; diğerleri aynı sırayla kalır."
-      }
-     ],
-     "hints": [
-      "Look for the student like in single_student.",
-      "When found, students.remove(s) and return the 200 dict immediately.",
-      "Last step: in the same loop as single_student, call the list method that removes the matching student and return the 200 dict at once; after the loop return the 404 dict."
-     ],
-     "solution": {
-      "approach": "Find the student, remove it and answer 200, or answer 404.",
-      "code": "def delete_student(students, student_id):\n    for s in students:\n        if s['_id'] == student_id:\n            students.remove(s)\n            return {'status': 200}\n    return {'status': 404}",
-      "approach_tr": "Öğrenciyi bul, sil ve 200 yanıtı ver; yoksa 404 ver."
-     },
-     "twin": "d29-b2-e3",
-     "hints_tr": [
-      "Öğrenciyi single_student'taki gibi ara.",
-      "Bulunca students.remove(s) yap ve hemen 200 dict'ini döndür.",
-      "Son adım: single_student'taki döngünün aynısında, eşleşen öğrenciyi silen liste metodunu çağır ve hemen 200 dict'ini döndür; döngüden sonra 404 dict'ini döndür."
-     ]
-    }
-   ],
-   "concept_tr": "Yol parametreleri (path parameters)"
-  },
-  {
-   "id": "d29-b3",
-   "concept": "create-and-update",
-   "tags": [
-    "api",
-    "forms",
-    "post-put",
-    "set"
-   ],
-   "worked_example": {
-    "code": "form = {'name': 'Ada', 'skills': 'Python, SQL'}\nstudent = {'name': form['name'], 'skills': form['skills'].split(', ')}\nprint(student)",
-    "notes": [
-     "POST sends form fields; the view turns them into a document before inserting it.",
-     "A PUT must change fields, not replace the whole document; MongoDB uses $set."
-    ],
-    "notes_tr": [
-     "POST form alanlarını gönderir; view onları eklemeden önce bir dokümana çevirir.",
-     "PUT tüm dokümanı değiştirmemeli, yalnızca alanları değiştirmelidir; MongoDB bunun için $set kullanır."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d29-b3-e1",
-     "type": "predict",
-     "concept": "create-and-update",
-     "tags": [
-      "api",
-      "forms",
-      "post-put",
-      "set"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "form = {'name': 'Ada', 'skills': 'Python, SQL, Flask'}\nstudent = {'name': form['name'], 'skills': form['skills'].split(', ')}\nprint(student['skills'], len(student['skills']))",
-     "choices": [
-      "['Python', 'SQL', 'Flask'] 3",
-      "['Python, SQL, Flask'] 1",
-      "'Python, SQL, Flask' 18",
-      "['Python', 'SQL', 'Flask'] 18"
-     ],
-     "expected_output": "['Python', 'SQL', 'Flask'] 3",
-     "explanation": "split(', ') cuts the text at every comma+space, giving a list of 3 skills.",
-     "misconceptions": {
-      "['Python, SQL, Flask'] 1": "split(', ') separates at each ', ', so there are three items.",
-      "'Python, SQL, Flask' 18": "student['skills'] is the list produced by split, not the original text.",
-      "['Python', 'SQL', 'Flask'] 18": "len of the list counts items (3), not characters."
-     },
-     "explanation_tr": "split(', ') metni her virgül+boşlukta keser ve 3 becerilik bir liste verir.",
-     "misconceptions_tr": {
-      "['Python, SQL, Flask'] 1": "split(', ') her ', ' işaretinde ayırır, bu yüzden üç öğe olur.",
-      "'Python, SQL, Flask' 18": "student['skills'] özgün metin değil, split'in ürettiği listedir.",
-      "['Python', 'SQL', 'Flask'] 18": "Listenin len değeri öğeleri sayar (3), karakterleri değil."
-     }
-    },
-    {
-     "id": "d29-b3-e2",
-     "type": "fill_blank",
-     "concept": "create-and-update",
-     "tags": [
-      "api",
-      "forms",
-      "post-put",
-      "set"
-     ],
-     "prompt": "Turn the form into a student document: split the skills text into a list.",
-     "prompt_tr": "Formu bir öğrenci dokümanına çevir: beceri metnini listeye böl.",
-     "starter_code": "form = {'name': 'Ada', 'skills': 'Python, SQL'}\nskills = form['skills'].___(', ')\nstudent = {'name': form[___], 'skills': skills}",
-     "blanks": [
-      {
-       "answer": [
-        "split"
-       ]
-      },
-      {
-       "answer": [
-        "'name'"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert student == {'name': 'Ada', 'skills': ['Python', 'SQL']}",
-       "visible": true,
-       "label_tr": "Öğrenci dokümanı doğru kuruluyor"
-      }
-     ]
-    },
-    {
-     "id": "d29-b3-e3",
-     "type": "write",
-     "concept": "create-and-update",
-     "tags": [
-      "api",
-      "forms",
-      "post-put",
-      "set"
-     ],
-     "prompt": "Write build_student(form). form is a dict with the keys name, country, city, birthyear, skills (comma+space separated text) and bio. Return a dict with the same keys, where skills is a list.",
-     "prompt_tr": "build_student(form) yaz. form; name, country, city, birthyear, skills (virgül+boşlukla ayrılmış metin) ve bio anahtarlarına sahip bir dict'tir. Aynı anahtarlara sahip, ama skills'in liste olduğu bir dict döndür.",
-     "starter_code": "",
-     "signature": "def build_student(form):",
-     "tests": [
-      {
-       "code": "f = {'name': 'Ada', 'country': 'UK', 'city': 'London', 'birthyear': '1990', 'skills': 'Python, SQL', 'bio': 'Hi'}\nassert build_student(f) == {'name': 'Ada', 'country': 'UK', 'city': 'London', 'birthyear': '1990', 'skills': ['Python', 'SQL'], 'bio': 'Hi'}",
-       "visible": true,
-       "label_tr": "Altı alan doğru, beceriler liste oldu"
-      },
-      {
-       "code": "f = {'name': 'B', 'country': 'FI', 'city': 'Espoo', 'birthyear': '2000', 'skills': 'CSS', 'bio': ''}\nassert build_student(f)['skills'] == ['CSS']",
-       "visible": true,
-       "label_tr": "Tek becerili form doğru dönüşüyor"
-      },
-      {
-       "code": "f = {'name': 'C', 'country': 'x', 'city': 'y', 'birthyear': '1999', 'skills': 'a, b, c, d', 'bio': 'z'}\nassert build_student(f)['skills'] == ['a', 'b', 'c', 'd']",
-       "visible": false,
-       "failure_message": "Split on ', ' so every skill becomes its own list item.",
-       "failure_message_tr": "Her beceri ayrı bir liste öğesi olsun diye ', ' ile böl."
-      },
-      {
-       "code": "f = {'name': 'D', 'country': 'x', 'city': 'y', 'birthyear': '1999', 'skills': 'a', 'bio': 'z'}\nr = build_student(f)\nassert set(r) == {'name', 'country', 'city', 'birthyear', 'skills', 'bio'}",
-       "visible": false,
-       "failure_message": "Return exactly the six keys; do not add or drop any.",
-       "failure_message_tr": "Tam olarak altı anahtar döndür; ekleme ya da çıkarma yapma."
-      }
-     ],
-     "hints": [
-      "Copy most fields and convert only one.",
-      "dict(form) copies the form; then replace the 'skills' value with the split list. Or build the dict by hand.",
-      "Last step: make a copy of form, then assign to its 'skills' key the result of splitting the original skills text on a comma and a space, and return the copy."
-     ],
-     "solution": {
-      "approach": "Copy the form and turn the skills text into a list.",
-      "code": "def build_student(form):\n    student = dict(form)\n    student['skills'] = form['skills'].split(', ')\n    return student",
-      "approach_tr": "Formu kopyala ve beceri metnini listeye çevir."
-     },
-     "twin": "d29-b3-e4",
-     "hints_tr": [
-      "Alanların çoğunu kopyala, yalnızca birini dönüştür.",
-      "dict(form) formu kopyalar; sonra 'skills' değerini bölünmüş listeyle değiştir. Ya da dict'i elle kur.",
-      "Son adım: form'un bir kopyasını yap, 'skills' anahtarına özgün beceri metnini virgül ve boşluktan bölmenin sonucunu ata ve kopyayı döndür."
-     ]
-    },
-    {
-     "id": "d29-b3-e4",
-     "type": "write",
-     "concept": "create-and-update",
-     "tags": [
-      "api",
-      "forms",
-      "post-put",
-      "set"
-     ],
-     "prompt": "Write build_book(form). form is a dict with the keys title, authors (comma+space separated text) and year. Return a dict with the same keys, where authors is a list.",
-     "prompt_tr": "build_book(form) yaz. form; title, authors (virgül+boşlukla ayrılmış metin) ve year anahtarlarına sahip bir dict'tir. Aynı anahtarlara sahip, ama authors'ın liste olduğu bir dict döndür.",
-     "starter_code": "",
-     "signature": "def build_book(form):",
-     "tests": [
-      {
-       "code": "assert build_book({'title': 'Dune', 'authors': 'Frank Herbert', 'year': '1965'}) == {'title': 'Dune', 'authors': ['Frank Herbert'], 'year': '1965'}",
-       "visible": true,
-       "label_tr": "Tek yazarlı kitap doğru dönüşüyor"
-      },
-      {
-       "code": "assert build_book({'title': 'X', 'authors': 'A, B', 'year': '2000'})['authors'] == ['A', 'B']",
-       "visible": true,
-       "label_tr": "İki yazar iki liste öğesi oluyor"
-      },
-      {
-       "code": "assert build_book({'title': 'T', 'authors': 'a, b, c', 'year': '1'})['authors'] == ['a', 'b', 'c']",
-       "visible": false,
-       "failure_message": "Split on ', ' so every author becomes its own list item.",
-       "failure_message_tr": "Her yazar ayrı bir liste öğesi olsun diye ', ' ile böl."
-      },
-      {
-       "code": "r = build_book({'title': 'T', 'authors': 'a', 'year': '1'})\nassert set(r) == {'title', 'authors', 'year'}",
-       "visible": false,
-       "failure_message": "Return exactly the three keys; do not add or drop any.",
-       "failure_message_tr": "Tam olarak üç anahtar döndür; ekleme ya da çıkarma yapma."
-      }
-     ],
-     "hints": [
-      "Same idea as build_student.",
-      "Copy the form, then replace the 'authors' value by its split list.",
-      "Last step: copy form, assign to its 'authors' key the split of the original authors text on a comma and a space, and return the copy."
-     ],
-     "solution": {
-      "approach": "Copy the form and split the authors text.",
-      "code": "def build_book(form):\n    book = dict(form)\n    book['authors'] = form['authors'].split(', ')\n    return book",
-      "approach_tr": "Formu kopyala ve yazar metnini böl."
-     },
-     "twin": "d29-b3-e3",
-     "hints_tr": [
-      "build_student ile aynı fikir.",
-      "Formu kopyala, sonra 'authors' değerini bölünmüş listeyle değiştir.",
-      "Son adım: form'u kopyala, 'authors' anahtarına özgün yazar metnini virgül ve boşluktan bölmenin sonucunu ata ve kopyayı döndür."
-     ]
-    },
-    {
-     "id": "d29-b3-e5",
-     "type": "debug",
-     "concept": "create-and-update",
-     "tags": [
-      "api",
-      "forms",
-      "post-put",
-      "set"
-     ],
-     "prompt": "The age should change to 38 while the other fields stay, but the whole student is replaced. Fix it (this is why MongoDB needs $set).",
-     "prompt_tr": "Yaş 38 olmalı ve diğer alanlar kalmalı, ama bütün öğrenci kaydı değiştiriliyor. Düzelt (MongoDB'nin $set'e neden ihtiyaç duyduğu budur).",
-     "starter_code": "student = {'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nchanges = {'age': 38}\nstudent = changes\nprint(student)",
-     "hints": [
-      "Print student after the assignment. What is left of the name?",
-      "student = changes throws the old dict away. You want to merge the new values INTO it.",
-      "Last step: replace the assignment line by a call to the dict method that merges another dict into it."
-     ],
-     "solution": {
-      "approach": "Merge the changes into the existing dict (like $set) instead of replacing it.",
-      "code": "student = {'name': 'Asabeneh', 'country': 'Finland', 'age': 250}\nchanges = {'age': 38}\nstudent.update(changes)\nprint(student)",
-      "approach_tr": "Kaydı değiştirmek yerine değişiklikleri mevcut dict'e birleştir ($set gibi)."
-     },
-     "expected_output": "{'name': 'Asabeneh', 'country': 'Finland', 'age': 38}",
-     "hints_tr": [
-      "Atamadan sonra student'ı yazdır. Addan geriye ne kaldı?",
-      "student = changes eski dict'i atar. Yeni değerleri onun İÇİNE birleştirmek istiyorsun.",
-      "Son adım: atama satırını, başka bir dict'i içine birleştiren dict metodunun çağrısıyla değiştir."
-     ]
-    }
-   ],
-   "concept_tr": "Oluşturma (POST) ve güncelleme (PUT)"
-  }
- ],
- "review_pool": [
-  "d29-b1-e1",
-  "d29-b1-e3",
-  "d29-b2-e1",
-  "d29-b2-e3",
-  "d29-b3-e1",
-  "d29-b3-e3"
- ],
- "title_tr": "API Geliştirme"
+  ],
+  "review_pool": [
+    "d29-b1-e1",
+    "d29-b1-e7",
+    "d29-b2-e5",
+    "d29-b2-e6",
+    "d29-b3-e7",
+    "d29-b4-e7"
+  ]
 }
