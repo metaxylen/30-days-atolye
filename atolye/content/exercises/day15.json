@@ -1,575 +1,1248 @@
 {
   "day": 15,
-  "title": "Python error types",
-  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
+  "title": "Python Error Types",
+  "title_tr": "Python Hata Türleri",
+  "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
   "blocks": [
     {
       "id": "d15-b1",
-      "concept": "name-syntax-import-attribute-errors",
+      "concept": "reading-tracebacks",
+      "concept_tr": "Hata izi aşağıdan yukarı okunur: son satır hata türünü ve mesajını, hemen üstündeki çerçeve hatanın oluştuğu satırı, daha üsttekiler de oraya hangi çağrılarla gelindiğini gösterir.",
       "tags": [
         "errors",
-        "tracebacks",
-        "modules"
+        "traceback",
+        "debugging"
       ],
       "worked_example": {
-        "code": "import math\ntry:\n    print(math.PI)\nexcept Exception as e:\n    print(type(e).__name__)\nprint(math.pi)",
+        "code": "last_line = 'KeyError: ' + repr('county')\nerror_type, message = last_line.split(': ', 1)\nprint(error_type)\nprint(message)\n\ntry:\n    {'country': 'Finland'}['county']\nexcept Exception as e:\n    print(type(e).__name__, e)",
         "notes": [
-          "math.PI does not exist (Python is case sensitive), so Python raises AttributeError.",
-          "try/except is only used here to show the error name; you meet it properly on Day 17."
+          "The last line of every traceback has the shape ErrorType: message, so splitting once at ': ' separates the category from the details.",
+          "The try/except lab tool runs the risky line and, instead of stopping, prints the same type name and message Python would show.",
+          "For a KeyError the message is just the missing key, which you compare with the real keys to spot the typo."
         ],
         "notes_tr": [
-          "math.PI diye bir şey yok (Python büyük/küçük harfe duyarlıdır), bu yüzden Python AttributeError verir.",
-          "try/except burada sadece hatanın adını göstermek için kullanılıyor; asıl konusu 17. günde."
+          "Her hata izinin son satırı HataTürü: mesaj biçimindedir; ': ' işaretinden bir kez bölmek kategoriyi ayrıntılardan ayırır.",
+          "try/except laboratuvar aracı riskli satırı çalıştırır ve durmak yerine Python'ın göstereceği tür adını ve mesajı yazdırır.",
+          "KeyError'da mesaj yalnızca eksik anahtardır; yazım hatasını bulmak için onu gerçek anahtarlarla karşılaştırırsın."
         ]
       },
       "exercises": [
         {
           "id": "d15-b1-e1",
           "type": "predict",
-          "prompt": "error_name runs a piece of code and returns the NAME of the error it raised (try/except comes on Day 17; for now just read it as a tool). What does this print?",
-          "prompt_tr": "error_name, verilen kodu çalıştırıp oluşan hatanın ADINI döndürür (try/except 17. günde; şimdilik bir araç gibi okuyun). Bu ne yazdırır?",
-          "code": "def error_name(code):\n    try:\n        exec(code, globals())\n    except Exception as e:\n        return type(e).__name__\n    return 'no error'\n\nprint(error_name(\"print(age)\"))\nprint(error_name(\"import maths\"))\nprint(error_name(\"from math import power\"))\nprint(error_name(\"import math\\nmath.PI\"))\nprint(error_name(\"print 'hello world'\"))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "print('başla')\ntry:\n    print(10 / 0)\n    print('bu satır')\nexcept Exception as e:\n    print(type(e).__name__)\nprint('son')",
           "choices": [
-            "NameError\nImportError\nModuleNotFoundError\nAttributeError\nSyntaxError",
-            "NameError\nModuleNotFoundError\nImportError\nNameError\nSyntaxError",
-            "NameError\nModuleNotFoundError\nImportError\nAttributeError\nSyntaxError"
+            "başla\nZeroDivisionError\nson",
+            "başla\nZeroDivisionError",
+            "başla\nbu satır\nZeroDivisionError\nson",
+            "ZeroDivisionError"
           ],
-          "expected_output": "NameError\nModuleNotFoundError\nImportError\nAttributeError\nSyntaxError",
-          "explanation": "print(age): the variable was never defined -> NameError. import maths: no such module -> ModuleNotFoundError. from math import power: the module exists but has no such name -> ImportError. math.PI: the module has no attribute PI -> AttributeError. print 'hello world' without parentheses -> SyntaxError.",
+          "expected_output": "başla\nZeroDivisionError\nson",
+          "explanation": "Lines run in order: 'başla', then 10 / 0 raises, the rest of the try block is skipped, except prints the type, and the program goes on to 'son'.",
+          "explanation_tr": "Satırlar sırayla çalışır: 'başla', sonra 10 / 0 hata verir, try bloğunun geri kalanı atlanır, except türü yazdırır ve program 'son'a devam eder.",
           "misconceptions": {
-            "NameError\nImportError\nModuleNotFoundError\nAttributeError\nSyntaxError": "A wrong module name (import maths) is a ModuleNotFoundError; a wrong name inside a real module (from math import power) is an ImportError.",
-            "NameError\nModuleNotFoundError\nImportError\nNameError\nSyntaxError": "math.PI exists as a module, only the attribute is missing: that is an AttributeError, not a NameError."
+            "başla\nZeroDivisionError": "The except block handles the error, so the program continues and prints 'son'.",
+            "başla\nbu satır\nZeroDivisionError\nson": "When 10 / 0 fails, Python jumps straight to except; the next line inside try is skipped.",
+            "ZeroDivisionError": "'başla' is printed before the try block even starts."
           },
-          "explanation_tr": "print(age): değişken hiç tanımlanmadı -> NameError. import maths: böyle bir modül yok -> ModuleNotFoundError. from math import power: modül var ama içinde böyle bir isim yok -> ImportError. math.PI: modülde PI özelliği yok -> AttributeError. print 'hello world' parantezsiz -> SyntaxError.",
           "misconceptions_tr": {
-            "NameError\nImportError\nModuleNotFoundError\nAttributeError\nSyntaxError": "Yanlış modül adı (import maths) ModuleNotFoundError verir; gerçek bir modülün içinde yanlış isim (from math import power) ise ImportError verir.",
-            "NameError\nModuleNotFoundError\nImportError\nNameError\nSyntaxError": "math.PI'da modül mevcut, sadece özellik eksik: bu NameError değil AttributeError'dır."
+            "başla\nZeroDivisionError": "except bloğu hatayı ele alır; program devam eder ve 'son' yazdırır.",
+            "başla\nbu satır\nZeroDivisionError\nson": "10 / 0 patladığında Python doğrudan except'e atlar; try içindeki sonraki satır atlanır.",
+            "ZeroDivisionError": "'başla' try bloğu başlamadan önce yazdırılır."
           }
         },
         {
           "id": "d15-b1-e2",
-          "type": "fill_blank",
-          "prompt": "Fix the program: import the real module name and use the constant that really exists.",
-          "prompt_tr": "Programı düzeltin: modülün gerçek adını içe aktarın ve gerçekten var olan sabiti kullanın.",
-          "starter_code": "import ___\nprint(math.___)",
-          "blanks": [
-            {
-              "answer": [
-                "math"
-              ]
-            },
-            {
-              "answer": [
-                "pi"
-              ]
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "def a():\n    return b()\n\ndef b():\n    return [1, 2][5]\n\ntry:\n    a()\nexcept Exception as e:\n    print(type(e).__name__, '-', e)",
+          "choices": [
+            "TypeError - list index out of range",
+            "IndexError - list index out of range",
+            "IndexError - a",
+            "NameError - b"
           ],
-          "tests": [
-            {
-              "code": "assert math.pi == 3.141592653589793",
-              "visible": true,
-              "label_tr": "math.pi doğru sabite eşit"
-            },
-            {
-              "code": "assert __stdout__.strip() == '3.141592653589793'",
-              "visible": true,
-              "label_tr": "Program 3.141592653589793 yazdırıyor"
-            }
-          ],
-          "hints": [
-            "The module name has no extra letters.",
-            "The constant is written in lower case."
-          ],
-          "hints_tr": [
-            "Modül adında fazladan harf yok.",
-            "Sabit küçük harfle yazılır."
-          ]
+          "expected_output": "IndexError - list index out of range",
+          "explanation": "The error happens inside b, two calls deep, but it is the same IndexError with the message 'list index out of range'.",
+          "explanation_tr": "Hata iki çağrı derinlikte, b'nin içinde olur; ama yine aynı 'list index out of range' mesajlı IndexError'dır.",
+          "misconceptions": {
+            "TypeError - list index out of range": "Asking for a position that does not exist is an IndexError, not a TypeError.",
+            "IndexError - a": "The message describes what went wrong, not which function failed.",
+            "NameError - b": "b is defined before a() is called, so the name exists."
+          },
+          "misconceptions_tr": {
+            "TypeError - list index out of range": "Var olmayan bir konumu istemek TypeError değil, IndexError'dır.",
+            "IndexError - a": "Mesaj hangi fonksiyonun patladığını değil, neyin yanlış gittiğini anlatır.",
+            "NameError - b": "b, a() çağrılmadan önce tanımlanmıştır; isim vardır."
+          }
         },
         {
           "id": "d15-b1-e3",
-          "type": "modify",
-          "prompt": "The program raises an error. Change it so it prints 4.0 on the first line and 3.14159 (pi rounded to 5 decimals) on the second line.",
-          "prompt_tr": "Program hata veriyor. İlk satırda 4.0, ikinci satırda 3.14159 (pi'nin 5 ondalığa yuvarlanmış hali) yazdıracak şekilde değiştirin.",
-          "starter_code": "import maths\nprint(maths.sqrt(16))\nprint(round(maths.PI, 5))",
+          "type": "fill_blank",
+          "prompt": "Complete the lab tool so it prints only the error type name, for example ValueError.",
+          "prompt_tr": "Laboratuvar aracını yalnızca hata türünün adını, örneğin ValueError, yazdıracak şekilde tamamla.",
+          "starter_code": "try:\n    int('on iki')\nexcept Exception as e:\n    print(___(e).__name__)",
+          "blanks": [
+            {
+              "answer": [
+                "type"
+              ]
+            }
+          ],
           "tests": [
             {
-              "code": "assert __stdout__.split() == ['4.0', '3.14159']",
+              "code": "assert __stdout__.strip() == 'ValueError'",
               "visible": true,
-              "label_tr": "Program 4.0 ve 3.14159 yazdırıyor"
-            },
-            {
-              "code": "assert 'sqrt' in __source__ and 'pi' in __source__ and '3.14159' not in __source__",
-              "visible": false,
-              "failure_message": "Use math.sqrt and math.pi in your code instead of typing the results.",
-              "failure_message_tr": "Sonuçları elle yazmak yerine kodunda math.sqrt ve math.pi kullan."
+              "label": "Prints ValueError",
+              "label_tr": "ValueError yazdırıyor"
             }
           ],
           "hints": [
-            "Start with the first error: read its name and message.",
-            "Two names are wrong: the module name and the constant name.",
-            "Change maths to the real module name everywhere, and write the constant in lower case after the dot (import ___ ...)."
+            "e is the exception object; you want the name of its class.",
+            "Which built-in function returns the type of an object?",
+            "The same function you used on Day 2 to check types."
+          ],
+          "hints_tr": [
+            "e istisna nesnesidir; onun sınıfının adını istiyorsun.",
+            "Hangi hazır fonksiyon bir nesnenin türünü döndürür?",
+            "2. günde türleri kontrol etmek için kullandığın fonksiyonun aynısı."
+          ]
+        },
+        {
+          "id": "d15-b1-e4",
+          "type": "debug",
+          "prompt": "Read the traceback this program prints (bottom up) and fix the cause in format_line so the program prints 'Ada: 90'. Do not change the data.",
+          "prompt_tr": "Bu programın yazdırdığı hata izini (aşağıdan yukarı) oku ve program 'Ada: 90' yazdırsın diye format_line'daki nedeni düzelt. Veriyi değiştirme.",
+          "starter_code": "def format_line(row):\n    return row['name'] + ': ' + row['score']\n\ndef report(row):\n    return format_line(row)\n\ndata = {'name': 'Ada', 'score': 90}\nprint(report(data))",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Ada: 90'",
+              "visible": true,
+              "label": "Prints 'Ada: 90'",
+              "label_tr": "'Ada: 90' yazdırıyor"
+            },
+            {
+              "code": "assert data == {'name': 'Ada', 'score': 90}",
+              "visible": false,
+              "failure_message": "Keep the score as the int 90 in the data.",
+              "failure_message_tr": "Verideki notu int 90 olarak bırak."
+            },
+            {
+              "code": "assert format_line({'name': 'Can', 'score': 7}) == 'Can: 7'",
+              "visible": false,
+              "failure_message": "format_line must work for any int score.",
+              "failure_message_tr": "format_line her int not için çalışmalı."
+            }
+          ],
+          "hints": [
+            "The last line is a TypeError: can only concatenate str (not \"int\") to str.",
+            "The frame just above it is inside format_line: which value there is an int?",
+            "Convert the score to text with str(), or build the line with an f-string."
+          ],
+          "hints_tr": [
+            "Son satır bir TypeError: can only concatenate str (not \"int\") to str.",
+            "Hemen üstündeki çerçeve format_line'ın içinde: oradaki hangi değer bir int?",
+            "Notu str() ile metne çevir ya da satırı bir f-string ile kur."
           ],
           "solution": {
-            "approach": "Fix the module name (ModuleNotFoundError) and the constant name (AttributeError).",
-            "code": "import math\nprint(math.sqrt(16))\nprint(round(math.pi, 5))",
-            "approach_tr": "Modül adını (ModuleNotFoundError) ve sabit adını (AttributeError) düzelt."
-          },
+            "approach": "The deepest frame shows the + inside format_line; the score is an int, so it must become a string before joining.",
+            "approach_tr": "En derindeki çerçeve format_line içindeki +'yı gösterir; not bir int'tir, birleştirmeden önce string'e dönüşmelidir.",
+            "code": "def format_line(row):\n    return row['name'] + ': ' + str(row['score'])\n\ndef report(row):\n    return format_line(row)\n\ndata = {'name': 'Ada', 'score': 90}\nprint(report(data))"
+          }
+        },
+        {
+          "id": "d15-b1-e5",
+          "type": "modify",
+          "prompt": "checked_square(text) crashes on bad input. Change it so it returns the square of int(text) when text (after strip) is all digits, and the string 'geçersiz' otherwise, without using try. Example: checked_square('12') returns 144, checked_square('1a') returns 'geçersiz'.",
+          "prompt_tr": "checked_square(text) hatalı girdide çöküyor. Onu try kullanmadan, text (strip sonrası) tamamen rakamsa int(text)'in karesini, değilse 'geçersiz' string'ini döndürecek şekilde değiştir. Örnek: checked_square('12') 144, checked_square('1a') 'geçersiz' döndürür.",
+          "starter_code": "def checked_square(text):\n    n = int(text)\n    return n * n\n\nprint(checked_square('12'))",
+          "signature": "def checked_square(text):",
+          "tests": [
+            {
+              "code": "assert checked_square('12') == 144",
+              "visible": true,
+              "label": "'12' gives 144",
+              "label_tr": "'12' 144 veriyor"
+            },
+            {
+              "code": "assert checked_square('1a') == 'geçersiz'",
+              "visible": true,
+              "label": "'1a' gives 'geçersiz'",
+              "label_tr": "'1a' 'geçersiz' veriyor"
+            },
+            {
+              "code": "assert checked_square(' 5 ') == 25 and checked_square('') == 'geçersiz' and checked_square('-3') == 'geçersiz'",
+              "visible": false,
+              "failure_message": "Strip spaces first; an empty string and a minus sign are not all digits.",
+              "failure_message_tr": "Önce boşlukları sil; boş string ve eksi işareti tamamen rakam değildir."
+            },
+            {
+              "code": "assert 'try' not in __source__",
+              "visible": false,
+              "failure_message": "Check the input with .isdigit() instead of using try.",
+              "failure_message_tr": "try yerine girdiyi .isdigit() ile kontrol et."
+            }
+          ],
+          "hints": [
+            "Which string method says whether every character is a digit?",
+            "Strip the text first, then check it, and return 'geçersiz' early when it fails.",
+            "if not text.strip().isdigit(): return 'geçersiz'"
+          ],
           "hints_tr": [
-            "İlk hatayla başla: adını ve mesajını oku.",
-            "İki isim yanlış: modül adı ve sabit adı.",
-            "maths'i her yerde gerçek modül adıyla değiştir ve noktadan sonra sabiti küçük harfle yaz (import ___ ...)."
-          ]
+            "Hangi string metodu her karakterin rakam olup olmadığını söyler?",
+            "Önce metni kırp, sonra kontrol et ve başarısız olursa erkenden 'geçersiz' döndür.",
+            "if not text.strip().isdigit(): return 'geçersiz'"
+          ],
+          "solution": {
+            "approach": "Checking with isdigit before int() turns a ValueError crash into a clear answer for bad input.",
+            "approach_tr": "int()'ten önce isdigit ile kontrol etmek, ValueError çöküşünü hatalı girdi için net bir cevaba dönüştürür.",
+            "code": "def checked_square(text):\n    text = text.strip()\n    if not text.isdigit():\n        return 'geçersiz'\n    n = int(text)\n    return n * n\n\nprint(checked_square('12'))"
+          }
+        },
+        {
+          "id": "d15-b1-e6",
+          "type": "write",
+          "prompt": "Write a function parse_error_line(line) that receives the last line of a traceback, such as \"KeyError: 'county'\", and returns a tuple (error_type, message). If there is no ': ' in the line, return (line, ''). Example: parse_error_line('ZeroDivisionError: division by zero') returns ('ZeroDivisionError', 'division by zero').",
+          "prompt_tr": "parse_error_line(line) fonksiyonunu yaz: \"KeyError: 'county'\" gibi bir hata izinin son satırını alsın ve (hata_türü, mesaj) tuple'ını döndürsün. Satırda ': ' yoksa (line, '') döndürsün. Örnek: parse_error_line('ZeroDivisionError: division by zero') ('ZeroDivisionError', 'division by zero') döndürür.",
+          "starter_code": "",
+          "signature": "def parse_error_line(line):",
+          "tests": [
+            {
+              "code": "assert parse_error_line('ZeroDivisionError: division by zero') == ('ZeroDivisionError', 'division by zero')",
+              "visible": true,
+              "label": "Splits type and message",
+              "label_tr": "Türü ve mesajı ayırıyor"
+            },
+            {
+              "code": "assert parse_error_line('KeyboardInterrupt') == ('KeyboardInterrupt', '')",
+              "visible": true,
+              "label": "No message gives ''",
+              "label_tr": "Mesaj yoksa ''"
+            },
+            {
+              "code": "assert parse_error_line(\"ValueError: invalid literal for int() with base 10: '12a'\") == ('ValueError', \"invalid literal for int() with base 10: '12a'\")",
+              "visible": false,
+              "failure_message": "Split only at the first ': '; the message may contain more colons.",
+              "failure_message_tr": "Yalnızca ilk ': ' işaretinden böl; mesajda başka iki nokta da olabilir."
+            },
+            {
+              "code": "assert parse_error_line(\"KeyError: 'county'\") == ('KeyError', \"'county'\")",
+              "visible": false,
+              "failure_message": "Keep the message exactly as it appears, quotes included.",
+              "failure_message_tr": "Mesajı göründüğü gibi, tırnaklarıyla birlikte tut."
+            }
+          ],
+          "hints": [
+            "line.split(': ', 1) splits only once, at the first ': '.",
+            "Check ': ' in line first and return (line, '') when it is missing.",
+            "Unpack the two parts of the split and return them as a tuple."
+          ],
+          "hints_tr": [
+            "line.split(': ', 1) yalnızca bir kez, ilk ': ' işaretinden böler.",
+            "Önce ': ' in line kontrol et, yoksa (line, '') döndür.",
+            "Bölmenin iki parçasını aç ve onları bir tuple olarak döndür."
+          ],
+          "solution": {
+            "approach": "maxsplit=1 keeps every later colon inside the message; the guard handles errors that have no message.",
+            "approach_tr": "maxsplit=1 sonraki bütün iki noktaları mesajın içinde tutar; koruma, mesajı olmayan hataları ele alır.",
+            "code": "def parse_error_line(line):\n    if ': ' not in line:\n        return (line, '')\n    error_type, message = line.split(': ', 1)\n    return (error_type, message)"
+          },
+          "twin": "d15-b1-e7"
+        },
+        {
+          "id": "d15-b1-e7",
+          "type": "write",
+          "prompt": "Write a function deepest_line(traceback_text) that returns, as an int, the line number from the LAST line that starts with '  File ' in a traceback text (the deepest frame). Example: for a traceback whose File lines say line 9, line 6 and line 2, it returns 2.",
+          "prompt_tr": "deepest_line(traceback_text) fonksiyonunu yaz: bir hata izi metninde '  File ' ile başlayan SON satırdaki (en derin çerçeve) satır numarasını int olarak döndürsün. Örnek: File satırları line 9, line 6 ve line 2 diyen bir hata izi için 2 döndürür.",
+          "starter_code": "",
+          "signature": "def deepest_line(traceback_text):",
+          "tests": [
+            {
+              "code": "tb = 'Traceback (most recent call last):\\n  File \"main.py\", line 9, in <module>\\n    print(report(data))\\n  File \"main.py\", line 6, in report\\n    return format_line(row)\\n  File \"main.py\", line 2, in format_line\\n    return row[\\'name\\'] + \\': \\' + row[\\'score\\']\\nTypeError: can only concatenate str (not \"int\") to str'\nassert deepest_line(tb) == 2",
+              "visible": true,
+              "label": "Deepest frame is line 2",
+              "label_tr": "En derin çerçeve 2. satır"
+            },
+            {
+              "code": "assert deepest_line('Traceback (most recent call last):\\n  File \"main.py\", line 14, in <module>\\n    x()\\nNameError: name \\'x\\' is not defined') == 14",
+              "visible": true,
+              "label": "A single frame",
+              "label_tr": "Tek çerçeve"
+            },
+            {
+              "code": "t = 'Traceback (most recent call last):\\n  File \"a.py\", line 120, in <module>\\n    run()\\n  File \"a.py\", line 37, in run\\n    go()\\nTypeError: boom'\nassert deepest_line(t) == 37",
+              "visible": false,
+              "failure_message": "Use the last File line and convert its number with int().",
+              "failure_message_tr": "Son File satırını kullan ve numarasını int() ile çevir."
+            },
+            {
+              "code": "t = '  File \"x.py\", line 5, in f\\n    y = \"  File \"\\nValueError: z'\nassert deepest_line(t) == 5",
+              "visible": false,
+              "failure_message": "Only lines that start with '  File ' count.",
+              "failure_message_tr": "Yalnızca '  File ' ile başlayan satırlar sayılır."
+            }
+          ],
+          "hints": [
+            "Split the text into lines with .split('\\n') and keep the ones that start with '  File '.",
+            "In the last of them, the number sits between 'line ' and the next comma.",
+            "last.split('line ')[1].split(',')[0] gives the digits; wrap it in int()."
+          ],
+          "hints_tr": [
+            "Metni .split('\\n') ile satırlara böl ve '  File ' ile başlayanları tut.",
+            "Bunların sonuncusunda numara 'line ' ile sonraki virgül arasındadır.",
+            "last.split('line ')[1].split(',')[0] rakamları verir; onu int() içine al."
+          ],
+          "solution": {
+            "approach": "The frames are listed top to bottom, so the last File line is the deepest call; string splitting extracts its number.",
+            "approach_tr": "Çerçeveler yukarıdan aşağı listelenir; son File satırı en derindeki çağrıdır, string bölme de onun numarasını çıkarır.",
+            "code": "def deepest_line(traceback_text):\n    frames = [l for l in traceback_text.split('\\n') if l.startswith('  File ')]\n    last = frames[-1]\n    return int(last.split('line ')[1].split(',')[0])"
+          },
+          "twin": "d15-b1-e6"
+        },
+        {
+          "id": "d15-b1-e8",
+          "type": "explain",
+          "prompt": "A traceback has five lines of File and code, and a last line 'KeyError: 'email''. Explain in your own words how you read it and where you look first.",
+          "prompt_tr": "Bir hata izinde beş satır File ve kod var, son satır da 'KeyError: 'email''. Onu nasıl okuduğunu ve önce nereye baktığını kendi cümlelerinle açıkla.",
+          "model_answer": "I read it from the bottom up. The last line says it is a KeyError and the missing key is 'email'. The frame just above it shows the file and line where my code asked for that key, so I look there first and check whether the dict really has that key.",
+          "model_answer_tr": "Onu aşağıdan yukarı okurum. Son satır bunun bir KeyError olduğunu ve eksik anahtarın 'email' olduğunu söyler. Hemen üstündeki çerçeve, kodumun o anahtarı istediği dosyayı ve satırı gösterir; önce oraya bakar ve dict'te o anahtarın gerçekten olup olmadığını kontrol ederim.",
+          "keywords": [
+            "bottom",
+            "last line",
+            "KeyError"
+          ],
+          "keywords_tr": [
+            "aşağıdan",
+            "son satır",
+            "KeyError"
+          ],
+          "min_words": 16
         }
-      ],
-      "concept_tr": "Python'da hatanın bir adı vardır: NameError, SyntaxError, ImportError, AttributeError... Adı okumak, nerede yanlış yaptığını anlamanın ilk adımıdır."
+      ]
     },
     {
       "id": "d15-b2",
-      "concept": "index-and-key-errors",
+      "concept": "name-attribute-import",
+      "concept_tr": "NameError o isimde bir etiket olmadığını, AttributeError nesnede o parçanın olmadığını (çoğu zaman sürpriz bir None), ModuleNotFoundError modülün, ImportError ise modül içindeki ismin bulunamadığını söyler.",
       "tags": [
         "errors",
-        "lists",
-        "dictionaries"
+        "NameError",
+        "AttributeError",
+        "ImportError"
       ],
       "worked_example": {
-        "code": "numbers = [1, 2, 3]\nuser = {'name': 'Asab'}\nprint(numbers[-1])\nprint('country' in user)\nprint(len(numbers))",
+        "code": "from math import pow\n\nscores = [70, 95, 80]\nscores.sort()\nprint(scores)\nprint(pow(2, 5))\n\ntry:\n    ranked = scores.sort()\n    ranked.append(100)\nexcept Exception as e:\n    print(type(e).__name__, e)",
         "notes": [
-          "Valid indexes of a list with 3 items are 0, 1, 2 (and -1, -2, -3).",
-          "You can avoid a KeyError by checking 'key in dictionary' first."
+          "from math import pow works because math really has a name pow; asking for power would raise ImportError.",
+          "scores.sort() sorts the list in place and returns None, so calling it on its own line is the right way to use it.",
+          "ranked = scores.sort() attaches ranked to None, and the next line fails with AttributeError: 'NoneType' object has no attribute 'append'."
         ],
         "notes_tr": [
-          "3 elemanlı bir listenin geçerli indeksleri 0, 1, 2'dir (ve -1, -2, -3).",
-          "'anahtar in sözlük' ile bakarak KeyError'dan kaçınabilirsin."
+          "from math import pow çalışır, çünkü math'te gerçekten pow adında bir isim vardır; power istemek ImportError verirdi.",
+          "scores.sort() list'i yerinde sıralar ve None döndürür; bu yüzden onu kendi satırında çağırmak doğru kullanımdır.",
+          "ranked = scores.sort() ranked'i None'a bağlar ve sonraki satır AttributeError: 'NoneType' object has no attribute 'append' ile patlar."
         ]
       },
       "exercises": [
         {
           "id": "d15-b2-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "def error_name(code):\n    try:\n        exec(code, globals())\n    except Exception as e:\n        return type(e).__name__\n    return 'no error'\n\nnumbers = [1, 2, 3, 4, 5]\nuser = {'name': 'Asab', 'country': 'Finland'}\nprint(error_name(\"numbers[5]\"))\nprint(error_name(\"user['county']\"))\nprint(error_name(\"numbers[4]\"))\nprint(error_name(\"numbers[-6]\"))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "city = 'İzmir'\ntry:\n    print(city)\n    print('city')\n    print(City)\nexcept Exception as e:\n    print(type(e).__name__)",
           "choices": [
-            "IndexError\nKeyError\n5\nIndexError",
-            "IndexError\nKeyError\nno error\nno error",
-            "IndexError\nKeyError\nno error\nIndexError"
+            "İzmir\ncity\nİzmir",
+            "İzmir\nİzmir\nNameError",
+            "İzmir\ncity\nAttributeError",
+            "İzmir\ncity\nNameError"
           ],
-          "expected_output": "IndexError\nKeyError\nno error\nIndexError",
-          "explanation": "numbers has indexes 0 to 4, so numbers[5] is an IndexError. 'county' is a typo for 'country' -> KeyError. numbers[4] is fine. numbers[-6] counts from the end and also runs out of items -> IndexError.",
+          "expected_output": "İzmir\ncity\nNameError",
+          "explanation": "city exists, 'city' in quotes is a string literal, and City does not exist, which raises NameError.",
+          "explanation_tr": "city vardır, tırnak içindeki 'city' bir string'tir, City ise yoktur ve NameError verir.",
           "misconceptions": {
-            "IndexError\nKeyError\n5\nIndexError": "numbers[4] is the last item and works fine: error_name returns 'no error', not the value.",
-            "IndexError\nKeyError\nno error\nno error": "Negative indexes also have a limit: -6 is outside a list of 5 items."
+            "İzmir\ncity\nİzmir": "Names are case-sensitive: City is a different, undefined name.",
+            "İzmir\nİzmir\nNameError": "With quotes, 'city' is just a string, so it prints the word city.",
+            "İzmir\ncity\nAttributeError": "A missing plain name is a NameError; AttributeError is about a missing part after a dot."
           },
-          "explanation_tr": "numbers'ın indeksleri 0'dan 4'e kadar, yani numbers[5] IndexError verir. 'county', 'country' kelimesinin yanlış yazımı -> KeyError. numbers[4] sorunsuzdur. numbers[-6] sondan sayar ve o da elemanı yetmez -> IndexError.",
           "misconceptions_tr": {
-            "IndexError\nKeyError\n5\nIndexError": "numbers[4] son elemandır ve sorunsuz çalışır: error_name değeri değil 'no error' döndürür.",
-            "IndexError\nKeyError\nno error\nno error": "Negatif indekslerin de sınırı var: 5 elemanlı listede -6 dışarıda kalır."
+            "İzmir\ncity\nİzmir": "İsimler büyük-küçük harfe duyarlıdır: City farklı ve tanımsız bir isimdir.",
+            "İzmir\nİzmir\nNameError": "Tırnaklı 'city' sadece bir string'tir; city kelimesini yazdırır.",
+            "İzmir\ncity\nAttributeError": "Eksik düz bir isim NameError'dır; AttributeError noktadan sonra eksik bir parça ile ilgilidir."
           }
         },
         {
           "id": "d15-b2-e2",
-          "type": "fill_blank",
-          "prompt": "Fix the two lookups: use the key that exists and the index of the last item.",
-          "prompt_tr": "İki erişimi düzeltin: var olan anahtarı ve son öğenin indeksini kullanın.",
-          "starter_code": "user = {'name': 'Asab', 'age': 250, 'country': 'Finland'}\nnumbers = [1, 2, 3, 4, 5]\nvalue = user['___']\nlast = numbers[___]\nprint(value, last)",
-          "blanks": [
-            {
-              "answer": [
-                "country"
-              ]
-            },
-            {
-              "answer": [
-                "4"
-              ]
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "import math\ntry:\n    print(round(math.pi, 2))\n    print(math.PI)\nexcept Exception as e:\n    print(type(e).__name__)",
+          "choices": [
+            "3.14\nAttributeError",
+            "3.14\n3.14",
+            "3.14\nNameError",
+            "3.14\nImportError"
           ],
-          "tests": [
-            {
-              "code": "assert value == 'Finland'",
-              "visible": true,
-              "label_tr": "value 'Finland' olmalı"
-            },
-            {
-              "code": "assert last == 5",
-              "visible": true,
-              "label_tr": "last 5 olmalı"
-            }
-          ],
-          "hints": [
-            "Compare with the keys of the dictionary: name, age, country.",
-            "A list with 5 items ends at index 4 (or -1)."
-          ],
-          "hints_tr": [
-            "Sözlüğün anahtarlarıyla karşılaştır: name, age, country.",
-            "5 elemanlı bir liste 4. indekste (ya da -1'de) biter."
-          ]
+          "expected_output": "3.14\nAttributeError",
+          "explanation": "math.pi exists and rounds to 3.14; math.PI does not exist, which raises AttributeError.",
+          "explanation_tr": "math.pi vardır ve 3.14'e yuvarlanır; math.PI yoktur ve AttributeError verir.",
+          "misconceptions": {
+            "3.14\n3.14": "Attribute names are case-sensitive; math has pi but not PI.",
+            "3.14\nNameError": "The name math exists; a missing part of an object is an AttributeError.",
+            "3.14\nImportError": "The import succeeded; the problem is the missing attribute PI."
+          },
+          "misconceptions_tr": {
+            "3.14\n3.14": "Nitelik adları büyük-küçük harfe duyarlıdır; math'te pi var, PI yok.",
+            "3.14\nNameError": "math ismi vardır; bir nesnenin eksik parçası AttributeError'dır.",
+            "3.14\nImportError": "import başarılı oldu; sorun eksik PI niteliğidir."
+          }
         },
         {
           "id": "d15-b2-e3",
-          "type": "write",
-          "prompt": "Write last_item(items) that returns the last item of a list, or None if the list is empty (so it never raises an IndexError).",
-          "prompt_tr": "Listenin son öğesini döndüren, liste boşsa None döndüren last_item(items) yazın (hiçbir zaman IndexError vermesin).",
-          "starter_code": "",
-          "signature": "def last_item(items):",
+          "type": "fill_blank",
+          "prompt": "Fix the import so the program prints 8.0 and 3.0: math has pow and sqrt, not power and root.",
+          "prompt_tr": "Program 8.0 ve 3.0 yazdırsın diye import'u düzelt: math'te power ve root değil, pow ve sqrt var.",
+          "starter_code": "from math import ___, ___\n\nprint(pow(2, 3))\nprint(sqrt(9))",
+          "blanks": [
+            {
+              "answer": [
+                "pow"
+              ]
+            },
+            {
+              "answer": [
+                "sqrt"
+              ]
+            }
+          ],
           "tests": [
             {
-              "code": "assert last_item([1, 2, 3]) == 3",
+              "code": "assert __stdout__.split() == ['8.0', '3.0']",
               "visible": true,
-              "label_tr": "last_item([1, 2, 3]) 3 veriyor"
-            },
-            {
-              "code": "assert last_item(['Finland']) == 'Finland'",
-              "visible": true,
-              "label_tr": "last_item(['Finland']) 'Finland' veriyor"
-            },
-            {
-              "code": "assert last_item([]) is None",
-              "visible": false,
-              "failure_message": "For an empty list return None instead of indexing.",
-              "failure_message_tr": "Boş listede indekslemek yerine None döndür."
-            },
-            {
-              "code": "assert last_item([0]) == 0",
-              "visible": false,
-              "failure_message": "A last item of 0 is still an item: check the length, not the truthiness of the item.",
-              "failure_message_tr": "Son eleman 0 olsa da bir elemandır: elemanın doğruluğuna değil, uzunluğa bak."
-            },
-            {
-              "code": "assert last_item(['a', 'b']) == 'b'",
-              "visible": false,
-              "failure_message": "The last item is at index -1.",
-              "failure_message_tr": "Son eleman -1 indeksindedir."
-            },
-            {
-              "code": "assert last_item([4, 8, 15, 16, 23, 42]) == 42",
-              "visible": false,
-              "failure_message": "Read the last item of the list given; do not hard-code results.",
-              "failure_message_tr": "Verilen listenin son elemanını oku; sonuçları elle yazma."
+              "label": "Prints 8.0 and 3.0",
+              "label_tr": "8.0 ve 3.0 yazdırıyor"
             }
           ],
           "hints": [
-            "What is len(items) for an empty list?",
-            "Check the length before you index.",
-            "if len(items) == ___: return None (then return the last item with a negative index)"
+            "Look at the names the two print lines call.",
+            "Each blank is one of those names, exactly as math spells it.",
+            "pow and sqrt."
           ],
-          "solution": {
-            "approach": "Check for an empty list first, then use index -1.",
-            "code": "def last_item(items):\n    if len(items) == 0:\n        return None\n    return items[-1]",
-            "approach_tr": "Önce listenin boş olup olmadığına bak, sonra -1 indeksini kullan."
-          },
-          "twin": "d15-b2-e4",
           "hints_tr": [
-            "Boş bir liste için len(items) kaçtır?",
-            "İndekslemeden önce uzunluğa bak.",
-            "if len(items) == ___: return None (sonra son elemanı negatif bir indeksle döndür)"
+            "İki print satırının çağırdığı isimlere bak.",
+            "Her boşluk bu isimlerden biri, tam olarak math'in yazdığı gibi.",
+            "pow ve sqrt."
           ]
         },
         {
           "id": "d15-b2-e4",
-          "type": "write",
-          "prompt": "Write get_value(data, key) that returns data[key] if the key exists, and the string 'unknown' if it does not (so it never raises a KeyError).",
-          "prompt_tr": "Anahtar varsa data[key] değerini, yoksa 'unknown' string'ini döndüren get_value(data, key) yazın (hiçbir zaman KeyError vermesin).",
-          "starter_code": "",
-          "signature": "def get_value(data, key):",
+          "type": "debug",
+          "prompt": "top_three should return the three highest scores, highest first. The program crashes with TypeError: 'NoneType' object is not subscriptable. Fix the function.",
+          "prompt_tr": "top_three en yüksek üç notu büyükten küçüğe döndürmeli. Program TypeError: 'NoneType' object is not subscriptable ile çöküyor. Fonksiyonu düzelt.",
+          "starter_code": "def top_three(scores):\n    ordered = scores.sort(reverse=True)\n    return ordered[:3]\n\nprint(top_three([55, 90, 72, 88, 61]))",
           "tests": [
             {
-              "code": "assert get_value({'country': 'Finland'}, 'country') == 'Finland'",
+              "code": "assert top_three([55, 90, 72, 88, 61]) == [90, 88, 72]",
               "visible": true,
-              "label_tr": "Var olan 'country' anahtarı için 'Finland' dönüyor"
+              "label": "The three highest, highest first",
+              "label_tr": "En yüksek üç not, büyükten küçüğe"
             },
             {
-              "code": "assert get_value({'country': 'Finland'}, 'county') == 'unknown'",
-              "visible": true,
-              "label_tr": "Olmayan 'county' anahtarı için 'unknown' dönüyor"
-            },
-            {
-              "code": "assert get_value({}, 'name') == 'unknown'",
+              "code": "s = [3, 1, 2]; top_three(s); assert s == [3, 1, 2]",
               "visible": false,
-              "failure_message": "An empty dictionary has no keys: return 'unknown'.",
-              "failure_message_tr": "Boş sözlükte anahtar yoktur: 'unknown' döndür."
+              "failure_message": "Do not change the caller's list: use sorted(), which returns a new list.",
+              "failure_message_tr": "Çağıranın list'ini değiştirme: yeni bir list döndüren sorted()'ı kullan."
             },
             {
-              "code": "assert get_value({'age': 0}, 'age') == 0",
+              "code": "assert top_three([5]) == [5] and top_three([]) == []",
               "visible": false,
-              "failure_message": "A stored value of 0 must be returned, not replaced by 'unknown'.",
-              "failure_message_tr": "Saklanan 0 değeri döndürülmeli, 'unknown' ile değiştirilmemeli."
-            },
-            {
-              "code": "assert get_value({'a': None}, 'a') is None",
-              "visible": false,
-              "failure_message": "If the key exists with the value None, return None.",
-              "failure_message_tr": "Anahtar varsa ve değeri None ise None döndür."
-            },
-            {
-              "code": "assert get_value({'x': 1, 'y': 2}, 'y') == 2 and get_value({'x': 1}, 'z') == 'unknown'",
-              "visible": false,
-              "failure_message": "Look the key up in the dictionary given; do not hard-code results.",
-              "failure_message_tr": "Anahtarı verilen sözlükte ara; sonuçları elle yazma."
+              "failure_message": "Short lists must work too.",
+              "failure_message_tr": "Kısa list'ler de çalışmalı."
             }
           ],
           "hints": [
-            "The in operator works on dictionary keys.",
-            "Test the key first, and read it only when it is there.",
-            "if key ___ data: return data[key] (which operator tests membership?), otherwise return 'unknown'"
+            "'NoneType' object is not subscriptable: which variable is None?",
+            "list.sort() sorts in place and returns None.",
+            "Use sorted(scores, reverse=True), which returns a new sorted list."
+          ],
+          "hints_tr": [
+            "'NoneType' object is not subscriptable: hangi değişken None?",
+            "list.sort() yerinde sıralar ve None döndürür.",
+            "Yeni sıralı bir list döndüren sorted(scores, reverse=True) kullan."
           ],
           "solution": {
-            "approach": "Test membership with 'in' before reading the key.",
-            "code": "def get_value(data, key):\n    if key in data:\n        return data[key]\n    return 'unknown'",
-            "approach_tr": "Anahtarı okumadan önce 'in' ile üyeliğini test et."
-          },
-          "twin": "d15-b2-e3",
+            "approach": "sort() returned None into ordered. sorted() returns a new list, which also leaves the caller's list untouched.",
+            "approach_tr": "sort() ordered'a None döndürüyordu. sorted() yeni bir list döndürür; bu, çağıranın list'ine de dokunmaz.",
+            "code": "def top_three(scores):\n    ordered = sorted(scores, reverse=True)\n    return ordered[:3]\n\nprint(top_three([55, 90, 72, 88, 61]))"
+          }
+        },
+        {
+          "id": "d15-b2-e5",
+          "type": "modify",
+          "prompt": "This program has two NameErrors waiting: a misspelled variable and a city written without quotes. Fix both so it prints 'Toplam: 3 şehir, ilk: Ankara'.",
+          "prompt_tr": "Bu programda bekleyen iki NameError var: yanlış yazılmış bir değişken ve tırnaksız yazılmış bir şehir. İkisini de düzelt; program 'Toplam: 3 şehir, ilk: Ankara' yazdırsın.",
+          "starter_code": "cities = [Ankara, 'İzmir', 'Van']\ncount = len(cities)\nprint(f'Toplam: {cuont} şehir, ilk: {cities[0]}')",
+          "expected_output": "Toplam: 3 şehir, ilk: Ankara",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Toplam: 3 şehir, ilk: Ankara'",
+              "visible": true,
+              "label": "Prints the full sentence",
+              "label_tr": "Tam cümleyi yazdırıyor"
+            },
+            {
+              "code": "assert cities == ['Ankara', 'İzmir', 'Van']",
+              "visible": true,
+              "label": "cities holds three strings",
+              "label_tr": "cities üç string tutuyor"
+            },
+            {
+              "code": "assert count == 3 and '{count}' in __source__",
+              "visible": false,
+              "failure_message": "Use the variable count in the f-string.",
+              "failure_message_tr": "f-string'te count değişkenini kullan."
+            }
+          ],
+          "hints": [
+            "Run it: the first NameError names Ankara. Why does Python think it is a variable?",
+            "After fixing that, the next NameError suggests the correct spelling.",
+            "Add quotes around Ankara and write count in the f-string."
+          ],
           "hints_tr": [
-            "in operatörü sözlük anahtarlarında da çalışır.",
-            "Önce anahtarı test et, ancak varsa oku.",
-            "if key ___ data: return data[key] (üyelik testi için hangi operatör?), yoksa 'unknown' döndür"
-          ]
+            "Çalıştır: ilk NameError Ankara'yı söylüyor. Python neden onu bir değişken sanıyor?",
+            "Onu düzelttikten sonra sıradaki NameError doğru yazımı öneriyor.",
+            "Ankara'nın etrafına tırnak koy ve f-string'e count yaz."
+          ],
+          "solution": {
+            "approach": "Without quotes, Ankara is a name lookup; the second NameError was a typo that Python's Did you mean hint points out.",
+            "approach_tr": "Tırnaksız Ankara bir isim aramasıdır; ikinci NameError ise Python'ın Did you mean ipucunun gösterdiği bir yazım hatasıydı.",
+            "code": "cities = ['Ankara', 'İzmir', 'Van']\ncount = len(cities)\nprint(f'Toplam: {count} şehir, ilk: {cities[0]}')"
+          }
+        },
+        {
+          "id": "d15-b2-e6",
+          "type": "write",
+          "prompt": "Write a function method_exists(obj, name) that returns True if the object has an attribute with that exact name (use dir) and False otherwise. Example: method_exists('ali', 'upper') returns True and method_exists('ali', 'uppercase') returns False.",
+          "prompt_tr": "method_exists(obj, name) fonksiyonunu yaz: nesnenin tam olarak o isimde bir niteliği varsa (dir kullan) True, yoksa False döndürsün. Örnek: method_exists('ali', 'upper') True, method_exists('ali', 'uppercase') False döndürür.",
+          "starter_code": "",
+          "signature": "def method_exists(obj, name):",
+          "tests": [
+            {
+              "code": "assert method_exists('ali', 'upper') is True",
+              "visible": true,
+              "label": "str has upper",
+              "label_tr": "str'de upper var"
+            },
+            {
+              "code": "assert method_exists('ali', 'uppercase') is False",
+              "visible": true,
+              "label": "str has no uppercase",
+              "label_tr": "str'de uppercase yok"
+            },
+            {
+              "code": "import math\nassert method_exists(math, 'pi') is True and method_exists(math, 'PI') is False",
+              "visible": false,
+              "failure_message": "Names are case-sensitive.",
+              "failure_message_tr": "İsimler büyük-küçük harfe duyarlıdır."
+            },
+            {
+              "code": "assert method_exists([], 'append') is True and method_exists([], 'push') is False",
+              "visible": false,
+              "failure_message": "Check any object, not only strings.",
+              "failure_message_tr": "Yalnızca string'leri değil, her nesneyi kontrol et."
+            }
+          ],
+          "hints": [
+            "dir(obj) returns a list of every attribute name of obj.",
+            "The in operator checks whether a value is in a list.",
+            "return name in ___"
+          ],
+          "hints_tr": [
+            "dir(obj), obj'nin bütün nitelik adlarının bir list'ini döndürür.",
+            "in operatörü bir değerin bir list'te olup olmadığını kontrol eder.",
+            "return name in ___"
+          ],
+          "solution": {
+            "approach": "dir lists the attributes and in gives a bool, so the check needs no try at all.",
+            "approach_tr": "dir nitelikleri listeler, in de bir bool verir; bu kontrol hiç try gerektirmez.",
+            "code": "def method_exists(obj, name):\n    return name in dir(obj)"
+          },
+          "twin": "d15-b2-e7"
+        },
+        {
+          "id": "d15-b2-e7",
+          "type": "write",
+          "prompt": "Write a function suggest_name(wrong, names) that returns the first name in names that equals wrong when both are lowercased, or None. This mimics Python's 'Did you mean' for case mistakes. Example: suggest_name('PI', ['e', 'pi', 'tau']) returns 'pi'.",
+          "prompt_tr": "suggest_name(wrong, names) fonksiyonunu yaz: names içinde, ikisi de küçültüldüğünde wrong'a eşit olan ilk ismi, yoksa None döndürsün. Bu, Python'ın büyük-küçük harf hataları için verdiği 'Did you mean' önerisini taklit eder. Örnek: suggest_name('PI', ['e', 'pi', 'tau']) 'pi' döndürür.",
+          "starter_code": "",
+          "signature": "def suggest_name(wrong, names):",
+          "tests": [
+            {
+              "code": "assert suggest_name('PI', ['e', 'pi', 'tau']) == 'pi'",
+              "visible": true,
+              "label": "PI suggests pi",
+              "label_tr": "PI için pi öneriliyor"
+            },
+            {
+              "code": "assert suggest_name('xyz', ['a', 'b']) is None",
+              "visible": true,
+              "label": "No match gives None",
+              "label_tr": "Eşleşme yoksa None"
+            },
+            {
+              "code": "assert suggest_name('count', ['Count', 'COUNT']) == 'Count'",
+              "visible": false,
+              "failure_message": "Return the first match in the order of names.",
+              "failure_message_tr": "names sırasındaki ilk eşleşmeyi döndür."
+            },
+            {
+              "code": "assert suggest_name('Upper', ['lower', 'upper']) == 'upper' and suggest_name('a', []) is None",
+              "visible": false,
+              "failure_message": "Compare lowercase versions of both sides.",
+              "failure_message_tr": "İki tarafın da küçük harfli hâllerini karşılaştır."
+            }
+          ],
+          "hints": [
+            "Loop over names and compare n.lower() with wrong.lower().",
+            "Return the name as soon as it matches; that also gives you the first match.",
+            "After the loop, return None."
+          ],
+          "hints_tr": [
+            "names üzerinde döngü kur ve n.lower()'ı wrong.lower() ile karşılaştır.",
+            "İsim eşleştiği anda onu döndür; bu sana ilk eşleşmeyi de verir.",
+            "Döngüden sonra None döndür."
+          ],
+          "solution": {
+            "approach": "An early return inside the loop gives the first match; reaching the end means there was none.",
+            "approach_tr": "Döngü içindeki erken return ilk eşleşmeyi verir; sona ulaşmak hiç eşleşme olmadığı anlamına gelir.",
+            "code": "def suggest_name(wrong, names):\n    for n in names:\n        if n.lower() == wrong.lower():\n            return n\n    return None"
+          },
+          "twin": "d15-b2-e6"
         }
-      ],
-      "concept_tr": "IndexError, listede olmayan bir sıraya; KeyError ise sözlükte olmayan bir anahtara ulaşmaya çalışınca olur."
+      ]
     },
     {
       "id": "d15-b3",
-      "concept": "type-value-zerodivision-errors",
+      "concept": "index-and-key-errors",
+      "concept_tr": "IndexError o konumda eleman, KeyError o anahtar olmadığını söyler; elemanlar üzerinde döngü kurmak, len kontrolü, in ve .get(anahtar, varsayılan) bu hataları önler.",
       "tags": [
         "errors",
-        "type-conversion"
+        "IndexError",
+        "KeyError",
+        "dicts",
+        "interleaving"
       ],
       "worked_example": {
-        "code": "print(4 + int('3'))\nprint(int('12') / 4)\nprint(str(4) + '3')",
+        "code": "names = ['Ada', 'Can']\nconfig = {'theme': 'dark'}\n\nfor name in names:\n    print(name)\nlast = names[-1] if names else None\nprint(last, len(names))\nprint(config.get('language', 'tr'))\nprint('theme' in config, 'font' in config)",
         "notes": [
-          "TypeError: you cannot mix a number and a string in +; convert one of them.",
-          "ValueError: the type is right but the content cannot be converted. ZeroDivisionError: dividing by 0."
+          "Looping over the items themselves can never go past the end, unlike a hand-written range(len(names) + 1).",
+          "names[-1] reads the last item, and the conditional expression protects it against an empty list, where any index would raise IndexError.",
+          "config.get('language', 'tr') returns the default instead of raising KeyError, and in answers whether a key exists before you read it."
         ],
         "notes_tr": [
-          "TypeError: + ile sayı ve string'i karıştıramazsın; birini dönüştür.",
-          "ValueError: tip doğru ama içerik dönüştürülemiyor. ZeroDivisionError: 0'a bölme."
+          "Elemanların kendisi üzerinde döngü kurmak, elle yazılmış bir range(len(names) + 1) gibi asla sonu aşamaz.",
+          "names[-1] son elemanı okur; koşullu ifade onu, her indeksin IndexError vereceği boş bir list'e karşı korur.",
+          "config.get('language', 'tr') KeyError vermek yerine varsayılanı döndürür; in ise bir anahtarın var olup olmadığını okumadan önce yanıtlar."
         ]
       },
       "exercises": [
         {
           "id": "d15-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "def error_name(code):\n    try:\n        exec(code, globals())\n    except Exception as e:\n        return type(e).__name__\n    return 'no error'\n\nprint(error_name(\"4 + '3'\"))\nprint(error_name(\"int('12a')\"))\nprint(error_name(\"1 / 0\"))\nprint(error_name(\"4 + int('3')\"))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "prices = {'çay': 15, 'simit': 20}\norder = ['çay', 'kahve', 'simit']\ntotal = 0\nfor item in order:\n    total += prices.get(item, 0)\nprint(total)",
           "choices": [
-            "ValueError\nTypeError\nZeroDivisionError\nno error",
-            "TypeError\nValueError\nValueError\nno error",
-            "TypeError\nValueError\nZeroDivisionError\nno error"
+            "KeyError",
+            "35",
+            "15",
+            "None"
           ],
-          "expected_output": "TypeError\nValueError\nZeroDivisionError\nno error",
-          "explanation": "4 + '3' mixes types -> TypeError. int('12a') has the right type (str) but the wrong content -> ValueError. 1 / 0 -> ZeroDivisionError. 4 + int('3') converts first, so nothing goes wrong.",
+          "expected_output": "35",
+          "explanation": "çay adds 15, kahve is missing and adds the default 0, simit adds 20: total 35.",
+          "explanation_tr": "çay 15 ekler, kahve yoktur ve varsayılan 0'ı ekler, simit 20 ekler: toplam 35.",
           "misconceptions": {
-            "ValueError\nTypeError\nZeroDivisionError\nno error": "'int and str' in + is a TypeError; the problem with int('12a') is the CONTENT of the string, which is a ValueError.",
-            "TypeError\nValueError\nValueError\nno error": "Dividing by zero has its own error: ZeroDivisionError."
+            "KeyError": "get never raises for a missing key; it returns the default 0.",
+            "15": "The loop continues after kahve and also adds simit.",
+            "None": "The default value 0 is added for kahve, so the total stays a number."
           },
-          "explanation_tr": "4 + '3' tipleri karıştırır -> TypeError. int('12a') tip olarak doğru (str) ama içerik yanlış -> ValueError. 1 / 0 -> ZeroDivisionError. 4 + int('3') önce dönüştürür, sorun çıkmaz.",
           "misconceptions_tr": {
-            "ValueError\nTypeError\nZeroDivisionError\nno error": "+ içinde 'int ve str' karışması TypeError'dır; int('12a')'daki sorun string'in İÇERİĞİDİR, o da ValueError.",
-            "TypeError\nValueError\nValueError\nno error": "0'a bölmenin kendi hatası var: ZeroDivisionError."
+            "KeyError": "get eksik bir anahtar için asla hata vermez; varsayılan 0'ı döndürür.",
+            "15": "Döngü kahve'den sonra devam eder ve simit'i de ekler.",
+            "None": "kahve için varsayılan değer 0 eklenir; toplam bir sayı olarak kalır."
           }
         },
         {
           "id": "d15-b3-e2",
-          "type": "parsons",
-          "prompt": "Order the lines so the number and the converted text are added without a TypeError.",
-          "prompt_tr": "Sayı ile dönüştürülmüş metnin TypeError olmadan toplanması için satırları sıralayın.",
-          "lines": [
-            "total = 4 + int(age_text)",
-            "print(total)",
-            "age_text = '3'"
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "data = [10, 20, 30]\nfor i in [0, 2, 3, -4]:\n    try:\n        print(data[i])\n    except Exception as e:\n        print(type(e).__name__)",
+          "choices": [
+            "10\n30\nIndexError\n30",
+            "10\n30\n30\n10",
+            "10\n20\nIndexError\nIndexError",
+            "10\n30\nIndexError\nIndexError"
           ],
-          "correct_order": [
-            2,
-            0,
-            1
-          ],
-          "distractors": [
-            "total = 4 + age_text"
-          ],
-          "expected_output": "7"
+          "expected_output": "10\n30\nIndexError\nIndexError",
+          "explanation": "Valid indexes are 0..2 and -1..-3. 0 gives 10, 2 gives 30, while 3 and -4 both raise IndexError.",
+          "explanation_tr": "Geçerli indeksler 0..2 ve -1..-3'tür. 0 10, 2 30 verir; 3 ve -4 ise ikisi de IndexError verir.",
+          "misconceptions": {
+            "10\n30\nIndexError\n30": "-4 is also out of range for a list of 3 items: valid negatives are -1 to -3.",
+            "10\n30\n30\n10": "Index 3 does not wrap around to the start; it raises IndexError.",
+            "10\n20\nIndexError\nIndexError": "Index 2 is the third item, 30."
+          },
+          "misconceptions_tr": {
+            "10\n30\nIndexError\n30": "-4 de 3 elemanlı bir list için aralık dışıdır: geçerli negatifler -1'den -3'e kadardır.",
+            "10\n30\n30\n10": "3 indeksi başa sarmaz; IndexError verir.",
+            "10\n20\nIndexError\nIndexError": "2 indeksi üçüncü elemandır, 30."
+          }
         },
         {
           "id": "d15-b3-e3",
-          "type": "write",
-          "prompt": "Write to_total(strings) that takes a list of numeric strings like ['1', '2', '3'] and returns the sum as an integer. Example: to_total(['1', '2', '3']) returns 6.",
-          "prompt_tr": "['1', '2', '3'] gibi sayısal string'lerden oluşan bir liste alıp toplamı tam sayı olarak döndüren to_total(strings) yazın. Örnek: to_total(['1', '2', '3']) sonucu 6 olur.",
-          "starter_code": "",
-          "signature": "def to_total(strings):",
-          "tests": [
-            {
-              "code": "assert to_total(['1', '2', '3']) == 6",
-              "visible": true,
-              "label_tr": "to_total(['1', '2', '3']) 6 veriyor"
-            },
-            {
-              "code": "assert to_total(['10']) == 10",
-              "visible": true,
-              "label_tr": "to_total(['10']) 10 veriyor"
-            },
-            {
-              "code": "assert to_total([]) == 0",
-              "visible": false,
-              "failure_message": "An empty list adds up to 0.",
-              "failure_message_tr": "Boş liste 0 eder."
-            },
-            {
-              "code": "assert to_total(['-5', '5']) == 0",
-              "visible": false,
-              "failure_message": "Negative numbers in strings must work too.",
-              "failure_message_tr": "String içindeki negatif sayılar da çalışmalı."
-            },
-            {
-              "code": "assert isinstance(to_total(['2', '3']), int)",
-              "visible": false,
-              "failure_message": "Convert each string with int() before adding; the result must be an int, not a string like '23'.",
-              "failure_message_tr": "Her string'i toplamadan önce int() ile çevir; sonuç '23' gibi bir string değil, int olmalı."
-            },
-            {
-              "code": "assert to_total(['100', '20', '3']) == 123",
-              "visible": false,
-              "failure_message": "Convert and add the strings given; do not hard-code results.",
-              "failure_message_tr": "Verilen string'leri çevirip topla; sonuçları elle yazma."
-            }
+          "type": "parsons",
+          "prompt": "Build safe_first(items) that returns the first item, or None for an empty list, and print it for []. One line is a distractor.",
+          "prompt_tr": "İlk elemanı, boş list için de None döndüren safe_first(items) fonksiyonunu kur ve [] için yazdır. Satırlardan biri çeldirici.",
+          "lines": [
+            "print(safe_first([]))",
+            "    if not items:",
+            "def safe_first(items):",
+            "    return items[0]",
+            "        return None"
           ],
-          "hints": [
-            "Strings cannot be added to an int: convert first.",
-            "Loop over the list and add the converted item to a running total.",
-            "total += ___(s) inside the loop (which function turns '3' into 3?)"
+          "correct_order": [
+            2,
+            1,
+            4,
+            3,
+            0
           ],
-          "solution": {
-            "approach": "Convert each item with int() before adding it to a running total.",
-            "code": "def to_total(strings):\n    total = 0\n    for s in strings:\n        total += int(s)\n    return total",
-            "approach_tr": "Her elemanı toplama eklemeden önce int() ile dönüştür."
-          },
-          "twin": "d15-b3-e4",
-          "hints_tr": [
-            "String'ler int'e eklenemez: önce dönüştür.",
-            "Listede dolaş ve dönüştürülmüş elemanı bir toplama ekle.",
-            "Döngünün içinde total += ___(s) (hangi fonksiyon '3'ü 3'e çevirir?)"
-          ]
+          "distractors": [
+            "    return items[1]"
+          ],
+          "expected_output": "None"
         },
         {
           "id": "d15-b3-e4",
+          "type": "debug",
+          "prompt": "print_all should print every name once, numbered from 1. It prints them and then crashes with IndexError. Fix the loop.",
+          "prompt_tr": "print_all her ismi 1'den başlayarak numaralandırıp birer kez yazdırmalı. İsimleri yazdırıyor, sonra IndexError ile çöküyor. Döngüyü düzelt.",
+          "starter_code": "def print_all(names):\n    for i in range(len(names) + 1):\n        print(i + 1, names[i])\n\nprint_all(['Ada', 'Can', 'Ece'])",
+          "expected_output": "1 Ada\n2 Can\n3 Ece",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip().split('\\n') == ['1 Ada', '2 Can', '3 Ece']",
+              "visible": true,
+              "label": "Three numbered lines",
+              "label_tr": "Numaralı üç satır"
+            }
+          ],
+          "hints": [
+            "How many indexes does a list of 3 names have, and which ones?",
+            "range(len(names) + 1) produces one index too many.",
+            "Loop over range(len(names)) instead."
+          ],
+          "hints_tr": [
+            "3 isimlik bir list'in kaç indeksi vardır ve hangileri?",
+            "range(len(names) + 1) bir indeks fazla üretir.",
+            "Bunun yerine range(len(names)) üzerinde döngü kur."
+          ],
+          "solution": {
+            "approach": "Indexes stop at len(names) - 1; the + 1 made the loop ask for a fourth item.",
+            "approach_tr": "İndeksler len(names) - 1'de biter; + 1 döngünün dördüncü bir eleman istemesine yol açtı.",
+            "code": "def print_all(names):\n    for i in range(len(names)):\n        print(i + 1, names[i])\n\nprint_all(['Ada', 'Can', 'Ece'])"
+          }
+        },
+        {
+          "id": "d15-b3-e5",
+          "type": "modify",
+          "prompt": "get_email(user) crashes with KeyError when the user has no 'email' key. Change it to return the email if present and 'e-posta yok' otherwise. Example: get_email({'name': 'Ada'}) returns 'e-posta yok'.",
+          "prompt_tr": "get_email(user), kullanıcının 'email' anahtarı yoksa KeyError ile çöküyor. Varsa e-postayı, yoksa 'e-posta yok' döndürecek şekilde değiştir. Örnek: get_email({'name': 'Ada'}) 'e-posta yok' döndürür.",
+          "starter_code": "def get_email(user):\n    return user['email']\n\nprint(get_email({'name': 'Ada'}))",
+          "signature": "def get_email(user):",
+          "tests": [
+            {
+              "code": "assert get_email({'name': 'Ada'}) == 'e-posta yok'",
+              "visible": true,
+              "label": "Missing email gives the default",
+              "label_tr": "E-posta yoksa varsayılan"
+            },
+            {
+              "code": "assert get_email({'email': 'ada@ornek.com'}) == 'ada@ornek.com'",
+              "visible": true,
+              "label": "Existing email is returned",
+              "label_tr": "Var olan e-posta döndürülüyor"
+            },
+            {
+              "code": "assert get_email({'Email': 'x'}) == 'e-posta yok'",
+              "visible": false,
+              "failure_message": "Keys are case-sensitive: only 'email' counts.",
+              "failure_message_tr": "Anahtarlar büyük-küçük harfe duyarlıdır: yalnızca 'email' sayılır."
+            },
+            {
+              "code": "assert get_email({'email': ''}) == ''",
+              "visible": false,
+              "failure_message": "An existing empty email is still returned as it is.",
+              "failure_message_tr": "Var olan boş bir e-posta yine olduğu gibi döndürülür."
+            }
+          ],
+          "hints": [
+            "Which dict method returns a default instead of raising KeyError?",
+            "Its second argument is the value to return for a missing key.",
+            "return user.get('email', ___)"
+          ],
+          "hints_tr": [
+            "Hangi dict metodu KeyError vermek yerine bir varsayılan döndürür?",
+            "İkinci argümanı, eksik anahtar için döndürülecek değerdir.",
+            "return user.get('email', ___)"
+          ],
+          "solution": {
+            "approach": ".get with a default handles an optional key; an existing value, even '', is returned unchanged.",
+            "approach_tr": "Varsayılanlı .get isteğe bağlı bir anahtarı ele alır; var olan bir değer, '' bile olsa, değişmeden döndürülür.",
+            "code": "def get_email(user):\n    return user.get('email', 'e-posta yok')\n\nprint(get_email({'name': 'Ada'}))"
+          }
+        },
+        {
+          "id": "d15-b3-e6",
           "type": "write",
-          "prompt": "Write safe_divide(a, b) that returns a / b, or None if b is 0 (so it never raises a ZeroDivisionError).",
-          "prompt_tr": "a / b sonucunu döndüren, b sıfırsa None döndüren safe_divide(a, b) yazın (hiçbir zaman ZeroDivisionError vermesin).",
+          "prompt": "Write a function item_at(items, index, default=None) that returns items[index] when index is a valid position (negative indexes allowed) and default otherwise, without using try. Example: item_at([1, 2, 3], 5, 0) returns 0 and item_at([1, 2, 3], -1) returns 3.",
+          "prompt_tr": "item_at(items, index, default=None) fonksiyonunu yaz: index geçerli bir konumsa (negatif indeksler dahil) items[index], değilse default döndürsün; try kullanma. Örnek: item_at([1, 2, 3], 5, 0) 0, item_at([1, 2, 3], -1) 3 döndürür.",
+          "starter_code": "",
+          "signature": "def item_at(items, index, default=None):",
+          "tests": [
+            {
+              "code": "assert item_at([1, 2, 3], 5, 0) == 0",
+              "visible": true,
+              "label": "Out of range gives the default",
+              "label_tr": "Aralık dışı varsayılanı veriyor"
+            },
+            {
+              "code": "assert item_at([1, 2, 3], -1) == 3",
+              "visible": true,
+              "label": "-1 is the last item",
+              "label_tr": "-1 son eleman"
+            },
+            {
+              "code": "assert item_at([1, 2, 3], 3) is None and item_at([1, 2, 3], -4) is None and item_at([1, 2, 3], -3) == 1",
+              "visible": false,
+              "failure_message": "Valid indexes are -len(items) to len(items) - 1.",
+              "failure_message_tr": "Geçerli indeksler -len(items) ile len(items) - 1 arasındadır."
+            },
+            {
+              "code": "assert item_at([], 0, 'boş') == 'boş' and item_at('abc', 1) == 'b'",
+              "visible": false,
+              "failure_message": "Empty sequences have no valid index; strings work too.",
+              "failure_message_tr": "Boş dizilerin geçerli indeksi yoktur; string'ler de çalışır."
+            },
+            {
+              "code": "assert 'try' not in __source__",
+              "visible": false,
+              "failure_message": "Check the range instead of using try.",
+              "failure_message_tr": "try yerine aralığı kontrol et."
+            }
+          ],
+          "hints": [
+            "A valid index i satisfies -len(items) <= i < len(items).",
+            "Python allows chained comparisons like a <= i < b.",
+            "if the condition holds return items[index], otherwise return default."
+          ],
+          "hints_tr": [
+            "Geçerli bir i indeksi -len(items) <= i < len(items) koşulunu sağlar.",
+            "Python a <= i < b gibi zincirli karşılaştırmalara izin verir.",
+            "Koşul sağlanıyorsa items[index], değilse default döndür."
+          ],
+          "solution": {
+            "approach": "One chained comparison covers both positive and negative indexes, so IndexError can never happen.",
+            "approach_tr": "Tek bir zincirli karşılaştırma hem pozitif hem negatif indeksleri kapsar; böylece IndexError asla oluşmaz.",
+            "code": "def item_at(items, index, default=None):\n    if -len(items) <= index < len(items):\n        return items[index]\n    return default"
+          },
+          "twin": "d15-b3-e7"
+        },
+        {
+          "id": "d15-b3-e7",
+          "type": "write",
+          "prompt": "Interleaving with Day 8 dicts: write a function order_total(order, prices) that returns a tuple (total, missing): total is the sum of prices[item] * qty for items that have a price, and missing is a list of items with no price, in order. order is a dict item -> qty. Example: order_total({'çay': 2, 'kek': 1}, {'çay': 15}) returns (30, ['kek']).",
+          "prompt_tr": "8. günün dict'leriyle tekrar: order_total(order, prices) fonksiyonunu yaz: (toplam, eksikler) tuple'ını döndürsün; toplam, fiyatı olan ürünler için prices[ürün] * adet toplamı, eksikler de fiyatı olmayan ürünlerin sıralı list'i olsun. order bir ürün -> adet dict'idir. Örnek: order_total({'çay': 2, 'kek': 1}, {'çay': 15}) (30, ['kek']) döndürür.",
+          "starter_code": "",
+          "signature": "def order_total(order, prices):",
+          "tests": [
+            {
+              "code": "assert order_total({'çay': 2, 'kek': 1}, {'çay': 15}) == (30, ['kek'])",
+              "visible": true,
+              "label": "One priced, one missing",
+              "label_tr": "Biri fiyatlı, biri eksik"
+            },
+            {
+              "code": "assert order_total({}, {'çay': 15}) == (0, [])",
+              "visible": true,
+              "label": "Empty order",
+              "label_tr": "Boş sipariş"
+            },
+            {
+              "code": "assert order_total({'a': 3, 'b': 2, 'c': 1}, {'a': 1.5, 'c': 10}) == (14.5, ['b'])",
+              "visible": false,
+              "failure_message": "Multiply by quantity and skip missing items without crashing.",
+              "failure_message_tr": "Adetle çarp ve eksik ürünleri çökmeden atla."
+            },
+            {
+              "code": "assert order_total({'x': 1, 'y': 1}, {}) == (0, ['x', 'y'])",
+              "visible": false,
+              "failure_message": "Keep the order of missing items as in the order dict.",
+              "failure_message_tr": "Eksik ürünlerin sırasını sipariş dict'indeki gibi tut."
+            }
+          ],
+          "hints": [
+            "Loop over order.items() to get each item and its quantity.",
+            "Use item in prices to decide between adding to the total and recording it as missing.",
+            "Start total = 0 and missing = [], and return both as a tuple after the loop."
+          ],
+          "hints_tr": [
+            "Her ürünü ve adedini almak için order.items() üzerinde döngü kur.",
+            "Toplama eklemek ile eksik olarak kaydetmek arasında item in prices ile karar ver.",
+            "total = 0 ve missing = [] ile başla, döngüden sonra ikisini tuple olarak döndür."
+          ],
+          "solution": {
+            "approach": "Checking with in before reading turns a would-be KeyError into a useful list of problems.",
+            "approach_tr": "Okumadan önce in ile kontrol etmek, olası bir KeyError'ı işe yarar bir sorun list'ine dönüştürür.",
+            "code": "def order_total(order, prices):\n    total = 0\n    missing = []\n    for item, qty in order.items():\n        if item in prices:\n            total += prices[item] * qty\n        else:\n            missing.append(item)\n    return total, missing"
+          },
+          "twin": "d15-b3-e6"
+        }
+      ]
+    },
+    {
+      "id": "d15-b4",
+      "concept": "type-value-zero-errors",
+      "concept_tr": "TypeError bir işlem için yanlış türü, ValueError doğru türde ama kullanılamayan değeri, ZeroDivisionError da sağ tarafta sıfırı anlatır; riskli satırdan önce türü çevirmek ve girdiyi kontrol etmek bunları önler.",
+      "tags": [
+        "errors",
+        "TypeError",
+        "ValueError",
+        "ZeroDivisionError"
+      ],
+      "worked_example": {
+        "code": "raw_age = '30'\nprint('Yaş: ' + raw_age)\nprint(int(raw_age) + 1)\nprint(f'Yaş: {int(raw_age)}')\n\ndef per_person(total, people):\n    if people == 0:\n        return 0\n    return total / people\n\nprint(per_person(120, 4), per_person(120, 0))",
+        "notes": [
+          "raw_age is a string, so it can be glued to other strings but must go through int() before any arithmetic.",
+          "An f-string converts any value to text by itself, which avoids the TypeError of 'Yaş: ' + 30.",
+          "per_person decides what the answer is for zero people before dividing, so ZeroDivisionError cannot happen."
+        ],
+        "notes_tr": [
+          "raw_age bir string'tir; başka string'lerle yapıştırılabilir ama herhangi bir aritmetikten önce int()'ten geçmelidir.",
+          "f-string her değeri kendiliğinden metne çevirir; bu da 'Yaş: ' + 30 ifadesinin TypeError'ından kaçınır.",
+          "per_person sıfır kişi için cevabın ne olacağına bölmeden önce karar verir; böylece ZeroDivisionError oluşamaz."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d15-b4-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "for a, b in [(4, '3'), ('4', '3'), (4, 3)]:\n    try:\n        print(a + b)\n    except Exception as e:\n        print(type(e).__name__)",
+          "choices": [
+            "7\n43\n7",
+            "TypeError\nTypeError\n7",
+            "43\n43\n7",
+            "TypeError\n43\n7"
+          ],
+          "expected_output": "TypeError\n43\n7",
+          "explanation": "4 + '3' mixes int and str (TypeError), '4' + '3' joins two strings ('43'), and 4 + 3 is 7.",
+          "explanation_tr": "4 + '3' int ile str'yi karıştırır (TypeError), '4' + '3' iki string'i birleştirir ('43'), 4 + 3 ise 7'dir.",
+          "misconceptions": {
+            "7\n43\n7": "Python never converts automatically: int + str is a TypeError.",
+            "TypeError\nTypeError\n7": "str + str is allowed: it concatenates, giving '43'.",
+            "43\n43\n7": "4 is an int; adding a str to it is not concatenation."
+          },
+          "misconceptions_tr": {
+            "7\n43\n7": "Python otomatik çevirmez: int + str bir TypeError'dır.",
+            "TypeError\nTypeError\n7": "str + str serbesttir: birleştirir ve '43' verir.",
+            "43\n43\n7": "4 bir int'tir; ona bir str eklemek birleştirme değildir."
+          }
+        },
+        {
+          "id": "d15-b4-e2",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "for text in ['12', '1.5', '', 'x']:\n    try:\n        print(float(text))\n    except Exception as e:\n        print(type(e).__name__)",
+          "choices": [
+            "12.0\n1.5\n0.0\nValueError",
+            "12.0\n1.5\nValueError\nValueError",
+            "12\n1.5\nValueError\nValueError",
+            "12.0\n1.5\nTypeError\nTypeError"
+          ],
+          "expected_output": "12.0\n1.5\nValueError\nValueError",
+          "explanation": "float accepts '12' and '1.5'. '' and 'x' are strings whose value cannot be converted, so both raise ValueError.",
+          "explanation_tr": "float '12' ve '1.5'i kabul eder. '' ve 'x' değeri çevrilemeyen string'lerdir; ikisi de ValueError verir.",
+          "misconceptions": {
+            "12.0\n1.5\n0.0\nValueError": "An empty string is not a number; float('') raises ValueError.",
+            "12\n1.5\nValueError\nValueError": "float always returns a float, so '12' becomes 12.0.",
+            "12.0\n1.5\nTypeError\nTypeError": "The type is right (a string); the value is unusable, which is a ValueError."
+          },
+          "misconceptions_tr": {
+            "12.0\n1.5\n0.0\nValueError": "Boş string bir sayı değildir; float('') ValueError verir.",
+            "12\n1.5\nValueError\nValueError": "float her zaman float döndürür; '12', 12.0 olur.",
+            "12.0\n1.5\nTypeError\nTypeError": "Tür doğrudur (bir string); değer kullanılamaz, bu da ValueError'dır."
+          }
+        },
+        {
+          "id": "d15-b4-e3",
+          "type": "fill_blank",
+          "prompt": "Complete the guard so average returns 0 for an empty list instead of dividing by zero.",
+          "prompt_tr": "average sıfıra bölmek yerine boş list için 0 döndürsün diye korumayı tamamla.",
+          "starter_code": "def average(nums):\n    if ___:\n        return 0\n    return sum(nums) / len(nums)\n\nprint(average([4, 6]), average([]))",
+          "blanks": [
+            {
+              "answer": [
+                "not nums",
+                "len(nums) == 0",
+                "nums == []"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert average([4, 6]) == 5.0 and average([]) == 0",
+              "visible": true,
+              "label": "5.0 and 0",
+              "label_tr": "5.0 ve 0"
+            },
+            {
+              "code": "assert __stdout__.strip() == '5.0 0'",
+              "visible": true,
+              "label": "Prints 5.0 0",
+              "label_tr": "5.0 0 yazdırıyor"
+            }
+          ],
+          "hints": [
+            "The division fails only when len(nums) is 0.",
+            "An empty list is falsy.",
+            "not nums"
+          ],
+          "hints_tr": [
+            "Bölme yalnızca len(nums) 0 olduğunda patlar.",
+            "Boş list falsy'dir.",
+            "not nums"
+          ]
+        },
+        {
+          "id": "d15-b4-e4",
+          "type": "debug",
+          "prompt": "total_minutes should add durations given as text, like ['15', '30', '45'], and return 90. It crashes. Fix the function.",
+          "prompt_tr": "total_minutes ['15', '30', '45'] gibi metin olarak verilen süreleri toplamalı ve 90 döndürmeli. Program çöküyor. Fonksiyonu düzelt.",
+          "starter_code": "def total_minutes(durations):\n    total = 0\n    for d in durations:\n        total = total + d\n    return total\n\nprint(total_minutes(['15', '30', '45']))",
+          "tests": [
+            {
+              "code": "assert total_minutes(['15', '30', '45']) == 90",
+              "visible": true,
+              "label": "Sum is 90",
+              "label_tr": "Toplam 90"
+            },
+            {
+              "code": "assert total_minutes([]) == 0 and total_minutes(['7']) == 7",
+              "visible": false,
+              "failure_message": "Convert every duration to int before adding.",
+              "failure_message_tr": "Eklemeden önce her süreyi int'e çevir."
+            }
+          ],
+          "hints": [
+            "The last line of the traceback: unsupported operand type(s) for +: 'int' and 'str'.",
+            "total is an int, d is a string.",
+            "Convert d with int() before adding it."
+          ],
+          "hints_tr": [
+            "Hata izinin son satırı: unsupported operand type(s) for +: 'int' and 'str'.",
+            "total bir int, d bir string.",
+            "d'yi eklemeden önce int() ile çevir."
+          ],
+          "solution": {
+            "approach": "Text from outside is never a number until you convert it; int(d) makes the addition numeric.",
+            "approach_tr": "Dışarıdan gelen metin, sen çevirene kadar asla sayı değildir; int(d) toplamayı sayısal yapar.",
+            "code": "def total_minutes(durations):\n    total = 0\n    for d in durations:\n        total = total + int(d)\n    return total\n\nprint(total_minutes(['15', '30', '45']))"
+          }
+        },
+        {
+          "id": "d15-b4-e5",
+          "type": "modify",
+          "prompt": "percent(part, whole) crashes when whole is 0. Change it so it returns 0.0 in that case and otherwise the percentage rounded to 1 decimal. Example: percent(1, 3) returns 33.3 and percent(5, 0) returns 0.0.",
+          "prompt_tr": "percent(part, whole), whole 0 olduğunda çöküyor. O durumda 0.0, aksi hâlde 1 ondalığa yuvarlanmış yüzdeyi döndürecek şekilde değiştir. Örnek: percent(1, 3) 33.3, percent(5, 0) 0.0 döndürür.",
+          "starter_code": "def percent(part, whole):\n    return round(part / whole * 100, 1)\n\nprint(percent(1, 3), percent(5, 0))",
+          "signature": "def percent(part, whole):",
+          "tests": [
+            {
+              "code": "assert percent(1, 3) == 33.3",
+              "visible": true,
+              "label": "1 of 3 is 33.3",
+              "label_tr": "3'te 1, 33.3"
+            },
+            {
+              "code": "assert percent(5, 0) == 0.0",
+              "visible": true,
+              "label": "Zero whole gives 0.0",
+              "label_tr": "whole sıfırsa 0.0"
+            },
+            {
+              "code": "assert percent(0, 7) == 0.0 and percent(7, 7) == 100.0 and percent(1, 8) == 12.5",
+              "visible": false,
+              "failure_message": "Only a zero whole is special; compute the rest normally.",
+              "failure_message_tr": "Yalnızca sıfır whole özeldir; geri kalanı normal hesapla."
+            }
+          ],
+          "hints": [
+            "Which input makes the division fail?",
+            "Add an early return before the division.",
+            "if whole == 0: return 0.0"
+          ],
+          "hints_tr": [
+            "Hangi girdi bölmenin patlamasına yol açıyor?",
+            "Bölmeden önce erken bir return ekle.",
+            "if whole == 0: return 0.0"
+          ],
+          "solution": {
+            "approach": "A guard decides the answer for the zero case before the division can raise ZeroDivisionError.",
+            "approach_tr": "Koruma, bölme ZeroDivisionError veremeden önce sıfır durumu için cevaba karar verir.",
+            "code": "def percent(part, whole):\n    if whole == 0:\n        return 0.0\n    return round(part / whole * 100, 1)\n\nprint(percent(1, 3), percent(5, 0))"
+          }
+        },
+        {
+          "id": "d15-b4-e6",
+          "type": "write",
+          "prompt": "Write a function to_number(text) that returns an int if text (after strip) is all digits, a float if it is a number with one dot such as '3.5', and None otherwise, without using try. Example: to_number(' 42 ') returns 42, to_number('3.5') returns 3.5, to_number('3.5.1') returns None.",
+          "prompt_tr": "to_number(text) fonksiyonunu yaz: text (strip sonrası) tamamen rakamsa int, '3.5' gibi tek noktalı bir sayıysa float, değilse None döndürsün; try kullanma. Örnek: to_number(' 42 ') 42, to_number('3.5') 3.5, to_number('3.5.1') None döndürür.",
+          "starter_code": "",
+          "signature": "def to_number(text):",
+          "tests": [
+            {
+              "code": "assert to_number(' 42 ') == 42 and isinstance(to_number('42'), int)",
+              "visible": true,
+              "label": "Digits give an int",
+              "label_tr": "Rakamlar int veriyor"
+            },
+            {
+              "code": "assert to_number('3.5') == 3.5",
+              "visible": true,
+              "label": "One dot gives a float",
+              "label_tr": "Tek nokta float veriyor"
+            },
+            {
+              "code": "assert to_number('3.5.1') is None and to_number('') is None and to_number('abc') is None",
+              "visible": false,
+              "failure_message": "Two dots, empty text and letters are not numbers.",
+              "failure_message_tr": "İki nokta, boş metin ve harfler sayı değildir."
+            },
+            {
+              "code": "assert to_number('.5') is None and to_number('5.') is None and to_number('10.25') == 10.25",
+              "visible": false,
+              "failure_message": "A float needs digits on both sides of the single dot.",
+              "failure_message_tr": "float, tek noktanın iki yanında da rakam ister."
+            },
+            {
+              "code": "assert 'try' not in __source__",
+              "visible": false,
+              "failure_message": "Check the text instead of using try.",
+              "failure_message_tr": "try yerine metni kontrol et."
+            }
+          ],
+          "hints": [
+            "After strip, text.isdigit() decides the int case.",
+            "For the float case, split at '.' and require exactly two parts that are both all digits.",
+            "parts = text.split('.'); if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit(): return float(text)"
+          ],
+          "hints_tr": [
+            "strip'ten sonra text.isdigit() int durumuna karar verir.",
+            "float durumu için '.' işaretinden böl ve iki parçanın da tamamen rakam olmasını iste.",
+            "parts = text.split('.'); if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit(): return float(text)"
+          ],
+          "solution": {
+            "approach": "Checking the shape of the text first means int() and float() only ever receive values they can convert.",
+            "approach_tr": "Önce metnin biçimini kontrol etmek, int() ve float()'un yalnızca çevirebilecekleri değerleri almasını sağlar.",
+            "code": "def to_number(text):\n    text = text.strip()\n    if text.isdigit():\n        return int(text)\n    parts = text.split('.')\n    if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():\n        return float(text)\n    return None"
+          },
+          "twin": "d15-b4-e7"
+        },
+        {
+          "id": "d15-b4-e7",
+          "type": "write",
+          "prompt": "Write a function safe_divide(a, b) that returns a / b, or the string 'tanımsız' when b is 0. Example: safe_divide(10, 4) returns 2.5 and safe_divide(1, 0) returns 'tanımsız'.",
+          "prompt_tr": "safe_divide(a, b) fonksiyonunu yaz: a / b, b 0 ise de 'tanımsız' string'ini döndürsün. Örnek: safe_divide(10, 4) 2.5, safe_divide(1, 0) 'tanımsız' döndürür.",
           "starter_code": "",
           "signature": "def safe_divide(a, b):",
           "tests": [
             {
               "code": "assert safe_divide(10, 4) == 2.5",
               "visible": true,
-              "label_tr": "safe_divide(10, 4) 2.5 veriyor"
+              "label": "10 / 4 is 2.5",
+              "label_tr": "10 / 4, 2.5"
             },
             {
-              "code": "assert safe_divide(9, 3) == 3.0",
+              "code": "assert safe_divide(1, 0) == 'tanımsız'",
               "visible": true,
-              "label_tr": "safe_divide(9, 3) 3.0 veriyor"
+              "label": "Division by zero gives 'tanımsız'",
+              "label_tr": "Sıfıra bölme 'tanımsız' veriyor"
             },
             {
-              "code": "assert safe_divide(5, 0) is None",
+              "code": "assert safe_divide(0, 5) == 0.0 and safe_divide(-9, 3) == -3.0",
               "visible": false,
-              "failure_message": "When b is 0 return None.",
-              "failure_message_tr": "b 0 ise None döndür."
+              "failure_message": "Only b == 0 is special; a may be 0 or negative.",
+              "failure_message_tr": "Yalnızca b == 0 özeldir; a 0 ya da negatif olabilir."
             },
             {
-              "code": "assert safe_divide(0, 5) == 0",
+              "code": "assert safe_divide(3, 0.0) == 'tanımsız'",
               "visible": false,
-              "failure_message": "0 divided by a non-zero number is 0: only b == 0 is a problem.",
-              "failure_message_tr": "0'ı sıfırdan farklı bir sayıya bölmek 0'dır: sorun sadece b == 0 olunca."
-            },
-            {
-              "code": "assert safe_divide(-6, 3) == -2",
-              "visible": false,
-              "failure_message": "Negative numbers must work.",
-              "failure_message_tr": "Negatif sayılar da çalışmalı."
-            },
-            {
-              "code": "assert safe_divide(1, 8) == 0.125 and safe_divide(7, 0) is None",
-              "visible": false,
-              "failure_message": "Divide the numbers given; do not hard-code results.",
-              "failure_message_tr": "Verilen sayıları böl; sonuçları elle yazma."
+              "failure_message": "0.0 is zero too.",
+              "failure_message_tr": "0.0 da sıfırdır."
             }
           ],
           "hints": [
-            "Which value of b is dangerous?",
-            "Check for it with an if before dividing.",
-            "if b == ___: return None (before the division line)"
+            "Which value of b makes / fail?",
+            "0 == 0.0 is True in Python, so one comparison covers both.",
+            "Put the zero check first with an early return of 'tanımsız'; only then divide."
+          ],
+          "hints_tr": [
+            "b'nin hangi değeri /'yi patlatır?",
+            "Python'da 0 == 0.0 True'dur; tek bir karşılaştırma ikisini de kapsar.",
+            "Sıfır kontrolünü 'tanımsız' döndüren erken bir return ile en başa koy; ancak ondan sonra böl."
           ],
           "solution": {
-            "approach": "Guard against the one bad value with an if before dividing.",
-            "code": "def safe_divide(a, b):\n    if b == 0:\n        return None\n    return a / b",
-            "approach_tr": "Tek tehlikeli değere karşı bölmeden önce bir if ile önlem al."
+            "approach": "The guard runs before the division, and comparing with == 0 also catches 0.0.",
+            "approach_tr": "Koruma bölmeden önce çalışır; == 0 ile karşılaştırmak 0.0'ı da yakalar.",
+            "code": "def safe_divide(a, b):\n    if b == 0:\n        return 'tanımsız'\n    return a / b"
           },
-          "twin": "d15-b3-e3",
-          "hints_tr": [
-            "b'nin hangi değeri tehlikeli?",
-            "Bölmeden önce bir if ile kontrol et.",
-            "if b == ___: return None (bölme satırından önce)"
-          ]
+          "twin": "d15-b4-e6"
         },
         {
-          "id": "d15-b3-e5",
-          "type": "debug",
-          "prompt": "This program should print 26 (age plus one) but it crashes with an error. Fix it.",
-          "prompt_tr": "Bu program 26 (yaş artı bir) yazdırmalı ama hata ile çöküyor. Düzeltin.",
-          "starter_code": "age = '25'\nnext_year = age + 1\nprint(next_year)",
-          "expected_output": "26",
-          "tests": [
-            {
-              "code": "assert next_year == 26",
-              "visible": true,
-              "label_tr": "next_year 26 olmalı"
-            }
-          ],
-          "hints": [
-            "Read the last line of the error: what two types does it mention?",
-            "age is a string and 1 is a number; + cannot mix them.",
-            "Convert age first: ___(age) + 1 (which function makes '25' a number?)"
-          ],
-          "solution": {
-            "approach": "The string must be converted to an int before adding a number.",
-            "code": "age = '25'\nnext_year = int(age) + 1\nprint(next_year)",
-            "approach_tr": "Sayı eklemeden önce string'i int'e dönüştürmek gerekir."
-          },
-          "hints_tr": [
-            "Hatanın son satırını oku: hangi iki tipi söylüyor?",
-            "age bir string, 1 ise sayı; + ikisini karıştıramaz.",
-            "Önce age'i dönüştür: ___(age) + 1 (hangi fonksiyon '25'i sayı yapar?)"
-          ]
-        },
-        {
-          "id": "d15-b3-e6",
+          "id": "d15-b4-e8",
           "type": "explain",
-          "prompt": "In your own words: how do you read a Python error message, and which part do you look at first?",
-          "prompt_tr": "Kendi cümlelerinizle: bir Python hata mesajını nasıl okursunuz ve önce hangi kısmına bakarsınız?",
-          "model_answer": "Start with the last line: it names the error type, like KeyError or TypeError, with a short message. The lines above it show the file and the line number where it happened, so you can go to that line and fix the cause.",
+          "prompt": "Explain the difference between TypeError and ValueError with one example of each.",
+          "prompt_tr": "TypeError ile ValueError arasındaki farkı her birinden bir örnekle açıkla.",
+          "model_answer": "A TypeError means the operation does not work for that type at all, for example 4 + '3' mixes an int and a str. A ValueError means the type is right but the value is unusable, for example int('12a') gets a string, which int accepts, but this string is not a number.",
+          "model_answer_tr": "TypeError, işlemin o tür için hiç çalışmadığı anlamına gelir; örneğin 4 + '3' bir int ile bir str'yi karıştırır. ValueError ise türün doğru ama değerin kullanılamaz olduğu anlamına gelir; örneğin int('12a') int'in kabul ettiği bir string alır, ama bu string bir sayı değildir.",
           "keywords": [
-            "last line",
-            "error type",
-            "line number"
+            "TypeError",
+            "ValueError",
+            "type",
+            "value"
           ],
-          "model_answer_tr": "Son satırdan başla: hata türünü (KeyError ya da TypeError gibi) ve kısa bir mesajı söyler. Üstündeki satırlar hatanın olduğu dosyayı ve satır numarasını gösterir; o satıra gidip nedeni düzeltirsin.",
           "keywords_tr": [
-            "son satır",
-            "hata türü",
-            "satır numarası"
+            "TypeError",
+            "ValueError",
+            "tür",
+            "değer"
           ],
-          "min_words": 6
+          "min_words": 18
         }
-      ],
-      "concept_tr": "TypeError tipler uyuşmayınca, ValueError tip doğru ama içerik dönüştürülemeyince, ZeroDivisionError ise 0'a bölünce olur."
+      ]
     }
   ],
   "review_pool": [
     "d15-b1-e1",
+    "d15-b1-e6",
     "d15-b2-e1",
-    "d15-b2-e3",
-    "d15-b3-e1",
-    "d15-b3-e3",
-    "d15-b3-e4"
-  ],
-  "title_tr": "Python hata türleri"
+    "d15-b2-e6",
+    "d15-b4-e1",
+    "d15-b4-e6"
+  ]
 }
