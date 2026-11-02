@@ -1,11 +1,13 @@
 {
   "day": 9,
   "title": "Conditionals",
-  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "title_tr": "Koşullar",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__. Script-style tasks (Days 6-10 come before functions) are re-run by hidden tests with a different first line: the test finds the line that starts with the given variable name, replaces it with new data, executes the program again and checks the new result.",
   "blocks": [
     {
       "id": "d09-b1",
       "concept": "if-else",
+      "concept_tr": "if ve else: bir koşula göre seçmek",
       "tags": [
         "conditionals",
         "if",
@@ -13,192 +15,355 @@
         "indentation"
       ],
       "worked_example": {
-        "code": "a = 3\nif a > 0:\n    print('positive')\nelse:\n    print('not positive')",
+        "code": "age = 15\nif age >= 18:\n    print('You are old enough to learn to drive.')\nelse:\n    print(f'You need {18 - age} more years to learn to drive.')\nprint('checked')",
         "notes": [
-          "The condition ends with a colon.",
-          "The indented lines run only when the condition is True; else covers all other cases."
+          "The if line ends with a colon and its block is the indented lines below it.",
+          "Exactly one of the two blocks runs: the if block when the condition is True, the else block otherwise.",
+          "The last line is not indented, so it is outside the if/else and always runs."
         ],
         "notes_tr": [
-          "Koşul iki nokta (:) ile biter.",
-          "Girintili satırlar yalnız koşul True ise çalışır; else geri kalan tüm durumları kapsar."
+          "if satırı iki noktayla biter; bloğu altındaki girintili satırlardır.",
+          "İki bloktan tam olarak biri çalışır: koşul True ise if bloğu, değilse else bloğu.",
+          "Son satır girintili değildir; if/else'in dışındadır ve her zaman çalışır."
         ]
       },
       "exercises": [
         {
           "id": "d09-b1-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "a = 0\nif a > 0:\n    print('positive')\nelif a < 0:\n    print('negative')\nelse:\n    print('zero')\nprint('done')",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "balance = 40\nif balance >= 50:\n    print('pay')\n    balance = balance - 50\nprint(balance)",
           "choices": [
-            "zero\ndone",
-            "zero",
-            "positive\ndone",
-            "negative\nzero\ndone"
+            "40",
+            "pay\n-10",
+            "-10",
+            "pay\n40"
           ],
-          "expected_output": "zero\ndone",
-          "explanation": "0 is neither greater nor smaller than 0, so the else branch prints zero. The last print is not indented, so it runs in every case.",
+          "expected_output": "40",
+          "explanation": "The condition is False, so both indented lines are skipped; only the unindented print runs and shows 40.",
+          "explanation_tr": "Koşul False'tur; girintili iki satır da atlanır. Yalnızca girintisiz print çalışır ve 40 gösterir.",
           "misconceptions": {
-            "zero": "The last print has no indentation, so it is outside the if and always runs.",
-            "positive\ndone": "a is 0, so a > 0 is False.",
-            "negative\nzero\ndone": "Only ONE branch of an if/elif/else runs, never several."
+            "pay\n-10": "40 >= 50 is False, so the indented block is skipped entirely.",
+            "-10": "The subtraction is inside the block too, so it is skipped with the print.",
+            "pay\n40": "When the condition is False nothing inside the block runs."
           },
-          "explanation_tr": "0, 0'dan ne büyük ne küçük; bu yüzden else dalı zero yazdırır. Son print girintisiz olduğu için her durumda çalışır.",
           "misconceptions_tr": {
-            "zero": "Son print girintili değil, yani if'in dışında ve her zaman çalışır.",
-            "positive\ndone": "a değeri 0, bu yüzden a > 0 False olur.",
-            "negative\nzero\ndone": "if/elif/else içinde yalnız BİR dal çalışır, birden fazlası asla."
+            "pay\n-10": "40 >= 50 False'tur; girintili blok tamamen atlanır.",
+            "-10": "Çıkarma da bloğun içindedir; print ile birlikte atlanır.",
+            "pay\n40": "Koşul False olduğunda bloğun içindeki hiçbir şey çalışmaz."
           }
         },
         {
           "id": "d09-b1-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so the program prints minor.",
-          "prompt_tr": "Programın minor yazdırması için boşluğu doldur.",
-          "starter_code": "age = 15\nif age >= 18:\n    print('adult')\n___:\n    print('minor')",
+          "prompt": "Fill the blank with a comparison so the program prints 'even' for an even number.",
+          "prompt_tr": "Boşluğu bir karşılaştırmayla doldur: program çift sayı için 'even' yazdırsın.",
+          "starter_code": "n = 14\nif ___:\n    print('even')\nelse:\n    print('odd')",
           "blanks": [
             {
               "answer": [
-                "else"
+                "n % 2 == 0",
+                "n % 2 != 1"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == 'minor'",
+              "code": "assert __stdout__.strip() == 'even'",
               "visible": true,
-              "failure_message": "The program must print minor.",
-              "label_tr": "Program minor yazdırıyor mu",
-              "failure_message_tr": "Program minor yazdırmalı."
+              "label": "14 is even",
+              "label_tr": "14 çift",
+              "failure_message": "14 is even, so 'even' should be printed.",
+              "failure_message_tr": "14 çifttir; 'even' yazdırılmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('n=')][0]\n_src[_i] = 'n = 7'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'odd'",
+              "visible": false,
+              "failure_message": "The condition must work for odd numbers too: use the remainder of division by 2.",
+              "failure_message_tr": "Koşul tek sayılarda da çalışmalı: 2'ye bölümden kalanı kullan."
             }
           ],
           "hints": [
-            "What do you call the branch for 'everything else'?",
-            "It is a keyword that has no condition after it, only a colon.",
-            "Write the keyword that means 'otherwise' on the blank line, then the colon is already there."
+            "An even number has no remainder when divided by 2.",
+            "The remainder operator is %.",
+            "Compare n % 2 with zero using ==."
           ],
           "hints_tr": [
-            "'Geri kalan her şey' dalına ne denir?",
-            "Bu anahtar kelimenin arkasında koşul olmaz, yalnız iki nokta gelir.",
-            "'Aksi halde' anlamına gelen anahtar kelimeyi boşluğa yaz; iki nokta zaten orada."
+            "Çift sayı 2'ye bölününce kalan vermez.",
+            "Kalan operatörü %'dir.",
+            "n % 2'yi == ile sıfırla karşılaştır."
           ]
         },
         {
           "id": "d09-b1-e3",
+          "type": "debug",
+          "prompt": "This program should print 'Perfect score' for 100. It does not even start: SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='? Fix it.",
+          "prompt_tr": "Bu program 100 için 'Perfect score' yazdırmalı. Başlamıyor bile: SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='? Düzelt.",
+          "starter_code": "score = 100\nif score = 100:\n    print('Perfect score')",
+          "hints": [
+            "Read the suggestion at the end of the error message.",
+            "= and == mean different things.",
+            "Use the comparison operator in the if line."
+          ],
+          "hints_tr": [
+            "Hata mesajının sonundaki öneriyi oku.",
+            "= ve == farklı anlamlara gelir.",
+            "if satırında karşılaştırma operatörünü kullan."
+          ],
+          "solution": {
+            "approach": "Comparison is ==; a single = binds a name and is not allowed in a condition.",
+            "approach_tr": "Karşılaştırma =='dir; tek = isim bağlar ve koşulda kullanılamaz.",
+            "code": "score = 100\nif score == 100:\n    print('Perfect score')"
+          },
+          "expected_output": "Perfect score"
+        },
+        {
+          "id": "d09-b1-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "temperature = 30\nif temperature > 30:\n    print('hot')\nelse:\n    print('not hot')\nprint('bye')",
+          "choices": [
+            "hot\nbye",
+            "not hot",
+            "hot\nnot hot\nbye",
+            "not hot\nbye"
+          ],
+          "expected_output": "not hot\nbye",
+          "explanation": "30 > 30 is False, so the else block prints 'not hot'; then the unindented line prints 'bye'.",
+          "explanation_tr": "30 > 30 False'tur; else bloğu 'not hot' yazdırır, sonra girintisiz satır 'bye' yazdırır.",
+          "misconceptions": {
+            "hot\nbye": "> is strict: 30 > 30 is False.",
+            "not hot": "print('bye') is outside the if/else and always runs.",
+            "hot\nnot hot\nbye": "Only one of the two blocks can run."
+          },
+          "misconceptions_tr": {
+            "hot\nbye": "> kesindir: 30 > 30 False'tur.",
+            "not hot": "print('bye') if/else'in dışındadır ve her zaman çalışır.",
+            "hot\nnot hot\nbye": "İki bloktan yalnızca biri çalışabilir."
+          }
+        },
+        {
+          "id": "d09-b1-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order (with the right indentation) so the program prints: Too cold, then Stay inside.",
+          "prompt_tr": "Satırları (doğru girintiyle) sıraya koy: program önce Too cold, sonra Stay inside yazdırsın.",
+          "lines": [
+            "else:",
+            "if temp < 0:",
+            "    print('Go out')",
+            "temp = -3",
+            "    print('Stay inside')",
+            "    print('Too cold')"
+          ],
+          "correct_order": [
+            3,
+            1,
+            5,
+            4,
+            0,
+            2
+          ],
+          "distractors": [
+            "if temp < 0"
+          ],
+          "expected_output": "Too cold\nStay inside"
+        },
+        {
+          "id": "d09-b1-e6",
           "type": "modify",
-          "prompt": "Change the program so that, for a person under 18, it prints how many years are missing: You need 3 more years to learn to drive. (compute the number from age).",
-          "prompt_tr": "Programı, 18 yaşından küçük biri için kaç yıl eksik olduğunu yazdıracak şekilde değiştir: You need 3 more years to learn to drive. (sayıyı age'den hesapla).",
+          "prompt": "The program only prints something for adults. Change it so that for an age below 18 it prints exactly: You need N more years to learn to drive. (N is 18 minus the age). Keep the first line. For the given age 15: You need 3 more years to learn to drive.",
+          "prompt_tr": "Program yalnızca yetişkinler için bir şey yazdırıyor. 18'in altındaki bir yaş için tam olarak şunu yazdıracak şekilde değiştir: You need N more years to learn to drive. (N, 18 eksi yaş). İlk satırı koru. Verilen yaş 15 için: You need 3 more years to learn to drive.",
           "starter_code": "age = 15\nif age >= 18:\n    print('You are old enough to learn to drive.')",
           "tests": [
             {
               "code": "assert __stdout__.strip() == 'You need 3 more years to learn to drive.'",
               "visible": true,
+              "label": "Message for 15",
+              "label_tr": "15 için mesaj",
               "failure_message": "Expected: You need 3 more years to learn to drive.",
-              "label_tr": "Eksik yıl doğru yazdırılıyor",
               "failure_message_tr": "Beklenen: You need 3 more years to learn to drive."
             },
             {
-              "code": "import io, contextlib\n__ns = {}\n__buf = io.StringIO()\nwith contextlib.redirect_stdout(__buf):\n    exec(__source__.replace('age = 15', 'age = 10'), __ns)\nassert __buf.getvalue().strip() == 'You need 8 more years to learn to drive.'",
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('age=')][0]\n_src[_i] = 'age = 10'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'You need 8 more years to learn to drive.'",
               "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "Change age in your code: the message must update. Do not type the final text by hand; compute the number.",
-              "failure_message_tr": "Yaşı değiştirince mesaj da değişmeli. Sonucu elle yazma; sayıyı hesapla."
+              "failure_message": "Compute the missing years from age.",
+              "failure_message_tr": "Eksik yılları age'den hesapla.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('age=')][0]\n_src[_i] = 'age = 30'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'You are old enough to learn to drive.'",
+              "visible": false,
+              "failure_message": "Adults must still get the first message.",
+              "failure_message_tr": "Yetişkinler yine ilk mesajı almalı."
             }
           ],
           "hints": [
-            "The program prints nothing for age 15. Which branch is missing?",
-            "Add a second branch for the other case and compute the missing years by subtracting age from 18.",
-            "Add an else branch whose print uses an f-string with 18 minus age inside the braces."
+            "You need a second block for the False case.",
+            "That block starts with else: at the same indentation as if.",
+            "Inside it, print an f-string with 18 - age in braces."
+          ],
+          "hints_tr": [
+            "False durumu için ikinci bir blok gerekiyor.",
+            "O blok if ile aynı girintide else: ile başlar.",
+            "İçinde, süslü parantezde 18 - age olan bir f-string yazdır."
           ],
           "solution": {
-            "approach": "Add an else branch with an f-string.",
-            "code": "age = 15\nif age >= 18:\n    print('You are old enough to learn to drive.')\nelse:\n    print(f'You need {18 - age} more years to learn to drive.')",
-            "approach_tr": "Bir else dalı ekle ve içinde f-string kullan."
-          },
-          "hints_tr": [
-            "Program 15 yaşı için hiçbir şey yazdırmıyor. Hangi dal eksik?",
-            "Diğer durum için ikinci bir dal ekle ve eksik yılı 18'den yaşı çıkararak hesapla.",
-            "Bir else dalı ekle; print'inde süslü parantez içinde 18 eksi age hesaplayan bir f-string kullan."
-          ]
+            "approach": "Add an else block that computes 18 - age inside an f-string.",
+            "approach_tr": "18 - age'i bir f-string içinde hesaplayan bir else bloğu ekle.",
+            "code": "age = 15\nif age >= 18:\n    print('You are old enough to learn to drive.')\nelse:\n    print(f'You need {18 - age} more years to learn to drive.')"
+          }
         },
         {
-          "id": "d09-b1-e4",
-          "type": "debug",
-          "prompt": "This should print A is a positive number but Python reports a SyntaxError. Fix it.",
-          "prompt_tr": "Bu A is a positive number yazdırmalı ama Python SyntaxError veriyor. Düzelt.",
-          "starter_code": "a = 3\nif a > 0\n    print('A is a positive number')",
-          "expected_output": "A is a positive number",
+          "id": "d09-b1-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: cart_total = 640. Print 'shipping: 0' when cart_total is at least 500, otherwise 'shipping: 50'.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: cart_total = 640. cart_total en az 500 ise 'shipping: 0', değilse 'shipping: 50' yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'shipping: 0'",
+              "visible": true,
+              "label": "Free shipping for 640",
+              "label_tr": "640 için ücretsiz kargo",
+              "failure_message": "640 is at least 500: expected shipping: 0.",
+              "failure_message_tr": "640 en az 500'dür: shipping: 0 beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('cart_total=')][0]\n_src[_i] = 'cart_total = 320'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'shipping: 50'",
+              "visible": false,
+              "failure_message": "Decide with an if on cart_total, so 320 prints shipping: 50.",
+              "failure_message_tr": "cart_total üzerinde bir if ile karar ver ki 320 shipping: 50 yazdırsın.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('cart_total=')][0]\n_src[_i] = 'cart_total = 500'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'shipping: 0'",
+              "visible": false,
+              "failure_message": "Edge case: exactly 500 counts as 'at least 500'. Check >= versus >.",
+              "failure_message_tr": "Kenar durum: tam 500 'en az 500' sayılır. >= ile >'yi kontrol et."
+            }
+          ],
           "hints": [
-            "Look at the end of the if line.",
-            "Python expects a punctuation mark that starts the block.",
-            "The if line is missing one character at its very end: add it."
+            "There are two possible outputs.",
+            "'At least 500' includes 500 itself.",
+            "if cart_total >= 500: with one print, else: with the other."
+          ],
+          "hints_tr": [
+            "İki olası çıktı var.",
+            "'En az 500' 500'ün kendisini de içerir.",
+            "if cart_total >= 500: ile bir print, else: ile diğeri."
           ],
           "solution": {
-            "approach": "An if line must end with a colon.",
-            "code": "a = 3\nif a > 0:\n    print('A is a positive number')",
-            "approach_tr": "if satırı iki nokta ile bitmeli."
+            "approach": "One if/else with >= 500.",
+            "approach_tr": ">= 500 ile tek bir if/else.",
+            "code": "cart_total = 640\nif cart_total >= 500:\n    print('shipping: 0')\nelse:\n    print('shipping: 50')"
           },
+          "twin": "d09-b1-e8"
+        },
+        {
+          "id": "d09-b1-e8",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: my_age = 25 and then your_age = 30. Print exactly 'You are older than me.' when your_age is greater, otherwise 'You are not older than me.'",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: my_age = 25 ve ardından your_age = 30. your_age daha büyükse tam olarak 'You are older than me.', değilse 'You are not older than me.' yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'You are older than me.'",
+              "visible": true,
+              "label": "Older case",
+              "label_tr": "Büyük olma durumu",
+              "failure_message": "30 > 25: expected You are older than me.",
+              "failure_message_tr": "30 > 25: You are older than me. beklenir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('your_age=')][0]\n_src[_i] = 'your_age = 20'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'You are not older than me.'",
+              "visible": false,
+              "failure_message": "Compare the variables, so a younger age gives the other sentence.",
+              "failure_message_tr": "Değişkenleri karşılaştır ki daha küçük bir yaş diğer cümleyi versin.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('your_age=')][0]\n_src[_i] = 'your_age = 25'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'You are not older than me.'",
+              "visible": false,
+              "failure_message": "Edge case: the same age is not older.",
+              "failure_message_tr": "Kenar durum: aynı yaş daha büyük değildir."
+            }
+          ],
+          "hints": [
+            "Which variable must be bigger for the first sentence?",
+            "Use a strict comparison: equal ages are not 'older'.",
+            "if your_age > my_age: then the first print, else: the second."
+          ],
           "hints_tr": [
-            "if satırının sonuna bak.",
-            "Python, bloğu başlatan bir noktalama işareti bekliyor.",
-            "if satırının en sonunda tek bir karakter eksik; onu ekle."
-          ]
+            "İlk cümle için hangi değişken daha büyük olmalı?",
+            "Kesin bir karşılaştırma kullan: eşit yaşlar 'daha büyük' değildir.",
+            "if your_age > my_age: sonra ilk print, else: ikincisi."
+          ],
+          "solution": {
+            "approach": "Compare the two ages with > in an if/else.",
+            "approach_tr": "İki yaşı bir if/else içinde > ile karşılaştır.",
+            "code": "my_age = 25\nyour_age = 30\nif your_age > my_age:\n    print('You are older than me.')\nelse:\n    print('You are not older than me.')"
+          },
+          "twin": "d09-b1-e7"
         }
-      ],
-      "concept_tr": "if-else: koşula göre karar verme"
+      ]
     },
     {
       "id": "d09-b2",
-      "concept": "elif-chains",
+      "concept": "elif-ladder",
+      "concept_tr": "elif zincirleri: ilk doğru dal kazanır",
       "tags": [
         "conditionals",
         "elif",
-        "functions-preview"
+        "ranges"
       ],
       "worked_example": {
-        "code": "score = 85\nif score >= 90:\n    print('A')\nelif score >= 80:\n    print('B')\nelse:\n    print('C')",
+        "code": "score = 84\nif score >= 90:\n    grade = 'A'\nelif score >= 80:\n    grade = 'B'\nelif score >= 70:\n    grade = 'C'\nelse:\n    grade = 'F'\nprint(grade)",
         "notes": [
-          "Python checks the branches from top to bottom and runs the first True one.",
-          "Later elif branches are skipped once one branch has run."
+          "Python checks the conditions from top to bottom and runs only the block of the first True one.",
+          "Because earlier branches already failed, each elif only needs the lower bound of its range.",
+          "The else at the end catches every value that matched no condition."
         ],
         "notes_tr": [
-          "Python dalları yukarıdan aşağı kontrol eder ve True olan ilkini çalıştırır.",
-          "Bir dal çalıştıktan sonra sonraki elif dalları atlanır."
+          "Python koşulları yukarıdan aşağıya kontrol eder ve yalnızca ilk True olanın bloğunu çalıştırır.",
+          "Önceki dallar zaten başarısız olduğu için her elif yalnızca aralığının alt sınırını ister.",
+          "Sondaki else hiçbir koşula uymayan her değeri yakalar."
         ]
       },
       "exercises": [
         {
           "id": "d09-b2-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "n = 15\nif n > 10:\n    print('big')\nif n > 5:\n    print('medium')\nelif n > 0:\n    print('small')",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = 0\nif a > 0:\n    print('positive')\nelif a < 0:\n    print('negative')\nelse:\n    print('zero')",
           "choices": [
-            "big\nmedium",
-            "big",
-            "big\nmedium\nsmall",
-            "medium"
+            "positive\nzero",
+            "zero",
+            "positive",
+            "negative"
           ],
-          "expected_output": "big\nmedium",
-          "explanation": "The first if is a separate statement, so it prints big. The second if/elif chain starts fresh: n > 5 is True, so medium prints and the elif is skipped.",
+          "expected_output": "zero",
+          "explanation": "Both conditions are False for 0, so the else block runs.",
+          "explanation_tr": "0 için iki koşul da False'tur; else bloğu çalışır.",
           "misconceptions": {
-            "big": "The second if is its own statement, so it is checked too.",
-            "big\nmedium\nsmall": "Inside the second chain, the elif is skipped once n > 5 has run.",
-            "medium": "The first if is checked on its own and n > 10 is True."
+            "positive": "0 > 0 is False; zero is not positive.",
+            "negative": "0 < 0 is False too.",
+            "positive\nzero": "At most one block of the chain runs."
           },
-          "explanation_tr": "İlk if ayrı bir ifadedir, bu yüzden big yazdırır. İkinci if/elif zinciri yeniden başlar: n > 5 True, medium yazdırılır ve elif atlanır.",
           "misconceptions_tr": {
-            "big": "İkinci if kendi başına bir ifadedir, o da kontrol edilir.",
-            "big\nmedium\nsmall": "İkinci zincirde n > 5 çalıştıktan sonra elif atlanır.",
-            "medium": "İlk if kendi başına kontrol edilir ve n > 10 True'dur."
+            "positive": "0 > 0 False'tur; sıfır pozitif değildir.",
+            "negative": "0 < 0 de False'tur.",
+            "positive\nzero": "Zincirden en fazla bir blok çalışır."
           }
         },
         {
           "id": "d09-b2-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so the program prints Summer.",
-          "prompt_tr": "Programın Summer yazdırması için boşluğu doldur.",
-          "starter_code": "month = 'July'\nif month in ('December', 'January', 'February'):\n    print('Winter')\n___ month in ('June', 'July', 'August'):\n    print('Summer')",
+          "prompt": "Fill the blank so the program prints the right size: S under 40 kg, M from 40 up to 70, L from 70.",
+          "prompt_tr": "Boşluğu doldur: program doğru bedeni yazdırsın: 40 kg altı S, 40'tan 70'e kadar M, 70'ten itibaren L.",
+          "starter_code": "weight = 55\nif weight < 40:\n    print('S')\n___ weight < 70:\n    print('M')\nelse:\n    print('L')",
           "blanks": [
             {
               "answer": [
@@ -208,398 +373,1285 @@
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == 'Summer'",
+              "code": "assert __stdout__.strip() == 'M'",
               "visible": true,
-              "failure_message": "The program must print Summer.",
-              "label_tr": "Program Summer yazdırıyor mu",
-              "failure_message_tr": "Program Summer yazdırmalı."
+              "label": "55 kg is M",
+              "label_tr": "55 kg M",
+              "failure_message": "55 kg should print M.",
+              "failure_message_tr": "55 kg M yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('weight=')][0]\n_src[_i] = 'weight = 80'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'L'",
+              "visible": false,
+              "failure_message": "80 kg should print L.",
+              "failure_message_tr": "80 kg L yazdırmalı."
             }
           ],
           "hints": [
-            "You need a second condition after an if.",
-            "It is short for 'else if' and, like if, it is followed by a condition and a colon.",
-            "Put the one-word keyword that means 'else if' on the blank."
+            "The middle branch has its own condition.",
+            "It is not if (that would start a new chain) and not else (which has no condition).",
+            "The keyword is the short form of 'else if'."
           ],
           "hints_tr": [
-            "Bir if'ten sonra ikinci bir koşula ihtiyacın var.",
-            "'else if' kısaltmasıdır ve if gibi arkasından koşul ve iki nokta gelir.",
-            "'else if' anlamına gelen tek kelimelik anahtar kelimeyi boşluğa yaz."
+            "Ortadaki dalın kendi koşulu var.",
+            "if değil (yeni bir zincir başlatırdı), else de değil (koşulu yoktur).",
+            "Anahtar kelime 'else if'in kısa hâlidir."
           ]
         },
         {
           "id": "d09-b2-e3",
-          "type": "write",
-          "prompt": "Write a function grade(score) that returns the letter grade: 'A' for 90-100, 'B' for 80-89, 'C' for 70-79, 'D' for 60-69 and 'F' for anything below 60. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
-          "prompt_tr": "Harf notunu döndüren bir grade(score) fonksiyonu yaz: 90-100 için 'A', 80-89 için 'B', 70-79 için 'C', 60-69 için 'D', 60'ın altı için 'F'. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
-          "starter_code": "",
-          "signature": "def grade(score):",
-          "tests": [
-            {
-              "code": "assert grade(95) == 'A'",
-              "visible": true,
-              "failure_message": "95 should give 'A'.",
-              "label_tr": "95 için A dönüyor mu",
-              "failure_message_tr": "95 için 'A' dönmeli."
-            },
-            {
-              "code": "assert grade(85) == 'B'",
-              "visible": true,
-              "failure_message": "85 should give 'B'.",
-              "label_tr": "85 için B dönüyor mu",
-              "failure_message_tr": "85 için 'B' dönmeli."
-            },
-            {
-              "code": "assert grade(90) == 'A' and grade(89) == 'B'",
-              "visible": false,
-              "failure_message": "Boundaries: 90 is an 'A', 89 is a 'B'. Check >= not >.",
-              "failure_message_tr": "Sınırlar: 90 'A', 89 'B' olmalı. > değil >= kullan."
-            },
-            {
-              "code": "assert grade(60) == 'D' and grade(59) == 'F'",
-              "visible": false,
-              "failure_message": "Boundaries: 60 is a 'D', 59 is an 'F'.",
-              "failure_message_tr": "Sınırlar: 60 'D', 59 'F' olmalı."
-            },
-            {
-              "code": "assert grade(70) == 'C' and grade(0) == 'F'",
-              "visible": false,
-              "failure_message": "70 gives 'C' and 0 gives 'F'.",
-              "failure_message_tr": "70 için 'C', 0 için 'F' dönmeli."
-            },
-            {
-              "code": "assert grade(100) == 'A' and grade(75) == 'C' and grade(62) == 'D' and grade(30) == 'F'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "Try other scores too: the function must work for any score, not only the ones in the examples.",
-              "failure_message_tr": "Başka puanlarla da dene: fonksiyon yalnız örneklerdeki değil, her puan için çalışmalı."
-            }
-          ],
+          "type": "debug",
+          "prompt": "This grade program prints D for 95. Without an error message it is still wrong. Fix the order of the branches so 95 gives A, 75 gives C and 65 gives D.",
+          "prompt_tr": "Bu not programı 95 için D yazdırıyor. Hata mesajı yok ama yine de yanlış. Dalların sırasını düzelt: 95 A, 75 C, 65 D versin.",
+          "starter_code": "score = 95\nif score >= 60:\n    print('D')\nelif score >= 70:\n    print('C')\nelif score >= 90:\n    print('A')\nelse:\n    print('F')",
           "hints": [
-            "Start from the highest grade and work down.",
-            "Test the highest limit first with >=, then the next limits in an elif chain, and use else for 'F'. Return the letter.",
-            "Use one if, three elif lines (80, 70, 60) and a final else; every branch uses return with a letter."
+            "95 >= 60 is True, so the first branch catches it.",
+            "Which condition should be checked first so that high scores are not caught early?",
+            "Put the 90 check at the top and the 60 check last before else."
+          ],
+          "hints_tr": [
+            "95 >= 60 True'dur; ilk dal onu yakalar.",
+            "Yüksek puanlar erkenden yakalanmasın diye önce hangi koşul kontrol edilmeli?",
+            "90 kontrolünü en üste, 60 kontrolünü else'ten önce en sona koy."
           ],
           "solution": {
-            "approach": "An elif chain from high to low.",
-            "code": "def grade(score):\n    if score >= 90:\n        return 'A'\n    elif score >= 80:\n        return 'B'\n    elif score >= 70:\n        return 'C'\n    elif score >= 60:\n        return 'D'\n    else:\n        return 'F'",
-            "approach_tr": "Yüksekten düşüğe doğru bir elif zinciri kur."
+            "approach": "Order the branches from the highest bound to the lowest, because the first True branch wins.",
+            "approach_tr": "Dalları en yüksek sınırdan en düşüğe sırala, çünkü ilk True dal kazanır.",
+            "code": "score = 95\nif score >= 90:\n    print('A')\nelif score >= 70:\n    print('C')\nelif score >= 60:\n    print('D')\nelse:\n    print('F')"
           },
-          "twin": "d09-b2-e4",
-          "hints_tr": [
-            "En yüksek notla başla ve aşağı doğru ilerle.",
-            "En yüksek sınırı >= ile kontrol et, sonraki sınırları elif zincirinde kontrol et, 'F' için else kullan. Harfi return ile döndür.",
-            "Bir if, üç elif (80, 70, 60) ve sonda bir else kullan; her dal bir harfi return eder."
-          ]
+          "tests": [
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 75'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'C'",
+              "visible": false,
+              "failure_message": "75 should give C.",
+              "failure_message_tr": "75 C vermeli."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 65'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'D'",
+              "visible": false,
+              "failure_message": "65 should give D.",
+              "failure_message_tr": "65 D vermeli."
+            }
+          ],
+          "expected_output": "A"
         },
         {
           "id": "d09-b2-e4",
-          "type": "write",
-          "prompt": "Write a function season(month) that takes a month name and returns 'Autumn' for September, October, November; 'Winter' for December, January, February; 'Spring' for March, April, May; 'Summer' for June, July, August. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
-          "prompt_tr": "Ay adını alıp mevsimi döndüren bir season(month) fonksiyonu yaz: Eylül, Ekim, Kasım için 'Autumn'; Aralık, Ocak, Şubat için 'Winter'; Mart, Nisan, Mayıs için 'Spring'; Haziran, Temmuz, Ağustos için 'Summer' (ay adları İngilizce). (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
-          "starter_code": "",
-          "signature": "def season(month):",
-          "tests": [
-            {
-              "code": "assert season('October') == 'Autumn'",
-              "visible": true,
-              "failure_message": "October is in Autumn.",
-              "label_tr": "Ekim için Autumn dönüyor mu",
-              "failure_message_tr": "Ekim (October) Autumn olmalı."
-            },
-            {
-              "code": "assert season('January') == 'Winter'",
-              "visible": true,
-              "failure_message": "January is in Winter.",
-              "label_tr": "Ocak için Winter dönüyor mu",
-              "failure_message_tr": "Ocak (January) Winter olmalı."
-            },
-            {
-              "code": "assert season('May') == 'Spring'",
-              "visible": false,
-              "failure_message": "May is in Spring.",
-              "failure_message_tr": "Mayıs (May) Spring olmalı."
-            },
-            {
-              "code": "assert season('August') == 'Summer'",
-              "visible": false,
-              "failure_message": "August is in Summer.",
-              "failure_message_tr": "Ağustos (August) Summer olmalı."
-            },
-            {
-              "code": "assert season('December') == 'Winter' and season('September') == 'Autumn'",
-              "visible": false,
-              "failure_message": "December is Winter, September is Autumn.",
-              "failure_message_tr": "December Winter, September Autumn olmalı."
-            },
-            {
-              "code": "assert season('April') == 'Spring' and season('June') == 'Summer' and season('November') == 'Autumn' and season('February') == 'Winter'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "Try other months too: every month must map to the right season.",
-              "failure_message_tr": "Başka aylarla da dene: her ay doğru mevsime gitmeli."
-            }
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "x = 12\nif x > 5:\n    print('A')\nif x > 10:\n    print('B')\nelif x > 0:\n    print('C')",
+          "choices": [
+            "A",
+            "A\nB\nC",
+            "B",
+            "A\nB"
           ],
-          "hints": [
-            "Four seasons, so you need four branches (the last one can be else).",
-            "Test each season's months with the in operator against a tuple of month names, one elif per season.",
-            "Use if / elif / elif / else; each of the first three conditions checks `month in (...)` with three month names."
-          ],
-          "solution": {
-            "approach": "An elif chain using the in operator.",
-            "code": "def season(month):\n    if month in ('September', 'October', 'November'):\n        return 'Autumn'\n    elif month in ('December', 'January', 'February'):\n        return 'Winter'\n    elif month in ('March', 'April', 'May'):\n        return 'Spring'\n    else:\n        return 'Summer'",
-            "approach_tr": "in operatörüyle bir elif zinciri kur."
+          "expected_output": "A\nB",
+          "explanation": "The first if prints A. The second if/elif is a new chain: 12 > 10 is True, so B prints and C is skipped.",
+          "explanation_tr": "İlk if A yazdırır. İkinci if/elif yeni bir zincirdir: 12 > 10 True'dur; B yazdırılır, C atlanır.",
+          "misconceptions": {
+            "A": "These are two separate if statements; the second one is checked too.",
+            "A\nB\nC": "Inside the second chain, only the first True branch runs.",
+            "B": "The first if is independent and 12 > 5 is True."
           },
-          "twin": "d09-b2-e3",
-          "hints_tr": [
-            "Dört mevsim var, yani dört dal gerekir (sonuncusu else olabilir).",
-            "Her mevsimin aylarını, ay adlarından oluşan bir tuple'a karşı in operatörüyle kontrol et; her mevsim için bir elif.",
-            "if / elif / elif / else kullan; ilk üç koşulun her biri üç ay adı içeren bir `month in (...)` kontrolü yapar."
-          ]
+          "misconceptions_tr": {
+            "A": "Bunlar iki ayrı if deyimidir; ikincisi de kontrol edilir.",
+            "A\nB\nC": "İkinci zincirde yalnızca ilk True dal çalışır.",
+            "B": "İlk if bağımsızdır ve 12 > 5 True'dur."
+          }
         },
         {
           "id": "d09-b2-e5",
-          "type": "explain",
-          "prompt": "In your own words: what is the difference between a chain of if/elif/else and several separate if statements?",
-          "prompt_tr": "Kendi cümlelerinle: if/elif/else zinciri ile birkaç ayrı if arasındaki fark nedir?",
-          "model_answer": "In an if/elif/else chain only the first branch whose condition is True runs and the rest are skipped. Separate if statements are each checked on their own, so several of them can run.",
-          "keywords": [
-            "first",
-            "only one",
-            "skipped",
-            "separate",
-            "each"
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints the season for month 'April': Spring.",
+          "prompt_tr": "Satırları sıraya koy: program 'April' ayı için mevsimi yazdırsın: Spring.",
+          "lines": [
+            "elif month in ('March', 'April', 'May'):",
+            "    print('Summer or Autumn')",
+            "month = 'April'",
+            "else:",
+            "if month in ('December', 'January', 'February'):",
+            "    print('Spring')",
+            "    print('Winter')"
           ],
-          "model_answer_tr": "if/elif/else zincirinde koşulu True olan yalnız ilk dal çalışır, gerisi atlanır. Ayrı if ifadelerinin her biri kendi başına kontrol edilir, bu yüzden birden fazlası çalışabilir.",
-          "keywords_tr": [
-            "ilk",
-            "yalnız",
-            "yalnızca",
-            "bir tane",
-            "atla",
-            "ayrı",
-            "her biri",
-            "tek"
+          "correct_order": [
+            2,
+            4,
+            6,
+            0,
+            5,
+            3,
+            1
           ],
-          "min_words": 6
+          "distractors": [
+            "elif month == 'March' or 'April':"
+          ],
+          "expected_output": "Spring"
+        },
+        {
+          "id": "d09-b2-e6",
+          "type": "modify",
+          "prompt": "The program says only 'pass' or 'fail'. Change it so it prints 'excellent' for 85 or more, 'pass' for 50 up to 84 and 'fail' below 50. Keep the first line. For the given score 91: excellent.",
+          "prompt_tr": "Program yalnızca 'pass' ya da 'fail' diyor. 85 ve üstü için 'excellent', 50'den 84'e kadar 'pass', 50'nin altında 'fail' yazdıracak şekilde değiştir. İlk satırı koru. Verilen puan 91 için: excellent.",
+          "starter_code": "score = 91\nif score >= 50:\n    print('pass')\nelse:\n    print('fail')",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'excellent'",
+              "visible": true,
+              "label": "91 is excellent",
+              "label_tr": "91 excellent",
+              "failure_message": "91 should print excellent.",
+              "failure_message_tr": "91 excellent yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 60'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'pass'",
+              "visible": false,
+              "failure_message": "60 should print pass: decide with conditions on score.",
+              "failure_message_tr": "60 pass yazdırmalı: score üzerindeki koşullarla karar ver.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 85'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'excellent'",
+              "visible": false,
+              "failure_message": "Edge case: exactly 85 is excellent.",
+              "failure_message_tr": "Kenar durum: tam 85 excellent'tir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 49'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'fail'",
+              "visible": false,
+              "failure_message": "49 should still print fail.",
+              "failure_message_tr": "49 hâlâ fail yazdırmalı."
+            }
+          ],
+          "hints": [
+            "The new, highest range must be checked first.",
+            "Then the old >= 50 check becomes the middle branch.",
+            "if score >= 85: excellent, elif score >= 50: pass, else: fail."
+          ],
+          "hints_tr": [
+            "Yeni ve en yüksek aralık önce kontrol edilmeli.",
+            "Sonra eski >= 50 kontrolü ortadaki dal olur.",
+            "if score >= 85: excellent, elif score >= 50: pass, else: fail."
+          ],
+          "solution": {
+            "approach": "Add a first branch for 85 and turn the old if into elif.",
+            "approach_tr": "85 için bir ilk dal ekle ve eski if'i elif'e çevir.",
+            "code": "score = 91\nif score >= 85:\n    print('excellent')\nelif score >= 50:\n    print('pass')\nelse:\n    print('fail')"
+          }
+        },
+        {
+          "id": "d09-b2-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: score = 84. Print the letter grade: A for 90-100, B for 80-89, C for 70-79, D for 60-69, F below 60.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: score = 84. Harf notunu yazdır: 90-100 A, 80-89 B, 70-79 C, 60-69 D, 60'ın altı F.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'B'",
+              "visible": true,
+              "label": "84 is B",
+              "label_tr": "84 B",
+              "failure_message": "84 should print B.",
+              "failure_message_tr": "84 B yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 90'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'A'",
+              "visible": false,
+              "failure_message": "Edge case: 90 is an A. Use conditions on score.",
+              "failure_message_tr": "Kenar durum: 90 A'dır. score üzerinde koşullar kullan.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 69'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'D'",
+              "visible": false,
+              "failure_message": "69 should print D.",
+              "failure_message_tr": "69 D yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 59'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'F'",
+              "visible": false,
+              "failure_message": "59 should print F.",
+              "failure_message_tr": "59 F yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 70'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'C'",
+              "visible": false,
+              "failure_message": "70 should print C.",
+              "failure_message_tr": "70 C yazdırmalı."
+            }
+          ],
+          "hints": [
+            "Five outcomes: one if, three elif, one else.",
+            "Check the highest bound first so that each elif only needs a lower bound.",
+            "The bounds in order are 90, 80, 70 and 60; everything else is F."
+          ],
+          "hints_tr": [
+            "Beş sonuç: bir if, üç elif, bir else.",
+            "Önce en yüksek sınırı kontrol et ki her elif yalnızca alt sınır istesin.",
+            "Sınırlar sırasıyla 90, 80, 70 ve 60; geri kalan her şey F."
+          ],
+          "solution": {
+            "approach": "An elif ladder from the highest bound to the lowest.",
+            "approach_tr": "En yüksek sınırdan en düşüğe bir elif merdiveni.",
+            "code": "score = 84\nif score >= 90:\n    print('A')\nelif score >= 80:\n    print('B')\nelif score >= 70:\n    print('C')\nelif score >= 60:\n    print('D')\nelse:\n    print('F')"
+          },
+          "twin": "d09-b2-e8"
+        },
+        {
+          "id": "d09-b2-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: month = 'October'. Print the season: Autumn for September, October, November; Winter for December, January, February; Spring for March, April, May; Summer for June, July, August; and 'Unknown month' for anything else.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: month = 'October'. Mevsimi yazdır: September, October, November için Autumn; December, January, February için Winter; March, April, May için Spring; June, July, August için Summer; başka her şey için 'Unknown month'.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Autumn'",
+              "visible": true,
+              "label": "October is Autumn",
+              "label_tr": "October Autumn",
+              "failure_message": "October is Autumn.",
+              "failure_message_tr": "October Autumn'dur."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('month=')][0]\n_src[_i] = \"month = 'January'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Winter'",
+              "visible": false,
+              "failure_message": "January should print Winter.",
+              "failure_message_tr": "January Winter yazdırmalı.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('month=')][0]\n_src[_i] = \"month = 'May'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Spring'",
+              "visible": false,
+              "failure_message": "May should print Spring.",
+              "failure_message_tr": "May Spring yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('month=')][0]\n_src[_i] = \"month = 'August'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Summer'",
+              "visible": false,
+              "failure_message": "August should print Summer.",
+              "failure_message_tr": "August Summer yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('month=')][0]\n_src[_i] = \"month = 'Septmber'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Unknown month'",
+              "visible": false,
+              "failure_message": "A misspelled month should print Unknown month.",
+              "failure_message_tr": "Yanlış yazılmış bir ay Unknown month yazdırmalı."
+            }
+          ],
+          "hints": [
+            "Five outcomes, so one if, three elif and an else.",
+            "Put the three months of each season in a tuple and test membership with in.",
+            "if month in ('September', 'October', 'November'): Autumn, and the same pattern for the other seasons."
+          ],
+          "hints_tr": [
+            "Beş sonuç: bir if, üç elif ve bir else.",
+            "Her mevsimin üç ayını bir tuple'a koy ve üyeliği in ile kontrol et.",
+            "if month in ('September', 'October', 'November'): Autumn; diğer mevsimler için aynı kalıp."
+          ],
+          "solution": {
+            "approach": "One membership check per season, with tuples of month names.",
+            "approach_tr": "Ay adlarından oluşan tuple'larla her mevsim için bir üyelik kontrolü.",
+            "code": "month = 'October'\nif month in ('September', 'October', 'November'):\n    print('Autumn')\nelif month in ('December', 'January', 'February'):\n    print('Winter')\nelif month in ('March', 'April', 'May'):\n    print('Spring')\nelif month in ('June', 'July', 'August'):\n    print('Summer')\nelse:\n    print('Unknown month')"
+          },
+          "twin": "d09-b2-e7"
         }
-      ],
-      "concept_tr": "elif zincirleri: sırayla birden çok koşul"
+      ]
     },
     {
       "id": "d09-b3",
-      "concept": "conditions-and-or",
+      "concept": "short-hand",
+      "concept_tr": "Kısa yazım: koşullu ifade (a if koşul else b)",
       "tags": [
         "conditionals",
-        "and",
-        "or",
-        "membership"
+        "expression",
+        "ternary"
       ],
       "worked_example": {
-        "code": "user = 'James'\naccess_level = 3\nif user == 'admin' or access_level >= 4:\n    print('Access granted!')\nelse:\n    print('Access denied!')",
+        "code": "n = 7\nkind = 'even' if n % 2 == 0 else 'odd'\nprint(kind)\ncount = 3\nprint(f\"{count} {'item' if count == 1 else 'items'}\")",
         "notes": [
-          "or: one True side is enough.",
-          "and: both sides must be True; it can replace a nested if."
+          "a if condition else b is an expression: it produces a value that you can store, print or put in an f-string.",
+          "The else part is required, because the expression must always produce a value.",
+          "Use it when both branches only choose a value; use a normal if/else when the branches do several things."
         ],
         "notes_tr": [
-          "or: iki taraftan birinin True olması yeter.",
-          "and: iki taraf da True olmalı; iç içe if yerine kullanılabilir."
+          "a if condition else b bir ifadedir: saklayabileceğin, yazdırabileceğin ya da f-string'e koyabileceğin bir değer üretir.",
+          "else kısmı zorunludur, çünkü ifade her zaman bir değer üretmelidir.",
+          "İki dal da yalnızca bir değer seçiyorsa onu kullan; dallar birden fazla iş yapıyorsa normal if/else kullan."
         ]
       },
       "exercises": [
         {
           "id": "d09-b3-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "a = 7\nif a > 0 and a % 2 == 0:\n    print('positive even')\nelif a > 0 and a % 2 != 0:\n    print('positive odd')\nelif a == 0:\n    print('zero')\nelse:\n    print('negative')",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "stock = 3\nlabel = 'sold out' if stock == 0 else f'{stock} left'\nprint(label)",
           "choices": [
-            "positive odd",
-            "positive even",
-            "zero",
-            "negative"
+            "stock left",
+            "Error",
+            "3 left",
+            "sold out"
           ],
-          "expected_output": "positive odd",
-          "explanation": "7 is greater than 0, but 7 % 2 is 1, so the first branch fails. The second branch needs a > 0 and an odd number, which is true.",
+          "expected_output": "3 left",
+          "explanation": "The condition is False, so label becomes the f-string '3 left'.",
+          "explanation_tr": "Koşul False'tur; label '3 left' f-string'i olur.",
           "misconceptions": {
-            "positive even": "7 % 2 == 0 is False, so the first branch does not run.",
-            "zero": "a is 7, not 0.",
-            "negative": "a > 0 is True, so a is not negative."
+            "sold out": "stock == 0 is False, so the value after else is used.",
+            "stock left": "Inside the f-string the braces insert the value of stock.",
+            "Error": "A conditional expression may contain an f-string on either side."
           },
-          "explanation_tr": "7, 0'dan büyük ama 7 % 2 sonucu 1, bu yüzden ilk dal başarısız olur. İkinci dal a > 0 ve tek sayı ister; bu doğrudur.",
           "misconceptions_tr": {
-            "positive even": "7 % 2 == 0 False, bu yüzden ilk dal çalışmaz.",
-            "zero": "a değeri 7, 0 değil.",
-            "negative": "a > 0 True, yani a negatif değil."
+            "sold out": "stock == 0 False'tur; else'ten sonraki değer kullanılır.",
+            "stock left": "f-string içinde süslü parantez stock'un değerini koyar.",
+            "Error": "Koşullu ifade iki tarafında da f-string içerebilir."
           }
         },
         {
           "id": "d09-b3-e2",
-          "type": "parsons",
-          "prompt": "Put the lines in order so the program adds 'mango' only when it is not in the list yet, then prints the list.",
-          "prompt_tr": "Satırları, program 'mango' listede yoksa ekleyip listeyi yazdıracak şekilde sırala.",
-          "lines": [
-            "else:",
-            "if fruit in fruits:",
-            "    print(fruits)",
-            "fruits = ['banana', 'orange']",
-            "    fruits.append(fruit)",
-            "fruit = 'mango'",
-            "    print('That fruit already exist in the list')"
+          "type": "fill_blank",
+          "prompt": "Fill the blank so status is 'adult' for 18 or more and 'minor' otherwise, in one line.",
+          "prompt_tr": "Boşluğu doldur: status 18 ve üstü için 'adult', değilse 'minor' olsun; tek satırda.",
+          "starter_code": "age = 20\nstatus = 'adult' ___ age >= 18 else 'minor'\nprint(status)",
+          "blanks": [
+            {
+              "answer": [
+                "if"
+              ]
+            }
           ],
-          "correct_order": [
-            3,
-            5,
-            1,
-            6,
-            0,
-            4,
-            2
+          "tests": [
+            {
+              "code": "assert status == 'adult'",
+              "visible": true,
+              "label": "20 is adult",
+              "label_tr": "20 adult",
+              "failure_message": "20 should give adult.",
+              "failure_message_tr": "20 adult vermeli."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('age=')][0]\n_src[_i] = 'age = 12'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['status'] == 'minor'",
+              "visible": false,
+              "failure_message": "12 should give minor.",
+              "failure_message_tr": "12 minor vermeli."
+            }
           ],
-          "distractors": [
-            "    fruits.add(fruit)"
+          "hints": [
+            "The pattern is: value, keyword, condition, else, other value.",
+            "Which keyword introduces the condition?",
+            "It is the same keyword that starts an if statement."
           ],
-          "expected_output": "['banana', 'orange', 'mango']"
+          "hints_tr": [
+            "Kalıp şudur: değer, anahtar kelime, koşul, else, diğer değer.",
+            "Koşulu hangi anahtar kelime başlatır?",
+            "if deyimini başlatan anahtar kelimenin aynısıdır."
+          ]
         },
         {
           "id": "d09-b3-e3",
-          "type": "write",
-          "prompt": "Write a function access(user, level) that returns 'granted' if the user is 'admin' OR the level is at least 4, and 'denied' otherwise. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
-          "prompt_tr": "Kullanıcı 'admin' İSE veya seviye en az 4 ise 'granted', aksi halde 'denied' döndüren bir access(user, level) fonksiyonu yaz. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
-          "starter_code": "",
-          "signature": "def access(user, level):",
-          "tests": [
-            {
-              "code": "assert access('admin', 1) == 'granted'",
-              "visible": true,
-              "failure_message": "An admin is always granted access.",
-              "label_tr": "admin her zaman giriyor mu",
-              "failure_message_tr": "admin her zaman erişim alır."
-            },
-            {
-              "code": "assert access('James', 3) == 'denied'",
-              "visible": true,
-              "failure_message": "James with level 3 is denied.",
-              "label_tr": "James seviye 3 ile reddediliyor mu",
-              "failure_message_tr": "James seviye 3 ile reddedilir (denied)."
-            },
-            {
-              "code": "assert access('James', 4) == 'granted'",
-              "visible": false,
-              "failure_message": "Level 4 or higher is granted (>= 4).",
-              "failure_message_tr": "Seviye 4 ve üstü kabul edilir (>= 4)."
-            },
-            {
-              "code": "assert access('admin', 0) == 'granted'",
-              "visible": false,
-              "failure_message": "admin wins even with level 0.",
-              "failure_message_tr": "Seviye 0 olsa bile admin kabul edilir."
-            },
-            {
-              "code": "assert access('Mia', 3) == 'denied' and access('Mia', 10) == 'granted'",
-              "visible": false,
-              "failure_message": "Level 3 is denied, level 10 is granted.",
-              "failure_message_tr": "Seviye 3 reddedilir, seviye 10 kabul edilir."
-            },
-            {
-              "code": "assert access('root', 9) == 'granted' and access('root', 2) == 'denied' and access('admin', 100) == 'granted' and access('Leo', 4) == 'granted'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "Try other users and levels: the rule must hold for all of them.",
-              "failure_message_tr": "Başka kullanıcı ve seviyelerle dene: kural hepsi için geçerli olmalı."
-            }
-          ],
+          "type": "debug",
+          "prompt": "This line should choose 'free' when the total is at least 500 and '50 TL' otherwise, then print it. It crashes with SyntaxError. Fix the expression.",
+          "prompt_tr": "Bu satır toplam en az 500 ise 'free', değilse '50 TL' seçmeli ve yazdırmalı. SyntaxError ile çöküyor. İfadeyi düzelt.",
+          "starter_code": "total = 620\nshipping = 'free' if total >= 500\nprint(shipping)",
           "hints": [
-            "Two conditions, joined by one logical keyword.",
-            "The word that accepts a True on either side is or; put it between the two comparisons inside the if.",
-            "Write an if with both comparisons joined by that keyword and return 'granted'; after the if, return 'denied'."
+            "What value should shipping get when the condition is False?",
+            "The short hand always has two values.",
+            "Add else followed by the second value at the end of the line."
+          ],
+          "hints_tr": [
+            "Koşul False olduğunda shipping hangi değeri almalı?",
+            "Kısa yazımda her zaman iki değer vardır.",
+            "Satırın sonuna else ve ardından ikinci değeri ekle."
           ],
           "solution": {
-            "approach": "Combine both conditions with or.",
-            "code": "def access(user, level):\n    if user == 'admin' or level >= 4:\n        return 'granted'\n    return 'denied'",
-            "approach_tr": "İki koşulu or ile birleştir."
+            "approach": "A conditional expression needs its else part.",
+            "approach_tr": "Koşullu ifade else kısmına ihtiyaç duyar.",
+            "code": "total = 620\nshipping = 'free' if total >= 500 else '50 TL'\nprint(shipping)"
           },
-          "twin": "d09-b3-e4",
-          "hints_tr": [
-            "İki koşul var, tek bir mantıksal anahtar kelimeyle bağlanır.",
-            "İki taraftan birinin True olmasını kabul eden kelime or'dur; if içinde iki karşılaştırmanın arasına koy.",
-            "İki karşılaştırmayı o kelimeyle birleştiren bir if yaz ve 'granted' döndür; if'ten sonra 'denied' döndür."
-          ]
+          "tests": [
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('total=')][0]\n_src[_i] = 'total = 100'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '50 TL'",
+              "visible": false,
+              "failure_message": "Below 500 it should print 50 TL.",
+              "failure_message_tr": "500'ün altında 50 TL yazdırmalı."
+            }
+          ],
+          "expected_output": "free"
         },
         {
           "id": "d09-b3-e4",
-          "type": "write",
-          "prompt": "Write a function describe(n) that returns 'zero' if n is 0, 'positive even' or 'positive odd' if n is above 0, and 'negative' if n is below 0. Use the and operator instead of nesting. (A function is a named, reusable block of code; you will study it on Day 11. For now just type the given signature and write the body.)",
-          "prompt_tr": "n 0 ise 'zero', 0'dan büyükse 'positive even' veya 'positive odd', 0'dan küçükse 'negative' döndüren bir describe(n) fonksiyonu yaz. İç içe if yerine and operatörünü kullan. (Fonksiyon, adı olan ve tekrar kullanılabilen bir kod bloğudur; 11. günde öğreneceksin. Şimdilik verilen imzayı yaz ve gövdesini doldur.)",
-          "starter_code": "",
-          "signature": "def describe(n):",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "items = []\nmessage = 'checkout' if items else 'empty cart'\nprint(message, len(items))",
+          "choices": [
+            "checkout 0",
+            "empty cart",
+            "Error",
+            "empty cart 0"
+          ],
+          "expected_output": "empty cart 0",
+          "explanation": "items is empty, so it counts as False and message is 'empty cart'; its length is 0.",
+          "explanation_tr": "items boştur, False sayılır ve message 'empty cart' olur; uzunluğu 0'dır.",
+          "misconceptions": {
+            "checkout 0": "An empty list counts as False in a condition.",
+            "empty cart": "len(items) is printed too, after a space.",
+            "Error": "A list can be used directly as a condition."
+          },
+          "misconceptions_tr": {
+            "checkout 0": "Boş list bir koşulda False sayılır.",
+            "empty cart": "len(items) de bir boşluktan sonra yazdırılır.",
+            "Error": "Bir list doğrudan koşul olarak kullanılabilir."
+          }
+        },
+        {
+          "id": "d09-b3-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints: 1 item",
+          "prompt_tr": "Satırları sıraya koy: program şunu yazdırsın: 1 item",
+          "lines": [
+            "print(count, word)",
+            "count = 1",
+            "word = 'item' if count == 1 else 'items'"
+          ],
+          "correct_order": [
+            1,
+            2,
+            0
+          ],
+          "distractors": [
+            "word = 'item' if count == 1"
+          ],
+          "expected_output": "1 item"
+        },
+        {
+          "id": "d09-b3-e6",
+          "type": "modify",
+          "prompt": "The program uses a four-line if/else to pick the label. Rewrite the choice as ONE conditional expression assigned to label, then print label. Keep the first line. For the given value: odd.",
+          "prompt_tr": "Program etiketi seçmek için dört satırlık bir if/else kullanıyor. Seçimi label'a atanan TEK bir koşullu ifade olarak yeniden yaz, sonra label'ı yazdır. İlk satırı koru. Verilen değer için: odd.",
+          "starter_code": "n = 7\nif n % 2 == 0:\n    label = 'even'\nelse:\n    label = 'odd'\nprint(label)",
           "tests": [
             {
-              "code": "assert describe(6) == 'positive even'",
+              "code": "assert __stdout__.strip() == 'odd'",
               "visible": true,
-              "failure_message": "6 is positive and even.",
-              "label_tr": "6 pozitif çift mi",
-              "failure_message_tr": "6 pozitif ve çifttir."
+              "label": "7 is odd",
+              "label_tr": "7 odd",
+              "failure_message": "7 should print odd.",
+              "failure_message_tr": "7 odd yazdırmalı."
             },
             {
-              "code": "assert describe(7) == 'positive odd'",
-              "visible": true,
-              "failure_message": "7 is positive and odd.",
-              "label_tr": "7 pozitif tek mi",
-              "failure_message_tr": "7 pozitif ve tektir."
-            },
-            {
-              "code": "assert describe(0) == 'zero'",
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('n=')][0]\n_src[_i] = 'n = 10'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'even'",
               "visible": false,
-              "failure_message": "0 is 'zero', not 'positive even'. Check n == 0 or n > 0 first.",
-              "failure_message_tr": "0 'zero' olmalı, 'positive even' değil. Önce n == 0 ya da n > 0 kontrolünü düşün."
+              "failure_message": "10 should print even.",
+              "failure_message_tr": "10 even yazdırmalı."
             },
             {
-              "code": "assert describe(-4) == 'negative' and describe(-3) == 'negative'",
+              "code": "import ast\n_t = ast.parse(__source__)\nassert any(isinstance(n, ast.IfExp) for n in ast.walk(_t)) and not any(isinstance(n, ast.If) for n in ast.walk(_t))",
               "visible": false,
-              "failure_message": "Any number below 0 is 'negative', odd or even.",
-              "failure_message_tr": "0'dan küçük her sayı 'negative' olmalı, tek ya da çift fark etmez."
-            },
-            {
-              "code": "assert describe(1) == 'positive odd' and describe(2) == 'positive even'",
-              "visible": false,
-              "failure_message": "Check the smallest positive numbers.",
-              "failure_message_tr": "En küçük pozitif sayıları kontrol et."
-            },
-            {
-              "code": "assert describe(13) == 'positive odd' and describe(20) == 'positive even' and describe(-10) == 'negative' and describe(-7) == 'negative'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "Try other numbers too: the function must work for any number.",
-              "failure_message_tr": "Başka sayılarla da dene: fonksiyon her sayı için çalışmalı."
+              "failure_message": "Use one conditional expression (a if c else b) and no if statement.",
+              "failure_message_tr": "Tek bir koşullu ifade (a if c else b) kullan, if deyimi kullanma.",
+              "anti_hardcode": true
             }
           ],
           "hints": [
-            "Four outcomes mean four branches.",
-            "Combine two checks with and: n > 0 and an even test (n % 2 == 0) for 'positive even', the same with != 0 for 'positive odd'.",
-            "Order the branches: positive even, positive odd (both use and), then zero, then else for 'negative'."
+            "The whole if/else becomes a single assignment.",
+            "Put the 'True' value first, then if and the condition, then else and the other value.",
+            "label = 'even' ... and finish the line with the odd case."
+          ],
+          "hints_tr": [
+            "Bütün if/else tek bir atamaya dönüşür.",
+            "Önce 'True' değeri, sonra if ve koşul, sonra else ve diğer değer.",
+            "label = 'even' ... ile başla ve satırı tek sayı durumuyla bitir."
           ],
           "solution": {
-            "approach": "Branches with and, then zero, then else.",
-            "code": "def describe(n):\n    if n > 0 and n % 2 == 0:\n        return 'positive even'\n    elif n > 0 and n % 2 != 0:\n        return 'positive odd'\n    elif n == 0:\n        return 'zero'\n    else:\n        return 'negative'",
-            "approach_tr": "and ile dallar kur, sonra sıfır, sonra else."
-          },
-          "twin": "d09-b3-e3",
+            "approach": "Value if condition else other value, on one line.",
+            "approach_tr": "Tek satırda: değer if koşul else diğer değer.",
+            "code": "n = 7\nlabel = 'even' if n % 2 == 0 else 'odd'\nprint(label)"
+          }
+        },
+        {
+          "id": "d09-b3-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: count = 3. Print exactly 'You have 3 new messages', but use 'message' instead of 'messages' when count is 1. Use a conditional expression inside an f-string.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: count = 3. Tam olarak 'You have 3 new messages' yazdır; ama count 1 ise 'messages' yerine 'message' kullan. f-string içinde bir koşullu ifade kullan.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'You have 3 new messages'",
+              "visible": true,
+              "label": "Plural for 3",
+              "label_tr": "3 için çoğul",
+              "failure_message": "Expected: You have 3 new messages",
+              "failure_message_tr": "Beklenen: You have 3 new messages"
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('count=')][0]\n_src[_i] = 'count = 1'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'You have 1 new message'",
+              "visible": false,
+              "failure_message": "For 1 the word must be singular.",
+              "failure_message_tr": "1 için kelime tekil olmalı.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('count=')][0]\n_src[_i] = 'count = 0'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'You have 0 new messages'",
+              "visible": false,
+              "failure_message": "Edge case: 0 uses the plural.",
+              "failure_message_tr": "Kenar durum: 0 çoğul kullanır."
+            }
+          ],
+          "hints": [
+            "Only one word changes between the two cases.",
+            "Inside the braces you can write any expression, including a if c else b.",
+            "Use double quotes for the f-string so the words inside can use single quotes."
+          ],
           "hints_tr": [
-            "Dört sonuç, dört dal demek.",
-            "İki kontrolü and ile birleştir: 'positive even' için n > 0 ve çift testi (n % 2 == 0), 'positive odd' için aynısı != 0 ile.",
-            "Dalları şu sırayla kur: positive even, positive odd (ikisi de and kullanır), sonra zero, en sonda negatif için else."
-          ]
+            "İki durum arasında yalnızca bir kelime değişiyor.",
+            "Süslü parantezin içine a if c else b dahil her ifadeyi yazabilirsin.",
+            "f-string için çift tırnak kullan ki içteki kelimeler tek tırnak kullanabilsin."
+          ],
+          "solution": {
+            "approach": "The conditional expression picks the word inside the f-string.",
+            "approach_tr": "Koşullu ifade kelimeyi f-string içinde seçer.",
+            "code": "count = 3\nprint(f\"You have {count} new {'message' if count == 1 else 'messages'}\")"
+          },
+          "twin": "d09-b3-e8"
+        },
+        {
+          "id": "d09-b3-e8",
+          "type": "write",
+          "prompt": "Start your program with these two lines exactly: a = 17 and then b = 42. Store the larger number in bigger using one conditional expression (not max()), then print bigger.",
+          "prompt_tr": "Programına tam olarak şu iki satırla başla: a = 17 ve ardından b = 42. Büyük sayıyı tek bir koşullu ifadeyle (max() değil) bigger'da sakla, sonra bigger'ı yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert bigger == 42",
+              "visible": true,
+              "label": "bigger is 42",
+              "label_tr": "bigger 42",
+              "failure_message": "bigger should be 42.",
+              "failure_message_tr": "bigger 42 olmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('a=')][0]\n_src[_i] = 'a = 99'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['bigger'] == 99",
+              "visible": false,
+              "failure_message": "When a is larger, bigger must be a.",
+              "failure_message_tr": "a daha büyükse bigger a olmalı.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('b=')][0]\n_src[_i] = 'b = 17'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['bigger'] == 17",
+              "visible": false,
+              "failure_message": "Edge case: equal numbers give that number.",
+              "failure_message_tr": "Kenar durum: eşit sayılar o sayıyı verir."
+            },
+            {
+              "code": "assert 'max(' not in __source__",
+              "visible": false,
+              "failure_message": "Use a conditional expression instead of max().",
+              "failure_message_tr": "max() yerine bir koşullu ifade kullan."
+            }
+          ],
+          "hints": [
+            "The result is one of the two names.",
+            "The condition compares a and b.",
+            "bigger = a if ... else b, with the comparison in the middle."
+          ],
+          "hints_tr": [
+            "Sonuç iki isimden biridir.",
+            "Koşul a ile b'yi karşılaştırır.",
+            "bigger = a if ... else b; karşılaştırma ortada."
+          ],
+          "solution": {
+            "approach": "Choose a when it is larger, otherwise b.",
+            "approach_tr": "Daha büyükse a'yı, değilse b'yi seç.",
+            "code": "a = 17\nb = 42\nbigger = a if a > b else b\nprint(bigger)"
+          },
+          "twin": "d09-b3-e7"
         }
+      ]
+    },
+    {
+      "id": "d09-b4",
+      "concept": "nested-and",
+      "concept_tr": "İç içe koşullar, and ve zincirleme karşılaştırma",
+      "tags": [
+        "conditionals",
+        "nested",
+        "and",
+        "chained-comparison"
       ],
-      "concept_tr": "and / or ile koşulları birleştirme"
+      "worked_example": {
+        "code": "a = 6\nif a > 0:\n    if a % 2 == 0:\n        print('positive and even')\nif a > 0 and a % 2 == 0:\n    print('same check with and')\nscore = 105\nprint(0 <= score <= 100)",
+        "notes": [
+          "An inner if is checked only when the outer condition was True; each level adds four spaces.",
+          "a and b is True only when both sides are True, so it can replace one level of nesting.",
+          "0 <= score <= 100 is a chained comparison that means 0 <= score and score <= 100."
+        ],
+        "notes_tr": [
+          "İçteki if yalnızca dıştaki koşul True olduğunda kontrol edilir; her seviye dört boşluk ekler.",
+          "a and b yalnızca iki taraf da True olduğunda True'dur; bu yüzden bir iç içe seviyenin yerini alabilir.",
+          "0 <= score <= 100, 0 <= score and score <= 100 anlamına gelen zincirleme bir karşılaştırmadır."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d09-b4-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "member = False\ntotal = 700\nif member:\n    if total >= 500:\n        print('free shipping')\nelse:\n    print('standard rate')",
+          "choices": [
+            "standard rate",
+            "free shipping",
+            "free shipping\nstandard rate"
+          ],
+          "expected_output": "standard rate",
+          "explanation": "member is False, so Python skips the whole outer block, including the inner if, and runs the outer else.",
+          "explanation_tr": "member False'tur; Python içteki if dahil bütün dış bloğu atlar ve dıştaki else'i çalıştırır.",
+          "misconceptions": {
+            "free shipping": "The inner if is never reached because member is False.",
+            "free shipping\nstandard rate": "Only one of the outer if/else blocks runs."
+          },
+          "misconceptions_tr": {
+            "free shipping": "member False olduğu için içteki if'e hiç ulaşılmaz.",
+            "free shipping\nstandard rate": "Dıştaki if/else bloklarından yalnızca biri çalışır."
+          }
+        },
+        {
+          "id": "d09-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank with a chained comparison so valid is True only for scores from 0 to 100.",
+          "prompt_tr": "Boşluğu zincirleme bir karşılaştırmayla doldur: valid yalnızca 0'dan 100'e kadar olan puanlarda True olsun.",
+          "starter_code": "score = 87\nvalid = ___\nprint(valid)",
+          "blanks": [
+            {
+              "answer": [
+                "0 <= score <= 100",
+                "100 >= score >= 0"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert valid is True",
+              "visible": true,
+              "label": "87 valid",
+              "label_tr": "87 geçerli",
+              "failure_message": "87 is a valid score.",
+              "failure_message_tr": "87 geçerli bir puandır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 101'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['valid'] is False",
+              "visible": false,
+              "failure_message": "101 is outside 0-100.",
+              "failure_message_tr": "101, 0-100 aralığının dışındadır."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('score=')][0]\n_src[_i] = 'score = 0'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _ns['valid'] is True",
+              "visible": false,
+              "failure_message": "0 is still valid.",
+              "failure_message_tr": "0 hâlâ geçerlidir."
+            }
+          ],
+          "hints": [
+            "The score must be between two bounds, both included.",
+            "Python lets you write two comparisons in a row, like in mathematics.",
+            "Lower bound, <=, the name score, <=, upper bound."
+          ],
+          "hints_tr": [
+            "Puan iki sınır arasında olmalı; iki sınır da dahil.",
+            "Python matematikteki gibi iki karşılaştırmayı art arda yazmana izin verir.",
+            "Alt sınır, <=, score ismi, <=, üst sınır."
+          ]
+        },
+        {
+          "id": "d09-b4-e3",
+          "type": "debug",
+          "prompt": "The program should print 'knows Python' only when the person has a 'skills' key that contains 'Python'. For a person without skills it crashes with KeyError: 'skills'. Guard the lookup with an outer if.",
+          "prompt_tr": "Program yalnızca kişinin 'Python' içeren bir 'skills' anahtarı varsa 'knows Python' yazdırmalı. Becerisi olmayan bir kişi için KeyError: 'skills' ile çöküyor. Aramayı dıştaki bir if ile koru.",
+          "starter_code": "person = {'name': 'Can'}\nif 'Python' in person['skills']:\n    print('knows Python')\nprint('done')",
+          "hints": [
+            "The crash happens while reading person['skills'].",
+            "Ask whether the key is in the dict first.",
+            "Wrap the existing if inside an outer if that checks 'skills' in person, and indent it one level."
+          ],
+          "hints_tr": [
+            "Çökme person['skills'] okunurken oluyor.",
+            "Önce anahtarın dict'te olup olmadığını sor.",
+            "Var olan if'i 'skills' in person kontrolü yapan dıştaki bir if'in içine al ve bir seviye girintile."
+          ],
+          "solution": {
+            "approach": "Check that the key exists before reading it; the inner check runs only then.",
+            "approach_tr": "Anahtarı okumadan önce var olduğunu kontrol et; içteki kontrol yalnızca o zaman çalışır.",
+            "code": "person = {'name': 'Can'}\nif 'skills' in person:\n    if 'Python' in person['skills']:\n        print('knows Python')\nprint('done')"
+          },
+          "tests": [
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('person=')][0]\n_src[_i] = \"person = {'skills': ['Go', 'Python']}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip().split('\\n') == ['knows Python', 'done']",
+              "visible": false,
+              "failure_message": "A person with Python should still print knows Python.",
+              "failure_message_tr": "Python bilen bir kişi yine knows Python yazdırmalı."
+            }
+          ],
+          "expected_output": "done"
+        },
+        {
+          "id": "d09-b4-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "count = 0\ntotal = 0\nok = count != 0 and total / count > 5\nprint(ok)",
+          "choices": [
+            "False",
+            "Error",
+            "True",
+            "0"
+          ],
+          "expected_output": "False",
+          "explanation": "count != 0 is False, so and short-circuits: the division is skipped and ok is False.",
+          "explanation_tr": "count != 0 False'tur; and kısa devre yapar: bölme atlanır ve ok False olur.",
+          "misconceptions": {
+            "Error": "and stops at the first False side, so the division is never evaluated.",
+            "True": "count != 0 is False, and False and anything is False.",
+            "0": "The result of and here is the boolean False."
+          },
+          "misconceptions_tr": {
+            "Error": "and ilk False tarafta durur; bölme hiç hesaplanmaz.",
+            "True": "count != 0 False'tur; False and herhangi bir şey False'tur.",
+            "0": "Buradaki and'in sonucu False boolean'ıdır."
+          }
+        },
+        {
+          "id": "d09-b4-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints: positive and even",
+          "prompt_tr": "Satırları sıraya koy: program şunu yazdırsın: positive and even",
+          "lines": [
+            "elif a > 0:",
+            "if a > 0 and a % 2 == 0:",
+            "    print('positive and odd')",
+            "a = 8",
+            "    print('positive and even')"
+          ],
+          "correct_order": [
+            3,
+            1,
+            4,
+            0,
+            2
+          ],
+          "distractors": [
+            "if a > 0 or a % 2 == 0:"
+          ],
+          "expected_output": "positive and even"
+        },
+        {
+          "id": "d09-b4-e6",
+          "type": "modify",
+          "prompt": "The program uses a nested if. Rewrite it with ONE if that uses and, so it prints 'can rent' when age is at least 21 and has_license is True, and prints nothing otherwise. Keep the first two lines.",
+          "prompt_tr": "Program iç içe bir if kullanıyor. and kullanan TEK bir if ile yeniden yaz: age en az 21 ve has_license True ise 'can rent' yazdırsın, değilse hiçbir şey yazdırmasın. İlk iki satırı koru.",
+          "starter_code": "age = 25\nhas_license = True\nif age >= 21:\n    if has_license:\n        print('can rent')",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'can rent'",
+              "visible": true,
+              "label": "Can rent",
+              "label_tr": "Kiralayabilir",
+              "failure_message": "25 with a license can rent.",
+              "failure_message_tr": "Ehliyetli 25 yaşındaki kiralayabilir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('has_license=')][0]\n_src[_i] = 'has_license = False'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == ''",
+              "visible": false,
+              "failure_message": "Without a license nothing is printed.",
+              "failure_message_tr": "Ehliyet yoksa hiçbir şey yazdırılmaz."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('age=')][0]\n_src[_i] = 'age = 19'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == ''",
+              "visible": false,
+              "failure_message": "Under 21 nothing is printed.",
+              "failure_message_tr": "21'in altında hiçbir şey yazdırılmaz."
+            },
+            {
+              "code": "import ast\n_t = ast.parse(__source__)\n_ifs = [n for n in ast.walk(_t) if isinstance(n, ast.If)]\nassert len(_ifs) == 1 and any(isinstance(n, ast.BoolOp) and isinstance(n.op, ast.And) for n in ast.walk(_t))",
+              "visible": false,
+              "failure_message": "Use exactly one if with and instead of nesting.",
+              "failure_message_tr": "İç içe yazmak yerine and içeren tam olarak bir if kullan.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "Both conditions must be True for the same block.",
+            "and joins two conditions into one.",
+            "One if line with age >= 21, the keyword and, and has_license; the print goes one level in."
+          ],
+          "hints_tr": [
+            "Aynı blok için iki koşul da True olmalı.",
+            "and iki koşulu birleştirip tek yapar.",
+            "age >= 21, and anahtar kelimesi ve has_license içeren tek bir if satırı; print bir seviye içeride."
+          ],
+          "solution": {
+            "approach": "Join the two conditions with and in one if.",
+            "approach_tr": "İki koşulu tek bir if içinde and ile birleştir.",
+            "code": "age = 25\nhas_license = True\nif age >= 21 and has_license:\n    print('can rent')"
+          }
+        },
+        {
+          "id": "d09-b4-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: person = {'first_name': 'Elif', 'last_name': 'Kaya', 'country': 'Finland', 'is_married': True}. If the person is married AND lives in Finland, print exactly: Elif Kaya lives in Finland. She is married. Otherwise print exactly: No match.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: person = {'first_name': 'Elif', 'last_name': 'Kaya', 'country': 'Finland', 'is_married': True}. Kişi evliyse VE Finlandiya'da yaşıyorsa tam olarak şunu yazdır: Elif Kaya lives in Finland. She is married. Değilse tam olarak şunu yazdır: No match.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Elif Kaya lives in Finland. She is married.'",
+              "visible": true,
+              "label": "Married and in Finland",
+              "label_tr": "Evli ve Finlandiya'da",
+              "failure_message": "Expected: Elif Kaya lives in Finland. She is married.",
+              "failure_message_tr": "Beklenen: Elif Kaya lives in Finland. She is married."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('person=')][0]\n_src[_i] = \"person = {'first_name': 'Ada', 'last_name': 'Er', 'country': 'Finland', 'is_married': True}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Ada Er lives in Finland. She is married.'",
+              "visible": false,
+              "failure_message": "Build the names from the dict, not by typing them.",
+              "failure_message_tr": "İsimleri elle yazma, dict'ten kur.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('person=')][0]\n_src[_i] = \"person = {'first_name': 'Ada', 'last_name': 'Er', 'country': 'Türkiye', 'is_married': True}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'No match'",
+              "visible": false,
+              "failure_message": "Another country gives No match.",
+              "failure_message_tr": "Başka bir ülke No match verir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('person=')][0]\n_src[_i] = \"person = {'first_name': 'Ada', 'last_name': 'Er', 'country': 'Finland', 'is_married': False}\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'No match'",
+              "visible": false,
+              "failure_message": "Not married gives No match.",
+              "failure_message_tr": "Evli değilse No match çıkar."
+            }
+          ],
+          "hints": [
+            "Both facts must be True: use and.",
+            "person['is_married'] is already a boolean; the country needs a comparison with ==.",
+            "In the f-string read first_name and last_name from person; use double quotes outside."
+          ],
+          "hints_tr": [
+            "İki bilgi de True olmalı: and kullan.",
+            "person['is_married'] zaten bir boolean'dır; ülke == ile karşılaştırma ister.",
+            "f-string'de first_name ve last_name'i person'dan oku; dışta çift tırnak kullan."
+          ],
+          "solution": {
+            "approach": "Combine the two checks with and; build the sentence from the dict.",
+            "approach_tr": "İki kontrolü and ile birleştir; cümleyi dict'ten kur.",
+            "code": "person = {'first_name': 'Elif', 'last_name': 'Kaya', 'country': 'Finland', 'is_married': True}\nif person['is_married'] and person['country'] == 'Finland':\n    print(f\"{person['first_name']} {person['last_name']} lives in Finland. She is married.\")\nelse:\n    print('No match')"
+          },
+          "twin": "d09-b4-e8"
+        },
+        {
+          "id": "d09-b4-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: weight = 2.5. Print 'invalid' when the weight is not in the range 0 < weight <= 30. Otherwise print the price: 30 for up to 1 kg, 50 above 1 kg. For the given line: 50.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: weight = 2.5. Ağırlık 0 < weight <= 30 aralığında değilse 'invalid' yazdır. Değilse fiyatı yazdır: 1 kg'a kadar 30, 1 kg üstü 50. Verilen satır için: 50.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == '50'",
+              "visible": true,
+              "label": "2.5 kg is 50",
+              "label_tr": "2.5 kg 50",
+              "failure_message": "2.5 kg costs 50.",
+              "failure_message_tr": "2.5 kg 50 tutar."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('weight=')][0]\n_src[_i] = 'weight = 0.4'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '30'",
+              "visible": false,
+              "failure_message": "0.4 kg costs 30.",
+              "failure_message_tr": "0.4 kg 30 tutar.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('weight=')][0]\n_src[_i] = 'weight = 0'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'invalid'",
+              "visible": false,
+              "failure_message": "Edge case: 0 kg is invalid.",
+              "failure_message_tr": "Kenar durum: 0 kg geçersizdir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('weight=')][0]\n_src[_i] = 'weight = 30'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '50'",
+              "visible": false,
+              "failure_message": "Edge case: exactly 30 kg is still valid.",
+              "failure_message_tr": "Kenar durum: tam 30 kg hâlâ geçerlidir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('weight=')][0]\n_src[_i] = 'weight = 1'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == '30'",
+              "visible": false,
+              "failure_message": "Edge case: exactly 1 kg costs 30.",
+              "failure_message_tr": "Kenar durum: tam 1 kg 30 tutar."
+            }
+          ],
+          "hints": [
+            "Three outcomes: invalid, 30, 50.",
+            "The chained comparison 0 < weight <= 30 is True for valid weights; not flips it.",
+            "if not (the chained comparison): invalid, elif weight <= 1: 30, else: 50."
+          ],
+          "hints_tr": [
+            "Üç sonuç: invalid, 30, 50.",
+            "0 < weight <= 30 zincirleme karşılaştırması geçerli ağırlıklar için True'dur; not onu ters çevirir.",
+            "if not (zincirleme karşılaştırma): invalid, elif weight <= 1: 30, else: 50."
+          ],
+          "solution": {
+            "approach": "Reject invalid weights first, then choose the price.",
+            "approach_tr": "Önce geçersiz ağırlıkları reddet, sonra fiyatı seç.",
+            "code": "weight = 2.5\nif not 0 < weight <= 30:\n    print('invalid')\nelif weight <= 1:\n    print(30)\nelse:\n    print(50)"
+          },
+          "twin": "d09-b4-e7"
+        }
+      ]
+    },
+    {
+      "id": "d09-b5",
+      "concept": "or-in-truthiness",
+      "concept_tr": "or, not, in ve doğruluk değeri",
+      "tags": [
+        "conditionals",
+        "or",
+        "not",
+        "truthiness",
+        "membership"
+      ],
+      "worked_example": {
+        "code": "day = 'Sun'\nif day in ('Sat', 'Sun'):\n    print('weekend')\nuser, level = 'James', 3\nprint(user == 'admin' or level >= 4)\ncart = []\nprint('checkout' if cart else 'empty', not cart)",
+        "notes": [
+          "or is True when at least one side is True; day in ('Sat', 'Sun') is the short, safe way to compare with several values.",
+          "x == 'a' or 'b' is always True, because the string 'b' on its own counts as True.",
+          "Empty strings, empty collections, 0 and None count as False, so if cart: means the cart is not empty."
+        ],
+        "notes_tr": [
+          "or en az bir taraf True olduğunda True'dur; day in ('Sat', 'Sun') birkaç değerle karşılaştırmanın kısa ve güvenli yoludur.",
+          "x == 'a' or 'b' her zaman True'dur, çünkü tek başına 'b' string'i True sayılır.",
+          "Boş string'ler, boş koleksiyonlar, 0 ve None False sayılır; bu yüzden if cart: sepet boş değil demektir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d09-b5-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "day = 'Mon'\nif day == 'Sat' or 'Sun':\n    print('weekend')\nelse:\n    print('workday')",
+          "choices": [
+            "Error",
+            "weekend\nworkday",
+            "weekend",
+            "workday"
+          ],
+          "expected_output": "weekend",
+          "explanation": "or returns 'Sun' when the comparison is False, and a non-empty string is truthy, so the if block runs even on Monday.",
+          "explanation_tr": "Karşılaştırma False olunca or 'Sun'ı döndürür; boş olmayan string doğru sayılır, bu yüzden if bloğu pazartesi bile çalışır.",
+          "misconceptions": {
+            "workday": "The condition is (day == 'Sat') or 'Sun', and the non-empty string 'Sun' counts as True.",
+            "Error": "The line is valid Python; it is a logic bug, not a syntax error.",
+            "weekend\nworkday": "Only one block of if/else runs."
+          },
+          "misconceptions_tr": {
+            "workday": "Koşul (day == 'Sat') or 'Sun'dır ve boş olmayan 'Sun' string'i True sayılır.",
+            "Error": "Satır geçerli Python'dur; sözdizimi değil mantık hatasıdır.",
+            "weekend\nworkday": "if/else'in yalnızca bir bloğu çalışır."
+          }
+        },
+        {
+          "id": "d09-b5-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program prints 'Access granted!' for the admin or for anyone with level 4 or more.",
+          "prompt_tr": "Boşluğu doldur: program admin için ya da seviyesi 4 veya üstü olan herkes için 'Access granted!' yazdırsın.",
+          "starter_code": "user = 'James'\nlevel = 5\nif user == 'admin' ___ level >= 4:\n    print('Access granted!')\nelse:\n    print('Access denied!')",
+          "blanks": [
+            {
+              "answer": [
+                "or"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Access granted!'",
+              "visible": true,
+              "label": "Level 5 granted",
+              "label_tr": "5. seviye izinli",
+              "failure_message": "Level 5 is enough.",
+              "failure_message_tr": "5. seviye yeterlidir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('level=')][0]\n_src[_i] = 'level = 2'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'Access denied!'",
+              "visible": false,
+              "failure_message": "James with level 2 must be denied.",
+              "failure_message_tr": "2. seviyedeki James reddedilmeli."
+            }
+          ],
+          "hints": [
+            "Either condition alone should be enough.",
+            "and would demand both.",
+            "Use the logical operator for 'at least one'."
+          ],
+          "hints_tr": [
+            "Koşullardan biri tek başına yetmeli.",
+            "and ikisini birden isterdi.",
+            "'En az biri' için mantıksal operatörü kullan."
+          ]
+        },
+        {
+          "id": "d09-b5-e3",
+          "type": "debug",
+          "prompt": "The program should print 'weekend' only on Saturday and Sunday. It prints 'weekend' for Monday. Fix the condition.",
+          "prompt_tr": "Program yalnızca cumartesi ve pazar 'weekend' yazdırmalı. Pazartesi için 'weekend' yazdırıyor. Koşulu düzelt.",
+          "starter_code": "day = 'Mon'\nif day == 'Sat' or 'Sun':\n    print('weekend')\nelse:\n    print('workday')",
+          "hints": [
+            "What is the truth value of the string 'Sun' on its own?",
+            "The right side of or must be a full comparison too.",
+            "Either repeat day == on the right side, or test day in a tuple of the two days."
+          ],
+          "hints_tr": [
+            "Tek başına 'Sun' string'inin doğruluk değeri nedir?",
+            "or'un sağ tarafı da tam bir karşılaştırma olmalı.",
+            "Ya sağ tarafta day == ifadesini tekrarla ya da day'i iki günün tuple'ında test et."
+          ],
+          "solution": {
+            "approach": "Compare day with both values; membership in a tuple does it in one step.",
+            "approach_tr": "day'i iki değerle de karşılaştır; tuple'da üyelik bunu tek adımda yapar.",
+            "code": "day = 'Mon'\nif day in ('Sat', 'Sun'):\n    print('weekend')\nelse:\n    print('workday')"
+          },
+          "tests": [
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('day=')][0]\n_src[_i] = \"day = 'Sun'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'weekend'",
+              "visible": false,
+              "failure_message": "Sunday must still be a weekend.",
+              "failure_message_tr": "Pazar yine hafta sonu olmalı."
+            }
+          ],
+          "expected_output": "workday"
+        },
+        {
+          "id": "d09-b5-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "name = ''\ntags = ['new']\nprint(bool(name), bool(tags), not name and bool(tags))",
+          "choices": [
+            "False False False",
+            "False True True",
+            "True True False",
+            "False True False"
+          ],
+          "expected_output": "False True True",
+          "explanation": "'' is False and ['new'] is True. not name is True, and True and True gives True.",
+          "explanation_tr": "'' False, ['new'] True'dur. not name True'dur; True and True True verir.",
+          "misconceptions": {
+            "True True False": "The empty string counts as False.",
+            "False True False": "not name is True because name is empty; True and True is True.",
+            "False False False": "A list with one item is not empty, so it counts as True."
+          },
+          "misconceptions_tr": {
+            "True True False": "Boş string False sayılır.",
+            "False True False": "name boş olduğu için not name True'dur; True and True True'dur.",
+            "False False False": "Tek öğeli bir list boş değildir, True sayılır."
+          }
+        },
+        {
+          "id": "d09-b5-e5",
+          "type": "parsons",
+          "prompt": "Put the lines in order so the program prints 'enter your name' for an empty name.",
+          "prompt_tr": "Satırları sıraya koy: program boş bir isim için 'enter your name' yazdırsın.",
+          "lines": [
+            "    print('hello', name)",
+            "if not name:",
+            "else:",
+            "name = ''",
+            "    print('enter your name')"
+          ],
+          "correct_order": [
+            3,
+            1,
+            4,
+            2,
+            0
+          ],
+          "distractors": [
+            "if name == None:"
+          ],
+          "expected_output": "enter your name"
+        },
+        {
+          "id": "d09-b5-e6",
+          "type": "modify",
+          "prompt": "The program adds a fruit to the list without checking. Change it so it appends the fruit only if it is not already in the list and prints the list; if the fruit exists it must print exactly: That fruit already exist in the list. Keep the first two lines.",
+          "prompt_tr": "Program bir meyveyi kontrol etmeden list'e ekliyor. Meyve list'te yoksa eklesin ve list'i yazdırsın; meyve zaten varsa tam olarak şunu yazdırsın: That fruit already exist in the list. İlk iki satırı koru.",
+          "starter_code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nfruit = 'kiwi'\nfruits.append(fruit)\nprint(fruits)",
+          "tests": [
+            {
+              "code": "assert fruits == ['banana', 'orange', 'mango', 'lemon', 'kiwi']",
+              "visible": true,
+              "label": "kiwi added",
+              "label_tr": "kiwi eklendi",
+              "failure_message": "kiwi is new and should be appended.",
+              "failure_message_tr": "kiwi yenidir ve eklenmeli."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('fruit=')][0]\n_src[_i] = \"fruit = 'mango'\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'That fruit already exist in the list' and _ns['fruits'].count('mango') == 1",
+              "visible": false,
+              "failure_message": "An existing fruit must not be added again; print the message instead.",
+              "failure_message_tr": "Var olan bir meyve yeniden eklenmemeli; onun yerine mesajı yazdır.",
+              "anti_hardcode": true
+            }
+          ],
+          "hints": [
+            "You need a decision before the append.",
+            "fruit not in fruits is True for a new fruit.",
+            "Put the append and print inside if fruit not in fruits:, and the message inside else:."
+          ],
+          "hints_tr": [
+            "append'den önce bir karar gerekiyor.",
+            "fruit not in fruits yeni bir meyve için True'dur.",
+            "append ve print'i if fruit not in fruits: içine, mesajı else: içine koy."
+          ],
+          "solution": {
+            "approach": "Guard the append with not in, and add an else for the message.",
+            "approach_tr": "append'i not in ile koru ve mesaj için bir else ekle.",
+            "code": "fruits = ['banana', 'orange', 'mango', 'lemon']\nfruit = 'kiwi'\nif fruit not in fruits:\n    fruits.append(fruit)\n    print(fruits)\nelse:\n    print('That fruit already exist in the list')"
+          }
+        },
+        {
+          "id": "d09-b5-e7",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: skills = ['JavaScript', 'React']. Print 'front end developer' when the skills include both JavaScript and React but not Node; print 'fullstack developer' when they include React, Node and MongoDB; otherwise print 'unknown title'. Check the fullstack case first.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: skills = ['JavaScript', 'React']. Beceriler JavaScript ve React'i içeriyor ama Node'u içermiyorsa 'front end developer'; React, Node ve MongoDB'yi içeriyorsa 'fullstack developer'; değilse 'unknown title' yazdır. Önce fullstack durumunu kontrol et.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'front end developer'",
+              "visible": true,
+              "label": "Front end case",
+              "label_tr": "Front end durumu",
+              "failure_message": "JavaScript and React without Node is front end.",
+              "failure_message_tr": "Node olmadan JavaScript ve React front end'dir."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('skills=')][0]\n_src[_i] = \"skills = ['React', 'Node', 'MongoDB', 'Python']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'fullstack developer'",
+              "visible": false,
+              "failure_message": "React, Node and MongoDB is fullstack.",
+              "failure_message_tr": "React, Node ve MongoDB fullstack'tir.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('skills=')][0]\n_src[_i] = \"skills = ['JavaScript', 'React', 'Node']\"\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'unknown title'",
+              "visible": false,
+              "failure_message": "With Node but without MongoDB the title is unknown.",
+              "failure_message_tr": "Node var ama MongoDB yoksa unvan bilinmez."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('skills=')][0]\n_src[_i] = 'skills = []'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'unknown title'",
+              "visible": false,
+              "failure_message": "Edge case: no skills gives unknown title.",
+              "failure_message_tr": "Kenar durum: beceri yoksa unknown title çıkar."
+            }
+          ],
+          "hints": [
+            "Each title is a combination of membership checks.",
+            "Join the checks for one title with and; use not in for 'but not Node'.",
+            "if (three in checks for fullstack): ..., elif (two in checks and one not in): ..., else: ..."
+          ],
+          "hints_tr": [
+            "Her unvan üyelik kontrollerinin bir birleşimidir.",
+            "Bir unvanın kontrollerini and ile birleştir; 'ama Node değil' için not in kullan.",
+            "if (fullstack için üç in kontrolü): ..., elif (iki in ve bir not in): ..., else: ..."
+          ],
+          "solution": {
+            "approach": "Membership checks joined with and, the most specific case first.",
+            "approach_tr": "and ile birleştirilmiş üyelik kontrolleri; en özel durum önce.",
+            "code": "skills = ['JavaScript', 'React']\nif 'React' in skills and 'Node' in skills and 'MongoDB' in skills:\n    print('fullstack developer')\nelif 'JavaScript' in skills and 'React' in skills and 'Node' not in skills:\n    print('front end developer')\nelse:\n    print('unknown title')"
+          },
+          "twin": "d09-b5-e8"
+        },
+        {
+          "id": "d09-b5-e8",
+          "type": "write",
+          "prompt": "Start your program with exactly this line: discount = None. Print 'no discount' when discount is None, otherwise print exactly 'discount: N%' with the number. Use is None for the check.",
+          "prompt_tr": "Programına tam olarak şu satırla başla: discount = None. discount None ise 'no discount', değilse sayıyla birlikte tam olarak 'discount: N%' yazdır. Kontrol için is None kullan.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'no discount'",
+              "visible": true,
+              "label": "None case",
+              "label_tr": "None durumu",
+              "failure_message": "None should print no discount.",
+              "failure_message_tr": "None no discount yazdırmalı."
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('discount=')][0]\n_src[_i] = 'discount = 15'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'discount: 15%'",
+              "visible": false,
+              "failure_message": "15 should print discount: 15%.",
+              "failure_message_tr": "15 discount: 15% yazdırmalı.",
+              "anti_hardcode": true
+            },
+            {
+              "code": "import io, contextlib\n_src = __source__.split('\\n')\n_i = [k for k, l in enumerate(_src) if l.replace(' ', '').startswith('discount=')][0]\n_src[_i] = 'discount = 0'\n_ns = {}\n_buf = io.StringIO()\nwith contextlib.redirect_stdout(_buf):\n    exec('\\n'.join(_src), _ns)\n_o = _buf.getvalue()\nassert _o.strip() == 'discount: 0%'",
+              "visible": false,
+              "failure_message": "Edge case: 0 is a real discount value, not None. That is why the check must be is None and not 'if not discount'.",
+              "failure_message_tr": "Kenar durum: 0 gerçek bir indirim değeridir, None değil. Kontrolün 'if not discount' değil is None olmasının sebebi budur."
+            },
+            {
+              "code": "assert 'is None' in __source__",
+              "visible": false,
+              "failure_message": "Use is None for the check.",
+              "failure_message_tr": "Kontrol için is None kullan."
+            }
+          ],
+          "hints": [
+            "None means 'no value', and 0 is a value, so they must be told apart.",
+            "is compares identity; there is only one None object.",
+            "if discount is None: one print; else: an f-string with the number followed by %."
+          ],
+          "hints_tr": [
+            "None 'değer yok' demektir, 0 ise bir değerdir; ikisi ayırt edilmeli.",
+            "is kimliği karşılaştırır; tek bir None nesnesi vardır.",
+            "if discount is None: bir print; else: sayıdan sonra % gelen bir f-string."
+          ],
+          "solution": {
+            "approach": "is None tests for the missing value; the else formats the number.",
+            "approach_tr": "is None eksik değeri test eder; else sayıyı biçimlendirir.",
+            "code": "discount = None\nif discount is None:\n    print('no discount')\nelse:\n    print(f'discount: {discount}%')"
+          },
+          "twin": "d09-b5-e7"
+        },
+        {
+          "id": "d09-b5-e9",
+          "type": "explain",
+          "prompt": "In your own words: why is if day == 'Sat' or 'Sun': always True, and how do you fix it?",
+          "prompt_tr": "Kendi cümlelerinle: if day == 'Sat' or 'Sun': neden her zaman True'dur ve nasıl düzeltilir?",
+          "model_answer": "Python reads it as (day == 'Sat') or 'Sun'. When the comparison is False, or returns the string 'Sun', and a non-empty string is truthy, so the condition is always true. The fix is to compare twice, day == 'Sat' or day == 'Sun', or to use membership: day in ('Sat', 'Sun').",
+          "model_answer_tr": "Python onu (day == 'Sat') or 'Sun' diye okur. Karşılaştırma False olduğunda or 'Sun' string'ini döndürür ve boş olmayan string doğru sayılır; bu yüzden koşul hep doğrudur. Çözüm iki kez karşılaştırmak, day == 'Sat' or day == 'Sun', ya da üyelik kullanmaktır: day in ('Sat', 'Sun').",
+          "keywords": [
+            "string",
+            "True",
+            "in"
+          ],
+          "keywords_tr": [
+            "string",
+            "True",
+            "in"
+          ],
+          "min_words": 12
+        }
+      ]
     }
   ],
   "review_pool": [
     "d09-b1-e1",
+    "d09-b1-e7",
     "d09-b2-e1",
-    "d09-b2-e3",
     "d09-b3-e1",
-    "d09-b3-e4"
-  ],
-  "title_tr": "Koşullar (if / elif / else)"
+    "d09-b3-e7",
+    "d09-b4-e1",
+    "d09-b5-e1",
+    "d09-b5-e8"
+  ]
 }
