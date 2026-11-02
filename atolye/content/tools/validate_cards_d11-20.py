@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Validate atolye/content/cards/dayNN.json for days 11-20.
-Run: .venv/bin/python atolye/content/tools/validate_cards_d11-20.py
+Run: .venv/bin/python atolye/content/tools/validate_cards_d11-20.py [first last]
 Each code run: fresh subprocess, 5s timeout, temp cwd. Output compared after rstrip().
 """
 import json, os, re, subprocess, sys, tempfile, shutil, glob
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 CARDS = os.path.join(ROOT, "atolye", "content", "cards")
-DAYS = range(11, 21)
+FIRST, LAST = (int(sys.argv[1]), int(sys.argv[2])) if len(sys.argv) >= 3 else (11, 20)
+DAYS = range(FIRST, LAST + 1)
+BODY_MAX = 160      # hard limit per explain body (both languages)
+MEDIAN_MIN = 45     # per day, median explain-body words (body_tr and body each)
 checks = 0
 failures = []
 
@@ -116,8 +119,8 @@ for n in DAYS:
         if t == "explain":
             ok(nonempty(c, "title_tr") and nonempty(c, "title"), f"{cid}: title/title_tr")
             ok(nonempty(c, "body_tr") and nonempty(c, "body"), f"{cid}: body/body_tr")
-            ok(words(c.get("body_tr", "")) <= 90, f"{cid}: body_tr {words(c.get('body_tr',''))} words")
-            ok(words(c.get("body", "")) <= 90, f"{cid}: body {words(c.get('body',''))} words")
+            ok(words(c.get("body_tr", "")) <= BODY_MAX, f"{cid}: body_tr {words(c.get('body_tr',''))} words > {BODY_MAX}")
+            ok(words(c.get("body", "")) <= BODY_MAX, f"{cid}: body {words(c.get('body',''))} words > {BODY_MAX}")
             if code is not None:
                 rc, out, err = run(code)
                 ok(rc == 0, f"{cid}: code failed: {err.strip()[-200:]}")
@@ -158,6 +161,11 @@ for n in DAYS:
             ok(isinstance(PT, list) and isinstance(P, list) and len(PT) == len(P) and all(isinstance(x, str) and x.strip() for x in PT), f"{cid}: points twin length/non-empty")
             ok(c.get("link") == "learn", f"{cid}: link must be 'learn'")
             ok(nonempty(c, "title_tr") and nonempty(c, "title"), f"{cid}: title twin")
+    # explain-body depth: median word count per day, each language separately
+    for key in ("body_tr", "body"):
+        lens = sorted(words(c.get(key, "")) for c in cards if c.get("type") == "explain")
+        med = (lens[len(lens) // 2] if len(lens) % 2 else (lens[len(lens) // 2 - 1] + lens[len(lens) // 2]) / 2) if lens else 0
+        ok(med >= MEDIAN_MIN, f"{tag}: median explain {key} words {med} < {MEDIAN_MIN}")
     # section coverage
     secs = code_sections(n)
     have = {norm(c.get("section", "")) for c in cards}
