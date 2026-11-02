@@ -1,667 +1,1214 @@
 {
   "day": 20,
-  "title": "Python package manager (pip)",
+  "title": "pip and Packages",
+  "title_tr": "pip ve Paketler",
   "test_conventions": "Learner code runs first in a fresh namespace. Each test is a Python snippet (assert statements) executed afterwards in the same namespace; the learner's printed output is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on every line. No input(), network or pip. Files may be created in the working directory (an in-memory file system in the browser); use unique file names. The learner's source code is available to tests as the string variable __source__ (use it with ast or substring checks to reject hard-coded answers).",
   "blocks": [
     {
       "id": "d20-b1",
-      "concept": "requirements-and-freeze-text",
+      "concept": "requirements-and-versions",
+      "concept_tr": "`pip freeze` paketleri `ad==sürüm` satırları olarak verir ve `requirements.txt`'ye kaydedilir; bu metni satır satır okursun, yorum ve boş satırları atlarsın ve sürümleri string değil sayı tuple'ı olarak karşılaştırırsın.",
       "tags": [
         "pip",
         "requirements",
-        "strings"
+        "versions",
+        "parsing"
       ],
       "worked_example": {
-        "code": "freeze = 'docutils==0.11\\nJinja2==2.7.2'\nfor line in freeze.splitlines():\n    name, version = line.split('==')\n    print(name, 'is pinned at', version)",
+        "code": "text = '# web\\nDjango==5.0.1\\n\\nrequests==2.31.0'\nreqs = {}\nfor line in text.splitlines():\n    line = line.strip()\n    if not line or line.startswith('#'):\n        continue\n    name, version = line.split('==')\n    reqs[name.lower()] = tuple(int(p) for p in version.split('.'))\nprint(reqs)\nprint(reqs['requests'] > (2, 9, 0), '2.31.0' > '2.9.0')",
         "notes": [
-          "pip freeze prints one 'name==version' line per installed package; requirements.txt has the same format.",
-          "Here the file content is plain text, so ordinary string methods are enough to read it."
+          "Blank lines and comment lines are skipped with `continue`, so `split('==')` only ever sees real requirement lines.",
+          "Package names are case-insensitive, so the key is stored in lowercase.",
+          "Turning '2.31.0' into the tuple (2, 31, 0) makes the comparison numeric; the string comparison on the last line gives the wrong answer."
         ],
         "notes_tr": [
-          "pip freeze kurulu paketleri 'isim==sürüm' satırlarıyla yazar; requirements.txt aynı biçimdedir.",
-          "Burada dosya içeriği düz metin, bu yüzden sıradan string metodları yeter."
+          "Boş satırlar ve yorum satırları `continue` ile atlanır; böylece `split('==')` sadece gerçek gereksinim satırlarını görür.",
+          "Paket adları büyük/küçük harfe duyarsızdır, bu yüzden anahtar küçük harfle saklanır.",
+          "'2.31.0'ı (2, 31, 0) tuple'ına çevirmek karşılaştırmayı sayısal yapar; son satırdaki string karşılaştırması yanlış cevap verir."
         ]
       },
       "exercises": [
         {
           "id": "d20-b1-e1",
           "type": "predict",
-          "prompt": "pip freeze output is plain text. What does this print?",
-          "prompt_tr": "pip freeze çıktısı düz metindir. Bu ne yazdırır?",
-          "code": "freeze = 'docutils==0.11\\nJinja2==2.7.2\\nSphinx==1.2.2'\npackages = {}\nfor line in freeze.splitlines():\n    name, version = line.split('==')\n    packages[name.lower()] = version\nprint(sorted(packages))\nprint(packages['jinja2'])",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "print('requests==2.31.0'.split('=='))",
           "choices": [
-            "['Jinja2', 'Sphinx', 'docutils']\n2.7.2",
-            "['docutils', 'jinja2', 'sphinx']\n2.7.2",
-            "['docutils', 'jinja2', 'sphinx']\n0.11"
+            "['requests', '2.31.0']",
+            "['requests', '', '2.31.0']",
+            "['requests==2.31.0']",
+            "('requests', '2.31.0')"
           ],
-          "expected_output": "['docutils', 'jinja2', 'sphinx']\n2.7.2",
-          "explanation": "Names are stored in lower case, so sorted() gives ['docutils', 'jinja2', 'sphinx']. The version stored under 'jinja2' is '2.7.2'.",
+          "expected_output": "['requests', '2.31.0']",
+          "explanation": "The separator is the two-character string '==', so the text is cut once into two pieces, returned as a list.",
+          "explanation_tr": "Ayraç iki karakterlik '==' string'i; metin bir kez ikiye kesilir ve bir list olarak döner.",
           "misconceptions": {
-            "['Jinja2', 'Sphinx', 'docutils']\n2.7.2": "The keys were lowered with name.lower() before they were stored.",
-            "['docutils', 'jinja2', 'sphinx']\n0.11": "packages['jinja2'] holds the version of Jinja2, which is 2.7.2."
+            "['requests', '', '2.31.0']": "That would happen with `split('=')`, which cuts at each single equals sign.",
+            "['requests==2.31.0']": "The separator does occur in the text, so the string is split.",
+            "('requests', '2.31.0')": "`split` always returns a list, not a tuple."
           },
-          "explanation_tr": "İsimler küçük harfle saklanır, bu yüzden sorted() ['docutils', 'jinja2', 'sphinx'] verir. 'jinja2' altında saklanan sürüm '2.7.2'dir.",
           "misconceptions_tr": {
-            "['Jinja2', 'Sphinx', 'docutils']\n2.7.2": "Anahtarlar saklanmadan önce name.lower() ile küçültüldü.",
-            "['docutils', 'jinja2', 'sphinx']\n0.11": "packages['jinja2'], Jinja2'nin sürümünü tutar: 2.7.2."
+            "['requests', '', '2.31.0']": "Bu `split('=')` ile olurdu; o her tek eşittir işaretinde keser.",
+            "['requests==2.31.0']": "Ayraç metinde geçiyor, bu yüzden string bölünür.",
+            "('requests', '2.31.0')": "`split` her zaman tuple değil list döndürür."
           }
         },
         {
           "id": "d20-b1-e2",
           "type": "fill_blank",
-          "prompt": "Split the requirement line into name and version, and read the major version number.",
-          "prompt_tr": "Gereksinim satırını isim ve sürüm olarak bölün ve ana sürüm numarasını okuyun.",
-          "starter_code": "line = 'numpy==1.20.1'\nname, version = line.___('==')\nmajor = int(version.split('.')[___])\nprint(name, major)",
+          "prompt": "Complete the loop so it skips blank lines and comment lines that start with `#`.",
+          "prompt_tr": "Döngüyü, boş satırları ve `#` ile başlayan yorum satırlarını atlayacak şekilde tamamla.",
+          "starter_code": "text = '# data\\npandas==2.2.2\\n\\nnumpy==1.26.4'\nnames = []\nfor line in text.splitlines():\n    if not line or line.___('#'):\n        continue\n    names.append(line.split('==')[0])\nprint(names)",
           "blanks": [
             {
               "answer": [
-                "split"
-              ]
-            },
-            {
-              "answer": [
-                "0"
+                "startswith"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert name == 'numpy'",
+              "code": "assert names == ['pandas', 'numpy']",
               "visible": true,
-              "label_tr": "name 'numpy' olmalı"
+              "label": "Only the two package names",
+              "label_tr": "Sadece iki paket adı"
             },
             {
-              "code": "assert version == '1.20.1'",
+              "code": "assert __stdout__.strip() == \"['pandas', 'numpy']\"",
               "visible": true,
-              "label_tr": "version '1.20.1' olmalı"
-            },
-            {
-              "code": "assert major == 1",
-              "visible": true,
-              "label_tr": "major 1 olmalı"
+              "label": "Prints the list",
+              "label_tr": "list yazdırılıyor"
             }
-          ],
-          "hints": [
-            "Which string method cuts a text at a separator?",
-            "Indexes start at 0: the major version is the first part."
-          ],
-          "hints_tr": [
-            "Hangi string metodu metni bir ayırıcıdan keser?",
-            "İndeksler 0'dan başlar: ana sürüm ilk parçadır."
           ]
         },
         {
           "id": "d20-b1-e3",
-          "type": "write",
-          "prompt": "Write parse_requirements(text) that reads requirements.txt text (one 'name==version' per line) and returns a dictionary {name: version}. Ignore blank lines and lines starting with '#'. Remove spaces around each line.",
-          "prompt_tr": "requirements.txt metnini (her satırda bir 'name==version') okuyup {name: version} sözlüğü döndüren parse_requirements(text) yazın. Boş satırları ve '#' ile başlayan satırları yok sayın. Her satırın etrafındaki boşlukları kaldırın.",
-          "starter_code": "",
-          "signature": "def parse_requirements(text):",
+          "type": "debug",
+          "prompt": "`parse_requirements(text)` should return a dict `name -> version`, skipping blank lines and comments, but it crashes with `ValueError: not enough values to unpack (expected 2, got 1)`. Fix it.",
+          "prompt_tr": "`parse_requirements(text)` boş satırları ve yorumları atlayarak bir `ad -> sürüm` dict'i döndürmeli, ama `ValueError: not enough values to unpack (expected 2, got 1)` hatasıyla çöküyor. Düzelt.",
+          "starter_code": "def parse_requirements(text):\n    result = {}\n    for line in text.splitlines():\n        name, version = line.split('==')\n        result[name] = version\n    return result\n\nprint(parse_requirements('# web\\nflask==3.0.0\\n\\nrequests==2.31.0'))",
           "tests": [
             {
-              "code": "assert parse_requirements('numpy==1.20.1\\npandas==1.2.3') == {'numpy': '1.20.1', 'pandas': '1.2.3'}",
+              "code": "assert parse_requirements('# web\\nflask==3.0.0\\n\\nrequests==2.31.0') == {'flask': '3.0.0', 'requests': '2.31.0'}",
               "visible": true,
-              "label_tr": "İki paket doğru sözlüğe dönüyor"
-            },
-            {
-              "code": "assert parse_requirements('Flask==2.0.1') == {'Flask': '2.0.1'}",
-              "visible": true,
-              "label_tr": "Tek paket doğru sözlüğe dönüyor"
+              "label": "Comments and blank lines are skipped",
+              "label_tr": "Yorumlar ve boş satırlar atlanıyor"
             },
             {
               "code": "assert parse_requirements('') == {}",
               "visible": false,
-              "failure_message": "An empty text gives an empty dictionary.",
-              "failure_message_tr": "Boş metin boş sözlük verir."
+              "failure_message": "An empty text gives an empty dict.",
+              "failure_message_tr": "Boş metin boş dict verir."
             },
             {
-              "code": "assert parse_requirements('# web\\nflask==2.0.1\\n\\n# data\\nnumpy==1.20.1\\n') == {'flask': '2.0.1', 'numpy': '1.20.1'}",
+              "code": "assert parse_requirements('  numpy==1.26.4  \\n   \\n#x') == {'numpy': '1.26.4'}",
               "visible": false,
-              "failure_message": "Skip comment lines (starting with #) and blank lines.",
-              "failure_message_tr": "Yorum satırlarını (# ile başlayan) ve boş satırları atla."
-            },
-            {
-              "code": "assert parse_requirements('  requests==2.25.0  \\n') == {'requests': '2.25.0'}",
-              "visible": false,
-              "failure_message": "Strip the spaces around every line before splitting.",
-              "failure_message_tr": "Bölmeden önce her satırın çevresindeki boşlukları temizle."
-            },
-            {
-              "code": "assert parse_requirements('django==3.2\\n# dev\\npytest==7.0.1\\n') == {'django': '3.2', 'pytest': '7.0.1'}",
-              "visible": false,
-              "failure_message": "Parse the text you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen metni ayrıştır; sonuçları elle yazma."
+              "failure_message": "Strip spaces around a line, and treat a line of spaces as blank.",
+              "failure_message_tr": "Satırın çevresindeki boşlukları kırp; sadece boşluk olan satırı boş say."
             }
           ],
           "hints": [
-            "Go through the lines one by one.",
-            "Skip a line if it is empty or starts with '#'; otherwise split on '=='.",
-            "Strip each line first, then: if line == '' or line.___('#'): continue (which string method checks the start?)"
+            "Which line of the text has no `==` in it?",
+            "Comment lines and blank lines cannot be split into two parts; they must be skipped before splitting.",
+            "Strip the line, then `continue` when it is empty or starts with `#`."
+          ],
+          "hints_tr": [
+            "Metnin hangi satırında `==` yok?",
+            "Yorum satırları ve boş satırlar iki parçaya bölünemez; bölmeden önce atlanmalılar.",
+            "Satırı kırp, boşsa ya da `#` ile başlıyorsa `continue` de."
           ],
           "solution": {
-            "approach": "Loop over the lines, skip blanks and comments, split the rest on '=='.",
-            "code": "def parse_requirements(text):\n    packages = {}\n    for line in text.splitlines():\n        line = line.strip()\n        if line == '' or line.startswith('#'):\n            continue\n        name, version = line.split('==')\n        packages[name] = version\n    return packages",
-            "approach_tr": "Satırlarda dolaş, boşları ve yorumları atla, kalanları '==' yerinden böl."
-          },
-          "twin": "d20-b1-e4",
-          "hints_tr": [
-            "Satırları tek tek dolaş.",
-            "Satır boşsa ya da '#' ile başlıyorsa atla; değilse '==' yerinden böl.",
-            "Önce her satırı strip et, sonra: if line == '' or line.___('#'): continue (başlangıcı hangi string metodu kontrol eder?)"
-          ]
+            "approach": "Skip blank and comment lines before unpacking the split result.",
+            "approach_tr": "Bölme sonucunu açmadan önce boş ve yorum satırlarını atla.",
+            "code": "def parse_requirements(text):\n    result = {}\n    for line in text.splitlines():\n        line = line.strip()\n        if not line or line.startswith('#'):\n            continue\n        name, version = line.split('==')\n        result[name] = version\n    return result\n\nprint(parse_requirements('# web\\nflask==3.0.0\\n\\nrequests==2.31.0'))"
+          }
         },
         {
           "id": "d20-b1-e4",
-          "type": "write",
-          "prompt": "Write format_freeze(packages) that takes a dictionary {name: version} and returns text in pip freeze style: one 'name==version' per line, sorted by name ignoring upper/lower case, lines joined by newline (no trailing newline).",
-          "prompt_tr": "{name: version} sözlüğü alıp pip freeze biçiminde metin döndüren format_freeze(packages) yazın: her satırda bir 'name==version', isme göre büyük/küçük harf gözetmeden sıralı, satırlar yeni satırla birleşik (sonda yeni satır yok).",
-          "starter_code": "",
-          "signature": "def format_freeze(packages):",
-          "tests": [
-            {
-              "code": "assert format_freeze({'numpy': '1.20.1', 'pandas': '1.2.3'}) == 'numpy==1.20.1\\npandas==1.2.3'",
-              "visible": true,
-              "label_tr": "İki paket doğru metne dönüyor"
-            },
-            {
-              "code": "assert format_freeze({'Flask': '2.0.1'}) == 'Flask==2.0.1'",
-              "visible": true,
-              "label_tr": "Tek paket doğru metne dönüyor"
-            },
-            {
-              "code": "assert format_freeze({}) == ''",
-              "visible": false,
-              "failure_message": "No packages give an empty text.",
-              "failure_message_tr": "Paket yoksa metin boş olmalı."
-            },
-            {
-              "code": "assert format_freeze({'b': '1', 'A': '2'}) == 'A==2\\nb==1'",
-              "visible": false,
-              "failure_message": "Sort ignoring case: 'A' comes before 'b'.",
-              "failure_message_tr": "Büyük/küçük harfe bakmadan sırala: 'A', 'b'den önce gelir."
-            },
-            {
-              "code": "assert format_freeze({'x': '1', 'y': '2'}).endswith('2')",
-              "visible": false,
-              "failure_message": "Do not add a newline at the very end.",
-              "failure_message_tr": "En sona satır sonu ekleme."
-            },
-            {
-              "code": "assert format_freeze({'Zed': '9', 'alpha': '1', 'Mid': '5'}) == 'alpha==1\\nMid==5\\nZed==9'",
-              "visible": false,
-              "failure_message": "Format the packages you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen paketleri biçimlendir; sonuçları elle yazma."
-            }
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "print('1.10.0' > '1.9.0', max(['2.0.9', '2.0.10']))",
+          "choices": [
+            "False 2.0.9",
+            "True 2.0.10",
+            "False 2.0.10",
+            "True 2.0.9"
           ],
-          "hints": [
-            "Sort the names first.",
-            "sorted(packages, key=str.lower) sorts without caring about case.",
-            "'\\n'.___(f'{name}=={packages[name]}' for name in sorted(packages, key=str.lower)) (which string method joins the lines?)"
-          ],
-          "solution": {
-            "approach": "Sort names case-insensitively, build one line each and join with newlines.",
-            "code": "def format_freeze(packages):\n    lines = []\n    for name in sorted(packages, key=str.lower):\n        lines.append(f'{name}=={packages[name]}')\n    return '\\n'.join(lines)",
-            "approach_tr": "İsimleri harf büyüklüğüne bakmadan sırala, her biri için bir satır kur ve satır sonlarıyla birleştir."
+          "expected_output": "False 2.0.9",
+          "explanation": "Strings are compared character by character: at the third character '1' < '9'. For the same reason `max` picks '2.0.9'.",
+          "explanation_tr": "String'ler karakter karakter karşılaştırılır: üçüncü karakterde '1' < '9'. Aynı nedenle `max` '2.0.9'u seçer.",
+          "misconceptions": {
+            "True 2.0.10": "This compares the versions as numbers, but these are strings.",
+            "False 2.0.10": "`max` on strings uses the same character-by-character rule, so '2.0.9' wins.",
+            "True 2.0.9": "Both parts use string comparison: at the first difference '1' is smaller than '9'."
           },
-          "twin": "d20-b1-e3",
-          "hints_tr": [
-            "Önce isimleri sırala.",
-            "sorted(packages, key=str.lower) büyük/küçük harfe bakmadan sıralar.",
-            "'\\n'.___(f'{name}=={packages[name]}' for name in sorted(packages, key=str.lower)) (satırları hangi string metodu birleştirir?)"
-          ]
+          "misconceptions_tr": {
+            "True 2.0.10": "Bu cevap sürümleri sayı gibi karşılaştırıyor ama bunlar string.",
+            "False 2.0.10": "String'lerde `max` aynı karakter karakter kuralını kullanır; '2.0.9' kazanır.",
+            "True 2.0.9": "İki kısım da string karşılaştırması kullanıyor: ilk farkta '1' '9'dan küçüktür."
+          }
         },
         {
           "id": "d20-b1-e5",
-          "type": "debug",
-          "prompt": "The requirement line uses >= instead of ==. This should print 'requests 2.25.0' but it crashes. Fix it.",
-          "prompt_tr": "Gereksinim satırı == yerine >= kullanıyor. Bu kod 'requests 2.25.0' yazdırmalı ama hata veriyor. Düzeltin.",
-          "starter_code": "line = 'requests>=2.25.0'\nname, version = line.split('==')\nprint(name, version)",
-          "expected_output": "requests 2.25.0",
+          "type": "modify",
+          "prompt": "`version_tuple(v)` returns a list of strings, which still compares wrongly. Change it so it returns a tuple of ints. Example: `version_tuple('1.10.0')` returns `(1, 10, 0)`.",
+          "prompt_tr": "`version_tuple(v)` bir string list'i döndürüyor ve bu hâlâ yanlış karşılaştırılıyor. Onu int'lerden oluşan bir tuple döndürecek şekilde değiştir. Örnek: `version_tuple('1.10.0')` sonucu `(1, 10, 0)`.",
+          "starter_code": "def version_tuple(v):\n    return v.split('.')",
+          "signature": "def version_tuple(v):",
           "tests": [
             {
-              "code": "assert (name, version) == ('requests', '2.25.0')",
+              "code": "assert version_tuple('1.10.0') == (1, 10, 0)",
               "visible": true,
-              "label_tr": "(name, version) ('requests', '2.25.0') olmalı"
+              "label": "1.10.0 becomes (1, 10, 0)",
+              "label_tr": "1.10.0, (1, 10, 0) oluyor"
+            },
+            {
+              "code": "assert version_tuple('2.0') == (2, 0) and version_tuple('3') == (3,)",
+              "visible": false,
+              "failure_message": "Versions can have any number of parts.",
+              "failure_message_tr": "Sürümlerin parça sayısı farklı olabilir."
+            },
+            {
+              "code": "assert version_tuple('1.10.0') > version_tuple('1.9.5')",
+              "visible": false,
+              "failure_message": "The result must compare numerically.",
+              "failure_message_tr": "Sonuç sayısal olarak karşılaştırılmalı."
             }
           ],
           "hints": [
-            "Read the error: how many values were expected and how many did the split produce?",
-            "The text does not contain '==', so split('==') returns only one piece.",
-            "Split on ___ instead of '==' (which separator does the line really contain?)"
+            "Each part must go through `int()`.",
+            "A generator expression or comprehension can convert every part.",
+            "Wrap the converted parts in `tuple(...)`."
+          ],
+          "hints_tr": [
+            "Her parça `int()`'ten geçmeli.",
+            "Bir üreteç ifadesi ya da comprehension her parçayı çevirebilir.",
+            "Çevrilmiş parçaları `tuple(...)` ile sar."
           ],
           "solution": {
-            "approach": "The line is separated by '>=', not '==', so split on '>='.",
-            "code": "line = 'requests>=2.25.0'\nname, version = line.split('>=')\nprint(name, version)",
-            "approach_tr": "Satır '==' ile değil '>=' ile ayrılmış, bu yüzden '>=' ile böl."
-          },
+            "approach": "Convert every dot-separated part with int and build a tuple.",
+            "approach_tr": "Noktayla ayrılmış her parçayı int ile çevir ve bir tuple kur.",
+            "code": "def version_tuple(v):\n    return tuple(int(p) for p in v.split('.'))"
+          }
+        },
+        {
+          "id": "d20-b1-e6",
+          "type": "write",
+          "prompt": "Write `is_newer(a, b)` that returns `True` when version string `a` is newer than version string `b` (compare the numbers, not the strings). Example: `is_newer('1.10.0', '1.9.0')` returns `True`.",
+          "prompt_tr": "Sürüm string'i `a`, sürüm string'i `b`'den yeniyse `True` döndüren `is_newer(a, b)` fonksiyonunu yaz (string'leri değil sayıları karşılaştır). Örnek: `is_newer('1.10.0', '1.9.0')` sonucu `True`.",
+          "starter_code": "",
+          "signature": "def is_newer(a, b):",
+          "tests": [
+            {
+              "code": "assert is_newer('1.10.0', '1.9.0') is True",
+              "visible": true,
+              "label": "1.10.0 is newer than 1.9.0",
+              "label_tr": "1.10.0, 1.9.0'dan yeni"
+            },
+            {
+              "code": "assert is_newer('2.0.0', '2.0.0') is False",
+              "visible": true,
+              "label": "Equal versions are not newer",
+              "label_tr": "Eşit sürüm daha yeni değildir"
+            },
+            {
+              "code": "assert is_newer('3.9', '3.10') is False and is_newer('3.10', '3.9') is True",
+              "visible": false,
+              "failure_message": "Check two-part versions in both directions.",
+              "failure_message_tr": "İki parçalı sürümleri iki yönde de dene."
+            },
+            {
+              "code": "assert is_newer('10.0.0', '9.99.99') is True and is_newer('0.0.1', '0.0.2') is False",
+              "visible": false,
+              "failure_message": "Compare each part as a number.",
+              "failure_message_tr": "Her parçayı sayı olarak karşılaştır."
+            }
+          ],
+          "hints": [
+            "Turn each version into a tuple of ints first.",
+            "Tuples compare item by item from the left.",
+            "Return the result of `>` between the two tuples."
+          ],
           "hints_tr": [
-            "Hatayı oku: kaç değer bekleniyordu, bölme kaç parça üretti?",
-            "Metinde '==' yok, bu yüzden split('==') yalnızca tek parça verir.",
-            "'==' yerine ___ ile böl (satır gerçekte hangi ayırıcıyı içeriyor?)"
-          ]
+            "Önce her sürümü int'lerden oluşan bir tuple'a çevir.",
+            "Tuple'lar soldan başlayarak eleman eleman karşılaştırılır.",
+            "İki tuple arasındaki `>` sonucunu döndür."
+          ],
+          "solution": {
+            "approach": "Convert both strings to int tuples and compare them with `>`.",
+            "approach_tr": "İki string'i int tuple'larına çevir ve `>` ile karşılaştır.",
+            "code": "def is_newer(a, b):\n    ta = tuple(int(p) for p in a.split('.'))\n    tb = tuple(int(p) for p in b.split('.'))\n    return ta > tb"
+          },
+          "twin": "d20-b1-e7"
+        },
+        {
+          "id": "d20-b1-e7",
+          "type": "write",
+          "prompt": "Write `freeze_text(packages)` that takes a dict `name -> version` and returns the text `pip freeze` would print: one `name==version` line per package, sorted by name ignoring case, joined with newlines (no newline at the end). Example: `freeze_text({'requests': '2.31.0', 'Django': '5.0.1'})` returns `'Django==5.0.1\\nrequests==2.31.0'`.",
+          "prompt_tr": "Bir `ad -> sürüm` dict'i alıp `pip freeze`'in yazacağı metni döndüren `freeze_text(packages)` fonksiyonunu yaz: her paket için bir `ad==sürüm` satırı, ada göre büyük/küçük harf yok sayılarak sıralanmış, satır sonlarıyla birleştirilmiş (sonda satır sonu yok). Örnek: `freeze_text({'requests': '2.31.0', 'Django': '5.0.1'})` sonucu `'Django==5.0.1\\nrequests==2.31.0'`.",
+          "starter_code": "",
+          "signature": "def freeze_text(packages):",
+          "tests": [
+            {
+              "code": "assert freeze_text({'requests': '2.31.0', 'Django': '5.0.1'}) == 'Django==5.0.1\\nrequests==2.31.0'",
+              "visible": true,
+              "label": "Sorted ignoring case",
+              "label_tr": "Büyük/küçük harf yok sayılarak sıralı"
+            },
+            {
+              "code": "assert freeze_text({}) == ''",
+              "visible": false,
+              "failure_message": "No packages give an empty string.",
+              "failure_message_tr": "Paket yoksa boş string."
+            },
+            {
+              "code": "assert freeze_text({'b': '1', 'A': '2', 'c': '3'}) == 'A==2\\nb==1\\nc==3'",
+              "visible": false,
+              "failure_message": "Sort with a key that ignores case: 'A' comes before 'b'.",
+              "failure_message_tr": "Büyük/küçük harfi yok sayan bir anahtarla sırala: 'A', 'b'den önce gelir."
+            },
+            {
+              "code": "assert freeze_text({'numpy': '1.26.4'}) == 'numpy==1.26.4'",
+              "visible": false,
+              "failure_message": "A single package has no trailing newline.",
+              "failure_message_tr": "Tek pakette sonda satır sonu olmaz."
+            }
+          ],
+          "hints": [
+            "`sorted(packages, key=str.lower)` gives the names in case-insensitive order.",
+            "Build each line with an f-string: `f'{name}=={packages[name]}'`.",
+            "Join the lines with `'\\n'.join(...)`."
+          ],
+          "hints_tr": [
+            "`sorted(packages, key=str.lower)` adları büyük/küçük harfe duyarsız sırada verir.",
+            "Her satırı bir f-string ile kur: `f'{name}=={packages[name]}'`.",
+            "Satırları `'\\n'.join(...)` ile birleştir."
+          ],
+          "solution": {
+            "approach": "Sort the names case-insensitively, format each line, and join with newlines.",
+            "approach_tr": "Adları büyük/küçük harfe duyarsız sırala, her satırı biçimlendir ve satır sonlarıyla birleştir.",
+            "code": "def freeze_text(packages):\n    lines = [f'{name}=={packages[name]}' for name in sorted(packages, key=str.lower)]\n    return '\\n'.join(lines)"
+          },
+          "twin": "d20-b1-e6"
+        },
+        {
+          "id": "d20-b1-e8",
+          "type": "explain",
+          "prompt": "In your own words: why do projects keep a `requirements.txt` with exact versions (`name==version`)?",
+          "prompt_tr": "Kendi cümlelerinle: projeler neden tam sürümlerin (`ad==sürüm`) yazılı olduğu bir `requirements.txt` tutar?",
+          "model_answer": "Packages change over time and a new version can break code. A requirements file with pinned versions lets anyone run pip install -r requirements.txt and get exactly the same versions, so the project works the same on every computer and server.",
+          "model_answer_tr": "Paketler zamanla değişir ve yeni bir sürüm kodu bozabilir. Sabitlenmiş sürümlerin olduğu bir requirements dosyası herkesin pip install -r requirements.txt ile aynı sürümleri kurmasını sağlar; böylece proje her bilgisayarda ve sunucuda aynı çalışır.",
+          "keywords": [
+            "version",
+            "same"
+          ],
+          "keywords_tr": [
+            "sürüm",
+            "aynı"
+          ],
+          "min_words": 12
         }
-      ],
-      "concept_tr": "pip freeze her paket için 'isim==sürüm' satırı yazar; requirements.txt de aynı biçimdedir. Bunlar düz metindir, string metodlarıyla okunur."
+      ]
     },
     {
       "id": "d20-b2",
-      "concept": "pip-show-and-commands",
+      "concept": "pip-output-and-installed-packages",
+      "concept_tr": "`pip list` ve `pip show` düz metin üretir; satırları bölerek dict'e çevirirsin (`partition(':')` sadece ilk ayraçta böler), standart kütüphaneyi `sys.stdlib_module_names` ile tanırsın ve eksik paketleri küme farkıyla bulursun.",
       "tags": [
         "pip",
         "parsing",
-        "commands"
+        "packages",
+        "sys"
       ],
       "worked_example": {
-        "code": "info = 'Name: pandas\\nVersion: 1.2.3'\nfields = {}\nfor line in info.splitlines():\n    key, value = line.split(': ', 1)\n    fields[key] = value\nprint(fields['Version'])",
+        "code": "import sys\n\nshow = 'Name: pandas\\nHome-page: https://pandas.pydata.org\\nRequires: numpy, pytz'\ninfo = {}\nfor line in show.splitlines():\n    key, _, value = line.partition(':')\n    info[key] = value.strip()\nprint(info['Home-page'], info['Requires'].split(', '))\nneeded = ['json', 'pandas', 'requests']\ninstalled = {'pandas', 'numpy'}\nprint([n for n in needed if n not in sys.stdlib_module_names and n not in installed])",
         "notes": [
-          "pip show prints 'Key: value' lines; splitting once at the first ': ' keeps any later colon inside the value.",
-          "The commands themselves (pip install, uninstall, list, show, freeze) run in the terminal, not in this page."
+          "`partition(':')` splits only at the first colon, so the URL with its own colon stays in one piece.",
+          "`.strip()` removes the space after the colon, and splitting on ', ' turns the Requires text into a list.",
+          "A module counts as missing only when it is neither part of the standard library nor in the installed set."
         ],
         "notes_tr": [
-          "pip show 'Anahtar: değer' satırları yazar; ilk ': ' yerinden bir kez bölmek, değerdeki sonraki iki noktaları korur.",
-          "Komutların kendisi (pip install, uninstall, list, show, freeze) bu sayfada değil, terminalde çalışır."
+          "`partition(':')` sadece ilk iki noktada böler; böylece kendi iki noktası olan URL tek parça kalır.",
+          "`.strip()` iki noktadan sonraki boşluğu atar; ', ' ile bölmek Requires metnini bir list'e çevirir.",
+          "Bir modül, ancak standart kütüphanenin parçası da değilse kurulu kümede de yoksa eksik sayılır."
         ]
       },
       "exercises": [
         {
           "id": "d20-b2-e1",
           "type": "predict",
-          "prompt": "What does this print? (This is pip show style text.)",
-          "prompt_tr": "Bu ne yazdırır? (Bu, pip show tarzı bir metindir.)",
-          "code": "info = 'Name: pandas\\nRequires: python-dateutil, pytz, numpy'\nfields = {}\nfor line in info.splitlines():\n    key, value = line.split(': ', 1)\n    fields[key] = value\nneeds = fields['Requires'].split(', ')\nprint(needs)\nprint(len(needs))",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "parts = 'Requires: numpy, pytz'.partition(':')\nprint(len(parts), parts[2].strip().split(', '))",
           "choices": [
-            "['python-dateutil, pytz, numpy']\n1",
-            "['python-dateutil', 'pytz', 'numpy']\n2",
-            "['python-dateutil', 'pytz', 'numpy']\n3"
+            "3 ['numpy', 'pytz']",
+            "2 ['numpy', 'pytz']",
+            "3 [' numpy', ' pytz']",
+            "3 ['numpy, pytz']"
           ],
-          "expected_output": "['python-dateutil', 'pytz', 'numpy']\n3",
-          "explanation": "The value of Requires is 'python-dateutil, pytz, numpy'. Splitting at ', ' gives a list of three package names, so len is 3.",
+          "expected_output": "3 ['numpy', 'pytz']",
+          "explanation": "`partition` always returns three parts: before, separator, after. The last part is stripped and split at ', '.",
+          "explanation_tr": "`partition` her zaman üç parça döndürür: öncesi, ayraç, sonrası. Son parça kırpılır ve ', ' ile bölünür.",
           "misconceptions": {
-            "['python-dateutil, pytz, numpy']\n1": "split(', ') cuts the text at every comma-space, giving three separate names.",
-            "['python-dateutil', 'pytz', 'numpy']\n2": "Count the items in the list: there are three packages."
+            "2 ['numpy', 'pytz']": "Unlike `split`, `partition` keeps the separator as the middle item, so there are 3 parts.",
+            "3 [' numpy', ' pytz']": "`.strip()` removes the leading space, and the split separator includes the space after the comma.",
+            "3 ['numpy, pytz']": "The text is split at ', ', which occurs once, so there are two names."
           },
-          "explanation_tr": "Requires değeri 'python-dateutil, pytz, numpy'dir. ', ' yerinden bölmek üç paket adı verir, yani len 3 olur.",
           "misconceptions_tr": {
-            "['python-dateutil, pytz, numpy']\n1": "split(', ') her virgül-boşluk yerinden keser ve üç ayrı isim verir.",
-            "['python-dateutil', 'pytz', 'numpy']\n2": "Listedeki elemanları say: üç paket var."
+            "2 ['numpy', 'pytz']": "`split`'in aksine `partition` ayracı ortadaki eleman olarak tutar; 3 parça vardır.",
+            "3 [' numpy', ' pytz']": "`.strip()` baştaki boşluğu atar; bölme ayracı da virgülden sonraki boşluğu içerir.",
+            "3 ['numpy, pytz']": "Metin bir kez geçen ', ' ile bölünür, iki isim çıkar."
           }
         },
         {
           "id": "d20-b2-e2",
           "type": "parsons",
-          "prompt": "Order the lines to turn pip show text into a dictionary. Note the Home-page value contains a colon.",
-          "prompt_tr": "pip show metnini sözlüğe dönüştürecek şekilde satırları sıralayın. Home-page değerinin içinde iki nokta olduğuna dikkat edin.",
+          "prompt": "Arrange the lines so the program turns `pip list` output into a dict and prints `{'flask': '3.0.0', 'numpy': '1.26.4'}`.",
+          "prompt_tr": "Satırları, program `pip list` çıktısını bir dict'e çevirip `{'flask': '3.0.0', 'numpy': '1.26.4'}` yazdıracak şekilde sırala.",
           "lines": [
-            "for line in info.splitlines():",
-            "    key, value = line.split(': ', 1)",
-            "print(fields['Home-page'])",
-            "info = 'Name: pandas\\nVersion: 1.2.3\\nHome-page: http://pandas.pydata.org'",
-            "    fields[key] = value",
-            "fields = {}"
+            "    installed[name] = version",
+            "installed = {}",
+            "print(installed)",
+            "output = 'Package Version\\n------- -------\\nflask 3.0.0\\nnumpy 1.26.4'",
+            "    name, version = line.split()",
+            "for line in output.splitlines()[2:]:"
           ],
           "correct_order": [
             3,
-            5,
-            0,
             1,
+            5,
             4,
+            0,
             2
           ],
           "distractors": [
-            "    key, value = line.split(':')"
+            "for line in output.splitlines():"
           ],
-          "expected_output": "http://pandas.pydata.org"
+          "expected_output": "{'flask': '3.0.0', 'numpy': '1.26.4'}"
         },
         {
           "id": "d20-b2-e3",
-          "type": "write",
-          "prompt": "Write parse_pip_show(text) that reads pip show output ('Key: value' per line) and returns a dictionary of the fields. Split each line only at the FIRST colon, and strip spaces from the value. A field with nothing after the colon gets an empty string. Example text:\nName: pandas\nHome-page: http://pandas.pydata.org\nRequired-by:",
-          "prompt_tr": "pip show çıktısını (her satırda 'Key: value') okuyup alanları sözlük olarak döndüren parse_pip_show(text) yazın. Her satırı yalnızca İLK iki noktadan bölün ve değerin boşluklarını temizleyin. İki noktadan sonra bir şey olmayan alan boş string alsın. Örnek metin:\nName: pandas\nHome-page: http://pandas.pydata.org\nRequired-by:",
-          "starter_code": "",
-          "signature": "def parse_pip_show(text):",
+          "type": "debug",
+          "prompt": "`show_to_dict(text)` should turn `pip show` output into a dict, but it crashes with `ValueError: too many values to unpack (expected 2)` on the `Home-page` line. Fix it.",
+          "prompt_tr": "`show_to_dict(text)` `pip show` çıktısını bir dict'e çevirmeli, ama `Home-page` satırında `ValueError: too many values to unpack (expected 2)` hatasıyla çöküyor. Düzelt.",
+          "starter_code": "def show_to_dict(text):\n    info = {}\n    for line in text.splitlines():\n        key, value = line.split(':')\n        info[key] = value.strip()\n    return info\n\nprint(show_to_dict('Name: pandas\\nHome-page: https://pandas.pydata.org'))",
           "tests": [
             {
-              "code": "assert parse_pip_show('Name: pandas\\nVersion: 1.2.3') == {'Name': 'pandas', 'Version': '1.2.3'}",
+              "code": "assert show_to_dict('Name: pandas\\nHome-page: https://pandas.pydata.org') == {'Name': 'pandas', 'Home-page': 'https://pandas.pydata.org'}",
               "visible": true,
-              "label_tr": "Name ve Version alanları doğru ayrışıyor"
+              "label": "The URL stays whole",
+              "label_tr": "URL bütün kalıyor"
             },
             {
-              "code": "assert parse_pip_show('License: BSD')['License'] == 'BSD'",
-              "visible": true,
-              "label_tr": "License alanı 'BSD' veriyor"
-            },
-            {
-              "code": "assert parse_pip_show('Home-page: http://pandas.pydata.org')['Home-page'] == 'http://pandas.pydata.org'",
+              "code": "assert show_to_dict('Required-by:\\nLocation: C:/py/site-packages') == {'Required-by': '', 'Location': 'C:/py/site-packages'}",
               "visible": false,
-              "failure_message": "Split only at the first colon: the URL has colons of its own (use partition(':') or split(':', 1)).",
-              "failure_message_tr": "Sadece ilk iki noktadan böl: URL'nin kendi iki noktaları var (partition(':') ya da split(':', 1) kullan)."
-            },
-            {
-              "code": "assert parse_pip_show('Name: x\\nRequired-by:') == {'Name': 'x', 'Required-by': ''}",
-              "visible": false,
-              "failure_message": "A line ending right after the colon gives an empty string value.",
-              "failure_message_tr": "İki noktadan hemen sonra biten satır boş string değer verir."
-            },
-            {
-              "code": "assert parse_pip_show('') == {}",
-              "visible": false,
-              "failure_message": "Empty text gives an empty dictionary.",
-              "failure_message_tr": "Boş metin boş sözlük verir."
-            },
-            {
-              "code": "assert parse_pip_show('Name: flask\\nSummary: A micro web framework: tiny') == {'Name': 'flask', 'Summary': 'A micro web framework: tiny'}",
-              "visible": false,
-              "failure_message": "Parse the text you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen metni ayrıştır; sonuçları elle yazma."
+              "failure_message": "An empty value and a value with a colon must both work.",
+              "failure_message_tr": "Boş değer de iki nokta içeren değer de çalışmalı."
             }
           ],
           "hints": [
-            "Go through the lines; each has a key, a colon and a value.",
-            "line.partition(':') returns (key, ':', rest) and splits only at the first colon.",
-            "fields[key] = value.___() (which method removes the spaces around the value?)"
+            "How many colons does the Home-page line contain?",
+            "You only want to cut at the first colon; the rest belongs to the value.",
+            "Use `line.partition(':')` (three parts) or `line.split(':', 1)` (at most one cut)."
+          ],
+          "hints_tr": [
+            "Home-page satırında kaç tane iki nokta var?",
+            "Sadece ilk iki noktada kesmek istiyorsun; gerisi değere ait.",
+            "`line.partition(':')` (üç parça) ya da `line.split(':', 1)` (en fazla bir kesim) kullan."
           ],
           "solution": {
-            "approach": "Partition each line at the first colon and strip the value.",
-            "code": "def parse_pip_show(text):\n    fields = {}\n    for line in text.splitlines():\n        key, _, value = line.partition(':')\n        fields[key] = value.strip()\n    return fields",
-            "approach_tr": "Her satırı ilk iki noktadan böl ve değerin boşluklarını temizle."
-          },
-          "twin": "d20-b2-e4",
-          "hints_tr": [
-            "Satırlarda dolaş; her birinde bir anahtar, iki nokta ve bir değer var.",
-            "line.partition(':') (anahtar, ':', kalan) döndürür ve yalnızca ilk iki noktadan böler.",
-            "fields[key] = value.___() (değerin çevresindeki boşlukları hangi metod siler?)"
-          ]
+            "approach": "Split only at the first colon so values containing ':' stay whole.",
+            "approach_tr": "İçinde ':' olan değerler bütün kalsın diye sadece ilk iki noktada böl.",
+            "code": "def show_to_dict(text):\n    info = {}\n    for line in text.splitlines():\n        key, _, value = line.partition(':')\n        info[key] = value.strip()\n    return info\n\nprint(show_to_dict('Name: pandas\\nHome-page: https://pandas.pydata.org'))"
+          }
         },
         {
           "id": "d20-b2-e4",
-          "type": "write",
-          "prompt": "Write requires_list(text) that takes pip show output and returns the packages named on its 'Requires:' line as a list. If the line is empty or missing, return an empty list. Example: a line 'Requires: python-dateutil, pytz, numpy' gives ['python-dateutil', 'pytz', 'numpy'].",
-          "prompt_tr": "pip show çıktısını alıp 'Requires:' satırında adı geçen paketleri liste olarak döndüren requires_list(text) yazın. Satır boşsa ya da yoksa boş liste döndürün. Örnek: 'Requires: python-dateutil, pytz, numpy' satırı ['python-dateutil', 'pytz', 'numpy'] verir.",
-          "starter_code": "",
-          "signature": "def requires_list(text):",
-          "tests": [
-            {
-              "code": "assert requires_list('Name: pandas\\nRequires: python-dateutil, pytz, numpy') == ['python-dateutil', 'pytz', 'numpy']",
-              "visible": true,
-              "label_tr": "Requires satırı üç pakete ayrılıyor"
-            },
-            {
-              "code": "assert requires_list('Requires: numpy') == ['numpy']",
-              "visible": true,
-              "label_tr": "Tek paket tek elemanlı liste veriyor"
-            },
-            {
-              "code": "assert requires_list('Name: x\\nRequires:') == []",
-              "visible": false,
-              "failure_message": "An empty Requires line gives an empty list, not [''].",
-              "failure_message_tr": "Boş Requires satırı [''] değil, boş liste vermeli."
-            },
-            {
-              "code": "assert requires_list('Name: x\\nVersion: 1') == []",
-              "visible": false,
-              "failure_message": "If there is no Requires line, return an empty list.",
-              "failure_message_tr": "Requires satırı yoksa boş liste döndür."
-            },
-            {
-              "code": "assert requires_list('Requires: a, b\\nRequired-by: c') == ['a', 'b']",
-              "visible": false,
-              "failure_message": "Only the Requires line counts, not Required-by.",
-              "failure_message_tr": "Yalnızca Requires satırı sayılır, Required-by değil."
-            },
-            {
-              "code": "assert requires_list('Name: q\\nRequires: aa, bb, cc, dd') == ['aa', 'bb', 'cc', 'dd']",
-              "visible": false,
-              "failure_message": "Read the Requires line of the text you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen metnin Requires satırını oku; sonuçları elle yazma."
-            }
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import sys\n\nprint('csv' in sys.stdlib_module_names, 'flask' in sys.stdlib_module_names)",
+          "choices": [
+            "True False",
+            "True True",
+            "False False",
+            "False True"
           ],
-          "hints": [
-            "Find the line that starts with 'Requires:' (careful with 'Required-by:').",
-            "Take the text after the colon, strip it and split on ', ' if it is not empty.",
-            "if line.startswith('___'): ... (what exactly must the line start with, so 'Required-by:' does not match?)"
-          ],
-          "solution": {
-            "approach": "Find the Requires line, strip its value, and split it on commas when it is not empty.",
-            "code": "def requires_list(text):\n    for line in text.splitlines():\n        if line.startswith('Requires:'):\n            value = line.split(':', 1)[1].strip()\n            if value == '':\n                return []\n            return value.split(', ')\n    return []",
-            "approach_tr": "Requires satırını bul, değerini temizle ve boş değilse virgüllerden böl."
+          "expected_output": "True False",
+          "explanation": "`csv` ships with Python as part of the standard library; `flask` is a third-party package installed with pip.",
+          "explanation_tr": "`csv` standart kütüphanenin parçası olarak Python ile gelir; `flask` pip ile kurulan üçüncü taraf bir pakettir.",
+          "misconceptions": {
+            "True True": "flask is not part of Python itself; it lives on PyPI.",
+            "False False": "csv is in the standard library, so its name is in the set.",
+            "False True": "It is the other way round: csv is built in, flask is not."
           },
-          "twin": "d20-b2-e3",
-          "hints_tr": [
-            "'Requires:' ile başlayan satırı bul ('Required-by:' ile karıştırma).",
-            "İki noktadan sonrasını al, boşluklarını temizle ve boş değilse ', ' yerinden böl.",
-            "if line.startswith('___'): ... (satır tam olarak neyle başlamalı ki 'Required-by:' eşleşmesin?)"
-          ]
+          "misconceptions_tr": {
+            "True True": "flask Python'un kendisinin parçası değil; PyPI'da durur.",
+            "False False": "csv standart kütüphanede, adı kümede var.",
+            "False True": "Tam tersi: csv yerleşik, flask değil."
+          }
         },
         {
           "id": "d20-b2-e5",
+          "type": "modify",
+          "prompt": "`show_to_dict(text)` returns every value as a string. Change it so the `'Requires'` value becomes a list of package names (an empty list when the value is empty). Example: `'Requires: numpy, pytz'` gives `['numpy', 'pytz']`.",
+          "prompt_tr": "`show_to_dict(text)` her değeri string olarak döndürüyor. `'Requires'` değeri paket adlarından oluşan bir list olacak şekilde değiştir (değer boşsa boş list). Örnek: `'Requires: numpy, pytz'` `['numpy', 'pytz']` verir.",
+          "starter_code": "def show_to_dict(text):\n    info = {}\n    for line in text.splitlines():\n        key, _, value = line.partition(':')\n        info[key] = value.strip()\n    return info",
+          "signature": "def show_to_dict(text):",
+          "tests": [
+            {
+              "code": "assert show_to_dict('Name: pandas\\nRequires: numpy, pytz')['Requires'] == ['numpy', 'pytz']",
+              "visible": true,
+              "label": "Requires becomes a list",
+              "label_tr": "Requires bir list oluyor"
+            },
+            {
+              "code": "assert show_to_dict('Name: x\\nRequires:') == {'Name': 'x', 'Requires': []}",
+              "visible": false,
+              "failure_message": "An empty Requires value gives an empty list, not ['']",
+              "failure_message_tr": "Boş Requires değeri [''] değil boş list verir."
+            },
+            {
+              "code": "assert show_to_dict('Requires: a\\nName: b')['Name'] == 'b' and show_to_dict('Requires: a')['Requires'] == ['a']",
+              "visible": false,
+              "failure_message": "Other keys stay strings; a single requirement gives a one-item list.",
+              "failure_message_tr": "Diğer anahtarlar string kalır; tek gereksinim tek elemanlı bir list verir."
+            }
+          ],
+          "hints": [
+            "After stripping the value, check whether the key is `'Requires'`.",
+            "`''.split(', ')` gives `['']`, so handle the empty value separately.",
+            "Use `value.split(', ') if value else []` for that key."
+          ],
+          "hints_tr": [
+            "Değeri kırptıktan sonra anahtarın `'Requires'` olup olmadığına bak.",
+            "`''.split(', ')` `['']` verir; boş değeri ayrıca ele al.",
+            "O anahtar için `value.split(', ') if value else []` kullan."
+          ],
+          "solution": {
+            "approach": "Special-case the Requires key: split into a list, empty list for an empty value.",
+            "approach_tr": "Requires anahtarını özel ele al: list'e böl, boş değer için boş list.",
+            "code": "def show_to_dict(text):\n    info = {}\n    for line in text.splitlines():\n        key, _, value = line.partition(':')\n        value = value.strip()\n        if key == 'Requires':\n            value = value.split(', ') if value else []\n        info[key] = value\n    return info"
+          }
+        },
+        {
+          "id": "d20-b2-e6",
+          "type": "write",
+          "prompt": "Write `missing_packages(required, installed)` that returns the names from the list `required` that are not in `installed` (a list of installed names), comparing names case-insensitively. Keep the spelling and the order of `required`. Example: `missing_packages(['Flask', 'requests', 'numpy'], ['flask', 'NumPy'])` returns `['requests']`.",
+          "prompt_tr": "`required` list'indeki, `installed` (kurulu adların list'i) içinde olmayan adları döndüren `missing_packages(required, installed)` fonksiyonunu yaz; adları büyük/küçük harfe duyarsız karşılaştır. `required`'daki yazımı ve sırayı koru. Örnek: `missing_packages(['Flask', 'requests', 'numpy'], ['flask', 'NumPy'])` sonucu `['requests']`.",
+          "starter_code": "",
+          "signature": "def missing_packages(required, installed):",
+          "tests": [
+            {
+              "code": "assert missing_packages(['Flask', 'requests', 'numpy'], ['flask', 'NumPy']) == ['requests']",
+              "visible": true,
+              "label": "Only requests is missing",
+              "label_tr": "Sadece requests eksik"
+            },
+            {
+              "code": "assert missing_packages([], ['a']) == [] and missing_packages(['a'], []) == ['a']",
+              "visible": false,
+              "failure_message": "Check empty lists on either side.",
+              "failure_message_tr": "İki taraftaki boş list'leri kontrol et."
+            },
+            {
+              "code": "assert missing_packages(['Zeta', 'alpha', 'Beta'], ['beta']) == ['Zeta', 'alpha']",
+              "visible": false,
+              "failure_message": "Keep the original spelling and order of the required list.",
+              "failure_message_tr": "required list'inin orijinal yazımını ve sırasını koru."
+            },
+            {
+              "code": "assert missing_packages(['PANDAS'], ['pandas']) == []",
+              "visible": false,
+              "failure_message": "Uppercase and lowercase names are the same package.",
+              "failure_message_tr": "Büyük ve küçük harfli adlar aynı pakettir."
+            }
+          ],
+          "hints": [
+            "Build a set of the installed names in lowercase.",
+            "Loop over `required` and test `name.lower()` against that set.",
+            "A list comprehension with an `if ... not in ...` condition keeps the order."
+          ],
+          "hints_tr": [
+            "Kurulu adların küçük harfli bir kümesini kur.",
+            "`required`'ı gez ve `name.lower()`'ı o kümede ara.",
+            "`if ... not in ...` koşullu bir list comprehension sırayı korur."
+          ],
+          "solution": {
+            "approach": "Lowercase the installed names into a set, keep required names whose lowercase is not in it.",
+            "approach_tr": "Kurulu adları küçük harfle bir kümeye koy, küçük hali kümede olmayan required adlarını tut.",
+            "code": "def missing_packages(required, installed):\n    have = {name.lower() for name in installed}\n    return [name for name in required if name.lower() not in have]"
+          },
+          "twin": "d20-b2-e7"
+        },
+        {
+          "id": "d20-b2-e7",
+          "type": "write",
+          "prompt": "A deploy script compares `requirements.txt` with what is installed. Write `check_requirements(req_text, installed)`: `req_text` has `name==version` lines (plus blank and `#` comment lines), `installed` is a dict `lowercase name -> version`. Return a dict with two lists in file order: `'missing'` (names not installed) and `'wrong_version'` (installed with a different version). Compare names case-insensitively and report them as written in the file. Example: `check_requirements('Flask==3.0.0\\nrequests==2.31.0', {'flask': '2.3.0'})` returns `{'missing': ['requests'], 'wrong_version': ['Flask']}`.",
+          "prompt_tr": "Bir dağıtım betiği `requirements.txt`'yi kurulu olanlarla karşılaştırıyor. `check_requirements(req_text, installed)` fonksiyonunu yaz: `req_text` `ad==sürüm` satırları (artı boş ve `#` yorum satırları) içerir, `installed` bir `küçük harfli ad -> sürüm` dict'idir. Dosya sırasıyla iki list içeren bir dict döndür: `'missing'` (kurulu olmayanlar) ve `'wrong_version'` (farklı sürümle kurulu olanlar). Adları büyük/küçük harfe duyarsız karşılaştır ve dosyadaki yazımıyla bildir. Örnek: `check_requirements('Flask==3.0.0\\nrequests==2.31.0', {'flask': '2.3.0'})` sonucu `{'missing': ['requests'], 'wrong_version': ['Flask']}`.",
+          "starter_code": "",
+          "signature": "def check_requirements(req_text, installed):",
+          "tests": [
+            {
+              "code": "assert check_requirements('Flask==3.0.0\\nrequests==2.31.0', {'flask': '2.3.0'}) == {'missing': ['requests'], 'wrong_version': ['Flask']}",
+              "visible": true,
+              "label": "One missing, one wrong version",
+              "label_tr": "Biri eksik, biri yanlış sürüm"
+            },
+            {
+              "code": "assert check_requirements('# none\\n\\n', {}) == {'missing': [], 'wrong_version': []}",
+              "visible": false,
+              "failure_message": "Comments and blank lines are skipped.",
+              "failure_message_tr": "Yorumlar ve boş satırlar atlanır."
+            },
+            {
+              "code": "assert check_requirements('numpy==1.26.4\\npandas==2.2.2', {'numpy': '1.26.4', 'pandas': '2.2.2'}) == {'missing': [], 'wrong_version': []}",
+              "visible": false,
+              "failure_message": "Everything matching gives two empty lists.",
+              "failure_message_tr": "Her şey uyuyorsa iki boş list."
+            },
+            {
+              "code": "assert check_requirements('B==1\\nA==2\\nC==3', {'c': '9'}) == {'missing': ['B', 'A'], 'wrong_version': ['C']}",
+              "visible": false,
+              "failure_message": "Keep file order and the file's spelling.",
+              "failure_message_tr": "Dosya sırasını ve dosyadaki yazımı koru."
+            }
+          ],
+          "hints": [
+            "Reuse the parsing pattern: strip, skip blanks and comments, `split('==')`.",
+            "Look the name up with `installed.get(name.lower())`: `None` means missing.",
+            "If the installed version differs from the required one, add the name to `'wrong_version'`."
+          ],
+          "hints_tr": [
+            "Okuma kalıbını yeniden kullan: kırp, boş ve yorum satırlarını atla, `split('==')`.",
+            "Adı `installed.get(name.lower())` ile ara: `None` eksik demek.",
+            "Kurulu sürüm istenenden farklıysa adı `'wrong_version'`'a ekle."
+          ],
+          "solution": {
+            "approach": "Parse each real line, then sort it into missing or wrong_version using a lowercase lookup.",
+            "approach_tr": "Her gerçek satırı oku, sonra küçük harfli arama ile missing ya da wrong_version'a ayır.",
+            "code": "def check_requirements(req_text, installed):\n    report = {'missing': [], 'wrong_version': []}\n    for line in req_text.splitlines():\n        line = line.strip()\n        if not line or line.startswith('#'):\n            continue\n        name, version = line.split('==')\n        have = installed.get(name.lower())\n        if have is None:\n            report['missing'].append(name)\n        elif have != version:\n            report['wrong_version'].append(name)\n    return report"
+          },
+          "twin": "d20-b2-e6"
+        },
+        {
+          "id": "d20-b2-e8",
           "type": "explain",
-          "prompt": "In your own words: what do pip install, pip list, pip show and pip freeze each do, and what is requirements.txt for?",
-          "prompt_tr": "Kendi cümlelerinizle: pip install, pip list, pip show ve pip freeze ayrı ayrı ne yapar ve requirements.txt ne işe yarar?",
-          "model_answer": "pip install downloads and installs a package. pip list shows all installed packages. pip show prints details about one package, like its version and what it requires. pip freeze prints every installed package with its exact version, and saving that to requirements.txt lets someone else install the same versions later.",
+          "prompt": "In your own words: why does the line `pip install requests` fail inside a `.py` file, and where should you run it?",
+          "prompt_tr": "Kendi cümlelerinle: `pip install requests` satırı bir `.py` dosyasının içinde neden hata verir ve onu nerede çalıştırmalısın?",
+          "model_answer": "pip is a command-line program, not Python code, so inside a .py file the line is invalid syntax and raises a SyntaxError. You run it in a terminal, preferably as python -m pip install requests so it installs into the same Python you use.",
+          "model_answer_tr": "pip bir komut satırı programıdır, Python kodu değildir; bu yüzden .py dosyasında bu satır geçersiz söz dizimidir ve SyntaxError verir. Onu terminalde, tercihen kullandığın Python'a kurulsun diye python -m pip install requests olarak çalıştırırsın.",
           "keywords": [
-            "install",
-            "version",
-            "requirements.txt"
+            "terminal",
+            "SyntaxError"
           ],
-          "model_answer_tr": "pip install bir paketi indirip kurar. pip list kurulu tüm paketleri gösterir. pip show tek bir paket hakkında sürümü ve neye ihtiyaç duyduğu gibi ayrıntıları yazar. pip freeze kurulu her paketi tam sürümüyle yazar; bunu requirements.txt dosyasına kaydedersen başkası aynı sürümleri sonradan kurabilir.",
           "keywords_tr": [
-            "pip install",
-            "sürüm",
-            "requirements.txt"
+            "terminal",
+            "SyntaxError"
           ],
-          "min_words": 6
+          "min_words": 12
         }
-      ],
-      "concept_tr": "pip show, bir paket hakkında 'Anahtar: değer' satırları yazar. Komutların kendisi (pip install, list, show, freeze) terminalde çalışır."
+      ]
     },
     {
       "id": "d20-b3",
-      "concept": "creating-a-package",
+      "concept": "data-from-a-url",
+      "concept_tr": "Bir web yanıtının durum kodu ve gövdesi vardır; önce kodu kontrol eder, sonra JSON gövdeyi `json.loads` (gerçek kodda `response.json()`) ile dict ve list'e çevirirsin. Bu uygulama çevrimdışı olduğu için `requests.get` yerine aynı şekli döndüren sahte bir fonksiyon kullanıyoruz.",
       "tags": [
-        "packages",
-        "__init__",
-        "imports"
+        "http",
+        "api",
+        "json",
+        "requests"
       ],
       "worked_example": {
-        "code": "import os, sys, importlib\nos.makedirs('mypackage20', exist_ok=True)\nopen('mypackage20/__init__.py', 'w').close()\nwith open('mypackage20/greet.py', 'w') as f: f.write(\"def hi(n): return 'Hi ' + n\")\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom mypackage20 import greet\nprint(greet.hi('Asab'))",
+        "code": "import json\n\ndef fake_get(url):\n    # real code: response = requests.get(url, timeout=10)\n    body = '[{\"name\": \"Turkey\", \"population\": 85000000}, {\"name\": \"Finland\", \"population\": 5500000}]'\n    return {'status_code': 200, 'text': body}\n\nresponse = fake_get('https://restcountries.com/v3.1/all')\nif response['status_code'] == 200:\n    countries = json.loads(response['text'])\n    biggest = max(countries, key=lambda c: c['population'])\n    print(len(countries), biggest['name'])",
         "notes": [
-          "A package is a folder with an __init__.py file plus module files.",
-          "from package import module gives you the module; module.function() calls what is inside."
+          "`fake_get` returns the same three things a real response carries: a status code and a text body (headers are left out here).",
+          "The body is a string until `json.loads` turns it into a list of dicts; with `requests` you would call `response.json()`.",
+          "Once the data is a list of dicts, ordinary tools like `max` with a `key` function answer questions about it."
         ],
         "notes_tr": [
-          "Paket, __init__.py dosyası ve modül dosyaları olan bir klasördür.",
-          "from paket import modül modülü verir; modül.fonksiyon() içindekini çağırır."
+          "`fake_get` gerçek bir yanıtın taşıdığı şeyleri döndürür: bir durum kodu ve bir metin gövdesi (başlıklar burada yok).",
+          "Gövde, `json.loads` onu dict'lerden oluşan bir list'e çevirene kadar bir string'tir; `requests` ile `response.json()` çağırırdın.",
+          "Veri bir dict list'i olunca `key` fonksiyonlu `max` gibi sıradan araçlar ona dair soruları cevaplar."
         ]
       },
       "exercises": [
         {
           "id": "d20-b3-e1",
           "type": "predict",
-          "prompt": "The code builds a small package on disk and imports it. What does it print?",
-          "prompt_tr": "Kod diskte küçük bir paket oluşturup içe aktarıyor. Ne yazdırır?",
-          "code": "import os, sys, importlib\nos.makedirs('mypackage20b', exist_ok=True)\nopen('mypackage20b/__init__.py', 'w').close()\nwith open('mypackage20b/arithmetic.py', 'w') as f:\n    f.write(\"def subtract(a, b):\\n    return a - b\\n\")\nsys.path.insert(0, os.getcwd())\nimportlib.invalidate_caches()\nfrom mypackage20b import arithmetic\nprint(arithmetic.subtract(5, 3))\nprint(arithmetic.__name__)",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\nresponse = {'status_code': 200, 'text': '{\"name\": \"Turkey\", \"borders\": [\"GRC\", \"BGR\", \"GEO\"]}'}\ndata = json.loads(response['text'])\nprint(data['name'], len(data['borders']))",
           "choices": [
-            "8\narithmetic",
-            "2\narithmetic",
-            "2\nmypackage20b.arithmetic"
+            "Turkey 3",
+            "Turkey 15",
+            "\"Turkey\" 3",
+            "TypeError"
           ],
-          "expected_output": "2\nmypackage20b.arithmetic",
-          "explanation": "subtract(5, 3) returns 2. The module's __name__ is 'mypackage20b.arithmetic': package name, a dot, then the module name.",
+          "expected_output": "Turkey 3",
+          "explanation": "After `json.loads`, `data` is a dict; `borders` is a list of three codes.",
+          "explanation_tr": "`json.loads`'tan sonra `data` bir dict'tir; `borders` üç kodluk bir list'tir.",
           "misconceptions": {
-            "8\narithmetic": "subtract(5, 3) is 5 minus 3, and the module name includes the package name.",
-            "2\narithmetic": "__name__ of a module inside a package is the full dotted path."
+            "Turkey 15": "`borders` has become a real list, so `len` counts its items, not characters.",
+            "\"Turkey\" 3": "The JSON quotes are syntax; the parsed value is the plain string Turkey.",
+            "TypeError": "`json.loads` runs first, so the keys are used on a dict, not on the string."
           },
-          "explanation_tr": "subtract(5, 3) 2 döndürür. Modülün __name__ değeri 'mypackage20b.arithmetic'tir: paket adı, nokta, modül adı.",
           "misconceptions_tr": {
-            "8\narithmetic": "subtract(5, 3) 5 eksi 3'tür ve modül adı paket adını da içerir.",
-            "2\narithmetic": "Bir paketin içindeki modülün __name__ değeri tam noktalı yoldur."
+            "Turkey 15": "`borders` gerçek bir list oldu; `len` karakterleri değil elemanları sayar.",
+            "\"Turkey\" 3": "JSON'daki tırnaklar söz dizimidir; çözümlenmiş değer düz Turkey string'idir.",
+            "TypeError": "Önce `json.loads` çalışıyor; anahtarlar string'e değil dict'e uygulanıyor."
           }
         },
         {
           "id": "d20-b3-e2",
           "type": "fill_blank",
-          "prompt": "Import the module from the package and call the function it contains.",
-          "prompt_tr": "Modülü paketten içe aktarın ve içindeki fonksiyonu çağırın.",
-          "starter_code": "import os, sys, importlib\nos.makedirs('mypackage20c', exist_ok=True)\nopen('mypackage20c/__init__.py', 'w').close()\nwith open('mypackage20c/greet.py', 'w') as f:\n    f.write(\"def greet_person(firstname, lastname):\\n    return f'{firstname} {lastname}, welcome!'\\n\")\nsys.path.insert(0, os.getcwd())\nimportlib.invalidate_caches()\nfrom mypackage20c ___ greet\nmessage = greet.___('Asabeneh', 'Yetayeh')\nprint(message)",
+          "prompt": "Turn the response body into Python data so the next line can read the temperature.",
+          "prompt_tr": "Yanıt gövdesini Python verisine çevir ki sonraki satır sıcaklığı okuyabilsin.",
+          "starter_code": "import json\n\nresponse = {'status_code': 200, 'text': '{\"city\": \"Rize\", \"temp\": 18}'}\nweather = json.___(response['text'])\nprint(weather['city'], weather['temp'])",
           "blanks": [
             {
               "answer": [
-                "import"
-              ]
-            },
-            {
-              "answer": [
-                "greet_person"
+                "loads"
               ]
             }
           ],
           "tests": [
             {
-              "code": "assert message == 'Asabeneh Yetayeh, welcome!'",
+              "code": "assert weather == {'city': 'Rize', 'temp': 18}",
               "visible": true,
-              "label_tr": "message 'Asabeneh Yetayeh, welcome!' olmalı"
+              "label": "weather is a dict",
+              "label_tr": "weather bir dict"
+            },
+            {
+              "code": "assert __stdout__.strip() == 'Rize 18'",
+              "visible": true,
+              "label": "Prints Rize 18",
+              "label_tr": "Rize 18 yazdırılıyor"
             }
-          ],
-          "hints": [
-            "The statement is: from <package> import <module>.",
-            "The function name is defined in the f.write text above."
-          ],
-          "hints_tr": [
-            "İfade şöyledir: from <paket> import <modül>.",
-            "Fonksiyonun adı yukarıdaki f.write metninde tanımlı."
           ]
         },
         {
           "id": "d20-b3-e3",
-          "type": "write",
-          "prompt": "Write build_package(name, modules) that creates a folder called name containing an empty __init__.py and one file per module. modules is a dictionary {module_name: source_text}; each source text is written to <module_name>.py inside the folder.",
-          "prompt_tr": "name adlı bir klasör oluşturan; içinde boş bir __init__.py ve her modül için bir dosya bulunan build_package(name, modules) yazın. modules, {module_name: source_text} sözlüğüdür; her kaynak metin klasörün içinde <module_name>.py dosyasına yazılır.",
-          "starter_code": "",
-          "signature": "def build_package(name, modules):",
-          "tests": [
-            {
-              "code": "import shutil, os\nshutil.rmtree('pk20a', ignore_errors=True)\nbuild_package('pk20a', {'greet': \"def hi(n):\\n    return 'Hi ' + n\\n\"})\nassert os.path.exists('pk20a/__init__.py')\nassert open('pk20a/greet.py').read() == \"def hi(n):\\n    return 'Hi ' + n\\n\"",
-              "visible": true,
-              "label_tr": "Klasörde __init__.py ve greet.py doğru oluşuyor"
-            },
-            {
-              "code": "import shutil, os\nshutil.rmtree('pk20b', ignore_errors=True)\nbuild_package('pk20b', {'one': 'X = 1\\n', 'two': 'Y = 2\\n'})\nassert sorted(os.listdir('pk20b')) == ['__init__.py', 'one.py', 'two.py']",
-              "visible": true,
-              "label_tr": "Klasörde __init__.py, one.py ve two.py oluşuyor"
-            },
-            {
-              "code": "import shutil, os\nshutil.rmtree('pk20c', ignore_errors=True)\nbuild_package('pk20c', {})\nassert os.listdir('pk20c') == ['__init__.py']\nassert open('pk20c/__init__.py').read() == ''",
-              "visible": false,
-              "failure_message": "With no modules, the folder holds just an empty __init__.py.",
-              "failure_message_tr": "Hiç modül yoksa klasörde sadece boş bir __init__.py olur."
-            },
-            {
-              "code": "import shutil, os, sys, importlib\nshutil.rmtree('pk20d', ignore_errors=True)\nbuild_package('pk20d', {'arithmetic': 'def subtract(a, b):\\n    return a - b\\n'})\nsys.path.insert(0, os.getcwd())\nimportlib.invalidate_caches()\nfrom pk20d import arithmetic\nassert arithmetic.subtract(5, 3) == 2",
-              "visible": false,
-              "failure_message": "The package must be importable: file names must end with .py and be inside the folder.",
-              "failure_message_tr": "Paket içe aktarılabilir olmalı: dosya adları .py ile bitmeli ve klasörün içinde olmalı."
-            },
-            {
-              "code": "import shutil, os\nshutil.rmtree('pk20e', ignore_errors=True)\nbuild_package('pk20e', {'m': 'A = 1\\n'})\nbuild_package('pk20e', {'m': 'A = 2\\n'})\nassert open('pk20e/m.py').read() == 'A = 2\\n'",
-              "visible": false,
-              "failure_message": "Calling it twice for the same name must not crash (exist_ok=True) and must overwrite the files.",
-              "failure_message_tr": "Aynı ad için iki kez çağırmak çökmemeli (exist_ok=True) ve dosyaların üzerine yazmalı."
-            },
-            {
-              "code": "import shutil, os\nshutil.rmtree('pk20f', ignore_errors=True)\nbuild_package('pk20f', {'alpha': 'A = 1\\n', 'beta': 'B = 2\\n', 'gamma': 'C = 3\\n'})\nassert sorted(os.listdir('pk20f')) == ['__init__.py', 'alpha.py', 'beta.py', 'gamma.py']\nassert open('pk20f/gamma.py').read() == 'C = 3\\n'",
-              "visible": false,
-              "failure_message": "Build the package from the modules you are given; do not hard-code results.",
-              "failure_message_tr": "Paketi verilen modüllerden oluştur; sonuçları elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "The program should print `22` but crashes with `TypeError: string indices must be integers, not 'str'`. Fix it.",
+          "prompt_tr": "Program `22` yazdırmalı ama `TypeError: string indices must be integers, not 'str'` hatasıyla çöküyor. Düzelt.",
+          "starter_code": "response = {'status_code': 200, 'text': '{\"temp\": 21}'}\nprint(response['text']['temp'] + 1)",
+          "expected_output": "22",
           "hints": [
-            "os.makedirs creates a folder; exist_ok=True avoids an error if it exists.",
-            "Create __init__.py as an empty file, then write each module in a loop.",
-            "open(os.path.join(name, module + '.py'), '___') for each module (which mode creates or replaces a file?)"
+            "What is the type of `response['text']`?",
+            "The body looks like a dict but it is a string of JSON text.",
+            "Import `json` and turn the body into a dict with `json.loads` before using the key."
+          ],
+          "hints_tr": [
+            "`response['text']`'in türü ne?",
+            "Gövde dict'e benziyor ama aslında JSON metni içeren bir string.",
+            "`json`'u içe aktar ve anahtarı kullanmadan önce gövdeyi `json.loads` ile dict'e çevir."
           ],
           "solution": {
-            "approach": "Make the folder, create an empty __init__.py, and write one .py file per module.",
-            "code": "import os\n\ndef build_package(name, modules):\n    os.makedirs(name, exist_ok=True)\n    open(os.path.join(name, '__init__.py'), 'w').close()\n    for module, source in modules.items():\n        with open(os.path.join(name, module + '.py'), 'w') as f:\n            f.write(source)",
-            "approach_tr": "Klasörü oluştur, boş bir __init__.py yaz ve her modül için bir .py dosyası yaz."
-          },
-          "twin": "d20-b3-e4",
-          "hints_tr": [
-            "os.makedirs bir klasör oluşturur; exist_ok=True zaten varsa hata vermesini önler.",
-            "__init__.py'yi boş bir dosya olarak oluştur, sonra her modülü bir döngüde yaz.",
-            "Her modül için open(os.path.join(name, module + '.py'), '___') (dosyayı oluşturan ya da değiştiren mod hangisi?)"
-          ]
+            "approach": "Parse the JSON body first, then index the resulting dict.",
+            "approach_tr": "Önce JSON gövdeyi çözümle, sonra ortaya çıkan dict'i indeksle.",
+            "code": "import json\n\nresponse = {'status_code': 200, 'text': '{\"temp\": 21}'}\nprint(json.loads(response['text'])['temp'] + 1)"
+          }
         },
         {
           "id": "d20-b3-e4",
-          "type": "write",
-          "prompt": "Write list_modules(package_dir) that returns the sorted list of module names in a package folder: every .py file except __init__.py, without the .py ending. Ignore other files.",
-          "prompt_tr": "Bir paket klasöründeki modül adlarının sıralı listesini döndüren list_modules(package_dir) yazın: __init__.py hariç her .py dosyası, .py uzantısı olmadan. Diğer dosyaları yok sayın.",
-          "starter_code": "",
-          "signature": "def list_modules(package_dir):",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\ncountries = json.loads('[{\"name\": \"Turkey\", \"region\": \"Asia\", \"population\": 85000000}, {\"name\": \"Finland\", \"region\": \"Europe\", \"population\": 5500000}, {\"name\": \"Japan\", \"region\": \"Asia\", \"population\": 125000000}]')\nprint(sorted(c['name'] for c in countries if c['region'] == 'Asia'))",
+          "choices": [
+            "['Japan', 'Turkey']",
+            "['Turkey', 'Japan']",
+            "['Finland', 'Japan', 'Turkey']",
+            "['Asia', 'Asia']"
+          ],
+          "expected_output": "['Japan', 'Turkey']",
+          "explanation": "The filter keeps the two Asian countries, and `sorted` puts their names in alphabetical order.",
+          "explanation_tr": "Süzgeç Asya'daki iki ülkeyi tutar; `sorted` adlarını alfabetik sıraya koyar.",
+          "misconceptions": {
+            "['Turkey', 'Japan']": "That is the order in the data; `sorted` reorders alphabetically.",
+            "['Finland', 'Japan', 'Turkey']": "Finland's region is Europe, so the condition drops it.",
+            "['Asia', 'Asia']": "The expression collects `c['name']`, not the region."
+          },
+          "misconceptions_tr": {
+            "['Turkey', 'Japan']": "Bu verideki sıra; `sorted` alfabetik olarak yeniden sıralar.",
+            "['Finland', 'Japan', 'Turkey']": "Finland'ın bölgesi Europe; koşul onu dışarıda bırakır.",
+            "['Asia', 'Asia']": "İfade bölgeyi değil `c['name']`'i topluyor."
+          }
+        },
+        {
+          "id": "d20-b3-e5",
+          "type": "modify",
+          "prompt": "`get_json(response)` parses the body even when the request failed. Change it so it raises `ValueError` with the message `'HTTP 404'` (using the real code) when `status_code` is not 200, and otherwise returns the parsed JSON.",
+          "prompt_tr": "`get_json(response)` istek başarısız olsa bile gövdeyi çözümlüyor. `status_code` 200 değilse `'HTTP 404'` mesajlı (gerçek kodu kullanarak) bir `ValueError` fırlatacak, aksi halde çözümlenmiş JSON'u döndürecek şekilde değiştir.",
+          "starter_code": "import json\n\ndef get_json(response):\n    return json.loads(response['text'])",
+          "signature": "def get_json(response):",
           "tests": [
             {
-              "code": "import os, shutil\nshutil.rmtree('lm20a', ignore_errors=True)\nos.makedirs('lm20a')\nfor n in ['__init__.py', 'greet.py', 'arithmetic.py']:\n    open('lm20a/' + n, 'w').close()\nassert list_modules('lm20a') == ['arithmetic', 'greet']",
+              "code": "assert get_json({'status_code': 200, 'text': '[1, 2]'}) == [1, 2]",
               "visible": true,
-              "label_tr": "Klasördeki modüller ['arithmetic', 'greet'] olarak dönüyor"
+              "label": "200 returns the data",
+              "label_tr": "200 veriyi döndürüyor"
             },
             {
-              "code": "import os, shutil\nshutil.rmtree('lm20b', ignore_errors=True)\nos.makedirs('lm20b')\nopen('lm20b/__init__.py', 'w').close()\nassert list_modules('lm20b') == []",
+              "code": "try:\n    get_json({'status_code': 404, 'text': 'Not Found'})\n    _m = None\nexcept ValueError as e:\n    _m = str(e)\nassert _m == 'HTTP 404'",
               "visible": true,
-              "label_tr": "Sadece __init__.py olan klasör boş liste veriyor"
+              "label": "404 raises ValueError('HTTP 404')",
+              "label_tr": "404, ValueError('HTTP 404') fırlatıyor"
             },
             {
-              "code": "import os, shutil\nshutil.rmtree('lm20c', ignore_errors=True)\nos.makedirs('lm20c')\nfor n in ['__init__.py', 'notes.txt', 'data.csv', 'tools.py']:\n    open('lm20c/' + n, 'w').close()\nassert list_modules('lm20c') == ['tools']",
+              "code": "try:\n    get_json({'status_code': 503, 'text': '{}'})\n    _m = None\nexcept ValueError as e:\n    _m = str(e)\nassert _m == 'HTTP 503'",
               "visible": false,
-              "failure_message": "Only .py files count; skip .txt, .csv and other files.",
-              "failure_message_tr": "Sadece .py dosyaları sayılır; .txt, .csv ve diğerlerini atla."
+              "failure_message": "Use the actual status code in the message.",
+              "failure_message_tr": "Mesajda gerçek durum kodunu kullan."
             },
             {
-              "code": "import os, shutil\nshutil.rmtree('lm20d', ignore_errors=True)\nos.makedirs('lm20d')\nfor n in ['b.py', 'a.py', 'c.py']:\n    open('lm20d/' + n, 'w').close()\nassert list_modules('lm20d') == ['a', 'b', 'c']",
+              "code": "assert get_json({'status_code': 200, 'text': '{\"ok\": true}'}) == {'ok': True}",
               "visible": false,
-              "failure_message": "Return the names sorted alphabetically.",
-              "failure_message_tr": "İsimleri alfabetik sıralı döndür."
-            },
-            {
-              "code": "import os, shutil\nshutil.rmtree('lm20e', ignore_errors=True)\nos.makedirs('lm20e')\nopen('lm20e/my.module.py', 'w').close()\nassert list_modules('lm20e') == ['my.module']",
-              "visible": false,
-              "failure_message": "Remove only the final '.py' ending, not every dot.",
-              "failure_message_tr": "Yalnızca sondaki '.py'yi sil, her noktayı değil."
-            },
-            {
-              "code": "import os, shutil\nshutil.rmtree('lm20f', ignore_errors=True)\nos.makedirs('lm20f')\nfor n in ['zeta.py', 'omega.py', '__init__.py', 'readme.md']:\n    open('lm20f/' + n, 'w').close()\nassert list_modules('lm20f') == ['omega', 'zeta']",
-              "visible": false,
-              "failure_message": "List the modules of the folder you are given; do not hard-code results.",
-              "failure_message_tr": "Verilen klasörün modüllerini listele; sonuçları elle yazma."
+              "failure_message": "A successful JSON object is returned as a dict.",
+              "failure_message_tr": "Başarılı bir JSON nesnesi dict olarak döndürülür."
             }
           ],
           "hints": [
-            "os.listdir gives the names of the files in a folder.",
-            "Keep names that end with '.py' and are not '__init__.py'.",
-            "modules.append(name[:-___]) (how many characters does '.py' have?)"
+            "Check `response['status_code']` before parsing.",
+            "`raise ValueError(...)` stops the function (Day 17).",
+            "Build the message with an f-string: `f\"HTTP {response['status_code']}\"`."
+          ],
+          "hints_tr": [
+            "Çözümlemeden önce `response['status_code']`'u kontrol et.",
+            "`raise ValueError(...)` fonksiyonu durdurur (Day 17).",
+            "Mesajı bir f-string ile kur: `f\"HTTP {response['status_code']}\"`."
           ],
           "solution": {
-            "approach": "List the folder, filter .py files except __init__.py, strip the extension and sort.",
-            "code": "import os\n\ndef list_modules(package_dir):\n    modules = []\n    for name in os.listdir(package_dir):\n        if name.endswith('.py') and name != '__init__.py':\n            modules.append(name[:-3])\n    return sorted(modules)",
-            "approach_tr": "Klasörü listele, __init__.py dışındaki .py dosyalarını süz, uzantıyı at ve sırala."
-          },
-          "twin": "d20-b3-e3",
+            "approach": "Raise for any status other than 200, otherwise parse.",
+            "approach_tr": "200 dışındaki her durum kodu için istisna fırlat, aksi halde çözümle.",
+            "code": "import json\n\ndef get_json(response):\n    if response['status_code'] != 200:\n        raise ValueError(f\"HTTP {response['status_code']}\")\n    return json.loads(response['text'])"
+          }
+        },
+        {
+          "id": "d20-b3-e6",
+          "type": "write",
+          "prompt": "Write `country_names(json_text)` that takes the JSON text of an array of country objects (each with a `\"name\"`) and returns the names sorted alphabetically. Example: for `'[{\"name\": \"Turkey\"}, {\"name\": \"Finland\"}]'` it returns `['Finland', 'Turkey']`.",
+          "prompt_tr": "Ülke nesnelerinden (her birinde `\"name\"` var) oluşan bir dizinin JSON metnini alıp adları alfabetik sırayla döndüren `country_names(json_text)` fonksiyonunu yaz. Örnek: `'[{\"name\": \"Turkey\"}, {\"name\": \"Finland\"}]'` için `['Finland', 'Turkey']` döndürür.",
+          "starter_code": "import json\n",
+          "signature": "def country_names(json_text):",
+          "tests": [
+            {
+              "code": "assert country_names('[{\"name\": \"Turkey\"}, {\"name\": \"Finland\"}]') == ['Finland', 'Turkey']",
+              "visible": true,
+              "label": "Names sorted",
+              "label_tr": "Adlar sıralı"
+            },
+            {
+              "code": "assert country_names('[]') == []",
+              "visible": false,
+              "failure_message": "An empty array gives an empty list.",
+              "failure_message_tr": "Boş dizi boş list verir."
+            },
+            {
+              "code": "assert country_names('[{\"name\": \"Turkey\", \"region\": \"Asia\", \"population\": 85000000}, {\"name\": \"Finland\", \"region\": \"Europe\", \"population\": 5500000}, {\"name\": \"Japan\", \"region\": \"Asia\", \"population\": 125000000}]') == ['Finland', 'Japan', 'Turkey']",
+              "visible": false,
+              "failure_message": "Extra fields must be ignored; only the names are returned.",
+              "failure_message_tr": "Fazla alanlar yok sayılmalı; sadece adlar döner."
+            },
+            {
+              "code": "assert country_names('[{\"name\": \"b\", \"x\": 1}, {\"name\": \"a\"}]') == ['a', 'b']",
+              "visible": false,
+              "failure_message": "Parse the text first; it is a string, not a list.",
+              "failure_message_tr": "Önce metni çözümle; o bir list değil string."
+            }
+          ],
+          "hints": [
+            "`json.loads(json_text)` gives a list of dicts.",
+            "Collect `c['name']` for every dict.",
+            "Return `sorted(...)` of those names."
+          ],
           "hints_tr": [
-            "os.listdir bir klasördeki dosya adlarını verir.",
-            "'.py' ile biten ve '__init__.py' olmayan adları tut.",
-            "modules.append(name[:-___]) ('.py' kaç karakterdir?)"
-          ]
+            "`json.loads(json_text)` bir dict list'i verir.",
+            "Her dict için `c['name']`'i topla.",
+            "Bu adların `sorted(...)` halini döndür."
+          ],
+          "solution": {
+            "approach": "Parse, collect the names, sort.",
+            "approach_tr": "Çözümle, adları topla, sırala.",
+            "code": "import json\n\ndef country_names(json_text):\n    return sorted(c['name'] for c in json.loads(json_text))"
+          },
+          "twin": "d20-b3-e7"
+        },
+        {
+          "id": "d20-b3-e7",
+          "type": "write",
+          "prompt": "Write `population_by_region(json_text)` that takes the JSON text of an array of country objects with `\"region\"` and `\"population\"` and returns a dict `region -> total population`, regions in the order they first appear. A country without a `\"population\"` field counts as 0. Example: Turkey (Asia, 85000000), Finland (Europe, 5500000) and Japan (Asia, 125000000) give `{'Asia': 210000000, 'Europe': 5500000}`.",
+          "prompt_tr": "`\"region\"` ve `\"population\"` alanlı ülke nesnelerinden oluşan bir dizinin JSON metnini alıp bölgeleri ilk göründükleri sırada tutan bir `bölge -> toplam nüfus` dict'i döndüren `population_by_region(json_text)` fonksiyonunu yaz. `\"population\"` alanı olmayan ülke 0 sayılır. Örnek: Turkey (Asia, 85000000), Finland (Europe, 5500000) ve Japan (Asia, 125000000) `{'Asia': 210000000, 'Europe': 5500000}` verir.",
+          "starter_code": "import json\n",
+          "signature": "def population_by_region(json_text):",
+          "tests": [
+            {
+              "code": "assert population_by_region('[{\"name\": \"Turkey\", \"region\": \"Asia\", \"population\": 85000000}, {\"name\": \"Finland\", \"region\": \"Europe\", \"population\": 5500000}, {\"name\": \"Japan\", \"region\": \"Asia\", \"population\": 125000000}]') == {'Asia': 210000000, 'Europe': 5500000}",
+              "visible": true,
+              "label": "Totals per region",
+              "label_tr": "Bölge başına toplamlar"
+            },
+            {
+              "code": "assert population_by_region('[]') == {}",
+              "visible": false,
+              "failure_message": "No countries give an empty dict.",
+              "failure_message_tr": "Ülke yoksa boş dict."
+            },
+            {
+              "code": "assert population_by_region('[{\"region\": \"Oceania\"}, {\"region\": \"Oceania\", \"population\": 10}]') == {'Oceania': 10}",
+              "visible": false,
+              "failure_message": "A missing population counts as 0; use dict.get.",
+              "failure_message_tr": "Eksik nüfus 0 sayılır; dict.get kullan."
+            },
+            {
+              "code": "assert list(population_by_region('[{\"region\": \"B\", \"population\": 1}, {\"region\": \"A\", \"population\": 2}]')) == ['B', 'A']",
+              "visible": false,
+              "failure_message": "Keep regions in the order they first appear.",
+              "failure_message_tr": "Bölgeleri ilk göründükleri sırada tut."
+            }
+          ],
+          "hints": [
+            "Parse the text with `json.loads`.",
+            "Loop over the countries and add to `totals[region]`, starting from `totals.get(region, 0)`.",
+            "Read the population with `c.get('population', 0)` so a missing field counts as 0."
+          ],
+          "hints_tr": [
+            "Metni `json.loads` ile çözümle.",
+            "Ülkeleri gez ve `totals.get(region, 0)`'dan başlayarak `totals[region]`'a ekle.",
+            "Eksik alan 0 sayılsın diye nüfusu `c.get('population', 0)` ile oku."
+          ],
+          "solution": {
+            "approach": "Parse, then accumulate populations per region with dict.get defaults.",
+            "approach_tr": "Çözümle, sonra nüfusları dict.get varsayılanlarıyla bölge başına biriktir.",
+            "code": "import json\n\ndef population_by_region(json_text):\n    totals = {}\n    for c in json.loads(json_text):\n        region = c['region']\n        totals[region] = totals.get(region, 0) + c.get('population', 0)\n    return totals"
+          },
+          "twin": "d20-b3-e6"
+        },
+        {
+          "id": "d20-b3-e8",
+          "type": "parsons",
+          "prompt": "Arrange the lines so the program checks the status code and prints the parsed message `ok`.",
+          "prompt_tr": "Satırları, program durum kodunu kontrol edip çözümlenmiş mesajı (`ok`) yazdıracak şekilde sırala.",
+          "lines": [
+            "if response['status_code'] == 200:",
+            "import json",
+            "    print(data['message'])",
+            "response = {'status_code': 200, 'text': '{\"message\": \"ok\"}'}",
+            "    data = json.loads(response['text'])"
+          ],
+          "correct_order": [
+            1,
+            3,
+            0,
+            4,
+            2
+          ],
+          "distractors": [
+            "    print(response['text']['message'])"
+          ],
+          "expected_output": "ok"
         }
+      ]
+    },
+    {
+      "id": "d20-b4",
+      "concept": "creating-a-package",
+      "concept_tr": "`__init__.py` içeren bir klasör pakettir; modüller `from paket import modül` ile alınır, `__init__.py` göreli içe aktarmayla (`from .modül import ad`) isimleri paket seviyesine taşıyabilir ve bir modül programda sadece ilk içe aktarmada çalışır.",
+      "tags": [
+        "packages",
+        "modules",
+        "import",
+        "__init__"
       ],
-      "concept_tr": "Paket, içinde __init__.py dosyası olan bir klasördür; modül dosyalarını barındırır. from paket import modül ile içeri alırsın."
+      "worked_example": {
+        "code": "import os, sys, importlib\n\nos.makedirs('mypackage_d20', exist_ok=True)\nwith open('mypackage_d20/arithmetics.py', 'w') as f:\n    f.write('def add_numbers(*args):\\n    return sum(args)\\n')\nwith open('mypackage_d20/__init__.py', 'w') as f:\n    f.write('from .arithmetics import add_numbers\\n')\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nimport mypackage_d20\nprint(mypackage_d20.add_numbers(1, 2, 3, 5))\nprint(mypackage_d20.arithmetics.__name__)",
+        "notes": [
+          "The folder gets a module file and an `__init__.py`; in your own projects you create these files in the editor instead of from code.",
+          "`sys.path.insert(0, os.getcwd())` makes sure Python searches the current folder, and `invalidate_caches()` lets it notice files created a moment ago.",
+          "The relative import in `__init__.py` lifts `add_numbers` to the package level, while the submodule keeps its full dotted name."
+        ],
+        "notes_tr": [
+          "Klasöre bir modül dosyası ve bir `__init__.py` ekleniyor; kendi projelerinde bu dosyaları koddan değil editörden oluşturursun.",
+          "`sys.path.insert(0, os.getcwd())` Python'un mevcut klasörde aramasını sağlar; `invalidate_caches()` az önce oluşturulan dosyaları fark etmesini sağlar.",
+          "`__init__.py`'deki göreli içe aktarma `add_numbers`'ı paket seviyesine taşır; alt modül ise tam noktalı adını korur."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d20-b4-e1",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import os, sys, importlib\n\nfor m in ['p1_d20', 'p1_d20.util']:\n    sys.modules.pop(m, None)\nos.makedirs('p1_d20', exist_ok=True)\nwith open('p1_d20/__init__.py', 'w') as f:\n    f.write(\"print('init runs')\\n\")\nwith open('p1_d20/util.py', 'w') as f:\n    f.write(\"print('util runs')\\nX = 5\\n\")\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom p1_d20 import util\nfrom p1_d20 import util\nprint(util.X)",
+          "choices": [
+            "init runs\nutil runs\n5",
+            "util runs\n5",
+            "init runs\nutil runs\ninit runs\nutil runs\n5",
+            "5"
+          ],
+          "expected_output": "init runs\nutil runs\n5",
+          "explanation": "Importing a submodule first runs the package's `__init__.py`, then the module. The second identical import reuses the cached modules and prints nothing.",
+          "explanation_tr": "Bir alt modülü içe aktarmak önce paketin `__init__.py`'sini, sonra modülü çalıştırır. Aynı ikinci içe aktarma önbellekteki modülleri kullanır ve hiçbir şey yazdırmaz.",
+          "misconceptions": {
+            "util runs\n5": "The package's `__init__.py` runs before any of its submodules.",
+            "init runs\nutil runs\ninit runs\nutil runs\n5": "A module runs only once per program; the second import finds it in `sys.modules`.",
+            "5": "The first import does execute the code in both files."
+          },
+          "misconceptions_tr": {
+            "util runs\n5": "Paketin `__init__.py`'si alt modüllerinden önce çalışır.",
+            "init runs\nutil runs\ninit runs\nutil runs\n5": "Bir modül programda bir kez çalışır; ikinci içe aktarma onu `sys.modules`'ta bulur.",
+            "5": "İlk içe aktarma iki dosyadaki kodu da çalıştırır."
+          }
+        },
+        {
+          "id": "d20-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Make `pk2_d20` a regular package by creating the special file that marks a folder as a package, then import the module.",
+          "prompt_tr": "Bir klasörü paket olarak işaretleyen özel dosyayı oluşturarak `pk2_d20`'yi normal bir paket yap, sonra modülü içe aktar.",
+          "starter_code": "import os, sys, importlib\n\nos.makedirs('pk2_d20', exist_ok=True)\nopen('pk2_d20/___', 'w').close()\nwith open('pk2_d20/shapes.py', 'w') as f:\n    f.write('def area(w, h):\\n    return w * h\\n')\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom pk2_d20 import shapes\nprint(shapes.area(3, 4))",
+          "blanks": [
+            {
+              "answer": [
+                "__init__.py"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert os.path.exists('pk2_d20/__init__.py')",
+              "visible": true,
+              "label": "pk2_d20/__init__.py exists",
+              "label_tr": "pk2_d20/__init__.py var"
+            },
+            {
+              "code": "assert __stdout__.strip() == '12'",
+              "visible": true,
+              "label": "Prints 12",
+              "label_tr": "12 yazdırılıyor"
+            }
+          ]
+        },
+        {
+          "id": "d20-b4-e3",
+          "type": "debug",
+          "prompt": "The program should print `11` but crashes with `ImportError: cannot import name 'arithmetic' from 'pk3_d20' (...)`. This is the original lesson's naming slip. Fix the import.",
+          "prompt_tr": "Program `11` yazdırmalı ama `ImportError: cannot import name 'arithmetic' from 'pk3_d20' (...)` hatasıyla çöküyor. Bu, orijinal dersteki ad karışıklığı. İçe aktarmayı düzelt.",
+          "starter_code": "import os, sys, importlib\n\nos.makedirs('pk3_d20', exist_ok=True)\nopen('pk3_d20/__init__.py', 'w').close()\nwith open('pk3_d20/arithmetics.py', 'w') as f:\n    f.write('def add_numbers(*args):\\n    return sum(args)\\n')\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom pk3_d20 import arithmetic\nprint(arithmetic.add_numbers(1, 2, 3, 5))",
+          "expected_output": "11",
+          "hints": [
+            "Compare the file name that is written with the name that is imported.",
+            "A module's import name is its file name without `.py`, letter for letter.",
+            "Import `arithmetics` (with the s) and use that name on the last line too."
+          ],
+          "hints_tr": [
+            "Yazılan dosya adını içe aktarılan adla karşılaştır.",
+            "Bir modülün içe aktarma adı, `.py`'siz dosya adıdır, harfi harfine.",
+            "`arithmetics`'i (s ile) içe aktar ve son satırda da o adı kullan."
+          ],
+          "solution": {
+            "approach": "The module file is arithmetics.py, so import `arithmetics`.",
+            "approach_tr": "Modül dosyası arithmetics.py, bu yüzden `arithmetics`'i içe aktar.",
+            "code": "import os, sys, importlib\n\nos.makedirs('pk3_d20', exist_ok=True)\nopen('pk3_d20/__init__.py', 'w').close()\nwith open('pk3_d20/arithmetics.py', 'w') as f:\n    f.write('def add_numbers(*args):\\n    return sum(args)\\n')\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom pk3_d20 import arithmetics\nprint(arithmetics.add_numbers(1, 2, 3, 5))"
+          }
+        },
+        {
+          "id": "d20-b4-e4",
+          "type": "predict",
+          "prompt": "What does this print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import os, sys, importlib\n\nos.makedirs('pk4_d20', exist_ok=True)\nopen('pk4_d20/__init__.py', 'w').close()\nwith open('pk4_d20/calc.py', 'w') as f:\n    f.write('def who():\\n    return __name__\\n')\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom pk4_d20 import calc\nprint(calc.who(), __name__)",
+          "choices": [
+            "pk4_d20.calc __main__",
+            "__main__ __main__",
+            "calc __main__",
+            "pk4_d20.calc pk4_d20.calc"
+          ],
+          "expected_output": "pk4_d20.calc __main__",
+          "explanation": "Inside an imported module, `__name__` is its full dotted name. The code you run directly has the name `__main__`.",
+          "explanation_tr": "İçe aktarılan bir modülün içinde `__name__` onun tam noktalı adıdır. Doğrudan çalıştırdığın kodun adı `__main__`'dir.",
+          "misconceptions": {
+            "__main__ __main__": "Only the file that is run directly is called `__main__`; imported modules keep their own name.",
+            "calc __main__": "A module inside a package is named with the package prefix: `pk4_d20.calc`.",
+            "pk4_d20.calc pk4_d20.calc": "`__name__` in your own script is `__main__`; the function returns the module's own global."
+          },
+          "misconceptions_tr": {
+            "__main__ __main__": "Sadece doğrudan çalıştırılan dosyanın adı `__main__`'dir; içe aktarılan modüller kendi adlarını korur.",
+            "calc __main__": "Paket içindeki bir modül paket ön ekiyle adlandırılır: `pk4_d20.calc`.",
+            "pk4_d20.calc pk4_d20.calc": "Kendi betiğindeki `__name__` `__main__`'dir; fonksiyon modülün kendi global değişkenini döndürür."
+          }
+        },
+        {
+          "id": "d20-b4-e5",
+          "type": "modify",
+          "prompt": "The package `pk5_d20` has a `greet.py`, but its `__init__.py` is empty, so `from pk5_d20 import greet_person` fails. Change only what is written into `__init__.py` so that it re-exports `greet_person` with a relative import and also defines `VERSION = '1.0'`. Keep the last two lines.",
+          "prompt_tr": "`pk5_d20` paketinde bir `greet.py` var ama `__init__.py` boş, bu yüzden `from pk5_d20 import greet_person` başarısız oluyor. Sadece `__init__.py`'ye yazılanı, `greet_person`'ı göreli içe aktarmayla dışarı verecek ve ayrıca `VERSION = '1.0'` tanımlayacak şekilde değiştir. Son iki satırı koru.",
+          "starter_code": "import os, sys, importlib\nos.makedirs('pk5_d20', exist_ok=True)\nwith open('pk5_d20/greet.py', 'w') as f:\n    f.write(\"def greet_person(first, last):\\n    return f'{first} {last}, welcome!'\\n\")\nwith open('pk5_d20/__init__.py', 'w') as f:\n    f.write('')\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom pk5_d20 import greet_person, VERSION\nprint(greet_person('Asabeneh', 'Yetayeh'), VERSION)",
+          "tests": [
+            {
+              "code": "assert __stdout__.strip() == 'Asabeneh Yetayeh, welcome! 1.0'",
+              "visible": true,
+              "label": "Prints the greeting and the version",
+              "label_tr": "Selamlama ve sürüm yazdırılıyor"
+            },
+            {
+              "code": "import os, sys, importlib\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfor _m in [m for m in sys.modules if m == 'pk5_d20' or m.startswith('pk5_d20.')]:\n    del sys.modules[_m]\nimport pk5_d20\nassert pk5_d20.greet_person('Ece', 'Su') == 'Ece Su, welcome!' and pk5_d20.VERSION == '1.0'",
+              "visible": false,
+              "failure_message": "Read freshly from the files, the package must expose greet_person and VERSION.",
+              "failure_message_tr": "Dosyalardan yeniden okunduğunda paket greet_person ve VERSION'ı sunmalı."
+            },
+            {
+              "code": "assert 'from .greet import greet_person' in open('pk5_d20/__init__.py').read()",
+              "visible": false,
+              "failure_message": "Use the relative import `from .greet import greet_person` in __init__.py.",
+              "failure_message_tr": "__init__.py içinde `from .greet import greet_person` göreli içe aktarmasını kullan."
+            }
+          ],
+          "hints": [
+            "`__init__.py` runs when the package is imported; whatever names it defines become package attributes.",
+            "Inside a package, `from .greet import ...` means 'the greet module next to me'.",
+            "Write two lines into `__init__.py`: the relative import and the VERSION assignment, separated by `\\n`."
+          ],
+          "hints_tr": [
+            "`__init__.py` paket içe aktarılınca çalışır; tanımladığı her isim paketin niteliği olur.",
+            "Paket içinde `from .greet import ...` 'yanımdaki greet modülü' demektir.",
+            "`__init__.py`'ye iki satır yaz: göreli içe aktarma ve VERSION ataması; aralarında `\\n` olsun."
+          ],
+          "solution": {
+            "approach": "Write the relative import and the VERSION constant into __init__.py.",
+            "approach_tr": "Göreli içe aktarmayı ve VERSION sabitini __init__.py'ye yaz.",
+            "code": "import os, sys, importlib\nos.makedirs('pk5_d20', exist_ok=True)\nwith open('pk5_d20/greet.py', 'w') as f:\n    f.write(\"def greet_person(first, last):\\n    return f'{first} {last}, welcome!'\\n\")\nwith open('pk5_d20/__init__.py', 'w') as f:\n    f.write(\"from .greet import greet_person\\nVERSION = '1.0'\\n\")\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom pk5_d20 import greet_person, VERSION\nprint(greet_person('Asabeneh', 'Yetayeh'), VERSION)"
+          }
+        },
+        {
+          "id": "d20-b4-e6",
+          "type": "write",
+          "prompt": "Write `module_path(dotted)` that turns a dotted module name into the path of its file. Example: `module_path('mypackage.greet')` returns `'mypackage/greet.py'` and `module_path('a.b.c')` returns `'a/b/c.py'`.",
+          "prompt_tr": "Noktalı bir modül adını dosyasının yoluna çeviren `module_path(dotted)` fonksiyonunu yaz. Örnek: `module_path('mypackage.greet')` sonucu `'mypackage/greet.py'`, `module_path('a.b.c')` sonucu `'a/b/c.py'`.",
+          "starter_code": "",
+          "signature": "def module_path(dotted):",
+          "tests": [
+            {
+              "code": "assert module_path('mypackage.greet') == 'mypackage/greet.py'",
+              "visible": true,
+              "label": "mypackage.greet",
+              "label_tr": "mypackage.greet"
+            },
+            {
+              "code": "assert module_path('a.b.c') == 'a/b/c.py'",
+              "visible": false,
+              "failure_message": "Every dot becomes a slash.",
+              "failure_message_tr": "Her nokta bir eğik çizgi olur."
+            },
+            {
+              "code": "assert module_path('single') == 'single.py'",
+              "visible": false,
+              "failure_message": "A name without dots is just a file.",
+              "failure_message_tr": "Noktasız bir ad sadece bir dosyadır."
+            },
+            {
+              "code": "assert module_path('shop_d20.utils.money') == 'shop_d20/utils/money.py'",
+              "visible": false,
+              "failure_message": "Underscores stay as they are.",
+              "failure_message_tr": "Alt çizgiler olduğu gibi kalır."
+            }
+          ],
+          "hints": [
+            "Split at the dots or replace them.",
+            "`'/'.join(parts)` joins pieces with slashes; `str.replace` also works.",
+            "Add `.py` at the end."
+          ],
+          "hints_tr": [
+            "Noktalardan böl ya da onları değiştir.",
+            "`'/'.join(parts)` parçaları eğik çizgiyle birleştirir; `str.replace` de çalışır.",
+            "Sona `.py` ekle."
+          ],
+          "solution": {
+            "approach": "Replace each dot with a slash and append .py.",
+            "approach_tr": "Her noktayı eğik çizgiyle değiştir ve sona .py ekle.",
+            "code": "def module_path(dotted):\n    return dotted.replace('.', '/') + '.py'"
+          },
+          "twin": "d20-b4-e7"
+        },
+        {
+          "id": "d20-b4-e7",
+          "type": "write",
+          "prompt": "Write `create_package(name, modules)` that creates the folder `name` with an empty `__init__.py` and one file per entry of the dict `modules` (`module_name -> source code`), and returns the sorted list of the created file paths. Example: `create_package('kit_d20', {'calc': 'X = 1\\n'})` returns `['kit_d20/__init__.py', 'kit_d20/calc.py']`, and after it `from kit_d20 import calc` works.",
+          "prompt_tr": "`name` klasörünü boş bir `__init__.py` ve `modules` dict'indeki (`modül_adı -> kaynak kod`) her giriş için bir dosyayla oluşturan ve oluşturulan dosya yollarının sıralı list'ini döndüren `create_package(name, modules)` fonksiyonunu yaz. Örnek: `create_package('kit_d20', {'calc': 'X = 1\\n'})` sonucu `['kit_d20/__init__.py', 'kit_d20/calc.py']` ve ardından `from kit_d20 import calc` çalışır.",
+          "starter_code": "import os\n",
+          "signature": "def create_package(name, modules):",
+          "tests": [
+            {
+              "code": "assert create_package('kit_d20', {'calc': 'X = 1\\n'}) == ['kit_d20/__init__.py', 'kit_d20/calc.py']",
+              "visible": true,
+              "label": "Returns the two created paths",
+              "label_tr": "Oluşturulan iki yolu döndürüyor"
+            },
+            {
+              "code": "create_package('kit2_d20', {'b': 'Y = 2\\n', 'a': 'Z = 3\\n'})\nimport os, sys, importlib\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfor _m in [m for m in sys.modules if m == 'kit2_d20' or m.startswith('kit2_d20.')]:\n    del sys.modules[_m]\nfrom kit2_d20 import a, b\nassert (a.Z, b.Y) == (3, 2)",
+              "visible": false,
+              "failure_message": "The created modules must be importable with their source code.",
+              "failure_message_tr": "Oluşturulan modüller kaynak kodlarıyla içe aktarılabilmeli."
+            },
+            {
+              "code": "assert create_package('kit3_d20', {'z': '', 'm': ''}) == ['kit3_d20/__init__.py', 'kit3_d20/m.py', 'kit3_d20/z.py']",
+              "visible": false,
+              "failure_message": "Return the paths sorted.",
+              "failure_message_tr": "Yolları sıralı döndür."
+            },
+            {
+              "code": "assert create_package('kit4_d20', {}) == ['kit4_d20/__init__.py'] and open('kit4_d20/__init__.py').read() == ''",
+              "visible": false,
+              "failure_message": "With no modules there is only an empty __init__.py.",
+              "failure_message_tr": "Modül yoksa sadece boş bir __init__.py vardır."
+            }
+          ],
+          "hints": [
+            "`os.makedirs(name, exist_ok=True)` creates the folder even if it already exists.",
+            "Write each file with `open(path, 'w')`; the module file name is `f'{name}/{module}.py'`.",
+            "Collect every path you write in a list, including the `__init__.py`, and return `sorted(paths)`."
+          ],
+          "hints_tr": [
+            "`os.makedirs(name, exist_ok=True)` klasör zaten varsa bile oluşturur.",
+            "Her dosyayı `open(path, 'w')` ile yaz; modül dosyasının adı `f'{name}/{module}.py'`'dir.",
+            "Yazdığın her yolu, `__init__.py` dahil, bir list'te topla ve `sorted(paths)` döndür."
+          ],
+          "solution": {
+            "approach": "Make the folder, write __init__.py and each module file, return the sorted paths.",
+            "approach_tr": "Klasörü oluştur, __init__.py'yi ve her modül dosyasını yaz, sıralı yolları döndür.",
+            "code": "import os\n\ndef create_package(name, modules):\n    os.makedirs(name, exist_ok=True)\n    paths = [f'{name}/__init__.py']\n    open(paths[0], 'w').close()\n    for module, source in modules.items():\n        path = f'{name}/{module}.py'\n        with open(path, 'w') as f:\n            f.write(source)\n        paths.append(path)\n    return sorted(paths)"
+          },
+          "twin": "d20-b4-e6"
+        },
+        {
+          "id": "d20-b4-e8",
+          "type": "explain",
+          "prompt": "In your own words: what does `__init__.py` do in a package, and when does an `if __name__ == '__main__':` block run?",
+          "prompt_tr": "Kendi cümlelerinle: bir pakette `__init__.py` ne işe yarar ve `if __name__ == '__main__':` bloğu ne zaman çalışır?",
+          "model_answer": "__init__.py marks the folder as a package and runs when the package is first imported, so it can expose names from its modules. The __main__ block runs only when the file is run directly, not when it is imported.",
+          "model_answer_tr": "__init__.py klasörü paket olarak işaretler ve paket ilk kez içe aktarıldığında çalışır; bu yüzden modüllerindeki isimleri dışarı açabilir. __main__ bloğu sadece dosya doğrudan çalıştırıldığında çalışır, içe aktarıldığında çalışmaz.",
+          "keywords": [
+            "package",
+            "directly"
+          ],
+          "keywords_tr": [
+            "paket",
+            "doğrudan"
+          ],
+          "min_words": 12
+        }
+      ]
     }
   ],
   "review_pool": [
-    "d20-b1-e1",
-    "d20-b1-e3",
-    "d20-b2-e1",
-    "d20-b2-e3",
-    "d20-b3-e1",
-    "d20-b3-e3"
-  ],
-  "title_tr": "Python paket yöneticisi (pip)"
+    "d20-b1-e4",
+    "d20-b1-e6",
+    "d20-b2-e6",
+    "d20-b3-e4",
+    "d20-b3-e7",
+    "d20-b4-e1"
+  ]
 }

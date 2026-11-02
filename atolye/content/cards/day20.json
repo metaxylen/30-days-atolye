@@ -2,98 +2,118 @@
   "day": 20,
   "title_tr": "pip ve Paketler",
   "title": "pip and Packages",
-  "est_minutes": 26,
+  "est_minutes": 50,
   "cards": [
     {
       "id": "d20-c01",
       "type": "explain",
       "section": "What is PIP ?",
-      "title_tr": "pip nedir?",
-      "title": "What is pip?",
-      "body_tr": "**Paket**, kurup kendi programına `import` edebileceğin hazır modül ya da modül topluluğudur. **pip** ise paketleri kuran araçtır (Python'un paket yöneticisi). Her şeyi sıfırdan yazmak yerine hazır paketleri kullanırsın. pip komutları terminalde çalışır; bu uygulamada çalıştıramayız, o yüzden komutları kavramsal olarak öğreniyoruz.",
-      "body": "A **package** is a ready-made module (or group of modules) you install and `import`. **pip** is the tool that installs them (Python's package manager). Instead of writing everything yourself, you reuse packages. pip commands run in a terminal, not in this app, so we study them conceptually."
+      "title_tr": "Her şeyi sıfırdan yazmazsın",
+      "title": "You do not write everything from scratch",
+      "body_tr": "Bir web sitesinden veri çekmek, Excel dosyası okumak, grafik çizmek: bunların hepsini başkaları yazmış ve paylaşmış. Python'da bu kodlar **paket** olarak dağıtılır. Modül tek bir `.py` dosyasıdır (Day 12); paket birden çok modülü bir klasörde toplar. Python ile gelen paketlere **standart kütüphane** denir (`json`, `csv`, `re`, `datetime`); gerisi PyPI (Python Package Index) adlı açık depoda durur ve **pip** ile kurulur. JavaScript'teki npm ve npmjs.com ikilisinin karşılığıdır. `sys.stdlib_module_names` (Python 3.10+) standart kütüphanedeki adları listeler.",
+      "body": "Fetching data from a website, reading an Excel file, drawing a chart: other people have written all of these and shared them. In Python this code is distributed as **packages**. A module is a single `.py` file (Day 12); a package groups several modules in a folder. The packages that ship with Python form the **standard library** (`json`, `csv`, `re`, `datetime`); everything else lives in an open repository called PyPI (Python Package Index) and is installed with **pip**. It is the counterpart of npm and npmjs.com in JavaScript. `sys.stdlib_module_names` (Python 3.10+) lists the standard library names.",
+      "code": "import sys\n\nfor name in ['json', 'csv', 're', 'requests', 'numpy']:\n    where = 'standard library' if name in sys.stdlib_module_names else 'install with pip'\n    print(f'{name:9} {where}')",
+      "expected_output": "json      standard library\ncsv       standard library\nre        standard library\nrequests  install with pip\nnumpy     install with pip"
     },
     {
       "id": "d20-c02",
       "type": "explain",
       "section": "Installing PIP",
-      "title_tr": "pip kurulu mu?",
-      "title": "Is pip installed?",
-      "body_tr": "Terminalde `pip --version` yazarsan kurulu sürüm görünür. Görünüyorsa pip hazırdır. Sürüm numarasının derstekiyle aynı olması gerekmez.",
-      "body": "Type `pip --version` in a terminal to see the installed version. If you see one, pip is ready. The number need not match the lesson's."
+      "title_tr": "pip terminalde çalışır, Python'da değil",
+      "title": "pip runs in the terminal, not in Python",
+      "body_tr": "pip bir Python fonksiyonu değil, bir **komut satırı** programıdır. Komutları terminale (Windows'ta komut istemi ya da PowerShell) yazarsın: `python -m pip --version`. Neden `pip` yerine `python -m pip`? Bilgisayarda birden çok Python olabilir; `python -m pip` paketi tam olarak o `python`'a kurar. Orijinal dersteki `pip install pip` pip'i güncellemez; doğrusu `python -m pip install --upgrade pip`. Sık hata: `pip install numpy`'yi Python kabuğuna (`>>>`) ya da bir `.py` dosyasına yazmak. Python onu kod sanar ve `SyntaxError: invalid syntax` verir.",
+      "body": "pip is not a Python function but a **command-line** program. You type its commands into a terminal (Command Prompt or PowerShell on Windows): `python -m pip --version`. Why `python -m pip` instead of `pip`? A computer may have several Pythons; `python -m pip` installs the package into exactly that `python`. The original lesson's `pip install pip` does not upgrade pip; the right command is `python -m pip install --upgrade pip`. A common mistake: typing `pip install numpy` into the Python shell (`>>>`) or a `.py` file. Python takes it for code and raises `SyntaxError: invalid syntax`.",
+      "code": "line = 'pip install numpy'\ntry:\n    compile(line, '<shell>', 'exec')\nexcept SyntaxError as e:\n    print('SyntaxError:', e.msg)\nprint('Type it in the terminal:', 'python -m ' + line)",
+      "expected_output": "SyntaxError: invalid syntax\nType it in the terminal: python -m pip install numpy"
     },
     {
       "id": "d20-c03",
       "type": "truefalse",
       "section": "Installing PIP",
-      "statement_tr": "pip yalnızca bir kez, Python'dan önce kurulur ve sürüm numarası önemli değildir.",
-      "statement": "pip is installed once, before Python, and its version number does not matter.",
+      "statement_tr": "`pip install requests` satırını bir `.py` dosyasının en üstüne yazarsan program çalışırken paketi kurar.",
+      "statement": "If you write `pip install requests` at the top of a `.py` file, the program installs the package when it runs.",
       "answer": false,
-      "why_tr": "pip genelde Python ile birlikte gelir; sürümler değişebilir ama çok eski sürümler sorun çıkarabilir.",
-      "why": "pip usually ships with Python; versions vary, but very old ones can cause trouble."
+      "why_tr": "pip bir terminal komutudur; Python dosyasında bu satır geçersiz söz dizimidir ve `SyntaxError` verir.",
+      "why": "pip is a terminal command; inside a Python file this line is invalid syntax and raises `SyntaxError`."
     },
     {
       "id": "d20-c04",
       "type": "explain",
       "section": "Installing packages using pip",
-      "title_tr": "Paket kurmak: pip install",
-      "title": "Installing: pip install",
-      "body_tr": "`pip install numpy` terminalde numpy'ı indirip kurar. Sonra Python'da `import numpy` dersin. numpy sayısal hesap, pandas veri analizi paketidir. Listede `[1,2,3] * 2` listeyi tekrarlar; numpy dizisinde ise her elemanı çarpardı. Aşağıda listenin davranışını görüyoruz.",
-      "body": "`pip install numpy` downloads and installs numpy in a terminal. Then you `import numpy` in Python. numpy is for numerics, pandas for data analysis. A list's `[1,2,3] * 2` repeats it, whereas a numpy array would multiply each item. Below is the list behavior.",
-      "code": "lst = [1, 2, 3]\nprint(lst * 2)\nprint([n * 2 for n in lst])",
-      "expected_output": "[1, 2, 3, 1, 2, 3]\n[2, 4, 6]"
+      "title_tr": "Kurmak ve içe aktarmak",
+      "title": "Installing and importing",
+      "body_tr": "`python -m pip install requests` paketi PyPI'dan indirir ve Python'un `site-packages` klasörüne kurar; o paketin ihtiyaç duyduğu başka paketler (bağımlılıklar) de otomatik gelir. Kurulduktan sonra her programda `import requests` ile kullanılır. Kurulu değilse import şu hatayı verir: `ModuleNotFoundError: No module named 'requests'`. Bu mesaj neredeyse her zaman 'kurmayı unuttun' ya da 'başka bir Python'a kurdun' demektir. Dikkat: kurulum adı ile import adı bazen farklıdır: `pip install beautifulsoup4` ama `import bs4`; `pip install Pillow` ama `import PIL`.",
+      "body": "`python -m pip install requests` downloads the package from PyPI and installs it into Python's `site-packages` folder; other packages it needs (its dependencies) come along automatically. After that, any program can use it with `import requests`. If it is not installed, the import fails with `ModuleNotFoundError: No module named 'requests'`. This message almost always means 'you forgot to install it' or 'you installed it into another Python'. Careful: the install name and the import name sometimes differ: `pip install beautifulsoup4` but `import bs4`; `pip install Pillow` but `import PIL`.",
+      "code": "try:\n    import kedi_paketi\nexcept ModuleNotFoundError as e:\n    print(type(e).__name__ + ':', e)\n    print('fix in the terminal: python -m pip install kedi_paketi')",
+      "expected_output": "ModuleNotFoundError: No module named 'kedi_paketi'\nfix in the terminal: python -m pip install kedi_paketi"
     },
     {
       "id": "d20-c05",
       "type": "explain",
       "section": "Installing packages using pip",
-      "title_tr": "Kurulum gerektirmeyen: webbrowser",
-      "title": "No install needed: webbrowser",
-      "body_tr": "Bazı modüller Python ile hazır gelir, kurmana gerek yoktur; `webbrowser` bunlardan biri ve siteleri sekmede açar. Tarayıcıda gerçek sekme açamayız; `open_new_tab`ı taklit eden bir fonksiyonla döngüyü gösteriyoruz.",
-      "body": "Some modules ship with Python and need no install; `webbrowser` is one and opens sites in tabs. We cannot open real tabs here, so we mimic `open_new_tab` with a function to show the loop.",
-      "code": "url_lists = ['http://www.python.org', 'https://github.com/Asabeneh']\n\ndef open_new_tab(url):\n    print('opening', url)\n\nfor url in url_lists:\n    open_new_tab(url)",
-      "expected_output": "opening http://www.python.org\nopening https://github.com/Asabeneh",
-      "trace": true
+      "title_tr": "Sürüm belirtmek",
+      "title": "Pinning versions",
+      "body_tr": "Paketler zamanla değişir; bir güncelleme fonksiyon adını değiştirebilir ve dün çalışan kodun bugün bozulabilir. Bu yüzden sürüm belirtebilirsin: `pip install requests==2.31.0` tam o sürümü, `pip install \"requests>=2.28\"` en az o sürümü kurar, `pip install -U requests` (upgrade) en yenisine yükseltir. Sürüm numaraları genelde `ANA.KÜÇÜK.YAMA` biçimindedir (semantic versioning): ana sayının değişmesi uyumsuz değişiklik, küçük sayı yeni özellik, yama hata düzeltmesi demektir. Aşağıda bir sürüm string'ini parçalarına ayırıyoruz.",
+      "body": "Packages change over time; an update can rename a function, and code that worked yesterday can break today. That is why you can pin a version: `pip install requests==2.31.0` installs exactly that version, `pip install \"requests>=2.28\"` at least that version, and `pip install -U requests` (upgrade) the newest. Version numbers usually look like `MAJOR.MINOR.PATCH` (semantic versioning): a new major number means incompatible changes, minor means new features, patch means bug fixes. Below we split a version string into its parts.",
+      "code": "spec = 'requests==2.31.0'\nname, version = spec.split('==')\nmajor, minor, patch = version.split('.')\nprint(name, major, minor, patch)\nprint(int(major) >= 2)",
+      "expected_output": "requests 2 31 0\nTrue"
     },
     {
       "id": "d20-c06",
-      "type": "explain",
-      "section": "Uninstalling Packages",
-      "title_tr": "Kaldırmak ve listelemek",
-      "title": "Uninstall and list",
-      "body_tr": "`pip uninstall paketadi` kaldırır, `pip list` kurulu paketleri listeler. Aşağıda bu mantığı basit bir sözlükle taklit ediyoruz.",
-      "body": "`pip uninstall name` removes a package and `pip list` lists installed ones. Below we mimic the idea with a simple dict.",
-      "code": "installed = {'numpy': '1.20.1', 'pandas': '1.2.3'}\ndel installed['numpy']\nfor name in installed:\n    print(name)",
-      "expected_output": "pandas",
-      "trace": true
+      "type": "predict",
+      "section": "Installing packages using pip",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "try:\n    import bs4_olmayan_paket\n    print('ok')\nexcept ModuleNotFoundError as e:\n    print(e.name)",
+      "choices": [
+        "bs4_olmayan_paket",
+        "ok",
+        "No module named 'bs4_olmayan_paket'",
+        "ModuleNotFoundError"
+      ],
+      "answer": "bs4_olmayan_paket",
+      "why_tr": "Paket kurulu olmadığı için import istisna fırlatır ve `print('ok')` atlanır. `e.name` bulunamayan modülün adıdır.",
+      "why": "The package is not installed, so the import raises and `print('ok')` is skipped. `e.name` is the name of the missing module."
     },
     {
       "id": "d20-c07",
-      "type": "truefalse",
+      "type": "explain",
       "section": "Uninstalling Packages",
-      "statement_tr": "`pip uninstall pandas` komutu pandas paketini kaldırır.",
-      "statement": "`pip uninstall pandas` removes the pandas package.",
-      "answer": true,
-      "why_tr": "Komut paket adını alır ve kaldırır.",
-      "why": "The command takes the package name and removes it."
+      "title_tr": "Kaldırmak ve listelemek",
+      "title": "Uninstalling and listing",
+      "body_tr": "`python -m pip uninstall paketadi` bir paketi kaldırır (onay ister; `-y` sormadan kaldırır). Dikkat: paketle birlikte gelen bağımlılıklar kalır. `python -m pip list` kurulu tüm paketleri sürümleriyle bir tablo olarak gösterir; `pip list --outdated` güncellemesi olanları. Bu komutların çıktısı düz metindir ve bazen bir programın onu okuması gerekir; örneğin bir sunucuda hangi sürümün kurulu olduğunu kontrol eden bir betik. Aşağıda `pip list` çıktısına benzeyen bir metni satır satır işleyip bir dict'e çeviriyoruz: ilk iki satır başlık, gerisi `ad sürüm`.",
+      "body": "`python -m pip uninstall packagename` removes a package (it asks for confirmation; `-y` removes without asking). Careful: the dependencies that came with it stay. `python -m pip list` shows all installed packages with their versions as a table; `pip list --outdated` those with updates. The output of these commands is plain text, and sometimes a program needs to read it; for example a script that checks which version is installed on a server. Below we process a text that looks like `pip list` output line by line into a dict: the first two lines are the header, the rest are `name version`.",
+      "code": "output = '''Package    Version\n---------- -------\npandas     2.2.2\nrequests   2.31.0'''\ninstalled = {}\nfor line in output.splitlines()[2:]:\n    name, version = line.split()\n    installed[name] = version\nprint(installed)\nprint('pandas' in installed, installed.get('flask', 'not installed'))",
+      "expected_output": "{'pandas': '2.2.2', 'requests': '2.31.0'}\nTrue not installed",
+      "trace": true
     },
     {
       "id": "d20-c08",
-      "type": "explain",
+      "type": "predict",
       "section": "List of Packages",
-      "title_tr": "pip list",
-      "title": "pip list",
-      "body_tr": "`pip list` bilgisayardaki tüm kurulu paketleri ve sürümlerini gösterir.",
-      "body": "`pip list` shows every installed package with its version."
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "output = 'Package Version\\n------- -------\\nnumpy 1.26.4\\nflask 3.0.0'\nnames = [line.split()[0] for line in output.splitlines()[2:]]\nprint(sorted(names))",
+      "choices": [
+        "['flask', 'numpy']",
+        "['numpy', 'flask']",
+        "['Package', 'flask', 'numpy']",
+        "['-------', 'flask', 'numpy']"
+      ],
+      "answer": "['flask', 'numpy']",
+      "why_tr": "`[2:]` başlık ve çizgi satırlarını atlar; her satırın ilk parçası paket adıdır ve `sorted` alfabetik sıralar.",
+      "why": "`[2:]` skips the header and dash lines; the first piece of each line is the package name, and `sorted` orders alphabetically."
     },
     {
       "id": "d20-c09",
       "type": "explain",
       "section": "Show Package",
-      "title_tr": "pip show",
-      "title": "pip show",
-      "body_tr": "`pip show paketadi` bir paketin adı, sürümü, özeti, lisansı, kurulu olduğu yer ve **bağımlılıkları** (Requires) gibi bilgiyi verir. `--verbose` daha fazlasını gösterir.",
-      "body": "`pip show name` reports a package's name, version, summary, license, location and **dependencies** (Requires). `--verbose` adds more."
+      "title_tr": "pip show: bir paketin kimliği",
+      "title": "pip show: a package's identity card",
+      "body_tr": "`python -m pip show pandas` bir paketin bilgilerini `Anahtar: değer` satırları olarak yazar: `Name`, `Version`, `Summary`, `Home-page`, `License`, `Location` (nereye kurulduğu), `Requires` (ihtiyaç duyduğu paketler) ve `Required-by` (ona ihtiyaç duyanlar). `--verbose` daha fazla ayrıntı ekler. Bu biçimi okumak kolaydır ama bir tuzak var: değerin kendisi de `:` içerebilir (`Home-page: https://pandas.pydata.org`). `split(':')` bu satırı üçe böler. `line.partition(':')` ise sadece **ilk** iki noktada böler ve her zaman üç parça döndürür: anahtar, ayraç, değer. Boş bir `Required-by` değerine de dikkat et.",
+      "body": "`python -m pip show pandas` prints a package's details as `Key: value` lines: `Name`, `Version`, `Summary`, `Home-page`, `License`, `Location` (where it is installed), `Requires` (the packages it needs) and `Required-by` (those that need it). `--verbose` adds more detail. The format is easy to read, but there is a trap: the value itself may contain `:` (`Home-page: https://pandas.pydata.org`). `split(':')` cuts that line into three. `line.partition(':')` cuts only at the **first** colon and always returns three parts: key, separator, value. Also watch out for an empty `Required-by` value.",
+      "code": "output = 'Name: pandas\\nVersion: 2.2.2\\nHome-page: https://pandas.pydata.org\\nRequires: numpy, pytz\\nRequired-by:'\nprint(len('Home-page: https://pandas.pydata.org'.split(':')))\ninfo = {}\nfor line in output.splitlines():\n    key, _, value = line.partition(':')\n    info[key] = value.strip()\nprint(info['Home-page'])\nprint(info['Requires'].split(', '), repr(info['Required-by']))",
+      "expected_output": "3\nhttps://pandas.pydata.org\n['numpy', 'pytz'] ''"
     },
     {
       "id": "d20-c10",
@@ -101,129 +121,271 @@
       "section": "PIP Freeze",
       "title_tr": "pip freeze ve requirements.txt",
       "title": "pip freeze and requirements.txt",
-      "body_tr": "`pip freeze` kurulu paketleri `ad==sürüm` biçiminde yazar; çıktı `requirements.txt` dosyasına konur ve projeyi başka yerde aynı sürümlerle kurmak için kullanılır. Biçimi görmek için taklit edelim.",
-      "body": "`pip freeze` prints installed packages as `name==version`; saved to `requirements.txt` it reinstalls the same versions elsewhere. Let us mimic the format.",
-      "code": "installed = {'docutils': '0.11', 'Jinja2': '2.7.2'}\nlines = [f'{name}=={ver}' for name, ver in installed.items()]\nprint('\\n'.join(lines))",
-      "expected_output": "docutils==0.11\nJinja2==2.7.2"
+      "body_tr": "`pip freeze` kurulu paketleri `ad==sürüm` biçiminde, her satıra bir tane yazar. Bu çıktıyı bir dosyaya yönlendirirsin: `python -m pip freeze > requirements.txt`. Projeyi başka bir bilgisayara ya da sunucuya taşıyan kişi `python -m pip install -r requirements.txt` ile **birebir aynı** sürümleri kurar; 'bende çalışıyordu' sorunu biter. JavaScript'teki `package.json` ve lock dosyası buna benzer. Dosyada `#` ile başlayan yorum satırları ve boş satırlar olabilir. Her projenin kendi paketleri olsun diye sanal ortam (virtual environment) kullanılır; Day 23'te göreceksin.",
+      "body": "`pip freeze` prints the installed packages as `name==version`, one per line. You redirect that output into a file: `python -m pip freeze > requirements.txt`. Someone who moves the project to another computer or a server installs **exactly the same** versions with `python -m pip install -r requirements.txt`; the 'it worked on my machine' problem disappears. JavaScript's `package.json` and lock file play a similar role. The file may contain comment lines starting with `#` and blank lines. To give each project its own packages, people use a virtual environment; you will see it on Day 23."
     },
     {
       "id": "d20-c11",
-      "type": "predict",
-      "section": "PIP Freeze",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "pkgs = {'flask': '3.0.0'}\nprint([f'{n}=={v}' for n, v in pkgs.items()])",
-      "choices": [
-        "['flask==3.0.0']",
-        "['flask 3.0.0']",
-        "{'flask': '3.0.0'}",
-        "['flask=3.0.0']"
-      ],
-      "answer": "['flask==3.0.0']",
-      "why_tr": "freeze biçimi çift eşittir: ad==sürüm.",
-      "why": "The freeze format uses a double equals: name==version."
-    },
-    {
-      "id": "d20-c12",
       "type": "explain",
-      "section": "Reading from URL",
-      "title_tr": "requests ve API",
-      "title": "requests and APIs",
-      "body_tr": "**API**, sunucular arasında (çoğunlukla JSON) veri alışverişi yolu. `requests` paketi `pip install requests` ile kurulur; `requests.get(url)` bir yanıt nesnesi verir. Yanıtın `status_code` (200 = başarılı), `text` (ham yazı) ve `json()` (sözlüğe çevirir) özellikleri vardır. Ağa çıkamadığımız için sahte bir yanıt sınıfı kullanıyoruz.",
-      "body": "An **API** is a way for servers to exchange data (mostly JSON). The `requests` package is installed with `pip install requests`; `requests.get(url)` returns a response object. It has `status_code` (200 = success), `text` (raw text) and `json()` (parsed dict). No network here, so we use a fake response class.",
-      "code": "import json\n\nclass FakeResponse:\n    status_code = 200\n    text = '[{\"name\": \"Afghanistan\", \"capital\": \"Kabul\"}]'\n    def json(self):\n        return json.loads(self.text)\n\nresponse = FakeResponse()\nprint(response.status_code, response.json()[0]['capital'])",
-      "expected_output": "200 Kabul",
+      "section": "PIP Freeze",
+      "title_tr": "requirements.txt'yi okumak",
+      "title": "Reading requirements.txt",
+      "body_tr": "Bir dağıtım betiği requirements dosyasını okuyup her paketin istenen sürümünü bilmek isteyebilir. Dosya sıradan bir metin dosyasıdır (Day 19), satır satır işlenir. Her satırda üç durum var: boş satır atlanır, `#` ile başlayan yorum atlanır, `ad==sürüm` satırı `split('==')` ile ikiye bölünür. Adlar büyük/küçük harfe duyarsızdır (`Django` ile `django` aynı paket), bu yüzden anahtarı `lower()` ile saklarız. Adım adım izle: `continue` satırları atlıyor, dict büyüyor.",
+      "body": "A deployment script may want to read the requirements file and know the requested version of every package. The file is an ordinary text file (Day 19), processed line by line. Each line is one of three cases: a blank line is skipped, a comment starting with `#` is skipped, and a `name==version` line is split in two with `split('==')`. Names are case-insensitive (`Django` and `django` are the same package), so we store the key with `lower()`. Step through it: `continue` skips lines, and the dict grows.",
+      "code": "text = '# web\\nDjango==5.0.1\\n\\nrequests==2.31.0\\n# data\\npandas==2.2.2'\nreqs = {}\nfor line in text.splitlines():\n    line = line.strip()\n    if not line or line.startswith('#'):\n        continue\n    name, version = line.split('==')\n    reqs[name.lower()] = version\nprint(reqs)",
+      "expected_output": "{'django': '5.0.1', 'requests': '2.31.0', 'pandas': '2.2.2'}",
       "trace": true
     },
     {
-      "id": "d20-c13",
+      "id": "d20-c12",
       "type": "fill",
-      "section": "Reading from URL",
-      "prompt_tr": "Boşluğu doldur.",
-      "code": "import json\n\ntext = '{\"ok\": true}'\ndata = json.___(text)\nprint(data['ok'])",
+      "section": "PIP Freeze",
+      "prompt_tr": "Çıktı `flask 3.0.0` olsun.",
+      "prompt": "Make the output `flask 3.0.0`.",
+      "code": "line = 'Flask==3.0.0'\nname, version = line.___\nprint(name.lower(), version)",
       "answers": [
-        "loads"
+        "split('==')",
+        "split(\"==\")"
       ],
-      "expected_output": "True",
-      "why_tr": "`response.json()` içeride bu işi yapar: yazıyı sözlüğe çevirir.",
-      "why": "`response.json()` does this inside: it turns text into a dict."
+      "expected_output": "flask 3.0.0",
+      "why_tr": "`split('==')` satırı iki eşittir işaretinden böler ve iki parçalık bir list verir; bu list iki isme açılır (Day 17).",
+      "why": "`split('==')` cuts the line at the double equals sign and gives a two-item list, which is unpacked into two names (Day 17)."
+    },
+    {
+      "id": "d20-c13",
+      "type": "explain",
+      "section": "PIP Freeze",
+      "title_tr": "Sık hata: sürümleri string olarak karşılaştırmak",
+      "title": "Common mistake: comparing versions as strings",
+      "body_tr": "'1.10.0 sürümü 1.9.0'dan yeni mi?' sorusuna `'1.10.0' > '1.9.0'` yazarsan `False` alırsın. Neden? String'ler karakter karakter karşılaştırılır: ilk iki karakter eşit, üçüncüde `'1'` ile `'9'` karşılaşır ve `'1'` küçüktür. Hata vermez, sessizce yanlış cevap verir. Düzeltme: sürümü sayılardan oluşan bir tuple'a çevir. Tuple'lar da soldan sağa karşılaştırılır ama artık elemanlar sayıdır: `(1, 10, 0) > (1, 9, 0)` doğrudur. Gerçek projelerde `packaging` paketindeki `Version` sınıfı bunu, `1.0rc1` gibi özel durumlarla birlikte yapar.",
+      "body": "If you answer 'is version 1.10.0 newer than 1.9.0?' with `'1.10.0' > '1.9.0'`, you get `False`. Why? Strings are compared character by character: the first two characters are equal, then `'1'` meets `'9'`, and `'1'` is smaller. No error, just a silently wrong answer. The fix: turn the version into a tuple of numbers. Tuples are also compared left to right, but now the items are numbers: `(1, 10, 0) > (1, 9, 0)` is true. In real projects the `Version` class from the `packaging` package does this, including special cases like `1.0rc1`.",
+      "code": "a, b = '1.10.0', '1.9.0'\nprint(a > b)\n\ndef as_tuple(v):\n    return tuple(int(part) for part in v.split('.'))\n\nprint(as_tuple(a), as_tuple(b))\nprint(as_tuple(a) > as_tuple(b))\nprint(max(['2.0.1', '2.0.10', '2.0.9'], key=as_tuple))",
+      "expected_output": "False\n(1, 10, 0) (1, 9, 0)\nTrue\n2.0.10",
+      "trace": true
     },
     {
       "id": "d20-c14",
-      "type": "truefalse",
-      "section": "Reading from URL",
-      "statement_tr": "`response.status_code` 200 ise istek başarılı olmuştur.",
-      "statement": "A `response.status_code` of 200 means the request succeeded.",
-      "answer": true,
-      "why_tr": "200 = OK.",
-      "why": "200 means OK."
+      "type": "predict",
+      "section": "PIP Freeze",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "print('3.9' < '3.10', (3, 9) < (3, 10))",
+      "choices": [
+        "False True",
+        "True True",
+        "True False",
+        "False False"
+      ],
+      "answer": "False True",
+      "why_tr": "String karşılaştırmasında `'9'` `'1'`'den büyüktür, bu yüzden `'3.9' < '3.10'` yanlış. Tuple'da 9 ile 10 sayı olarak karşılaştırılır, doğru.",
+      "why": "In string comparison `'9'` is greater than `'1'`, so `'3.9' < '3.10'` is false. In the tuple, 9 and 10 are compared as numbers, so it is true."
     },
     {
       "id": "d20-c15",
       "type": "explain",
-      "section": "Creating a Package",
-      "title_tr": "Paket = klasör + __init__.py",
-      "title": "A package = folder + __init__.py",
-      "body_tr": "Paket, modül dosyaları içeren bir klasördür; `__init__.py` dosyası klasörü paket yapar. Gerçekten oluşturalım: klasör, boş `__init__.py`, iki modül; sonra `from mypackage import ...` ile kullanalım.",
-      "body": "A package is a folder of module files; `__init__.py` makes the folder a package. Let us build one: a folder, an empty `__init__.py`, two modules; then use `from mypackage import ...`.",
-      "code": "import os, importlib\nos.makedirs('mypackage', exist_ok=True)\nopen('mypackage/__init__.py', 'w').close()\nopen('mypackage/arithmetics.py', 'w').write('def add_numbers(*args):\\n    return sum(args)\\n\\ndef power(a, b):\\n    return a ** b\\n')\nopen('mypackage/greet.py', 'w').write('def greet_person(first, last):\\n    return f\"{first} {last}, welcome to 30DaysOfPython Challenge!\"\\n')\nimportlib.invalidate_caches()\nfrom mypackage import arithmetics, greet\nprint(arithmetics.add_numbers(1, 2, 3, 5), arithmetics.power(5, 3))\nprint(greet.greet_person('Asabeneh', 'Yetayeh'))",
-      "expected_output": "11 125\nAsabeneh Yetayeh, welcome to 30DaysOfPython Challenge!"
+      "section": "Reading from URL",
+      "title_tr": "Bir URL'den veri okumak: istek ve yanıt",
+      "title": "Reading from a URL: request and response",
+      "body_tr": "Web'den veri almak bir konuşmadır: programın bir **istek** (request) gönderir, sunucu bir **yanıt** (response) döner. Yanıtın üç parçası var: durum kodu (200 başarılı), başlıklar (`content-type` gibi bilgiler) ve gövde (metin ya da JSON). Gerçek kodda `requests` paketi kullanılır: `response = requests.get(url)`, sonra `response.status_code`, `response.headers`, `response.text` ve `response.json()`. Bu uygulama çevrimdışı çalıştığı için ağ yok; onun yerine aynı bilgileri bir dict olarak döndüren küçük bir `fake_get` fonksiyonu kullanıyoruz. Verinin şekli ve işleme adımları gerçeğiyle aynı.",
+      "body": "Getting data from the web is a conversation: your program sends a **request**, the server returns a **response**. A response has three parts: the status code (200 means success), the headers (information like `content-type`) and the body (text or JSON). Real code uses the `requests` package: `response = requests.get(url)`, then `response.status_code`, `response.headers`, `response.text` and `response.json()`. This app runs offline, so there is no network; instead we use a small `fake_get` function that returns the same information as a dict. The shape of the data and the processing steps are the same as the real thing.",
+      "code": "def fake_get(url):\n    # stands in for requests.get(url) in this offline app\n    return {'status_code': 200,\n            'headers': {'content-type': 'text/plain'},\n            'text': 'Hello from ' + url}\n\nresponse = fake_get('https://example.com/hello.txt')\nprint(response['status_code'], response['headers']['content-type'])\nprint(response['text'])",
+      "expected_output": "200 text/plain\nHello from https://example.com/hello.txt"
     },
     {
       "id": "d20-c16",
-      "type": "predict",
-      "section": "Creating a Package",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "import os\n\nos.makedirs('pkg', exist_ok=True)\nopen('pkg/__init__.py', 'w').close()\nopen('pkg/m.py', 'w').write('x = 42')\nfrom pkg import m\nprint(m.x)",
-      "choices": [
-        "42",
-        "m.x",
-        "Hata verir",
-        "None"
-      ],
-      "answer": "42",
-      "why_tr": "`__init__.py` olduğu için `pkg` paket sayılır; `m.x` 42'dir.",
-      "why": "`__init__.py` makes `pkg` a package; `m.x` is 42."
+      "type": "explain",
+      "section": "Reading from URL",
+      "title_tr": "Durum kodları",
+      "title": "Status codes",
+      "body_tr": "Durum kodu, isteğin nasıl sonuçlandığını üç haneli bir sayıyla söyler. 2xx başarı (200 OK, 201 Created), 3xx yönlendirme, 4xx senin isteğinde bir sorun (400 Bad Request, 401 yetkisiz, 404 Not Found), 5xx sunucuda bir sorun (500, 503). Gövdeyi kullanmadan önce kodu kontrol etmelisin; 404 sayfasının HTML'ini JSON diye okumaya çalışmak kafa karıştırıcı hatalara yol açar. `requests`'te `response.raise_for_status()` 4xx ve 5xx için istisna fırlatır; `response.ok` 400'ün altındaki kodlar için `True`'dur. Adım adım izle.",
+      "body": "The status code tells you with a three-digit number how the request ended. 2xx is success (200 OK, 201 Created), 3xx a redirect, 4xx a problem with your request (400 Bad Request, 401 unauthorized, 404 Not Found), 5xx a problem on the server (500, 503). Check the code before using the body; trying to read a 404 page's HTML as JSON leads to confusing errors. In `requests`, `response.raise_for_status()` raises an exception for 4xx and 5xx; `response.ok` is `True` for codes below 400. Step through it.",
+      "code": "def describe(code):\n    if 200 <= code < 300:\n        return 'success'\n    if 400 <= code < 500:\n        return 'client error'\n    if code >= 500:\n        return 'server error'\n    return 'other'\n\nprint([describe(c) for c in [200, 404, 503, 301]])",
+      "expected_output": "['success', 'client error', 'server error', 'other']",
+      "trace": true
     },
     {
       "id": "d20-c17",
-      "type": "truefalse",
-      "section": "Creating a Package",
-      "statement_tr": "Klasörün paket sayılması için içinde `__init__.py` dosyası bulunmalıdır.",
-      "statement": "A folder needs an `__init__.py` file to count as a package.",
-      "answer": true,
-      "why_tr": "Bu dosya klasörü paket olarak işaretler.",
-      "why": "That file marks the folder as a package."
+      "type": "predict",
+      "section": "Reading from URL",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "responses = [{'status_code': 200, 'text': 'ok'}, {'status_code': 404, 'text': 'missing'}]\nfor r in responses:\n    if r['status_code'] != 200:\n        print('error', r['status_code'])\n        continue\n    print(r['text'])",
+      "choices": [
+        "ok\nerror 404",
+        "ok\nmissing",
+        "error 404\nok",
+        "ok"
+      ],
+      "answer": "ok\nerror 404",
+      "why_tr": "İlk yanıt 200'dür ve gövdesi basılır. İkincisi 404'tür; hata satırı basılır ve `continue` gövdeyi basmadan sonraki tura geçer.",
+      "why": "The first response is 200 and its body is printed. The second is 404; the error line is printed and `continue` moves on without printing the body."
     },
     {
       "id": "d20-c18",
       "type": "explain",
-      "section": "Further Information About Packages",
-      "title_tr": "Popüler paketler",
-      "title": "Popular packages",
-      "body_tr": "Alanlara göre örnekler: web için Django, Flask; veritabanı için SQLAlchemy; HTML ayrıştırma için beautifulsoup4; veri bilimi için NumPy, Pandas, SciPy, Scikit-Learn; makine öğrenmesi için TensorFlow, Keras; ağ için requests. Hepsi `pip install ad` ile kurulur.",
-      "body": "Examples by field: Django, Flask for the web; SQLAlchemy for databases; beautifulsoup4 for HTML parsing; NumPy, Pandas, SciPy, Scikit-Learn for data science; TensorFlow, Keras for machine learning; requests for networking. All install with `pip install name`."
+      "section": "Reading from URL",
+      "title_tr": "API'den JSON almak",
+      "title": "Getting JSON from an API",
+      "body_tr": "Bir **API**, programların birbirine veri verdiği bir adrestir; yanıt genelde JSON'dur. Orijinal dersteki `restcountries.eu` artık kapalı; güncel adres `https://restcountries.com/v3.1/all`. `requests`'te `response.json()` gövdeyi okuyup dict ya da list'e çevirir; bu, Day 19'daki `json.loads(response.text)` ile aynı şeydir. Aşağıda sahte yanıtın gövdesi gerçek API'ye benzeyen kısaltılmış bir JSON metni. Adım adım izle: metin önce bir list'e dönüşüyor, sonra ilk ülkenin alanlarına anahtarla ulaşıyoruz.",
+      "body": "An **API** is an address where programs hand data to each other; the response is usually JSON. The `restcountries.eu` from the original lesson is gone; the current address is `https://restcountries.com/v3.1/all`. In `requests`, `response.json()` reads the body and turns it into a dict or list; it is the same as Day 19's `json.loads(response.text)`. Below, the fake response body is a shortened JSON text shaped like the real API. Step through it: the text first becomes a list, then we reach the first country's fields by key.",
+      "code": "import json\n\nbody = '[{\"name\": \"Turkey\", \"capital\": \"Ankara\", \"population\": 85000000, \"region\": \"Asia\"},' \\\n       ' {\"name\": \"Finland\", \"capital\": \"Helsinki\", \"population\": 5500000, \"region\": \"Europe\"}]'\nresponse = {'status_code': 200, 'text': body}\ncountries = json.loads(response['text'])\nprint(type(countries).__name__, len(countries))\nfirst = countries[0]\nprint(first['name'], first['capital'], f\"{first['population']:,}\")",
+      "expected_output": "list 2\nTurkey Ankara 85,000,000",
+      "trace": true
     },
     {
       "id": "d20-c19",
+      "type": "explain",
+      "section": "Reading from URL",
+      "title_tr": "İç içe veriyle çalışmak",
+      "title": "Working with nested data",
+      "body_tr": "API verisi neredeyse her zaman 'dict'lerden oluşan bir list'tir. Bunu işlemek için öğrendiğin her şey işe yarar: comprehension ile süzmek (Day 13), `sorted(..., key=lambda c: c['population'])` ile bir alana göre sıralamak (Day 14), `max(..., key=...)` ile en büyüğü bulmak, `dict.get` ile eksik alanlara dayanıklı okumak. İç içe yapılarda anahtar zinciri kurarsın: `country['currencies'][0]['code']`. Bir anahtarın her kayıtta olduğundan emin değilsen `.get('alan', varsayılan)` kullan; gerçek API'lerde eksik alan çok sık görülür.",
+      "body": "API data is almost always 'a list of dicts'. Everything you learned helps to process it: filtering with a comprehension (Day 13), sorting by a field with `sorted(..., key=lambda c: c['population'])` (Day 14), finding the largest with `max(..., key=...)`, and reading missing fields safely with `dict.get`. In nested structures you chain keys: `country['currencies'][0]['code']`. If you are not sure a key exists in every record, use `.get('field', default)`; missing fields are very common in real APIs.",
+      "code": "countries = [\n    {'name': 'Turkey', 'population': 85000000, 'currencies': [{'code': 'TRY'}]},\n    {'name': 'Finland', 'population': 5500000, 'currencies': [{'code': 'EUR'}]},\n    {'name': 'Norway', 'population': 5400000},\n]\nprint(max(countries, key=lambda c: c['population'])['name'])\nprint([c['name'] for c in sorted(countries, key=lambda c: c['population'])])\nprint(countries[0]['currencies'][0]['code'])\nprint([c.get('currencies', [{}])[0].get('code', '?') for c in countries])",
+      "expected_output": "Turkey\n['Norway', 'Finland', 'Turkey']\nTRY\n['TRY', 'EUR', '?']"
+    },
+    {
+      "id": "d20-c20",
+      "type": "predict",
+      "section": "Reading from URL",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "data = {'results': [{'title': 'A', 'tags': ['x', 'y']}, {'title': 'B', 'tags': []}]}\nprint(len(data['results']), data['results'][0]['tags'][-1], [r['title'] for r in data['results'] if r['tags']])",
+      "choices": [
+        "2 y ['A']",
+        "2 x ['A', 'B']",
+        "1 y ['A']",
+        "2 y ['A', 'B']"
+      ],
+      "answer": "2 y ['A']",
+      "why_tr": "`results` iki kayıt içerir. İlk kaydın son etiketi 'y'. Boş list yanlış (falsy) sayıldığı için comprehension sadece 'A'yı tutar.",
+      "why": "`results` holds two records. The first record's last tag is 'y'. An empty list is falsy, so the comprehension keeps only 'A'."
+    },
+    {
+      "id": "d20-c21",
+      "type": "explain",
+      "section": "Reading from URL",
+      "title_tr": "Sık hata: JSON metnini dict sanmak",
+      "title": "Common mistake: treating JSON text as a dict",
+      "body_tr": "`response.text` (burada `response['text']`) bir **string**'tir, JSON görünse bile. Ona anahtarla ulaşmaya çalışırsan `TypeError: string indices must be integers, not 'str'` alırsın: string'ler sadece sayı indeksiyle dilimlenir. Önce `json.loads` (gerçek kodda `response.json()`) ile çevir. İkinci tuzak ağın kendisi: gerçek bir istekte bağlantı kopabilir ya da sunucu yanıt vermeyebilir. `requests` bu durumda `requests.exceptions.ConnectionError` ya da `Timeout` fırlatır; Day 17'deki gibi yakalarsın ve isteğe her zaman `timeout=10` gibi bir süre sınırı verirsin.",
+      "body": "`response.text` (here `response['text']`) is a **string**, even if it looks like JSON. If you try to reach into it with a key you get `TypeError: string indices must be integers, not 'str'`: strings can only be indexed with numbers. Convert it first with `json.loads` (in real code `response.json()`). The second trap is the network itself: in a real request the connection can drop or the server may not answer. `requests` then raises `requests.exceptions.ConnectionError` or `Timeout`; you catch it as on Day 17 and always give the request a time limit such as `timeout=10`.",
+      "code": "import json\n\nresponse = {'status_code': 200, 'text': '{\"name\": \"Turkey\", \"capital\": \"Ankara\"}'}\nbody = response['text']\ntry:\n    print(body['name'])\nexcept TypeError as e:\n    print('TypeError:', e)\nprint(json.loads(body)['name'])",
+      "expected_output": "TypeError: string indices must be integers, not 'str'\nTurkey"
+    },
+    {
+      "id": "d20-c22",
+      "type": "fill",
+      "section": "Reading from URL",
+      "prompt_tr": "Çıktı `22` olsun.",
+      "prompt": "Make the output `22`.",
+      "code": "import json\n\nresponse = {'status_code': 200, 'text': '{\"temp\": 21, \"city\": \"Izmir\"}'}\nweather = json.___(response['text'])\nprint(weather['temp'] + 1)",
+      "answers": [
+        "loads"
+      ],
+      "expected_output": "22",
+      "why_tr": "Yanıtın gövdesi bir string'tir; `json.loads` onu dict'e çevirir ve `weather['temp']` artık sayıdır.",
+      "why": "The response body is a string; `json.loads` turns it into a dict, and `weather['temp']` is now a number."
+    },
+    {
+      "id": "d20-c23",
+      "type": "explain",
+      "section": "Creating a Package",
+      "title_tr": "Paket = __init__.py'li klasör",
+      "title": "A package is a folder with __init__.py",
+      "body_tr": "Kodun büyüdükçe tek dosya yetmez; ilgili modülleri bir klasörde toplarsın. İçinde `__init__.py` dosyası olan klasör bir **paket**tir (Python 3.3'ten beri bu dosya olmadan da içe aktarma çalışır, ama normal paketler onu içerir ve biz de her zaman ekleriz). Yapı: `mypackage/__init__.py`, `mypackage/arithmetics.py`, `mypackage/greet.py`. Sonra `from mypackage import arithmetics` ile modülü alır, `arithmetics.add_numbers(1, 2, 3, 5)` ile kullanırsın. Orijinal derste dosya `arithmetic.py` diye oluşturulup `arithmetics` diye içe aktarılıyor; adlar birebir aynı olmalı. Aşağıda klasörü ve dosyaları koddan oluşturup içe aktarıyoruz; normalde bunları editörde oluşturursun.",
+      "body": "As your code grows, one file is not enough; you group related modules in a folder. A folder containing an `__init__.py` file is a **package** (since Python 3.3 importing also works without that file, but regular packages contain it and we always add it). The structure: `mypackage/__init__.py`, `mypackage/arithmetics.py`, `mypackage/greet.py`. Then `from mypackage import arithmetics` gets the module, and `arithmetics.add_numbers(1, 2, 3, 5)` uses it. In the original lesson the file is created as `arithmetic.py` but imported as `arithmetics`; the names must match exactly. Below we create the folder and files from code and import them; normally you create them in your editor.",
+      "code": "import os, sys, importlib\n\nos.makedirs('mypkg_d20', exist_ok=True)\nopen('mypkg_d20/__init__.py', 'w').close()\nwith open('mypkg_d20/arithmetics.py', 'w') as f:\n    f.write('def add_numbers(*args):\\n    return sum(args)\\n')\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom mypkg_d20 import arithmetics\nprint(arithmetics.add_numbers(1, 2, 3, 5))\nprint(os.path.exists('mypkg_d20/__init__.py'))",
+      "expected_output": "11\nTrue"
+    },
+    {
+      "id": "d20-c24",
+      "type": "explain",
+      "section": "Creating a Package",
+      "title_tr": "İçe aktarma biçimleri ve önbellek",
+      "title": "Import forms and the cache",
+      "body_tr": "Aynı modülü birkaç şekilde alabilirsin: `import mypackage.greet` (kullanırken tam yol: `mypackage.greet.greet_person(...)`), `from mypackage import greet` (kısa: `greet.greet_person(...)`), `from mypackage.greet import greet_person` (doğrudan fonksiyon) ya da `as` ile yeniden adlandırma. Python bir modülü programda **ilk** içe aktarıldığında bir kez çalıştırır ve `sys.modules` içinde saklar; ikinci `import` dosyayı yeniden okumaz. Bu yüzden modül dosyasını değiştirip aynı oturumda tekrar import edersen eski hali gelir; `importlib.reload(modül)` yeniden yükler.",
+      "body": "You can bring in the same module in several ways: `import mypackage.greet` (full path when using it: `mypackage.greet.greet_person(...)`), `from mypackage import greet` (short: `greet.greet_person(...)`), `from mypackage.greet import greet_person` (the function directly), or renaming with `as`. Python runs a module once, the **first** time it is imported in a program, and keeps it in `sys.modules`; a second `import` does not read the file again. So if you change a module file and import it again in the same session, you get the old version; `importlib.reload(module)` reloads it.",
+      "code": "import os, sys, importlib\n\nos.makedirs('shop_d20', exist_ok=True)\nopen('shop_d20/__init__.py', 'w').close()\nwith open('shop_d20/greet.py', 'w') as f:\n    f.write(\"print('greet loaded')\\ndef greet_person(f, l):\\n    return f'{f} {l}, welcome!'\\n\")\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nimport shop_d20.greet\nfrom shop_d20.greet import greet_person as gp\nprint(shop_d20.greet.greet_person('Ali', 'Kaya'), gp('Ece', 'Su'))",
+      "expected_output": "greet loaded\nAli Kaya, welcome! Ece Su, welcome!"
+    },
+    {
+      "id": "d20-c25",
+      "type": "explain",
+      "section": "Creating a Package",
+      "title_tr": "__init__.py ve göreli içe aktarma",
+      "title": "__init__.py and relative imports",
+      "body_tr": "`__init__.py` boş olabilir; varlığı klasörü paket yapar. Ama içine kod da yazılabilir ve bu kod paket ilk içe aktarıldığında çalışır. Yaygın kullanım: alt modüllerdeki önemli isimleri paket seviyesine taşımak. `__init__.py` içinde `from .greet import greet_person` yazarsan kullanıcı `from mypackage import greet_person` diyebilir. Baştaki nokta **göreli içe aktarmadır**: 'bu paketin içindeki greet modülü'. Paket sürümü gibi sabitler de buraya konur: `VERSION = '1.0.0'`. Adım adım izle.",
+      "body": "`__init__.py` may be empty; its presence makes the folder a package. But you can also put code in it, and that code runs when the package is first imported. A common use: lifting important names from submodules to the package level. If `__init__.py` contains `from .greet import greet_person`, users can write `from mypackage import greet_person`. The leading dot is a **relative import**: 'the greet module inside this package'. Constants like the package version go here too: `VERSION = '1.0.0'`. Step through it.",
+      "code": "import os, sys, importlib\n\nos.makedirs('tools_d20', exist_ok=True)\nwith open('tools_d20/greet.py', 'w') as f:\n    f.write(\"def greet_person(f, l):\\n    return f'{f} {l}, welcome!'\\n\")\nwith open('tools_d20/__init__.py', 'w') as f:\n    f.write(\"from .greet import greet_person\\nVERSION = '1.0.0'\\n\")\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom tools_d20 import greet_person, VERSION\nprint(greet_person('Asabeneh', 'Yetayeh'), VERSION)",
+      "expected_output": "Asabeneh Yetayeh, welcome! 1.0.0"
+    },
+    {
+      "id": "d20-c26",
+      "type": "predict",
+      "section": "Creating a Package",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "import os, sys, importlib\n\nos.makedirs('once_d20', exist_ok=True)\nwith open('once_d20/__init__.py', 'w') as f:\n    f.write(\"print('package loaded')\\n\")\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nimport once_d20\nimport once_d20\nprint('done')",
+      "choices": [
+        "package loaded\ndone",
+        "package loaded\npackage loaded\ndone",
+        "done",
+        "ImportError"
+      ],
+      "answer": "package loaded\ndone",
+      "why_tr": "Paketin kodu sadece ilk `import`'ta çalışır; ikinci `import` `sys.modules`'taki hazır modülü kullanır ve hiçbir şey yazdırmaz.",
+      "why": "The package's code runs only on the first `import`; the second `import` reuses the module stored in `sys.modules` and prints nothing."
+    },
+    {
+      "id": "d20-c27",
+      "type": "explain",
+      "section": "Creating a Package",
+      "title_tr": "if __name__ == '__main__':",
+      "title": "if __name__ == '__main__':",
+      "body_tr": "Her modülün `__name__` adlı bir değişkeni vardır. Dosyayı doğrudan çalıştırırsan (`python greet.py`) değeri `'__main__'`'dir; başka bir dosya onu içe aktarırsa değeri modülün adıdır (`'mypackage.greet'`). Bu fark sayesinde bir modüle 'sadece doğrudan çalıştırılınca yap' bölümü yazabilirsin: deneme kodları, küçük testler, bir komut satırı arayüzü. `if __name__ == '__main__':` bloğu içe aktarmada çalışmaz, böylece modülü kullanan programın çıktısı kirlenmez. Bu uygulamada yazdığın kod doğrudan çalıştığı için `__name__` burada `'__main__'`'dir.",
+      "body": "Every module has a variable called `__name__`. If you run the file directly (`python greet.py`), its value is `'__main__'`; if another file imports it, the value is the module's name (`'mypackage.greet'`). Thanks to this difference you can give a module a 'run only when executed directly' section: trial code, small tests, a command-line interface. An `if __name__ == '__main__':` block does not run on import, so the output of the program that uses the module stays clean. In this app your code runs directly, so `__name__` is `'__main__'` here.",
+      "code": "import os, sys, importlib\n\nos.makedirs('demo_d20', exist_ok=True)\nopen('demo_d20/__init__.py', 'w').close()\nwith open('demo_d20/calc.py', 'w') as f:\n    f.write(\"NAME = __name__\\nif __name__ == '__main__':\\n    print('self-test')\\n\")\nsys.path.insert(0, os.getcwd()); importlib.invalidate_caches()\nfrom demo_d20 import calc\nprint(__name__, '|', calc.NAME)",
+      "expected_output": "__main__ | demo_d20.calc"
+    },
+    {
+      "id": "d20-c28",
+      "type": "truefalse",
+      "section": "Creating a Package",
+      "statement_tr": "Bir modül başka bir dosya tarafından içe aktarıldığında, o modülün `if __name__ == '__main__':` bloğu çalışır.",
+      "statement": "When a module is imported by another file, that module's `if __name__ == '__main__':` block runs.",
+      "answer": false,
+      "why_tr": "İçe aktarılan modülde `__name__` modülün adıdır (örneğin `'demo.calc'`), `'__main__'` değil; bu yüzden blok atlanır.",
+      "why": "In an imported module `__name__` is the module's name (for example `'demo.calc'`), not `'__main__'`, so the block is skipped."
+    },
+    {
+      "id": "d20-c29",
+      "type": "explain",
+      "section": "Further Information About Packages",
+      "title_tr": "Hangi paket ne işe yarar?",
+      "title": "Which package does what?",
+      "body_tr": "Sık karşılaşacağın paketler: web istekleri için `requests`, web uygulamaları için `flask` ve `django`, HTML ayrıştırmak için `beautifulsoup4`, veritabanı için `SQLAlchemy`, sayısal hesap için `numpy`, tablo verisi için `pandas` (Day 24-25), grafik için `matplotlib`, makine öğrenmesi için `scikit-learn`. Bir paket seçerken PyPI sayfasına bak: son sürüm ne zaman çıkmış, belgeleri var mı, lisansı ne, kaç kişi kullanıyor. Her yeni paket projeye bir bağımlılık daha ekler; standart kütüphane işini görüyorsa (`json`, `csv`, `datetime`) önce onu kullan.",
+      "body": "Packages you will meet often: `requests` for web requests, `flask` and `django` for web applications, `beautifulsoup4` for parsing HTML, `SQLAlchemy` for databases, `numpy` for numerical computing, `pandas` for table data (Days 24-25), `matplotlib` for charts, `scikit-learn` for machine learning. When choosing a package, look at its PyPI page: when was the last release, does it have documentation, what is its license, how many people use it. Every new package adds one more dependency to the project; if the standard library does the job (`json`, `csv`, `datetime`), use that first."
+    },
+    {
+      "id": "d20-c30",
       "type": "recap",
       "section": "Recap",
       "title_tr": "Özet",
       "title": "Summary",
       "points_tr": [
-        "pip paketleri kurar: `pip install`, `uninstall`, `list`, `show`, `freeze`.",
-        "`pip freeze` çıktısı `ad==sürüm`; `requirements.txt` olarak saklanır.",
-        "`requests.get()` yanıt verir: `status_code`, `text`, `json()`.",
-        "Paket = klasör + `__init__.py` + modüller."
+        "pip bir terminal komutudur: `python -m pip install paket` PyPI'dan kurar; kurulu olmayan bir paketi içe aktarmak `ModuleNotFoundError` verir.",
+        "`pip freeze > requirements.txt` sürümleri kaydeder, `pip install -r requirements.txt` aynılarını kurar; sürümleri string olarak değil sayı tuple'ı olarak karşılaştır.",
+        "Bir web yanıtının durum kodu, başlıkları ve gövdesi vardır; önce durum kodunu kontrol et, JSON gövdeyi `json.loads` (gerçekte `response.json()`) ile çevir.",
+        "`__init__.py` içeren klasör bir pakettir; `from paket import modül` ile alınır ve modül programda sadece ilk içe aktarmada çalışır.",
+        "`if __name__ == '__main__':` bloğu sadece dosya doğrudan çalıştırıldığında çalışır, içe aktarıldığında atlanır."
       ],
       "points": [
-        "pip installs packages: `pip install`, `uninstall`, `list`, `show`, `freeze`.",
-        "`pip freeze` prints `name==version`; saved as `requirements.txt`.",
-        "`requests.get()` returns a response: `status_code`, `text`, `json()`.",
-        "Package = folder + `__init__.py` + modules."
+        "pip is a terminal command: `python -m pip install package` installs from PyPI; importing a package that is not installed raises `ModuleNotFoundError`.",
+        "`pip freeze > requirements.txt` records versions and `pip install -r requirements.txt` installs the same ones; compare versions as tuples of numbers, not as strings.",
+        "A web response has a status code, headers and a body; check the status code first and turn a JSON body into Python with `json.loads` (in real code `response.json()`).",
+        "A folder with `__init__.py` is a package; you import with `from package import module`, and a module runs only on its first import in a program.",
+        "An `if __name__ == '__main__':` block runs only when the file is run directly and is skipped when it is imported."
       ],
-      "link": "learn",
-      "link_label_tr": "Şimdi alıştırmalara geç",
-      "link_label": "Go to the exercises"
+      "link": "learn"
     }
   ]
 }
