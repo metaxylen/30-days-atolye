@@ -23,7 +23,7 @@ Sections: `open` modes, `read/readline/readlines`, `with open` (context manager)
 Blocks: reading and writing text; with/append/delete; JSON; CSV (and XML).
 
 ### Day 20 - pip and packages
-Sections: what pip is and the commands (`pip install/uninstall/list/show/freeze`) shown as text since pip cannot run offline; requirements.txt parsed as a string; "Reading from URL" made an honest pure-Python illustration (a fake `fetch()` returning a JSON string, then `json.loads`), with the real `requests` version described; creating a package: a folder with `__init__.py` written to the in-memory file system, imported, relative imports, `__name__ == '__main__'`; version strings and comparing versions correctly.
+Sections: what pip is and the commands (`pip install/uninstall/list/show/freeze`) shown as text since pip cannot run offline; requirements.txt parsed as a string; "Reading from URL" made an honest pure-Python illustration (a fake `fake_get()` returning a dict with a status code and a JSON text body, then `json.loads`), with the real `requests` version described; creating a package: a folder with `__init__.py` written to the in-memory file system, imported, relative imports, `__name__ == '__main__'`; version strings and comparing versions correctly.
 Blocks: pip commands and requirements; parsing package metadata (show/freeze); data from a "URL" (JSON); creating and importing a package.
 
 ## Results per day
