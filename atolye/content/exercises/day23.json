@@ -1,678 +1,1298 @@
 {
- "day": 23,
- "title": "Virtual Environment",
- "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
- "blocks": [
-  {
-   "id": "d23-b1",
-   "concept": "pip-freeze-requirements",
-   "tags": [
-    "virtual-environment",
-    "pip",
-    "requirements",
-    "strings"
-   ],
-   "worked_example": {
-    "code": "line = 'Flask==1.1.1'\nname, version = line.split('==')\nprint(name, version)",
-    "notes": [
-     "pip freeze prints one name==version line per package; requirements.txt stores that list.",
-     "split('==') turns one line into the name and the version."
-    ],
-    "notes_tr": [
-     "pip freeze her pakette bir isim==sürüm satırı yazar; requirements.txt bu listeyi saklar.",
-     "split('==') tek satırı isim ve sürüm olarak ikiye ayırır."
-    ]
-   },
-   "exercises": [
+  "day": 23,
+  "title": "Virtual Environments",
+  "title_tr": "Sanal Ortamlar",
+  "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+  "blocks": [
     {
-     "id": "d23-b1-e1",
-     "type": "predict",
-     "concept": "pip-freeze-requirements",
-     "tags": [
-      "virtual-environment",
-      "pip",
-      "requirements",
-      "strings"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "text = '''Click==7.0\nFlask==1.1.1\nJinja2==2.10.3'''\npackages = {}\nfor line in text.split('\\n'):\n    name, version = line.split('==')\n    packages[name] = version\nprint(packages['Flask'], len(packages))",
-     "choices": [
-      "1.1.1 3",
-      "Flask 3",
-      "1.1.1 2",
-      "7.0 3"
-     ],
-     "expected_output": "1.1.1 3",
-     "explanation": "The loop stores name -> version for each of the 3 lines. packages['Flask'] is '1.1.1' and the dict has 3 entries.",
-     "misconceptions": {
-      "Flask 3": "The dict maps the name to the version, so packages['Flask'] is the version string.",
-      "1.1.1 2": "Every line adds a key; there are three different names, so len is 3.",
-      "7.0 3": "7.0 is the version of Click. We asked for the key 'Flask'."
-     },
-     "explanation_tr": "Döngü 3 satırın her biri için isim -> sürüm kaydeder. packages['Flask'] '1.1.1' olur ve dict'te 3 kayıt vardır.",
-     "misconceptions_tr": {
-      "Flask 3": "Dict isimi sürüme eşler, bu yüzden packages['Flask'] sürüm metnidir.",
-      "1.1.1 2": "Her satır bir anahtar ekler; üç farklı isim var, yani len 3'tür.",
-      "7.0 3": "7.0, Click'in sürümüdür. Biz 'Flask' anahtarını istedik."
-     }
+      "id": "d23-b1",
+      "concept": "env-isolation",
+      "concept_tr": "Ortamları yalıtmak: her projeye ayrı paket klasörü",
+      "tags": [
+        "venv",
+        "isolation",
+        "dict",
+        "mutability"
+      ],
+      "worked_example": {
+        "code": "envs = {}\ndef create_env(name):\n    envs[name] = {}\ndef pip_install(env, package, version):\n    envs[env][package] = version\ncreate_env('blog'); create_env('shop')\npip_install('blog', 'flask', '1.1.1')\npip_install('shop', 'flask', '3.0.3')\nprint(envs)",
+        "notes": [
+          "Each environment is its own dict created by create_env, the way python -m venv creates a separate site-packages folder.",
+          "pip_install writes into exactly one environment's dict, so the two flask versions live side by side without overwriting each other.",
+          "envs maps a name to a package dict: envs['blog']['flask'] first finds the environment, then the package inside it."
+        ],
+        "notes_tr": [
+          "Her ortam, create_env'in kurduğu ayrı bir dict'tir; tıpkı python -m venv'in ayrı bir site-packages klasörü kurması gibi.",
+          "pip_install yalnızca tek bir ortamın dict'ine yazar, bu yüzden iki flask sürümü birbirini ezmeden yan yana yaşar.",
+          "envs bir adı bir paket dict'ine eşler: envs['blog']['flask'] önce ortamı, sonra içindeki paketi bulur."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d23-b1-e1",
+          "type": "predict",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "base = {}\nenvs = {'a': base, 'b': base}\nenvs['a']['numpy'] = '2.1.0'\nprint(envs['b'])",
+          "choices": [
+            "{}",
+            "{'numpy': '2.1.0'}",
+            "Error",
+            "{'a': {'numpy': '2.1.0'}}"
+          ],
+          "expected_output": "{'numpy': '2.1.0'}",
+          "explanation": "Both keys are bound to one dict, so installing through 'a' shows up in 'b'. Real isolation needs a separate dict per environment, which is what {} inside create_env gives you.",
+          "explanation_tr": "İki anahtar da tek bir dict'e bağlı; 'a' üzerinden kurulan paket 'b''de de görünür. Gerçek yalıtım için her ortama ayrı bir dict gerekir; create_env içindeki {} bunu sağlar.",
+          "misconceptions": {
+            "{}": "'a' and 'b' are two tags on the same dict object; there is only one package dict here.",
+            "Error": "envs['b'] exists, it is just the same object as envs['a'].",
+            "{'a': {'numpy': '2.1.0'}}": "envs['b'] is the inner package dict, not the outer envs dict."
+          },
+          "misconceptions_tr": {
+            "{}": "'a' ve 'b' aynı dict nesnesine bağlı iki etikettir; burada tek bir paket dict'i var.",
+            "Error": "envs['b'] var; yalnızca envs['a'] ile aynı nesnedir.",
+            "{'a': {'numpy': '2.1.0'}}": "envs['b'] dıştaki envs dict'i değil, içteki paket dict'idir."
+          }
+        },
+        {
+          "id": "d23-b1-e2",
+          "type": "fill_blank",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "Complete pip_install so that it records the version of the package inside the given environment.",
+          "prompt_tr": "pip_install'u tamamla: paketin sürümünü verilen ortamın içine kaydetsin.",
+          "starter_code": "envs = {'blog': {}, 'shop': {}}\n\ndef pip_install(env, name, version):\n    envs[env][___] = version\n\npip_install('shop', 'requests', '2.31.0')",
+          "blanks": [
+            {
+              "answer": [
+                "name"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert envs == {'blog': {}, 'shop': {'requests': '2.31.0'}}",
+              "visible": true,
+              "label": "Only the shop environment changes",
+              "label_tr": "Yalnızca shop ortamı değişir"
+            }
+          ]
+        },
+        {
+          "id": "d23-b1-e3",
+          "type": "modify",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "Change pip_install so that it also returns the version it replaced, or None if the package was not installed before. Example: on an empty env, pip_install(env, 'flask', '1.1.1') returns None; a second call pip_install(env, 'flask', '3.0.3') returns '1.1.1'.",
+          "prompt_tr": "pip_install'u değiştir: yerini aldığı sürümü de döndürsün, paket daha önce kurulu değilse None döndürsün. Örnek: boş bir env'de pip_install(env, 'flask', '1.1.1') None döndürür; ikinci çağrı pip_install(env, 'flask', '3.0.3') ise '1.1.1' döndürür.",
+          "starter_code": "def pip_install(env, name, version):\n    env[name] = version",
+          "tests": [
+            {
+              "code": "env = {}\nassert pip_install(env, 'flask', '1.1.1') is None and env == {'flask': '1.1.1'}",
+              "visible": true,
+              "label": "First install returns None",
+              "label_tr": "İlk kurulum None döndürür"
+            },
+            {
+              "code": "env = {'flask': '1.1.1'}\nassert pip_install(env, 'flask', '3.0.3') == '1.1.1' and env['flask'] == '3.0.3'",
+              "visible": true,
+              "label": "Upgrade returns the old version",
+              "label_tr": "Yükseltme eski sürümü döndürür"
+            },
+            {
+              "code": "env = {'a': '1'}\nassert pip_install(env, 'b', '2') is None\nassert pip_install(env, 'a', '5') == '1' and pip_install(env, 'a', '6') == '5' and env == {'a': '6', 'b': '2'}",
+              "visible": false,
+              "failure_message": "Read the old value with env.get(name) BEFORE writing the new one, then return it.",
+              "failure_message_tr": "Yeni değeri yazmadan ÖNCE eski değeri env.get(name) ile oku, sonra onu döndür."
+            }
+          ],
+          "hints": [
+            "You need the old value, so read it before the assignment overwrites it.",
+            "env.get(name) returns the current version or None when the key is missing (Day 8).",
+            "Store env.get(name) in a variable on the first line, keep the assignment, and return the variable."
+          ],
+          "hints_tr": [
+            "Eski değere ihtiyacın var; atama onu ezmeden önce oku.",
+            "env.get(name) o anki sürümü, anahtar yoksa None döndürür (8. gün).",
+            "İlk satırda env.get(name)'i bir değişkene al, atamayı koru ve değişkeni döndür."
+          ],
+          "solution": {
+            "approach": "Read the previous value with get before overwriting, then return it.",
+            "approach_tr": "Üzerine yazmadan önce get ile önceki değeri oku, sonra döndür.",
+            "code": "def pip_install(env, name, version):\n    old = env.get(name)\n    env[name] = version\n    return old"
+          }
+        },
+        {
+          "id": "d23-b1-e4",
+          "type": "debug",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "Each new environment should start empty, but the second one already contains flask. This should print {'flask': '3.0.3'} and then {}. Fix create_env.",
+          "prompt_tr": "Her yeni ortam boş başlamalı ama ikinci ortam flask ile geliyor. Bu kod önce {'flask': '3.0.3'}, sonra {} yazdırmalı. create_env'i onar.",
+          "starter_code": "def create_env(packages={}):\n    return packages\n\nshop = create_env()\nshop['flask'] = '3.0.3'\nblog = create_env()\nprint(shop)\nprint(blog)",
+          "hints": [
+            "Print shop is blog. Why would two calls return the same object?",
+            "The default {} is created once, when def runs (Day 21's mutable default trap), so every call without an argument returns that one dict.",
+            "Use None as the default and create a new dict inside the function when packages is None."
+          ],
+          "hints_tr": [
+            "shop is blog değerini yazdır. İki çağrı neden aynı nesneyi döndürsün?",
+            "Varsayılan {} bir kez, def çalışırken kurulur (21. günün değiştirilebilir varsayılan tuzağı); argümansız her çağrı o tek dict'i döndürür.",
+            "Varsayılan olarak None kullan ve packages None ise fonksiyonun içinde yeni bir dict kur."
+          ],
+          "solution": {
+            "approach": "Replace the mutable default with None and build a fresh dict per call.",
+            "approach_tr": "Değiştirilebilir varsayılanı None ile değiştir ve her çağrıda yeni bir dict kur.",
+            "code": "def create_env(packages=None):\n    if packages is None:\n        packages = {}\n    return packages\n\nshop = create_env()\nshop['flask'] = '3.0.3'\nblog = create_env()\nprint(shop)\nprint(blog)"
+          },
+          "expected_output": "{'flask': '3.0.3'}\n{}"
+        },
+        {
+          "id": "d23-b1-e5",
+          "type": "write",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "Write a function freeze(packages) that returns the pip freeze text for a dict of packages: one line 'name==version' per package, sorted by name without caring about upper or lower case, lines joined with '\\n'. Example: freeze({'numpy': '2.1.0', 'Flask': '3.0.3'}) returns 'Flask==3.0.3\\nnumpy==2.1.0'.",
+          "prompt_tr": "Bir paket dict'i için pip freeze metnini döndüren freeze(packages) fonksiyonunu yaz: her paket için bir 'ad==sürüm' satırı, adlar büyük-küçük harf gözetmeden sıralanmış, satırlar '\\n' ile birleştirilmiş. Örnek: freeze({'numpy': '2.1.0', 'Flask': '3.0.3'}) 'Flask==3.0.3\\nnumpy==2.1.0' döndürür.",
+          "starter_code": "",
+          "signature": "def freeze(packages):",
+          "tests": [
+            {
+              "code": "assert freeze({'numpy': '2.1.0', 'Flask': '3.0.3'}) == 'Flask==3.0.3\\nnumpy==2.1.0'",
+              "visible": true,
+              "label": "Two packages sorted by name",
+              "label_tr": "Ada göre sıralı iki paket"
+            },
+            {
+              "code": "assert freeze({}) == ''",
+              "visible": true,
+              "label": "No packages gives an empty string",
+              "label_tr": "Paket yoksa boş string"
+            },
+            {
+              "code": "assert freeze({'Werkzeug': '0.16.0', 'click': '7.0', 'Jinja2': '2.10.3'}) == 'click==7.0\\nJinja2==2.10.3\\nWerkzeug==0.16.0'",
+              "visible": false,
+              "failure_message": "Sort case-insensitively: use key=str.lower (plain sorting puts all capitals first).",
+              "failure_message_tr": "Büyük-küçük harf gözetmeden sırala: key=str.lower kullan (sade sıralama bütün büyük harfleri öne koyar)."
+            },
+            {
+              "code": "assert freeze({'a': '1'}) == 'a==1'",
+              "visible": false,
+              "failure_message": "No extra spaces or a trailing newline.",
+              "failure_message_tr": "Fazladan boşluk ya da sonda yeni satır olmamalı."
+            }
+          ],
+          "hints": [
+            "Build one string per package, then join them.",
+            "sorted(packages, key=str.lower) gives the names in case-insensitive order; f'{name}=={packages[name]}' builds a line.",
+            "The whole body can be return '\\n'.join(f'{n}=={packages[n]}' for n in ___)."
+          ],
+          "hints_tr": [
+            "Her paket için bir string kur, sonra hepsini birleştir.",
+            "sorted(packages, key=str.lower) adları büyük-küçük harf gözetmeyen sırayla verir; f'{name}=={packages[name]}' bir satır kurar.",
+            "Gövdenin tamamı şu olabilir: return '\\n'.join(f'{n}=={packages[n]}' for n in ___)."
+          ],
+          "solution": {
+            "approach": "Sort the names with key=str.lower and join formatted lines with newlines.",
+            "approach_tr": "Adları key=str.lower ile sırala ve biçimlenmiş satırları yeni satırla birleştir.",
+            "code": "def freeze(packages):\n    names = sorted(packages, key=str.lower)\n    return '\\n'.join(f'{n}=={packages[n]}' for n in names)"
+          },
+          "twin": "d23-b1-e6"
+        },
+        {
+          "id": "d23-b1-e6",
+          "type": "write",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "Write a function diff_envs(a, b) that compares two environments (dicts of name -> version) and returns a dict of only the packages that differ: each maps to a tuple (version_in_a, version_in_b), using None where a package is missing. Example: diff_envs({'flask': '1.1.1', 'six': '1.16'}, {'flask': '3.0.3', 'six': '1.16'}) returns {'flask': ('1.1.1', '3.0.3')}.",
+          "prompt_tr": "İki ortamı (ad -> sürüm dict'leri) karşılaştıran diff_envs(a, b) fonksiyonunu yaz: yalnızca farklı olan paketlerden oluşan bir dict döndürsün; her biri (a_daki_sürüm, b_deki_sürüm) demetine eşlensin, eksik paket için None kullanılsın. Örnek: diff_envs({'flask': '1.1.1', 'six': '1.16'}, {'flask': '3.0.3', 'six': '1.16'}) {'flask': ('1.1.1', '3.0.3')} döndürür.",
+          "starter_code": "",
+          "signature": "def diff_envs(a, b):",
+          "tests": [
+            {
+              "code": "assert diff_envs({'flask': '1.1.1', 'six': '1.16'}, {'flask': '3.0.3', 'six': '1.16'}) == {'flask': ('1.1.1', '3.0.3')}",
+              "visible": true,
+              "label": "Only flask differs",
+              "label_tr": "Yalnızca flask farklı"
+            },
+            {
+              "code": "assert diff_envs({'x': '1'}, {'x': '1'}) == {}",
+              "visible": true,
+              "label": "Identical environments",
+              "label_tr": "Aynı ortamlar"
+            },
+            {
+              "code": "assert diff_envs({'numpy': '2.1.0'}, {'pandas': '2.2.3'}) == {'numpy': ('2.1.0', None), 'pandas': (None, '2.2.3')}",
+              "visible": false,
+              "failure_message": "Look at the names of BOTH environments (a set union helps) and use None for a missing side.",
+              "failure_message_tr": "İKİ ortamın adlarına da bak (set birleşimi yardımcı olur) ve eksik taraf için None kullan."
+            },
+            {
+              "code": "assert diff_envs({}, {}) == {} and diff_envs({'a': '1', 'b': '2'}, {'a': '1', 'b': '3', 'c': '1'}) == {'b': ('2', '3'), 'c': (None, '1')}",
+              "visible": false,
+              "failure_message": "Include a package only when the two versions are not equal.",
+              "failure_message_tr": "Bir paketi yalnızca iki sürüm eşit değilse dahil et."
+            }
+          ],
+          "hints": [
+            "Every package name in either dict must be checked once.",
+            "set(a) | set(b) gives all names (Day 7); a.get(name) and b.get(name) give the versions or None.",
+            "Inside the loop add the name only when a.get(name) != b.get(name), as result[name] = (a.get(name), b.get(name))."
+          ],
+          "hints_tr": [
+            "İki dict'ten herhangi birindeki her paket adı bir kez kontrol edilmeli.",
+            "set(a) | set(b) bütün adları verir (7. gün); a.get(name) ve b.get(name) sürümleri ya da None'ı verir.",
+            "Döngüde adı yalnızca a.get(name) != b.get(name) ise ekle: result[name] = (a.get(name), b.get(name))."
+          ],
+          "solution": {
+            "approach": "Walk the union of names and keep pairs whose versions differ.",
+            "approach_tr": "Adların birleşimini dolaş ve sürümleri farklı olan çiftleri tut.",
+            "code": "def diff_envs(a, b):\n    result = {}\n    for name in set(a) | set(b):\n        if a.get(name) != b.get(name):\n            result[name] = (a.get(name), b.get(name))\n    return result"
+          },
+          "twin": "d23-b1-e5"
+        },
+        {
+          "id": "d23-b1-e7",
+          "type": "predict",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "env = {'flask': '3.0.3'}\nclone = env.copy()\nclone['flask'] = '1.1.1'\nalias = env\nalias['six'] = '1.16'\nprint(env)",
+          "choices": [
+            "{'flask': '1.1.1', 'six': '1.16'}",
+            "{'flask': '3.0.3', 'six': '1.16'}",
+            "{'flask': '3.0.3'}",
+            "{'flask': '1.1.1'}"
+          ],
+          "expected_output": "{'flask': '3.0.3', 'six': '1.16'}",
+          "explanation": "copy() creates a separate dict, while = only adds a name tag. That is the difference between a new virtual environment and just another name for the same one.",
+          "explanation_tr": "copy() ayrı bir dict üretir, = ise yalnızca bir isim etiketi ekler. Yeni bir sanal ortamla aynı ortama verilen ikinci bir ad arasındaki fark budur.",
+          "misconceptions": {
+            "{'flask': '1.1.1', 'six': '1.16'}": "copy() made a new dict, so changing clone does not touch env.",
+            "{'flask': '3.0.3'}": "alias = env is a second tag on the same dict, so adding six through alias changes env.",
+            "{'flask': '1.1.1'}": "Both parts are off: the copy is separate and the alias is not."
+          },
+          "misconceptions_tr": {
+            "{'flask': '1.1.1', 'six': '1.16'}": "copy() yeni bir dict üretti; clone'u değiştirmek env'e dokunmaz.",
+            "{'flask': '3.0.3'}": "alias = env aynı dict'e ikinci bir etikettir; alias üzerinden six eklemek env'i değiştirir.",
+            "{'flask': '1.1.1'}": "İki parça da yanlış: kopya ayrıdır, takma ad ise değildir."
+          }
+        },
+        {
+          "id": "d23-b1-e8",
+          "type": "explain",
+          "concept": "env-isolation",
+          "tags": [
+            "venv",
+            "isolation",
+            "dict",
+            "mutability"
+          ],
+          "prompt": "In your own words: what problem does a virtual environment solve, and how?",
+          "prompt_tr": "Kendi cümlelerinle anlat: sanal ortam hangi sorunu çözer ve nasıl çözer?",
+          "model_answer": "Without it, every project installs into one global site-packages folder, which can hold only one version of each package, so projects that need different versions conflict. A virtual environment gives each project its own isolated folder of packages, so each one can install the versions it needs.",
+          "model_answer_tr": "Sanal ortam olmadan her proje tek bir genel site-packages klasörüne kurulum yapar; o klasör her paketin yalnızca bir sürümünü tutabildiği için farklı sürüm isteyen projeler çakışır. Sanal ortam her projeye yalıtılmış kendi paket klasörünü verir, böylece her biri ihtiyacı olan sürümleri kurabilir.",
+          "keywords": [
+            "version",
+            "isolated",
+            "project"
+          ],
+          "keywords_tr": [
+            "sürüm",
+            "yalıtılmış",
+            "proje"
+          ],
+          "min_words": 12
+        }
+      ]
     },
     {
-     "id": "d23-b1-e2",
-     "type": "fill_blank",
-     "concept": "pip-freeze-requirements",
-     "tags": [
-      "virtual-environment",
-      "pip",
-      "requirements",
-      "strings"
-     ],
-     "prompt": "Complete parse_line so that it returns a (name, version) tuple.",
-     "prompt_tr": "parse_line fonksiyonunu tamamla: (isim, sürüm) demeti (tuple) döndürsün.",
-     "starter_code": "def parse_line(line):\n    name, version = line.___('==')\n    return name, ___",
-     "blanks": [
-      {
-       "answer": [
-        "split"
-       ]
+      "id": "d23-b2",
+      "concept": "path-lookup",
+      "concept_tr": "PATH ve sys.path: ilk eşleşme kazanır",
+      "tags": [
+        "venv",
+        "PATH",
+        "sys.path",
+        "search"
+      ],
+      "worked_example": {
+        "code": "files = {'/usr/bin': ['python'], '/app/venv/bin': ['python', 'pip']}\ndef which(cmd, path):\n    for folder in path:\n        if cmd in files.get(folder, []):\n            return folder\n    return None\npath = ['/usr/bin']\nprint(which('python', path), which('pip', path))\nprint(which('python', ['/app/venv/bin'] + path))",
+        "notes": [
+          "which checks the folders in the order of the list and returns at the first match; the return inside the loop ends the search immediately.",
+          "return None sits after the loop: only when every folder has been tried without a match does the function report that the command is missing.",
+          "Activating a venv is exactly the last line: put the venv's bin folder in front, and the same search now finds the venv's python first."
+        ],
+        "notes_tr": [
+          "which klasörleri listedeki sırayla dener ve ilk eşleşmede döner; döngünün içindeki return aramayı hemen bitirir.",
+          "return None döngüden sonra durur: ancak bütün klasörler eşleşme olmadan denendiğinde fonksiyon komutun bulunmadığını bildirir.",
+          "Bir venv'i etkinleştirmek tam olarak son satırdır: venv'in bin klasörünü öne koy; aynı arama artık önce venv'in python'unu bulur."
+        ]
       },
-      {
-       "answer": [
-        "version"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert parse_line('Flask==1.1.1') == ('Flask', '1.1.1')",
-       "visible": true,
-       "label_tr": "Flask satırı doğru ayrılıyor"
-      },
-      {
-       "code": "assert parse_line('Click==7.0') == ('Click', '7.0')",
-       "visible": true,
-       "label_tr": "Click satırı doğru ayrılıyor"
-      }
-     ]
+      "exercises": [
+        {
+          "id": "d23-b2-e1",
+          "type": "predict",
+          "concept": "path-lookup",
+          "tags": [
+            "venv",
+            "PATH",
+            "sys.path",
+            "search"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "files = {'/usr/bin': ['python'], '/venv/bin': ['python']}\n\ndef which(cmd, path):\n    for folder in path:\n        if cmd in files[folder]:\n            return folder\n\npath = ['/usr/bin']\nactive = ['/venv/bin'] + path\nprint(which('python', active), which('python', path))",
+          "choices": [
+            "/venv/bin /usr/bin",
+            "/venv/bin /venv/bin",
+            "/usr/bin /usr/bin",
+            "/usr/bin /venv/bin"
+          ],
+          "expected_output": "/venv/bin /usr/bin",
+          "explanation": "active starts with /venv/bin, so its python is found first. The + operator did not change path, so the second search still finds /usr/bin.",
+          "explanation_tr": "active /venv/bin ile başlar, bu yüzden önce onun python'u bulunur. + operatörü path'i değiştirmedi; ikinci arama hâlâ /usr/bin'i bulur.",
+          "misconceptions": {
+            "/venv/bin /venv/bin": "[x] + path builds a NEW list; path itself still holds only /usr/bin.",
+            "/usr/bin /usr/bin": "In active the venv folder comes first, and the search returns at the first match.",
+            "/usr/bin /venv/bin": "The order is reversed: the activated list finds the venv first."
+          },
+          "misconceptions_tr": {
+            "/venv/bin /venv/bin": "[x] + path YENİ bir liste kurar; path'in kendisi hâlâ yalnızca /usr/bin tutar.",
+            "/usr/bin /usr/bin": "active içinde venv klasörü önde, arama da ilk eşleşmede döner.",
+            "/usr/bin /venv/bin": "Sıra ters: etkin liste önce venv'i bulur."
+          }
+        },
+        {
+          "id": "d23-b2-e2",
+          "type": "parsons",
+          "concept": "path-lookup",
+          "tags": [
+            "venv",
+            "PATH",
+            "sys.path",
+            "search"
+          ],
+          "prompt": "Order the lines: find_module returns the first folder of search_path whose contents include the module name, or None.",
+          "prompt_tr": "Satırları sırala: find_module, içeriği modül adını barındıran ilk search_path klasörünü ya da None döndürür.",
+          "lines": [
+            "print(find_module('flask', ['/app', '/venv/site-packages']))",
+            "def find_module(name, search_path):",
+            "        if name in contents[folder]:",
+            "contents = {'/app': ['main'], '/venv/site-packages': ['flask', 'six']}",
+            "    return None",
+            "    for folder in search_path:",
+            "            return folder"
+          ],
+          "correct_order": [
+            3,
+            1,
+            5,
+            2,
+            6,
+            4,
+            0
+          ],
+          "distractors": [
+            "        return None",
+            "        else:"
+          ],
+          "expected_output": "/venv/site-packages"
+        },
+        {
+          "id": "d23-b2-e3",
+          "type": "modify",
+          "concept": "path-lookup",
+          "tags": [
+            "venv",
+            "PATH",
+            "sys.path",
+            "search"
+          ],
+          "prompt": "which returns only the first match. Turn it into which_all(cmd, path), which returns a list of every folder (in order) that contains cmd, like `which -a` in a terminal. Example: with the files below, which_all('python', ['/venv/bin', '/usr/bin', '/opt']) returns ['/venv/bin', '/usr/bin'].",
+          "prompt_tr": "which yalnızca ilk eşleşmeyi döndürüyor. Onu which_all(cmd, path) fonksiyonuna çevir: terminaldeki `which -a` gibi, cmd'yi içeren bütün klasörlerin (sırayla) listesini döndürsün. Örnek: aşağıdaki files ile which_all('python', ['/venv/bin', '/usr/bin', '/opt']) ['/venv/bin', '/usr/bin'] döndürür.",
+          "starter_code": "files = {'/venv/bin': ['python', 'pip'], '/usr/bin': ['python', 'ls'], '/opt': ['node']}\n\ndef which(cmd, path):\n    for folder in path:\n        if cmd in files[folder]:\n            return folder\n    return None",
+          "tests": [
+            {
+              "code": "assert which_all('python', ['/venv/bin', '/usr/bin', '/opt']) == ['/venv/bin', '/usr/bin']",
+              "visible": true,
+              "label": "Both pythons, in PATH order",
+              "label_tr": "İki python da, PATH sırasıyla"
+            },
+            {
+              "code": "assert which_all('ruby', ['/venv/bin', '/usr/bin']) == []",
+              "visible": true,
+              "label": "Nothing found gives an empty list",
+              "label_tr": "Bulunamazsa boş liste"
+            },
+            {
+              "code": "assert which_all('ls', ['/opt', '/usr/bin', '/venv/bin']) == ['/usr/bin'] and which_all('python', ['/usr/bin', '/venv/bin']) == ['/usr/bin', '/venv/bin']",
+              "visible": false,
+              "failure_message": "Collect every matching folder in the order of path, without stopping at the first one.",
+              "failure_message_tr": "İlkinde durmadan, eşleşen her klasörü path sırasıyla topla."
+            }
+          ],
+          "hints": [
+            "Rename the function and, instead of returning at the first match, collect the matches.",
+            "Start with an empty list, append every matching folder, and return the list after the loop.",
+            "A comprehension also works: return [folder for folder in path if cmd in files[___]]."
+          ],
+          "hints_tr": [
+            "Fonksiyonun adını değiştir ve ilk eşleşmede dönmek yerine eşleşmeleri topla.",
+            "Boş bir listeyle başla, eşleşen her klasörü ekle ve listeyi döngüden sonra döndür.",
+            "Bir comprehension da olur: return [folder for folder in path if cmd in files[___]]."
+          ],
+          "solution": {
+            "approach": "Keep every folder whose contents include cmd, in path order.",
+            "approach_tr": "İçeriği cmd'yi barındıran her klasörü path sırasıyla tut.",
+            "code": "files = {'/venv/bin': ['python', 'pip'], '/usr/bin': ['python', 'ls'], '/opt': ['node']}\n\ndef which_all(cmd, path):\n    return [folder for folder in path if cmd in files[folder]]"
+          }
+        },
+        {
+          "id": "d23-b2-e4",
+          "type": "debug",
+          "concept": "path-lookup",
+          "tags": [
+            "venv",
+            "PATH",
+            "sys.path",
+            "search"
+          ],
+          "prompt": "which should find pip in the second folder and print /venv/bin, but it prints None. Fix the indentation bug.",
+          "prompt_tr": "which pip'i ikinci klasörde bulup /venv/bin yazdırmalı ama None yazdırıyor. Girinti hatasını onar.",
+          "starter_code": "files = {'/usr/bin': ['python'], '/venv/bin': ['python', 'pip']}\n\ndef which(cmd, path):\n    for folder in path:\n        if cmd in files[folder]:\n            return folder\n        return None\n\nprint(which('pip', ['/usr/bin', '/venv/bin']))",
+          "hints": [
+            "Trace the first turn of the loop: /usr/bin has no pip. Which line runs next?",
+            "return None is inside the loop, so the function gives up after checking only the first folder.",
+            "Move return None out of the loop: it must have the same indentation as the for line."
+          ],
+          "hints_tr": [
+            "Döngünün ilk turunu izle: /usr/bin'de pip yok. Sonra hangi satır çalışır?",
+            "return None döngünün içinde, bu yüzden fonksiyon yalnızca ilk klasöre bakıp vazgeçiyor.",
+            "return None'ı döngünün dışına taşı: for satırıyla aynı girintide olmalı."
+          ],
+          "solution": {
+            "approach": "Only report 'not found' after the loop has tried every folder.",
+            "approach_tr": "'Bulunamadı' sonucunu ancak döngü bütün klasörleri denedikten sonra ver.",
+            "code": "files = {'/usr/bin': ['python'], '/venv/bin': ['python', 'pip']}\n\ndef which(cmd, path):\n    for folder in path:\n        if cmd in files[folder]:\n            return folder\n    return None\n\nprint(which('pip', ['/usr/bin', '/venv/bin']))"
+          },
+          "expected_output": "/venv/bin"
+        },
+        {
+          "id": "d23-b2-e5",
+          "type": "write",
+          "concept": "path-lookup",
+          "tags": [
+            "venv",
+            "PATH",
+            "sys.path",
+            "search"
+          ],
+          "prompt": "Write two functions that model activate and deactivate without changing the list they receive. activate(path, venv_bin) returns a new list with venv_bin at the front (and no second copy of it if it was already in path). deactivate(path, venv_bin) returns a new list without venv_bin. Example: activate(['/usr/bin'], '/p/venv/bin') returns ['/p/venv/bin', '/usr/bin'].",
+          "prompt_tr": "Aldıkları listeyi değiştirmeden activate ve deactivate davranışını modelleyen iki fonksiyon yaz. activate(path, venv_bin), venv_bin'i başa koyan yeni bir liste döndürür (path'te zaten varsa ikinci bir kopyası olmaz). deactivate(path, venv_bin), venv_bin'i içermeyen yeni bir liste döndürür. Örnek: activate(['/usr/bin'], '/p/venv/bin') ['/p/venv/bin', '/usr/bin'] döndürür.",
+          "starter_code": "",
+          "signature": "def activate(path, venv_bin):",
+          "tests": [
+            {
+              "code": "assert activate(['/usr/bin'], '/p/venv/bin') == ['/p/venv/bin', '/usr/bin']",
+              "visible": true,
+              "label": "The venv goes to the front",
+              "label_tr": "Venv başa geçer"
+            },
+            {
+              "code": "assert deactivate(['/p/venv/bin', '/usr/bin'], '/p/venv/bin') == ['/usr/bin']",
+              "visible": true,
+              "label": "Deactivate removes it",
+              "label_tr": "deactivate onu çıkarır"
+            },
+            {
+              "code": "p = ['/usr/bin', '/v/bin', '/bin']\nassert activate(p, '/v/bin') == ['/v/bin', '/usr/bin', '/bin'] and p == ['/usr/bin', '/v/bin', '/bin']",
+              "visible": false,
+              "failure_message": "Return a new list without duplicates and never modify the list you were given.",
+              "failure_message_tr": "Tekrarsız yeni bir liste döndür ve sana verilen listeyi asla değiştirme."
+            },
+            {
+              "code": "p = ['/a', '/b']\nassert deactivate(p, '/x') == ['/a', '/b'] and deactivate(p, '/x') is not p and activate([], '/v') == ['/v']",
+              "visible": false,
+              "failure_message": "deactivate must also return a new list, even when there is nothing to remove.",
+              "failure_message_tr": "deactivate da, çıkarılacak bir şey olmasa bile, yeni bir liste döndürmeli."
+            }
+          ],
+          "hints": [
+            "Avoid insert and remove on the original list: they change it in place. Build new lists instead.",
+            "A comprehension that keeps every folder except venv_bin gives a new list; activate puts [venv_bin] in front of that.",
+            "activate can be written as return [venv_bin] + deactivate(path, venv_bin)."
+          ],
+          "hints_tr": [
+            "Asıl liste üzerinde insert ve remove kullanma: onu yerinde değiştirirler. Bunun yerine yeni listeler kur.",
+            "venv_bin dışındaki her klasörü tutan bir comprehension yeni bir liste verir; activate onun önüne [venv_bin] koyar.",
+            "activate şöyle yazılabilir: return [venv_bin] + deactivate(path, venv_bin)."
+          ],
+          "solution": {
+            "approach": "deactivate filters into a new list; activate reuses it and prepends the venv folder.",
+            "approach_tr": "deactivate süzerek yeni bir liste kurar; activate onu yeniden kullanıp venv klasörünü başa ekler.",
+            "code": "def deactivate(path, venv_bin):\n    return [folder for folder in path if folder != venv_bin]\n\ndef activate(path, venv_bin):\n    return [venv_bin] + deactivate(path, venv_bin)"
+          },
+          "twin": "d23-b2-e6"
+        },
+        {
+          "id": "d23-b2-e6",
+          "type": "write",
+          "concept": "path-lookup",
+          "tags": [
+            "venv",
+            "PATH",
+            "sys.path",
+            "search"
+          ],
+          "prompt": "Write a function resolve_import(name, search_path, contents) that mimics import: contents maps a folder to a list of module names. Return the first folder in search_path that contains name. If none does, raise ModuleNotFoundError with the message No module named 'name' (exactly like Python, with quotes around the name). Example: resolve_import('six', ['/app', '/venv/site'], {'/app': [], '/venv/site': ['six']}) returns '/venv/site'.",
+          "prompt_tr": "import'u taklit eden resolve_import(name, search_path, contents) fonksiyonunu yaz: contents bir klasörü modül adları listesine eşler. search_path içinde name'i barındıran ilk klasörü döndür. Hiçbiri barındırmıyorsa ModuleNotFoundError fırlat; mesajı Python'daki gibi No module named 'name' olsun (adın etrafında tırnaklarla). Örnek: resolve_import('six', ['/app', '/venv/site'], {'/app': [], '/venv/site': ['six']}) '/venv/site' döndürür.",
+          "starter_code": "",
+          "signature": "def resolve_import(name, search_path, contents):",
+          "tests": [
+            {
+              "code": "assert resolve_import('six', ['/app', '/venv/site'], {'/app': [], '/venv/site': ['six']}) == '/venv/site'",
+              "visible": true,
+              "label": "Found in the second folder",
+              "label_tr": "İkinci klasörde bulundu"
+            },
+            {
+              "code": "try:\n    resolve_import('flask', ['/app'], {'/app': ['main']})\n    ok = False\nexcept ModuleNotFoundError as e:\n    ok = str(e) == \"No module named 'flask'\"\nassert ok",
+              "visible": true,
+              "label": "Missing module raises ModuleNotFoundError",
+              "label_tr": "Eksik modül ModuleNotFoundError fırlatır"
+            },
+            {
+              "code": "c = {'/a': ['json', 'x'], '/b': ['x', 'y'], '/c': ['y']}\nassert resolve_import('x', ['/a', '/b'], c) == '/a' and resolve_import('y', ['/c', '/b'], c) == '/c' and resolve_import('y', ['/a', '/b', '/c'], c) == '/b'",
+              "visible": false,
+              "failure_message": "Return the FIRST folder in search_path order that contains the module.",
+              "failure_message_tr": "Modülü barındıran, search_path sırasındaki İLK klasörü döndür."
+            },
+            {
+              "code": "try:\n    resolve_import('numpy', [], {})\n    ok = False\nexcept ModuleNotFoundError as e:\n    ok = str(e) == \"No module named 'numpy'\"\nassert ok",
+              "visible": false,
+              "failure_message": "Raise ModuleNotFoundError(f\"No module named '{name}'\") after the loop when nothing matched.",
+              "failure_message_tr": "Hiçbir şey eşleşmediyse döngüden sonra ModuleNotFoundError(f\"No module named '{name}'\") fırlat."
+            }
+          ],
+          "hints": [
+            "It is the which pattern with a different ending: a loop that returns at the first match, and a line after the loop.",
+            "Inside the loop check name in contents[folder]; after the loop, instead of return None, raise the error.",
+            "The last line has the form raise ModuleNotFoundError(f\"No module named '{___}'\")."
+          ],
+          "hints_tr": [
+            "Bu, sonu farklı olan which kalıbıdır: ilk eşleşmede dönen bir döngü ve döngüden sonra bir satır.",
+            "Döngüde name in contents[folder] kontrol et; döngüden sonra return None yerine hatayı fırlat.",
+            "Son satır şu biçimde: raise ModuleNotFoundError(f\"No module named '{___}'\")."
+          ],
+          "solution": {
+            "approach": "First match wins; when the loop ends without one, raise the same error Python raises.",
+            "approach_tr": "İlk eşleşme kazanır; döngü eşleşme bulamadan biterse Python'un fırlattığı hatanın aynısını fırlat.",
+            "code": "def resolve_import(name, search_path, contents):\n    for folder in search_path:\n        if name in contents[folder]:\n            return folder\n    raise ModuleNotFoundError(f\"No module named '{name}'\")"
+          },
+          "twin": "d23-b2-e5"
+        },
+        {
+          "id": "d23-b2-e7",
+          "type": "predict",
+          "concept": "path-lookup",
+          "tags": [
+            "venv",
+            "PATH",
+            "sys.path",
+            "search"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "path = ['/usr/bin']\nsaved = path\npath.insert(0, '/venv/bin')\nprint(saved)",
+          "choices": [
+            "['/usr/bin']",
+            "['/venv/bin', '/usr/bin']",
+            "None",
+            "['/usr/bin', '/venv/bin']"
+          ],
+          "expected_output": "['/venv/bin', '/usr/bin']",
+          "explanation": "insert mutates the list in place, and saved is a second tag on it, so the 'saved' PATH changed too. That is why the activate model in this block builds new lists.",
+          "explanation_tr": "insert listeyi yerinde değiştirir ve saved ona bağlı ikinci bir etikettir, bu yüzden 'saklanan' PATH de değişti. Bu bloktaki activate modelinin yeni listeler kurmasının nedeni budur.",
+          "misconceptions": {
+            "['/usr/bin']": "saved = path does not copy the list; insert changes the one list both names point to.",
+            "None": "saved holds the list itself; insert's return value (None) is not stored anywhere.",
+            "['/usr/bin', '/venv/bin']": "insert(0, x) puts x at index 0, the front."
+          },
+          "misconceptions_tr": {
+            "['/usr/bin']": "saved = path listeyi kopyalamaz; insert iki ismin de gösterdiği tek listeyi değiştirir.",
+            "None": "saved listenin kendisini tutar; insert'in dönüş değeri (None) hiçbir yere saklanmıyor.",
+            "['/usr/bin', '/venv/bin']": "insert(0, x), x'i 0 indeksine, yani başa koyar."
+          }
+        }
+      ]
     },
     {
-     "id": "d23-b1-e3",
-     "type": "write",
-     "concept": "pip-freeze-requirements",
-     "tags": [
-      "virtual-environment",
-      "pip",
-      "requirements",
-      "strings"
-     ],
-     "prompt": "Write parse_requirements(text). The text has one name==version per line. Return a dict {name: version}. Skip empty lines.",
-     "prompt_tr": "parse_requirements(text) yaz. Metindeki her satır isim==sürüm biçimindedir. {isim: sürüm} sözlüğü döndür. Boş satırları atla.",
-     "starter_code": "",
-     "signature": "def parse_requirements(text):",
-     "tests": [
-      {
-       "code": "assert parse_requirements('Click==7.0\\nFlask==1.1.1') == {'Click': '7.0', 'Flask': '1.1.1'}",
-       "visible": true,
-       "label_tr": "İki paket sözlüğe çevriliyor"
+      "id": "d23-b3",
+      "concept": "requirements-parse",
+      "concept_tr": "pip freeze ve requirements.txt dosyasını okumak",
+      "tags": [
+        "venv",
+        "pip",
+        "requirements",
+        "strings"
+      ],
+      "worked_example": {
+        "code": "text = 'Flask==3.0.3\\n# test araçları\\n\\n  pytest==8.3.2'\npackages = {}\nfor line in text.splitlines():\n    line = line.strip()\n    if not line or line.startswith('#'):\n        continue\n    name, version = line.split('==')\n    packages[name.lower()] = version\nprint(packages)",
+        "notes": [
+          "splitlines gives one string per line; strip removes spaces at both ends so that an indented or trailing-space line still parses.",
+          "Blank lines and comment lines are skipped with continue before any splitting, because they contain no '=='.",
+          "split('==') returns exactly two pieces for a pinned line, which unpack into name and version; names are lowercased because pip ignores case."
+        ],
+        "notes_tr": [
+          "splitlines her satır için bir string verir; strip iki uçtaki boşlukları atar, böylece girintili ya da sonunda boşluk olan satır da okunur.",
+          "Boş satırlar ve yorum satırları, hiçbir bölme yapılmadan continue ile atlanır, çünkü içlerinde '==' yoktur.",
+          "split('==') sabitlenmiş bir satır için tam iki parça döndürür; bunlar name ve version'a açılır. pip büyük-küçük harfe bakmadığı için adlar küçük harfe çevrilir."
+        ]
       },
-      {
-       "code": "assert parse_requirements('') == {}",
-       "visible": true,
-       "label_tr": "Boş metin boş sözlük veriyor"
-      },
-      {
-       "code": "assert parse_requirements('Flask==1.1.1\\n') == {'Flask': '1.1.1'}",
-       "visible": false,
-       "failure_message": "A trailing newline creates an empty line. Skip empty lines instead of splitting them.",
-       "failure_message_tr": "Sondaki yeni satır boş bir satır yaratır. Boş satırları ayırmaya çalışma, atla."
-      },
-      {
-       "code": "assert parse_requirements('Jinja2==2.10.3\\nMarkupSafe==1.1.1') == {'Jinja2': '2.10.3', 'MarkupSafe': '1.1.1'}",
-       "visible": false,
-       "failure_message": "Keep package names exactly as written, including capital letters and digits.",
-       "failure_message_tr": "Paket adlarını büyük harfler ve rakamlar dahil yazıldığı gibi koru."
-      }
-     ],
-     "hints": [
-      "Loop over the lines; some lines may be empty.",
-      "For each non-empty line, line.split('==') gives name and version. Store them in a dict.",
-      "Last step: start with an empty dict, loop over text.split with a newline, skip a line when line.strip() is empty, and assign result[name] = ___."
-     ],
-     "solution": {
-      "approach": "Split the text into lines, ignore blank ones, split each on '=='.",
-      "code": "def parse_requirements(text):\n    result = {}\n    for line in text.split('\\n'):\n        if line.strip():\n            name, version = line.split('==')\n            result[name] = version\n    return result",
-      "approach_tr": "Metni satırlara böl, boş olanları yok say, her satırı '==' ile ayır."
-     },
-     "twin": "d23-b1-e4",
-     "hints_tr": [
-      "Satırlar üzerinde dön; bazı satırlar boş olabilir.",
-      "Boş olmayan her satır için line.split('==') isim ve sürümü verir. Bunları bir dict'e koy.",
-      "Son adım: boş bir dict ile başla, metni yeni satırdan bölüp dön, line.strip() boşsa satırı atla ve result[name] = ___ ata."
-     ]
+      "exercises": [
+        {
+          "id": "d23-b3-e1",
+          "type": "predict",
+          "concept": "requirements-parse",
+          "tags": [
+            "venv",
+            "pip",
+            "requirements",
+            "strings"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "text = 'flask==3.0.3\\n\\n  numpy==2.1.0  \\n'\nlines = text.splitlines()\nprint(len(lines), [l.strip() for l in lines if l.strip()])",
+          "choices": [
+            "3 ['flask==3.0.3', 'numpy==2.1.0']",
+            "2 ['flask==3.0.3', 'numpy==2.1.0']",
+            "4 ['flask==3.0.3', 'numpy==2.1.0']",
+            "3 ['flask==3.0.3', '', 'numpy==2.1.0']"
+          ],
+          "expected_output": "3 ['flask==3.0.3', 'numpy==2.1.0']",
+          "explanation": "There are three lines: flask, an empty one and the indented numpy line. The comprehension strips each line and keeps only the non-empty ones.",
+          "explanation_tr": "Üç satır var: flask, boş bir satır ve girintili numpy satırı. Comprehension her satırı strip'ler ve yalnızca boş olmayanları tutar.",
+          "misconceptions": {
+            "2 ['flask==3.0.3', 'numpy==2.1.0']": "splitlines keeps the empty line in the middle; only the final newline adds no extra item.",
+            "4 ['flask==3.0.3', 'numpy==2.1.0']": "A newline at the very end does not create an extra empty item with splitlines.",
+            "3 ['flask==3.0.3', '', 'numpy==2.1.0']": "The comprehension's if l.strip() drops the empty line."
+          },
+          "misconceptions_tr": {
+            "2 ['flask==3.0.3', 'numpy==2.1.0']": "splitlines ortadaki boş satırı tutar; yalnızca en sondaki yeni satır ek öğe üretmez.",
+            "4 ['flask==3.0.3', 'numpy==2.1.0']": "En sondaki yeni satır, splitlines ile ek bir boş öğe oluşturmaz.",
+            "3 ['flask==3.0.3', '', 'numpy==2.1.0']": "Comprehension'daki if l.strip() boş satırı eler."
+          }
+        },
+        {
+          "id": "d23-b3-e2",
+          "type": "fill_blank",
+          "concept": "requirements-parse",
+          "tags": [
+            "venv",
+            "pip",
+            "requirements",
+            "strings"
+          ],
+          "prompt": "Complete the code so that a pinned line is split into its name and its version.",
+          "prompt_tr": "Kodu tamamla: sabitlenmiş bir satır adına ve sürümüne bölünsün.",
+          "starter_code": "line = 'Werkzeug==0.16.0'\nname, version = line.split('___')",
+          "blanks": [
+            {
+              "answer": [
+                "=="
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert (name, version) == ('Werkzeug', '0.16.0')",
+              "visible": true,
+              "label": "Name and version",
+              "label_tr": "Ad ve sürüm"
+            }
+          ]
+        },
+        {
+          "id": "d23-b3-e3",
+          "type": "modify",
+          "concept": "requirements-parse",
+          "tags": [
+            "venv",
+            "pip",
+            "requirements",
+            "strings"
+          ],
+          "prompt": "parse_freeze crashes on blank lines and comments. Change it so that it skips lines that are empty after strip() or that start with '#', and also strips spaces around each line. Example: parse_freeze('# web\\nFlask==3.0.3\\n\\n') returns {'Flask': '3.0.3'}.",
+          "prompt_tr": "parse_freeze boş satırlarda ve yorumlarda çöküyor. strip() sonrası boş kalan ya da '#' ile başlayan satırları atlayacak ve her satırın etrafındaki boşlukları da temizleyecek şekilde değiştir. Örnek: parse_freeze('# web\\nFlask==3.0.3\\n\\n') {'Flask': '3.0.3'} döndürür.",
+          "starter_code": "def parse_freeze(text):\n    packages = {}\n    for line in text.splitlines():\n        name, version = line.split('==')\n        packages[name] = version\n    return packages",
+          "tests": [
+            {
+              "code": "assert parse_freeze('# web\\nFlask==3.0.3\\n\\n') == {'Flask': '3.0.3'}",
+              "visible": true,
+              "label": "Comment and blank line are skipped",
+              "label_tr": "Yorum ve boş satır atlanıyor"
+            },
+            {
+              "code": "assert parse_freeze('a==1\\nb==2') == {'a': '1', 'b': '2'}",
+              "visible": true,
+              "label": "Plain lines still work",
+              "label_tr": "Sade satırlar hâlâ çalışıyor"
+            },
+            {
+              "code": "assert parse_freeze('   \\n  six==1.16  \\n#x==1\\n\\tidna==3.7') == {'six': '1.16', 'idna': '3.7'}",
+              "visible": false,
+              "failure_message": "Strip every line first (spaces and tabs), then skip it when it is empty or starts with '#'.",
+              "failure_message_tr": "Önce her satırı strip'le (boşluklar ve sekmeler), sonra boşsa ya da '#' ile başlıyorsa atla."
+            }
+          ],
+          "hints": [
+            "Two additions at the top of the loop body, before the split.",
+            "line = line.strip() first; then if the line is empty or starts with '#', use continue to go to the next turn.",
+            "The skip test has the form if not line or line.startswith('#'): continue."
+          ],
+          "hints_tr": [
+            "Döngü gövdesinin başına, split'ten önce iki ekleme.",
+            "Önce line = line.strip(); sonra satır boşsa ya da '#' ile başlıyorsa continue ile sonraki tura geç.",
+            "Atlama koşulu şu biçimde: if not line or line.startswith('#'): continue."
+          ],
+          "solution": {
+            "approach": "Strip, skip blank or comment lines with continue, then split.",
+            "approach_tr": "Strip'le, boş ya da yorum satırlarını continue ile atla, sonra böl.",
+            "code": "def parse_freeze(text):\n    packages = {}\n    for line in text.splitlines():\n        line = line.strip()\n        if not line or line.startswith('#'):\n            continue\n        name, version = line.split('==')\n        packages[name] = version\n    return packages"
+          }
+        },
+        {
+          "id": "d23-b3-e4",
+          "type": "debug",
+          "concept": "requirements-parse",
+          "tags": [
+            "venv",
+            "pip",
+            "requirements",
+            "strings"
+          ],
+          "prompt": "This should print {'flask': '3.0.3', 'six': '1.16'} but crashes with ValueError: too many values to unpack. Fix the split.",
+          "prompt_tr": "Bu kod {'flask': '3.0.3', 'six': '1.16'} yazdırmalı ama ValueError: too many values to unpack veriyor. Bölmeyi onar.",
+          "starter_code": "text = 'flask==3.0.3\\nsix==1.16'\npackages = {}\nfor line in text.splitlines():\n    name, version = line.split('=')\n    packages[name] = version\nprint(packages)",
+          "hints": [
+            "Print line.split('=') for 'flask==3.0.3'. How many pieces come back?",
+            "Splitting at a single '=' leaves an empty piece between the two '=' signs: three pieces, but only two names to unpack into.",
+            "Split at the whole operator '==' instead of a single '='."
+          ],
+          "hints_tr": [
+            "'flask==3.0.3' için line.split('=') yazdır. Kaç parça dönüyor?",
+            "Tek '=' ile bölmek, iki '=' arasında boş bir parça bırakır: üç parça var ama açılacak yalnızca iki isim.",
+            "Tek '=' yerine bütün işaret olan '==' ile böl."
+          ],
+          "solution": {
+            "approach": "Split on the full '==' so exactly two pieces come back.",
+            "approach_tr": "Tam iki parça dönsün diye '==' ile böl.",
+            "code": "text = 'flask==3.0.3\\nsix==1.16'\npackages = {}\nfor line in text.splitlines():\n    name, version = line.split('==')\n    packages[name] = version\nprint(packages)"
+          },
+          "expected_output": "{'flask': '3.0.3', 'six': '1.16'}"
+        },
+        {
+          "id": "d23-b3-e5",
+          "type": "write",
+          "concept": "requirements-parse",
+          "tags": [
+            "venv",
+            "pip",
+            "requirements",
+            "strings"
+          ],
+          "prompt": "Write a function parse_requirement(line) that reads one requirements line. Return None for a blank line or a comment ('#'). Otherwise return a tuple (name, operator, version) with the name in lower case, where operator is one of '~=', '>=', '<=', '==', '>', '<'. Ignore spaces. Example: parse_requirement(' Flask >= 3.0 ') returns ('flask', '>=', '3.0').",
+          "prompt_tr": "Tek bir requirements satırını okuyan parse_requirement(line) fonksiyonunu yaz. Boş satır ya da yorum ('#') için None döndür. Aksi hâlde ad küçük harfle olmak üzere (ad, işaret, sürüm) demeti döndür; işaret '~=', '>=', '<=', '==', '>', '<' işaretlerinden biridir. Boşlukları yok say. Örnek: parse_requirement(' Flask >= 3.0 ') ('flask', '>=', '3.0') döndürür.",
+          "starter_code": "",
+          "signature": "def parse_requirement(line):",
+          "tests": [
+            {
+              "code": "assert parse_requirement(' Flask >= 3.0 ') == ('flask', '>=', '3.0')",
+              "visible": true,
+              "label": "Spaces and capitals",
+              "label_tr": "Boşluklar ve büyük harfler"
+            },
+            {
+              "code": "assert parse_requirement('# comment') is None and parse_requirement('   ') is None",
+              "visible": true,
+              "label": "Comments and blank lines give None",
+              "label_tr": "Yorum ve boş satır None verir"
+            },
+            {
+              "code": "assert [parse_requirement(x) for x in ['numpy<3', 'six==1.16', 'idna<=3.7', 'pip>24', 'requests~=2.31']] == [('numpy', '<', '3'), ('six', '==', '1.16'), ('idna', '<=', '3.7'), ('pip', '>', '24'), ('requests', '~=', '2.31')]",
+              "visible": false,
+              "failure_message": "Check the two-character operators before '<' and '>', otherwise '<=' is split at '<' and '=3.7' becomes the version.",
+              "failure_message_tr": "İki karakterli işaretleri '<' ve '>'den önce dene; yoksa '<=' '<' işaretinden bölünür ve sürüm '=3.7' olur."
+            },
+            {
+              "code": "assert parse_requirement('Jinja2 == 2.10.3') == ('jinja2', '==', '2.10.3')",
+              "visible": false,
+              "failure_message": "Remove spaces around the name and the version as well.",
+              "failure_message_tr": "Adın ve sürümün etrafındaki boşlukları da kaldır."
+            }
+          ],
+          "hints": [
+            "First remove every space (line.replace(' ', '')) and handle the None cases.",
+            "Loop over the operators in the order ('~=', '>=', '<=', '==', '>', '<') and use the first one that appears in the line. The order matters.",
+            "When op is in the line, split once with line.split(op, 1) and return (name.lower(), op, version)."
+          ],
+          "hints_tr": [
+            "Önce bütün boşlukları kaldır (line.replace(' ', '')) ve None durumlarını ele al.",
+            "İşaretleri ('~=', '>=', '<=', '==', '>', '<') sırasıyla dolaş ve satırda geçen ilkini kullan. Sıra önemli.",
+            "op satırda geçiyorsa line.split(op, 1) ile bir kez böl ve (name.lower(), op, version) döndür."
+          ],
+          "solution": {
+            "approach": "Remove spaces, skip empty or comment lines, and try two-character operators before one-character ones.",
+            "approach_tr": "Boşlukları kaldır, boş ya da yorum satırlarını atla ve iki karakterli işaretleri tek karakterlilerden önce dene.",
+            "code": "def parse_requirement(line):\n    line = line.replace(' ', '')\n    if not line or line.startswith('#'):\n        return None\n    for op in ('~=', '>=', '<=', '==', '>', '<'):\n        if op in line:\n            name, version = line.split(op, 1)\n            return (name.lower(), op, version)"
+          },
+          "twin": "d23-b3-e6"
+        },
+        {
+          "id": "d23-b3-e6",
+          "type": "write",
+          "concept": "requirements-parse",
+          "tags": [
+            "venv",
+            "pip",
+            "requirements",
+            "strings"
+          ],
+          "prompt": "Write a function missing_packages(requirements_text, installed) where requirements_text is pinned 'name==version' lines (blank lines and '#' comments allowed) and installed is a dict name -> version. Return the sorted list of lower-case names that are required but not installed. Compare names without caring about case. Example: missing_packages('Flask==3.0.3\\nsix==1.16', {'flask': '3.0.3'}) returns ['six'].",
+          "prompt_tr": "missing_packages(requirements_text, installed) adında bir fonksiyon yaz; requirements_text sabitlenmiş 'ad==sürüm' satırlarından oluşur (boş satır ve '#' yorumları olabilir), installed ise ad -> sürüm dict'idir. Gerekli olup kurulu olmayan adların küçük harfli, sıralanmış listesini döndür. Adları büyük-küçük harf gözetmeden karşılaştır. Örnek: missing_packages('Flask==3.0.3\\nsix==1.16', {'flask': '3.0.3'}) ['six'] döndürür.",
+          "starter_code": "",
+          "signature": "def missing_packages(requirements_text, installed):",
+          "tests": [
+            {
+              "code": "assert missing_packages('Flask==3.0.3\\nsix==1.16', {'flask': '3.0.3'}) == ['six']",
+              "visible": true,
+              "label": "six is missing",
+              "label_tr": "six eksik"
+            },
+            {
+              "code": "assert missing_packages('a==1', {'a': '1'}) == []",
+              "visible": true,
+              "label": "Nothing missing",
+              "label_tr": "Eksik yok"
+            },
+            {
+              "code": "text = '# tools\\nPytest==8.3.2\\n\\nJinja2==2.10.3\\nclick==7.0'\nassert missing_packages(text, {'Click': '7.0', 'JINJA2': '2.10.3'}) == ['pytest']",
+              "visible": false,
+              "failure_message": "Lowercase the names on BOTH sides before comparing, and skip comments and blank lines.",
+              "failure_message_tr": "Karşılaştırmadan önce İKİ taraftaki adları da küçük harfe çevir; yorumları ve boş satırları atla."
+            },
+            {
+              "code": "assert missing_packages('zeta==1\\nalpha==2\\nMid==3', {}) == ['alpha', 'mid', 'zeta']",
+              "visible": false,
+              "failure_message": "Return the missing names lowercased and sorted.",
+              "failure_message_tr": "Eksik adları küçük harfli ve sıralı döndür."
+            }
+          ],
+          "hints": [
+            "Two sets of lower-case names make this easy: required names and installed names.",
+            "Build the required set with the parse loop from this block (strip, skip, split('==')), and the installed set with {n.lower() for n in installed}.",
+            "The answer is sorted(required - have), where - is the set difference from Day 7."
+          ],
+          "hints_tr": [
+            "Küçük harfli adlardan oluşan iki set işi kolaylaştırır: gerekli adlar ve kurulu adlar.",
+            "Gerekli adlar set'ini bu bloktaki okuma döngüsüyle (strip, atla, split('==')), kurulu adlar set'ini {n.lower() for n in installed} ile kur.",
+            "Cevap sorted(required - have) olur; - 7. gündeki set farkıdır."
+          ],
+          "solution": {
+            "approach": "Collect required names, lowercase both sides, and return the sorted set difference.",
+            "approach_tr": "Gerekli adları topla, iki tarafı da küçük harfe çevir ve sıralanmış set farkını döndür.",
+            "code": "def missing_packages(requirements_text, installed):\n    required = set()\n    for line in requirements_text.splitlines():\n        line = line.strip()\n        if not line or line.startswith('#'):\n            continue\n        required.add(line.split('==')[0].lower())\n    have = {name.lower() for name in installed}\n    return sorted(required - have)"
+          },
+          "twin": "d23-b3-e5"
+        },
+        {
+          "id": "d23-b3-e7",
+          "type": "predict",
+          "concept": "requirements-parse",
+          "tags": [
+            "venv",
+            "pip",
+            "requirements",
+            "strings"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "installed = {'flask': '3.0.3', 'jinja2': '3.1.4'}\nwanted = ['Flask', 'Jinja2', 'click']\nprint([name for name in wanted if name.lower() not in installed])",
+          "choices": [
+            "['Flask', 'Jinja2', 'click']",
+            "['click']",
+            "[]",
+            "['Flask', 'Jinja2']"
+          ],
+          "expected_output": "['click']",
+          "explanation": "`in` on a dict checks its keys (Day 8). After lowercasing, Flask and Jinja2 are found; only click is missing.",
+          "explanation_tr": "Dict üzerinde `in` anahtarlara bakar (8. gün). Küçük harfe çevrildikten sonra Flask ve Jinja2 bulunur; yalnızca click eksik.",
+          "misconceptions": {
+            "['Flask', 'Jinja2', 'click']": "name.lower() turns 'Flask' into 'flask', which is a key of installed.",
+            "[]": "click is not a key of installed at all, so it is reported.",
+            "['Flask', 'Jinja2']": "The comparison is done on the lowercased name, so the capital letters do not matter."
+          },
+          "misconceptions_tr": {
+            "['Flask', 'Jinja2', 'click']": "name.lower() 'Flask'ı 'flask'a çevirir ve o installed'ın bir anahtarıdır.",
+            "[]": "click installed'ın anahtarları arasında hiç yok, bu yüzden raporlanır.",
+            "['Flask', 'Jinja2']": "Karşılaştırma küçük harfe çevrilmiş adla yapılıyor; büyük harfler önemli değil."
+          }
+        }
+      ]
     },
     {
-     "id": "d23-b1-e4",
-     "type": "write",
-     "concept": "pip-freeze-requirements",
-     "tags": [
-      "virtual-environment",
-      "pip",
-      "requirements",
-      "strings"
-     ],
-     "prompt": "Write requirement_names(text). The text has one name==version per line. Return only the package names as a list, in the same order. Skip empty lines.",
-     "prompt_tr": "requirement_names(text) yaz. Metindeki her satır isim==sürüm biçimindedir. Yalnızca paket adlarını aynı sırayla liste olarak döndür. Boş satırları atla.",
-     "starter_code": "",
-     "signature": "def requirement_names(text):",
-     "tests": [
-      {
-       "code": "assert requirement_names('Click==7.0\\nFlask==1.1.1') == ['Click', 'Flask']",
-       "visible": true,
-       "label_tr": "İki paketin adı sırayla çıkıyor"
+      "id": "d23-b4",
+      "concept": "version-compare",
+      "concept_tr": "Sürümleri doğru karşılaştırmak ve çakışma bulmak",
+      "tags": [
+        "venv",
+        "versions",
+        "tuples",
+        "sets"
+      ],
+      "worked_example": {
+        "code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\nprint('1.10.0' > '1.9.0')\nprint(as_tuple('1.10.0') > as_tuple('1.9.0'))\nprint(max(['2.9', '2.10', '2.1'], key=as_tuple))",
+        "notes": [
+          "Strings compare character by character, so '1.10.0' looks smaller than '1.9.0' because '1' < '9'.",
+          "as_tuple splits at the dots and converts each part with int, giving (1, 10, 0); tuples compare item by item as numbers, so 10 > 9.",
+          "key=as_tuple makes max (and sorted) compare the tuples while still returning the original strings."
+        ],
+        "notes_tr": [
+          "String'ler karakter karakter karşılaştırılır; '1' < '9' olduğu için '1.10.0', '1.9.0'dan küçük görünür.",
+          "as_tuple noktalardan böler ve her parçayı int ile çevirir: (1, 10, 0). Tuple'lar öğe öğe ve sayı olarak karşılaştırılır, bu yüzden 10 > 9 olur.",
+          "key=as_tuple, max'in (ve sorted'ın) tuple'ları karşılaştırmasını sağlar ama sonuç yine özgün string'lerdir."
+        ]
       },
-      {
-       "code": "assert requirement_names('') == []",
-       "visible": true,
-       "label_tr": "Boş metin boş liste veriyor"
-      },
-      {
-       "code": "assert requirement_names('Flask==1.1.1\\n\\nWerkzeug==0.16.0\\n') == ['Flask', 'Werkzeug']",
-       "visible": false,
-       "failure_message": "Skip empty lines, including blank lines in the middle and at the end.",
-       "failure_message_tr": "Aradaki ve sondaki boş satırlar dahil, boş satırları atla."
-      },
-      {
-       "code": "assert requirement_names('b==2\\na==1') == ['b', 'a']",
-       "visible": false,
-       "failure_message": "Keep the original order; do not sort.",
-       "failure_message_tr": "Özgün sırayı koru; sıralama yapma."
-      }
-     ],
-     "hints": [
-      "Same idea as parsing into a dict, but you only need the names.",
-      "Loop over lines, skip empty ones, take the part before '=='.",
-      "Last step: append line.split('==')[___] to a list for each non-empty line, then return the list."
-     ],
-     "solution": {
-      "approach": "Split on newline, skip blanks, keep what comes before '=='.",
-      "code": "def requirement_names(text):\n    names = []\n    for line in text.split('\\n'):\n        if line.strip():\n            names.append(line.split('==')[0])\n    return names",
-      "approach_tr": "Yeni satırdan böl, boşları atla, '==' öncesini tut."
-     },
-     "twin": "d23-b1-e3",
-     "hints_tr": [
-      "Dict'e ayrıştırmayla aynı fikir, ama yalnızca isimler lazım.",
-      "Satırlar üzerinde dön, boş olanları atla, '==' işaretinden önceki kısmı al.",
-      "Son adım: boş olmayan her satır için line.split('==')[___] değerini bir listeye ekle, sonra listeyi döndür."
-     ]
-    },
-    {
-     "id": "d23-b1-e5",
-     "type": "debug",
-     "concept": "pip-freeze-requirements",
-     "tags": [
-      "virtual-environment",
-      "pip",
-      "requirements",
-      "strings"
-     ],
-     "prompt": "This should print 'Flask 1.1.1' but crashes. Fix it.",
-     "prompt_tr": "Bu kod 'Flask 1.1.1' yazdırmalı ama hata veriyor. Düzelt.",
-     "starter_code": "text = 'Flask==1.1.1'\nname, version = text.split('=')\nprint(name, version)",
-     "hints": [
-      "Read the error: how many values did split return?",
-      "There are TWO '=' characters in a row. Splitting on a single '=' makes an empty piece in the middle.",
-      "Split on '==' instead of '='."
-     ],
-     "solution": {
-      "approach": "Splitting on '=' gives ['Flask', '', '1.1.1'] (3 parts). Split on the full separator '=='.",
-      "code": "text = 'Flask==1.1.1'\nname, version = text.split('==')\nprint(name, version)",
-      "approach_tr": "'=' ile bölmek ['Flask', '', '1.1.1'] verir (3 parça). Tam ayırıcı olan '==' ile böl."
-     },
-     "expected_output": "Flask 1.1.1",
-     "hints_tr": [
-      "Hata mesajını oku: split kaç değer döndürdü?",
-      "Arka arkaya İKİ '=' karakteri var. Tek '=' ile bölersen ortada boş bir parça oluşur.",
-      "'=' yerine '==' ile böl."
-     ]
+      "exercises": [
+        {
+          "id": "d23-b4-e1",
+          "type": "predict",
+          "concept": "version-compare",
+          "tags": [
+            "venv",
+            "versions",
+            "tuples",
+            "sets"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "print(sorted(['1.9', '1.10', '1.2']))",
+          "choices": [
+            "['1.2', '1.9', '1.10']",
+            "['1.10', '1.2', '1.9']",
+            "['1.9', '1.10', '1.2']",
+            "['1.9', '1.2', '1.10']"
+          ],
+          "expected_output": "['1.10', '1.2', '1.9']",
+          "explanation": "All three start with '1.', so the third character decides: '1' (from 1.10) < '2' < '9'. Sorting version strings directly gives a misleading order.",
+          "explanation_tr": "Üçü de '1.' ile başlar, karar üçüncü karakterde verilir: '1' (1.10'dan) < '2' < '9'. Sürüm string'lerini doğrudan sıralamak yanıltıcı bir sıra verir.",
+          "misconceptions": {
+            "['1.2', '1.9', '1.10']": "That is numeric order; sorted on strings compares characters, and '1' < '2' < '9' at the third character.",
+            "['1.9', '1.10', '1.2']": "sorted does reorder the list; it does not keep the input order.",
+            "['1.9', '1.2', '1.10']": "This is neither string order nor numeric order."
+          },
+          "misconceptions_tr": {
+            "['1.2', '1.9', '1.10']": "Bu sayısal sıra; string'lerde sorted karakterleri karşılaştırır ve üçüncü karakterde '1' < '2' < '9'.",
+            "['1.9', '1.10', '1.2']": "sorted listeyi yeniden sıralar; girdi sırasını korumaz.",
+            "['1.9', '1.2', '1.10']": "Bu ne string sırası ne de sayısal sıra."
+          }
+        },
+        {
+          "id": "d23-b4-e2",
+          "type": "fill_blank",
+          "concept": "version-compare",
+          "tags": [
+            "venv",
+            "versions",
+            "tuples",
+            "sets"
+          ],
+          "prompt": "Complete as_tuple so that '2.31.0' becomes (2, 31, 0).",
+          "prompt_tr": "as_tuple'ı tamamla: '2.31.0' değeri (2, 31, 0) olsun.",
+          "starter_code": "def as_tuple(v):\n    return tuple(int(p) for p in v.___('.'))",
+          "blanks": [
+            {
+              "answer": [
+                "split"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert as_tuple('2.31.0') == (2, 31, 0) and as_tuple('3') == (3,)",
+              "visible": true,
+              "label": "Splits at the dots and converts to int",
+              "label_tr": "Noktalardan böler ve int'e çevirir"
+            }
+          ]
+        },
+        {
+          "id": "d23-b4-e3",
+          "type": "modify",
+          "concept": "version-compare",
+          "tags": [
+            "venv",
+            "versions",
+            "tuples",
+            "sets"
+          ],
+          "prompt": "newest(versions) should return the highest version string, but max on strings gets '2.10' versus '2.9' wrong. Change newest so that it compares versions as tuples of numbers while still returning the original string. Example: newest(['2.9', '2.10', '2.1']) returns '2.10'.",
+          "prompt_tr": "newest(versions) en yüksek sürüm string'ini döndürmeli, ama string'ler üzerinde max '2.10' ile '2.9'u yanlış karşılaştırıyor. newest'i, sürümleri sayı tuple'ları olarak karşılaştıracak ama yine özgün string'i döndürecek şekilde değiştir. Örnek: newest(['2.9', '2.10', '2.1']) '2.10' döndürür.",
+          "starter_code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\ndef newest(versions):\n    return max(versions)",
+          "tests": [
+            {
+              "code": "assert newest(['2.9', '2.10', '2.1']) == '2.10'",
+              "visible": true,
+              "label": "2.10 is newer than 2.9",
+              "label_tr": "2.10, 2.9'dan yeni"
+            },
+            {
+              "code": "assert newest(['1.0']) == '1.0'",
+              "visible": true,
+              "label": "A single version",
+              "label_tr": "Tek bir sürüm"
+            },
+            {
+              "code": "assert newest(['0.16.0', '3.0.3', '1.1.1', '3.0.10']) == '3.0.10' and newest(['10.0', '9.9.9']) == '10.0'",
+              "visible": false,
+              "failure_message": "Pass key=as_tuple to max so that each version is compared by its numeric parts.",
+              "failure_message_tr": "Her sürüm sayı parçalarıyla karşılaştırılsın diye max'e key=as_tuple ver."
+            }
+          ],
+          "hints": [
+            "max already accepts a key function, like sorted on Day 14.",
+            "The key turns each item into the value to compare (a tuple) but max still returns the original item.",
+            "Change the return line to return max(versions, key=___)."
+          ],
+          "hints_tr": [
+            "max, 14. gündeki sorted gibi zaten bir key fonksiyonu kabul eder.",
+            "key her öğeyi karşılaştırılacak değere (bir tuple'a) çevirir ama max yine özgün öğeyi döndürür.",
+            "return satırını şöyle değiştir: return max(versions, key=___)."
+          ],
+          "solution": {
+            "approach": "Give max the key as_tuple.",
+            "approach_tr": "max'e as_tuple anahtarını ver.",
+            "code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\ndef newest(versions):\n    return max(versions, key=as_tuple)"
+          }
+        },
+        {
+          "id": "d23-b4-e4",
+          "type": "debug",
+          "concept": "version-compare",
+          "tags": [
+            "venv",
+            "versions",
+            "tuples",
+            "sets"
+          ],
+          "prompt": "is_new_enough should say that numpy 1.26.4 satisfies 'at least 1.9'. It prints False. Fix the comparison.",
+          "prompt_tr": "is_new_enough, numpy 1.26.4'ün 'en az 1.9' koşulunu karşıladığını söylemeli. False yazdırıyor. Karşılaştırmayı onar.",
+          "starter_code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\ndef is_new_enough(installed, minimum):\n    return installed >= minimum\n\nprint(is_new_enough('1.26.4', '1.9'))\nprint(is_new_enough('1.8.0', '1.9'))",
+          "hints": [
+            "What types are installed and minimum? How does Python compare two strings?",
+            "'1.26.4' >= '1.9' compares characters: '2' < '9', so it is False even though 26 > 9. as_tuple is already defined above.",
+            "Compare as_tuple(installed) with as_tuple(minimum) instead of the strings."
+          ],
+          "hints_tr": [
+            "installed ve minimum hangi türde? Python iki string'i nasıl karşılaştırır?",
+            "'1.26.4' >= '1.9' karakterleri karşılaştırır: '2' < '9', bu yüzden 26 > 9 olsa da False çıkar. as_tuple yukarıda zaten tanımlı.",
+            "String'ler yerine as_tuple(installed) ile as_tuple(minimum)'u karşılaştır."
+          ],
+          "solution": {
+            "approach": "Convert both versions to tuples before comparing.",
+            "approach_tr": "Karşılaştırmadan önce iki sürümü de tuple'a çevir.",
+            "code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\ndef is_new_enough(installed, minimum):\n    return as_tuple(installed) >= as_tuple(minimum)\n\nprint(is_new_enough('1.26.4', '1.9'))\nprint(is_new_enough('1.8.0', '1.9'))"
+          },
+          "expected_output": "True\nFalse"
+        },
+        {
+          "id": "d23-b4-e5",
+          "type": "write",
+          "concept": "version-compare",
+          "tags": [
+            "venv",
+            "versions",
+            "tuples",
+            "sets"
+          ],
+          "prompt": "Write a function satisfies(installed, rule) where installed is a version such as '3.0.3' and rule is an operator followed by a version: '==1.1.1', '>=3.0', '<3', or '~=2.31' (meaning: at least 2.31 and every part except the last stays the same). Return True or False, comparing versions as tuples of ints. Example: satisfies('3.0.3', '>=3.0') returns True; satisfies('3.0.0', '~=2.31') returns False.",
+          "prompt_tr": "satisfies(installed, rule) adında bir fonksiyon yaz: installed '3.0.3' gibi bir sürüm, rule ise bir işaret ve ardından bir sürümdür: '==1.1.1', '>=3.0', '<3' ya da '~=2.31' (anlamı: en az 2.31 ve son parça dışındaki bütün parçalar aynı kalır). Sürümleri int tuple'ları olarak karşılaştırıp True ya da False döndür. Örnek: satisfies('3.0.3', '>=3.0') True, satisfies('3.0.0', '~=2.31') False döndürür.",
+          "starter_code": "",
+          "signature": "def satisfies(installed, rule):",
+          "tests": [
+            {
+              "code": "assert satisfies('3.0.3', '>=3.0') is True and satisfies('2.9.0', '>=3.0') is False",
+              "visible": true,
+              "label": ">= rule",
+              "label_tr": ">= kuralı"
+            },
+            {
+              "code": "assert satisfies('2.32.3', '~=2.31') is True and satisfies('3.0.0', '~=2.31') is False",
+              "visible": true,
+              "label": "~= rule",
+              "label_tr": "~= kuralı"
+            },
+            {
+              "code": "assert [satisfies('1.1.1', '==1.1.1'), satisfies('1.1.2', '==1.1.1'), satisfies('2.9', '<3'), satisfies('3.0', '<3'), satisfies('1.10.0', '>=1.9')] == [True, False, True, False, True]",
+              "visible": false,
+              "failure_message": "Handle ==, >= and < by comparing as_tuple values (so 1.10 >= 1.9 is True).",
+              "failure_message_tr": "==, >= ve < işaretlerini as_tuple değerlerini karşılaştırarak ele al (böylece 1.10 >= 1.9 True olur)."
+            },
+            {
+              "code": "assert [satisfies('2.31.0', '~=2.31'), satisfies('2.30.9', '~=2.31'), satisfies('2.31.5', '~=2.31.0'), satisfies('2.32.0', '~=2.31.0')] == [True, False, True, False]",
+              "visible": false,
+              "failure_message": "For ~= the installed version must be >= the rule AND share every part of the rule except the last.",
+              "failure_message_tr": "~= için kurulu sürüm kuraldan büyük-eşit olmalı VE kuralın son parça dışındaki her parçasını paylaşmalı."
+            }
+          ],
+          "hints": [
+            "Split the rule into the operator and the version: check rule.startswith(op) for '~=', '==', '>=' and then '<'.",
+            "Convert both versions with as_tuple. For ~=, compare i >= w and i[:len(w) - 1] == w[:-1] (the fixed parts).",
+            "Each branch is one return of a comparison; for example the >= branch is return i >= w."
+          ],
+          "hints_tr": [
+            "Kuralı işarete ve sürüme ayır: '~=', '==', '>=' ve sonra '<' için rule.startswith(op) kontrol et.",
+            "İki sürümü de as_tuple ile çevir. ~= için i >= w ve i[:len(w) - 1] == w[:-1] (sabit parçalar) karşılaştırmalarını yap.",
+            "Her dal bir karşılaştırmanın return'üdür; örneğin >= dalı return i >= w'dir."
+          ],
+          "solution": {
+            "approach": "Find the operator, convert both sides to tuples, then compare according to the operator.",
+            "approach_tr": "İşareti bul, iki tarafı da tuple'a çevir, sonra işarete göre karşılaştır.",
+            "code": "def as_tuple(v):\n    return tuple(int(p) for p in v.split('.'))\n\ndef satisfies(installed, rule):\n    for op in ('~=', '==', '>=', '<'):\n        if rule.startswith(op):\n            i, w = as_tuple(installed), as_tuple(rule[len(op):])\n            break\n    if op == '~=':\n        return i >= w and i[:len(w) - 1] == w[:-1]\n    if op == '==':\n        return i == w\n    if op == '>=':\n        return i >= w\n    return i < w"
+          },
+          "twin": "d23-b4-e6"
+        },
+        {
+          "id": "d23-b4-e6",
+          "type": "write",
+          "concept": "version-compare",
+          "tags": [
+            "venv",
+            "versions",
+            "tuples",
+            "sets"
+          ],
+          "prompt": "Write a function find_conflicts(needs) where needs maps a package to a dict of its dependencies (dependency -> required version). Return a dict that maps every dependency requested in more than one version to the sorted list of those versions. Example: find_conflicts({'a': {'urllib3': '1.26'}, 'b': {'urllib3': '2.2'}}) returns {'urllib3': ['1.26', '2.2']}.",
+          "prompt_tr": "find_conflicts(needs) adında bir fonksiyon yaz; needs bir paketi bağımlılıklarının dict'ine (bağımlılık -> istenen sürüm) eşler. Birden fazla sürümde istenen her bağımlılığı, o sürümlerin sıralanmış listesine eşleyen bir dict döndür. Örnek: find_conflicts({'a': {'urllib3': '1.26'}, 'b': {'urllib3': '2.2'}}) {'urllib3': ['1.26', '2.2']} döndürür.",
+          "starter_code": "",
+          "signature": "def find_conflicts(needs):",
+          "tests": [
+            {
+              "code": "assert find_conflicts({'a': {'urllib3': '1.26'}, 'b': {'urllib3': '2.2'}}) == {'urllib3': ['1.26', '2.2']}",
+              "visible": true,
+              "label": "Two versions of urllib3",
+              "label_tr": "urllib3'ün iki sürümü"
+            },
+            {
+              "code": "assert find_conflicts({'a': {'six': '1.16'}, 'b': {'six': '1.16'}}) == {}",
+              "visible": true,
+              "label": "The same version twice is fine",
+              "label_tr": "Aynı sürümün iki kez istenmesi sorun değil"
+            },
+            {
+              "code": "n = {'x': {'idna': '3.7', 'six': '1.16'}, 'y': {'idna': '3.4'}, 'z': {'idna': '3.7', 'certifi': '2024'}, 'w': {}}\nassert find_conflicts(n) == {'idna': ['3.4', '3.7']}",
+              "visible": false,
+              "failure_message": "Collect the versions of each dependency in a set so repeats count once; report only sets with more than one version.",
+              "failure_message_tr": "Her bağımlılığın sürümlerini bir set'te topla ki tekrarlar bir kez sayılsın; yalnızca birden fazla sürüm içeren set'leri raporla."
+            },
+            {
+              "code": "assert find_conflicts({}) == {}",
+              "visible": false,
+              "failure_message": "No packages, no conflicts.",
+              "failure_message_tr": "Paket yoksa çakışma da yok."
+            }
+          ],
+          "hints": [
+            "Two nested loops: over the packages, then over each package's dependencies.",
+            "wanted.setdefault(dep, set()).add(version) gathers versions per dependency; a set ignores repeats.",
+            "Finish with a dict comprehension that keeps dep: sorted(versions) when len(versions) > 1."
+          ],
+          "hints_tr": [
+            "İç içe iki döngü: paketler üzerinde, sonra her paketin bağımlılıkları üzerinde.",
+            "wanted.setdefault(dep, set()).add(version) sürümleri bağımlılık başına toplar; set tekrarları yok sayar.",
+            "len(versions) > 1 olduğunda dep: sorted(versions) tutan bir dict comprehension ile bitir."
+          ],
+          "solution": {
+            "approach": "Gather each dependency's versions in a set and keep those with more than one.",
+            "approach_tr": "Her bağımlılığın sürümlerini bir set'te topla ve birden fazla olanları tut.",
+            "code": "def find_conflicts(needs):\n    wanted = {}\n    for deps in needs.values():\n        for dep, version in deps.items():\n            wanted.setdefault(dep, set()).add(version)\n    return {dep: sorted(v) for dep, v in wanted.items() if len(v) > 1}"
+          },
+          "twin": "d23-b4-e5"
+        },
+        {
+          "id": "d23-b4-e7",
+          "type": "explain",
+          "concept": "version-compare",
+          "tags": [
+            "venv",
+            "versions",
+            "tuples",
+            "sets"
+          ],
+          "prompt": "Why does '1.10.0' > '1.9.0' give False in Python, and how do you compare versions correctly?",
+          "prompt_tr": "Python'da '1.10.0' > '1.9.0' neden False verir ve sürümleri doğru nasıl karşılaştırırsın?",
+          "model_answer": "Strings are compared character by character, and at the first difference '1' is smaller than '9', so the string 1.10.0 counts as smaller. To compare correctly, split the version at the dots and turn each part into an int, then compare the tuples, which compare the numbers.",
+          "model_answer_tr": "String'ler karakter karakter karşılaştırılır ve ilk farkta '1', '9'dan küçük olduğu için 1.10.0 string'i daha küçük sayılır. Doğru karşılaştırmak için sürümü noktalardan böl, her parçayı int'e çevir ve sayıları karşılaştıran tuple'ları karşılaştır.",
+          "keywords": [
+            "character",
+            "int",
+            "tuple"
+          ],
+          "keywords_tr": [
+            "karakter",
+            "int",
+            "tuple"
+          ],
+          "min_words": 12
+        }
+      ]
     }
-   ],
-   "concept_tr": "pip freeze ve requirements.txt"
-  },
-  {
-   "id": "d23-b2",
-   "concept": "environment-isolation",
-   "tags": [
-    "virtual-environment",
-    "isolation",
-    "conditionals"
-   ],
-   "worked_example": {
-    "code": "active = True\nvenv, system = [], []\ntarget = venv if active else system\ntarget.append('Flask')\nprint(venv, system)",
-    "notes": [
-     "An active virtual environment receives the installs; otherwise they go to the system Python.",
-     "The (venv) prefix in the prompt tells you the environment is active."
-    ],
-    "notes_tr": [
-     "Aktif bir sanal ortam kurulumları alır; aktif değilse kurulumlar sistem Python'una gider.",
-     "Komut satırındaki (venv) öneki, ortamın aktif olduğunu gösterir."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d23-b2-e1",
-     "type": "predict",
-     "concept": "environment-isolation",
-     "tags": [
-      "virtual-environment",
-      "isolation",
-      "conditionals"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "class Shell:\n    def __init__(self):\n        self.active = False\n        self.global_packages = []\n        self.venv_packages = []\n    def pip_install(self, name):\n        if self.active:\n            self.venv_packages.append(name)\n        else:\n            self.global_packages.append(name)\n\nsh = Shell()\nsh.pip_install('numpy')\nsh.active = True\nsh.pip_install('Flask')\nprint(sh.global_packages, sh.venv_packages)",
-     "choices": [
-      "['numpy'] ['Flask']",
-      "[] ['numpy', 'Flask']",
-      "['numpy', 'Flask'] []",
-      "['Flask'] ['numpy']"
-     ],
-     "expected_output": "['numpy'] ['Flask']",
-     "explanation": "numpy was installed while active was False, so it went to the global list. After active = True, Flask went to the environment list.",
-     "misconceptions": {
-      "[] ['numpy', 'Flask']": "The environment was not active when numpy was installed, so numpy went to the global list.",
-      "['numpy', 'Flask'] []": "After sh.active = True the installs go to the environment list.",
-      "['Flask'] ['numpy']": "You swapped the lists: inactive installs go to global_packages, active ones to venv_packages."
-     },
-     "explanation_tr": "numpy, active False iken kuruldu, bu yüzden global listeye gitti. active = True olduktan sonra Flask ortam listesine gitti.",
-     "misconceptions_tr": {
-      "[] ['numpy', 'Flask']": "numpy kurulurken ortam aktif değildi, bu yüzden numpy global listeye gitti.",
-      "['numpy', 'Flask'] []": "sh.active = True olduktan sonra kurulumlar ortam listesine gider.",
-      "['Flask'] ['numpy']": "Listeleri karıştırdın: aktif olmayan kurulumlar global_packages'a, aktif olanlar venv_packages'a gider."
-     }
-    },
-    {
-     "id": "d23-b2-e2",
-     "type": "fill_blank",
-     "concept": "environment-isolation",
-     "tags": [
-      "virtual-environment",
-      "isolation",
-      "conditionals"
-     ],
-     "prompt": "Complete install so that an active environment receives the package and an inactive one does not.",
-     "prompt_tr": "install fonksiyonunu tamamla: ortam aktifse paket ortama, değilse sisteme gitsin.",
-     "starter_code": "def install(name, active, venv, system):\n    target = ___ if active else ___\n    target.append(name)\n\nvenv, system = [], []\ninstall('Flask', True, venv, system)\ninstall('numpy', False, venv, system)",
-     "blanks": [
-      {
-       "answer": [
-        "venv"
-       ]
-      },
-      {
-       "answer": [
-        "system"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert venv == ['Flask']",
-       "visible": true,
-       "label_tr": "Flask ortama kuruluyor"
-      },
-      {
-       "code": "assert system == ['numpy']",
-       "visible": true,
-       "label_tr": "numpy sisteme kuruluyor"
-      }
-     ]
-    },
-    {
-     "id": "d23-b2-e3",
-     "type": "write",
-     "concept": "environment-isolation",
-     "tags": [
-      "virtual-environment",
-      "isolation",
-      "conditionals"
-     ],
-     "prompt": "Write shell_prompt(path, active). It returns '(venv) <path>$' when active is True and '<path>$' otherwise.",
-     "prompt_tr": "shell_prompt(path, active) yaz. active True ise '(venv) <path>$', değilse '<path>$' döndürsün.",
-     "starter_code": "",
-     "signature": "def shell_prompt(path, active):",
-     "tests": [
-      {
-       "code": "assert shell_prompt('~/flask_project', True) == '(venv) ~/flask_project$'",
-       "visible": true,
-       "label_tr": "Aktifken (venv) öneki var"
-      },
-      {
-       "code": "assert shell_prompt('~/flask_project', False) == '~/flask_project$'",
-       "visible": true,
-       "label_tr": "Aktif değilken önek yok"
-      },
-      {
-       "code": "assert shell_prompt('/', True) == '(venv) /$'",
-       "visible": false,
-       "failure_message": "Build the string for any path, not just the example.",
-       "failure_message_tr": "Metni yalnızca örnek yol için değil, her yol için kur."
-      },
-      {
-       "code": "assert not shell_prompt('~/a', False).startswith('(')",
-       "visible": false,
-       "failure_message": "When the environment is not active there must be no (venv) prefix.",
-       "failure_message_tr": "Ortam aktif değilken (venv) öneki olmamalı."
-      }
-     ],
-     "hints": [
-      "Two cases: active or not.",
-      "if active: return a string that starts with '(venv) '; otherwise return the path plus '$'.",
-      "Last step: inside an if active: branch return an f-string such as f'(venv) {___}$'; after it, return the path with '$' only."
-     ],
-     "solution": {
-      "approach": "Branch on active and build the string with an f-string.",
-      "code": "def shell_prompt(path, active):\n    if active:\n        return f'(venv) {path}$'\n    return f'{path}$'",
-      "approach_tr": "active değerine göre dallan ve metni f-string ile kur."
-     },
-     "twin": "d23-b2-e4",
-     "hints_tr": [
-      "İki durum var: aktif ya da değil.",
-      "if active: ise '(venv) ' ile başlayan bir metin döndür; değilse yol artı '$' döndür.",
-      "Son adım: if active: dalında f'(venv) {___}$' gibi bir f-string döndür; ondan sonra yalnızca yol ve '$' döndür."
-     ]
-    },
-    {
-     "id": "d23-b2-e4",
-     "type": "write",
-     "concept": "environment-isolation",
-     "tags": [
-      "virtual-environment",
-      "isolation",
-      "conditionals"
-     ],
-     "prompt": "Write env_prompt(env_name, path, active). It returns '(<env_name>) <path>$' when active is True and '<path>$' otherwise.",
-     "prompt_tr": "env_prompt(env_name, path, active) yaz. active True ise '(<env_name>) <path>$', değilse '<path>$' döndürsün.",
-     "starter_code": "",
-     "signature": "def env_prompt(env_name, path, active):",
-     "tests": [
-      {
-       "code": "assert env_prompt('env', '~/python_for_web', True) == '(env) ~/python_for_web$'",
-       "visible": true,
-       "label_tr": "Aktifken (env) öneki var"
-      },
-      {
-       "code": "assert env_prompt('env', '~/python_for_web', False) == '~/python_for_web$'",
-       "visible": true,
-       "label_tr": "Aktif değilken önek yok"
-      },
-      {
-       "code": "assert env_prompt('myenv', '/tmp', True) == '(myenv) /tmp$'",
-       "visible": false,
-       "failure_message": "The name in parentheses must be the env_name argument, not always 'venv'.",
-       "failure_message_tr": "Parantez içindeki ad her zaman 'venv' değil, env_name argümanı olmalı."
-      },
-      {
-       "code": "assert env_prompt('x', '~', False) == '~$'",
-       "visible": false,
-       "failure_message": "When not active there is no prefix at all.",
-       "failure_message_tr": "Aktif değilken hiç önek olmamalı."
-      }
-     ],
-     "hints": [
-      "Like shell_prompt, but the name is a parameter.",
-      "Put env_name between parentheses in the f-string.",
-      "Last step: when active, return an f-string that starts with '(' then env_name then ') '; otherwise the path plus '$'."
-     ],
-     "solution": {
-      "approach": "Same branch as before; the prefix now uses the env_name argument.",
-      "code": "def env_prompt(env_name, path, active):\n    if active:\n        return f'({env_name}) {path}$'\n    return f'{path}$'",
-      "approach_tr": "Önceki dalın aynısı; önek artık env_name argümanını kullanır."
-     },
-     "twin": "d23-b2-e3",
-     "hints_tr": [
-      "shell_prompt gibi, ama ismi parametre olarak alıyor.",
-      "f-string içinde env_name'i parantez içine koy.",
-      "Son adım: aktifse '(' ile başlayıp env_name ve ') ' içeren bir f-string döndür; değilse yol artı '$' döndür."
-     ]
-    },
-    {
-     "id": "d23-b2-e5",
-     "type": "explain",
-     "concept": "environment-isolation",
-     "tags": [
-      "virtual-environment",
-      "isolation",
-      "conditionals"
-     ],
-     "prompt": "In your own words: why do we create a virtual environment for each project, and what does (venv) in the prompt tell you?",
-     "prompt_tr": "Kendi cümlelerinle anlat: neden her proje için sanal ortam oluştururuz ve komut satırındaki (venv) neyi gösterir?",
-     "model_answer": "A virtual environment is an isolated copy of Python with its own installed packages, so one project's dependencies cannot conflict with another's. The (venv) prefix in the prompt shows that the environment is active, so pip install puts packages there.",
-     "keywords": [
-      "isolated",
-      "dependenc",
-      "active"
-     ],
-     "model_answer_tr": "Sanal ortam, kendi kurulu paketleri olan yalıtılmış bir Python kopyasıdır; böylece bir projenin bağımlılıkları (dependencies) başka bir projeninkiyle çakışmaz. Komut satırındaki (venv) öneki ortamın aktif olduğunu gösterir, yani pip install paketleri oraya kurar.",
-     "keywords_tr": [
-      "yalıtılmış",
-      "bağımlılık",
-      "aktif"
-     ],
-     "min_words": 6
-    }
-   ],
-   "concept_tr": "Ortam yalıtımı (isolation)"
-  },
-  {
-   "id": "d23-b3",
-   "concept": "gitignore-venv",
-   "tags": [
-    "virtual-environment",
-    "git",
-    "lists",
-    "filtering"
-   ],
-   "worked_example": {
-    "code": "ignore = ['venv/']\npath = 'venv/bin/python'\nignored = any(path.startswith(p) for p in ignore)\nprint(ignored)",
-    "notes": [
-     "The venv folder is not pushed to GitHub, so it goes into .gitignore.",
-     "any(...) is True when at least one ignore entry matches the start of the path."
-    ],
-    "notes_tr": [
-     "venv klasörü GitHub'a gönderilmez, bu yüzden .gitignore dosyasına yazılır.",
-     "any(...), en az bir ignore girişi yolun başıyla eşleşiyorsa True olur."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d23-b3-e1",
-     "type": "predict",
-     "concept": "gitignore-venv",
-     "tags": [
-      "virtual-environment",
-      "git",
-      "lists",
-      "filtering"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "ignore = ['venv/', '.env']\nfiles = ['app.py', 'venv/bin/pip', '.env', 'static/main.css']\nprint([f for f in files if not any(f.startswith(p) for p in ignore)])",
-     "choices": [
-      "['app.py', 'static/main.css']",
-      "['venv/bin/pip', '.env']",
-      "['app.py', 'venv/bin/pip', '.env', 'static/main.css']",
-      "[]"
-     ],
-     "expected_output": "['app.py', 'static/main.css']",
-     "explanation": "The comprehension keeps files that do NOT start with an ignored prefix. 'venv/bin/pip' and '.env' are removed.",
-     "misconceptions": {
-      "['venv/bin/pip', '.env']": "That list is the ignored files. The condition is 'not any(...)', so they are removed.",
-      "['app.py', 'venv/bin/pip', '.env', 'static/main.css']": "The filter removes every file that starts with an ignore entry.",
-      "[]": "app.py and static/main.css do not start with 'venv/' or '.env', so they stay."
-     },
-     "explanation_tr": "Liste kapsamı, yok sayılan bir önekle BAŞLAMAYAN dosyaları tutar. 'venv/bin/pip' ve '.env' elenir.",
-     "misconceptions_tr": {
-      "['venv/bin/pip', '.env']": "Bu liste yok sayılan dosyalardır. Koşul 'not any(...)' olduğu için onlar elenir.",
-      "['app.py', 'venv/bin/pip', '.env', 'static/main.css']": "Filtre, bir ignore girişiyle başlayan her dosyayı eler.",
-      "[]": "app.py ve static/main.css, 'venv/' ya da '.env' ile başlamaz, bu yüzden kalırlar."
-     }
-    },
-    {
-     "id": "d23-b3-e2",
-     "type": "parsons",
-     "concept": "gitignore-venv",
-     "tags": [
-      "virtual-environment",
-      "git",
-      "lists",
-      "filtering"
-     ],
-     "prompt": "Put the lines in order: keep only the files that are not inside venv/ and print them.",
-     "prompt_tr": "Satırları sırala: yalnızca venv/ içinde olmayan dosyaları tut ve yazdır.",
-     "lines": [
-      "tracked = [f for f in files if not f.startswith(ignore[0])]",
-      "ignore = ['venv/']",
-      "print(tracked)",
-      "files = ['app.py', 'venv/lib/flask.py', 'requirements.txt']"
-     ],
-     "correct_order": [
-      1,
-      3,
-      0,
-      2
-     ],
-     "distractors": [
-      "tracked = [f for f in files if f.startswith(ignore[0])]"
-     ],
-     "expected_output": "['app.py', 'requirements.txt']"
-    },
-    {
-     "id": "d23-b3-e3",
-     "type": "write",
-     "concept": "gitignore-venv",
-     "tags": [
-      "virtual-environment",
-      "git",
-      "lists",
-      "filtering"
-     ],
-     "prompt": "Write should_track(path, ignore_lines). It returns False when path starts with any entry of ignore_lines, otherwise True.",
-     "prompt_tr": "should_track(path, ignore_lines) yaz. path, ignore_lines içindeki herhangi bir girişle başlıyorsa False, değilse True döndürsün.",
-     "starter_code": "",
-     "signature": "def should_track(path, ignore_lines):",
-     "tests": [
-      {
-       "code": "assert should_track('app.py', ['venv/']) is True",
-       "visible": true,
-       "label_tr": "app.py takip ediliyor"
-      },
-      {
-       "code": "assert should_track('venv/bin/python', ['venv/']) is False",
-       "visible": true,
-       "label_tr": "venv içindeki dosya takip edilmiyor"
-      },
-      {
-       "code": "assert should_track('app.py', []) is True",
-       "visible": false,
-       "failure_message": "With an empty ignore list every file is tracked.",
-       "failure_message_tr": "Ignore listesi boşsa her dosya takip edilir."
-      },
-      {
-       "code": "assert should_track('myvenv/x.py', ['venv/']) is True",
-       "visible": false,
-       "failure_message": "Only paths that START with the entry are ignored; 'myvenv/' is a different folder.",
-       "failure_message_tr": "Yalnızca girişle BAŞLAYAN yollar yok sayılır; 'myvenv/' başka bir klasördür."
-      },
-      {
-       "code": "assert should_track('node_modules/a.js', ['venv/', 'node_modules/']) is False and should_track('lib/x.py', ['venv/', 'node_modules/']) is True",
-       "visible": false,
-       "failure_message": "The result must come from the ignore list you are given: any matching entry means False. Do not return a fixed value.",
-       "failure_message_tr": "Sonuç, verilen ignore listesine bağlı olmalı: eşleşen herhangi bir giriş False demektir. Sabit bir değer döndürme."
-      }
-     ],
-     "hints": [
-      "Check each ignore entry against the beginning of the path.",
-      "str.startswith(entry) does exactly that; any(...) combines the results.",
-      "Last step: return the opposite (not) of any(...) over the entries, where each test is path.startswith(___)."
-     ],
-     "solution": {
-      "approach": "Negate any(path.startswith(p) ...).",
-      "code": "def should_track(path, ignore_lines):\n    return not any(path.startswith(p) for p in ignore_lines)",
-      "approach_tr": "any(path.startswith(p) ...) sonucunu tersine çevir."
-     },
-     "twin": "d23-b3-e4",
-     "hints_tr": [
-      "Her ignore girişini yolun başıyla karşılaştır.",
-      "str.startswith(giriş) tam olarak bunu yapar; any(...) sonuçları birleştirir.",
-      "Son adım: girişler üzerinde any(...) ifadesinin tersini (not) döndür; her test path.startswith(___) olsun."
-     ]
-    },
-    {
-     "id": "d23-b3-e4",
-     "type": "write",
-     "concept": "gitignore-venv",
-     "tags": [
-      "virtual-environment",
-      "git",
-      "lists",
-      "filtering"
-     ],
-     "prompt": "Write tracked_files(paths, ignore_lines). It returns a list of the paths that do not start with any entry of ignore_lines, keeping the original order.",
-     "prompt_tr": "tracked_files(paths, ignore_lines) yaz. ignore_lines içindeki hiçbir girişle başlamayan yolları, özgün sırayı koruyarak liste olarak döndür.",
-     "starter_code": "",
-     "signature": "def tracked_files(paths, ignore_lines):",
-     "tests": [
-      {
-       "code": "assert tracked_files(['app.py', 'venv/bin/pip'], ['venv/']) == ['app.py']",
-       "visible": true,
-       "label_tr": "venv dosyası listeden çıkarılıyor"
-      },
-      {
-       "code": "assert tracked_files([], ['venv/']) == []",
-       "visible": true,
-       "label_tr": "Boş liste boş liste veriyor"
-      },
-      {
-       "code": "assert tracked_files(['b.py', 'a.py'], []) == ['b.py', 'a.py']",
-       "visible": false,
-       "failure_message": "Keep the original order and keep everything when nothing is ignored.",
-       "failure_message_tr": "Özgün sırayı koru ve hiçbir şey yok sayılmıyorsa hepsini tut."
-      },
-      {
-       "code": "assert tracked_files(['venv/a', 'venv/b', 'x'], ['venv/', 'node_modules/']) == ['x']",
-       "visible": false,
-       "failure_message": "Check all entries of ignore_lines, not only the first.",
-       "failure_message_tr": "Yalnızca ilk girişi değil, ignore_lines içindeki tüm girişleri kontrol et."
-      }
-     ],
-     "hints": [
-      "This is should_track applied to a whole list.",
-      "A list comprehension with the same startswith test as the condition.",
-      "Last step: return a list comprehension over paths whose condition is the negation of any(...) with startswith."
-     ],
-     "solution": {
-      "approach": "Filter the list with a comprehension.",
-      "code": "def tracked_files(paths, ignore_lines):\n    return [p for p in paths if not any(p.startswith(i) for i in ignore_lines)]",
-      "approach_tr": "Listeyi bir liste kapsamı ile filtrele."
-     },
-     "twin": "d23-b3-e3",
-     "hints_tr": [
-      "Bu, should_track'in tüm bir listeye uygulanmış hâli.",
-      "Koşul olarak aynı startswith testini kullanan bir liste kapsamı (list comprehension) yaz.",
-      "Son adım: paths üzerinde bir liste kapsamı döndür; koşulu startswith kullanan any(...) ifadesinin tersi olsun."
-     ]
-    }
-   ],
-   "concept_tr": ".gitignore ve venv klasörü"
-  }
- ],
- "review_pool": [
-  "d23-b1-e1",
-  "d23-b1-e3",
-  "d23-b2-e1",
-  "d23-b2-e3",
-  "d23-b3-e1",
-  "d23-b3-e3"
- ],
- "title_tr": "Sanal Ortam (Virtual Environment)"
+  ],
+  "review_pool": [
+    "d23-b1-e1",
+    "d23-b1-e5",
+    "d23-b2-e6",
+    "d23-b3-e5",
+    "d23-b4-e1",
+    "d23-b4-e5"
+  ]
 }
