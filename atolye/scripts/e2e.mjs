@@ -49,7 +49,13 @@ async function newPage(opts = {}) {
 }
 let lastPage = null
 // web fonts load with display=swap; layout measurements wait for them so a slow font download cannot shift the boxes
-const fontsReady = (page) => page.evaluate(() => document.fonts.ready.then(() => true))
+// (two frames first: a face only starts downloading once layout needs it, and fonts.ready is already settled before that)
+const fontsReady = (page) =>
+  page.evaluate(async () => {
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+    await document.fonts.ready
+    return true
+  })
 // page.evaluate has no timeout of its own: a frozen page would hang the run, so reading the store is raced against 20 s
 const store = (page) =>
   Promise.race([
@@ -2328,7 +2334,14 @@ T('v10-long-cards-keep-the-action-in-view-and-the-measure-readable', async () =>
       for (const [, idx] of order) {
         await page.locator('.cards-strip li').nth(idx).locator('button').click()
         await page.waitForFunction((k) => document.querySelector('.cards')?.getAttribute('data-card') === String(k), idx)
+        // a step-through card runs its Python trace asynchronously (slow on a cold CI runner) and, once it is ready, scrolls its own
+        // controls into view (Tracer.tsx); measuring before that scroll lands reads a page that is about to move
+        if (await page.locator('.card-front .trace').count()) {
+          await page.waitForFunction(() => { const b = document.querySelector('.card-front .trace .trace-bar .btn-chev'); return !!b && !b.disabled }, null, { timeout: 60000 }).catch(() => {})
+          await sleep(150)
+        }
         await page.evaluate(() => window.scrollTo(0, 0))
+        await fontsReady(page)
         await sleep(250)
         const next = page.locator('.cards-next')
         const b = await next.boundingBox()
