@@ -710,12 +710,12 @@
           "explanation": "Capital E has a smaller character code than lowercase a, so 'Elma' < 'armut' is True. In lowercase, e comes after a: False. 4 < 5: True.",
           "explanation_tr": "Büyük E'nin karakter kodu küçük a'nınkinden küçüktür, bu yüzden 'Elma' < 'armut' True'dur. Küçük harflerde e, a'dan sonra gelir: False. 4 < 5: True.",
           "misconceptions": {
-            "False False True": "All capital letters come before all lowercase letters in character codes.",
+            "False False True": "The capital letters A-Z all come before the lowercase letters a-z in character codes, so E comes before a.",
             "True True True": "'elma' < 'armut' compares e with a, and e comes later.",
             "False True False": "len compares numbers: 4 is less than 5."
           },
           "misconceptions_tr": {
-            "False False True": "Karakter kodlarında bütün büyük harfler bütün küçük harflerden önce gelir.",
+            "False False True": "Karakter kodlarında A-Z büyük harflerinin hepsi a-z küçük harflerinden önce gelir; bu yüzden E, a'dan önce gelir.",
             "True True True": "'elma' < 'armut' e ile a'yı karşılaştırır ve e daha sonra gelir.",
             "False True False": "len sayıları karşılaştırır: 4, 5'ten küçüktür."
           }
@@ -744,11 +744,11 @@
               "failure_message_tr": "and yerine zincir kullan."
             },
             {
-              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^grade[ \\t]*=.*$', 'grade = 50', __s, count=1)\nassert __n == 1, 'line grade = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['is_valid'] is True\nimport re\nassert re.search(r'0\\s*<=\\s*grade\\s*<=\\s*100', __source__)",
+              "code": "import io, contextlib, re\nfor __g, __want in ((50, True), (0, True), (100, True), (-1, False), (101, False)):\n    __s, __n = re.subn(r'(?m)^grade[ \\t]*=.*$', 'grade = %d' % __g, __source__, count=1)\n    assert __n == 1, 'line grade = ... not found'\n    __ns = {}\n    with contextlib.redirect_stdout(io.StringIO()):\n        exec(__s, __ns)\n    assert __ns['is_valid'] is __want, (__g, __ns['is_valid'])\nassert '<' in __source__ or '>' in __source__",
               "visible": false,
               "anti_hardcode": true,
-              "failure_message": "is_valid must be computed with the chain 0 <= grade <= 100.",
-              "failure_message_tr": "is_valid, 0 <= grade <= 100 zinciriyle hesaplanmalı."
+              "failure_message": "is_valid must be computed from grade with one chain: 0 and 100 are valid, -1 and 101 are not.",
+              "failure_message_tr": "is_valid, grade üzerinden tek bir zincirle hesaplanmalı: 0 ve 100 geçerli, -1 ve 101 geçersiz."
             }
           ],
           "hints": [
@@ -949,8 +949,8 @@
         {
           "id": "d03-b4-e3",
           "type": "debug",
-          "prompt": "The program should print True because result holds None, but the comparison uses the wrong operator for None. Python style says: use is to check for None. Fix the second line.",
-          "prompt_tr": "result None tuttuğu için program True yazdırmalı, ama karşılaştırma None için yanlış operatörü kullanıyor. Python stili der ki: None kontrolünde is kullan. İkinci satırı düzelt.",
+          "prompt": "The program should print True because result holds None, but it uses = (assignment) where a question is needed, so it crashes with TypeError: print() got an unexpected keyword argument 'result'. Python style says: use is to check for None. Fix the second line.",
+          "prompt_tr": "result None tuttuğu için program True yazdırmalı, ama soru sorulması gereken yerde = (atama) kullanıyor ve TypeError: print() got an unexpected keyword argument 'result' hatasıyla duruyor. Python stili der ki: None kontrolünde is kullan. İkinci satırı düzelt.",
           "starter_code": "result = None\nprint(result = None)",
           "hints": [
             "Read the error: Python thinks result is a setting of print().",
