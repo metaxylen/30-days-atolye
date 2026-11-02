@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: "3.14" # the Python version Pyodide runs in the browser
       - name: Install numpy and pandas
         run: |
           python -m venv .venv
@@ -36,10 +36,36 @@ jobs:
       - name: End-of-part projects
         run: .venv/bin/python atolye/content/tools/validate_bosses.py
 
-  app:
-    name: Build and end-to-end tests
+  changes:
+    name: What changed
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    outputs:
+      app: ${{ steps.diff.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        # Content-only and docs-only changes skip the browser tests; anything touching the app runs them.
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$base" ] || ! git cat-file -e "$base" 2>/dev/null; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git diff --name-only "$base" HEAD | grep -qE '^(atolye/(src|scripts|public|index\.html|package\.json|package-lock\.json|vite\.config\.ts|tsconfig\.json)|\.github/)'; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  e2e:
+    name: E2E shard ${{ matrix.shard }}
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     defaults:
       run:
         working-directory: atolye
@@ -56,10 +82,22 @@ jobs:
       - name: Install playwright-core
         run: npm install --no-save playwright-core
       - name: End-to-end tests in Chrome
-        run: node scripts/e2e.mjs --out e2e-output
+        run: node scripts/e2e.mjs --shard ${{ matrix.shard }}/4 --out e2e-output
       - name: Keep test screenshots when something fails
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-output
+          name: e2e-output-${{ matrix.shard }}
           path: atolye/e2e-output
+
+  app:
+    # The required check: green when all shards pass, or when the change does not touch the app.
+    name: Build and end-to-end tests
+    needs: [changes, e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          if [ "${{ needs.changes.result }}" != "success" ]; then exit 1; fi
+          if [ "${{ needs.changes.outputs.app }}" = "true" ] && [ "${{ needs.e2e.result }}" != "success" ]; then exit 1; fi
+          echo "ok"

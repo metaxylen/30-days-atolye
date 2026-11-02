@@ -1,5 +1,5 @@
 // End-to-end checks for the learn flow, driven in a real Chrome through playwright-core.
-//   PW_CORE=/path/to/node_modules/playwright-core/index.mjs node scripts/e2e.mjs [--only name,name] [--dist dist] [--out DIR]
+//   PW_CORE=/path/to/node_modules/playwright-core/index.mjs node scripts/e2e.mjs [--only name,name] [--shard i/n] [--dist dist] [--out DIR]
 // Serves dist/ on a throwaway port. Exercises are read from the served site, so the tests follow the content.
 import { createServer } from 'node:http'
 import { createReadStream, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -2386,7 +2386,11 @@ function assert(c, m) {
 }
 
 let failed = 0
-const names = Object.keys(tests).filter((n) => !only.length || only.some((o) => n.includes(o)))
+// --shard i/n runs every n-th test starting at i (1-based), so CI can split the suite across machines
+const [shardI, shardN] = flag('shard', '1/1').split('/').map(Number)
+const names = Object.keys(tests)
+  .filter((n) => !only.length || only.some((o) => n.includes(o)))
+  .filter((_, k) => k % shardN === shardI - 1)
 for (const n of names) {
   const t = Date.now()
   try {
