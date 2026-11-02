@@ -174,7 +174,6 @@ export function Tracer({ code }: { code: string }) {
             {t('trace.first')}
           </button>
           <button type="button" className="btn btn-quiet trace-prev" onClick={() => go(i - 1)} disabled={i === 0}>
-            <span className="tb-chev is-back" aria-hidden="true" />
             {t('trace.prev')}
           </button>
           <button type="button" className="btn btn-chev" onClick={() => go(i + 1)} disabled={i >= last}>

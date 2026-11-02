@@ -1,309 +1,377 @@
 {
   "day": 10,
-  "title_tr": "Döngüler (loops)",
+  "title_tr": "Döngüler",
   "title": "Loops",
-  "est_minutes": 28,
+  "est_minutes": 50,
   "cards": [
     {
       "id": "d10-c01",
       "type": "explain",
-      "section": "While Loop",
-      "title_tr": "while döngüsü",
-      "title": "The while loop",
-      "body_tr": "Tekrarlayan işleri döngülerle yaparız. Python'da iki döngü var: `while` ve `for`. `while`, koşul True olduğu sürece bloğu tekrarlar; koşul False olunca döngü biter. Dikkat: koşulu değiştirmezsen sonsuz döngü olur. Satır satır izle.",
-      "body": "We do repeated work with loops. Python has two: `while` and `for`. `while` repeats the block as long as the condition is True; when it becomes False the loop ends. Careful: if you never change the condition you get an endless loop. Step through.",
-      "code": "count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1",
-      "expected_output": "0\n1\n2\n3\n4",
-      "trace": true
+      "section": "Loops",
+      "title_tr": "Kopyala-yapıştır olmadan tekrarlamak",
+      "title": "Repeat without copy and paste",
+      "body_tr": "8. günde üç kelimeyi aynı satırı üç kez yazarak saydın. Gerçek bir metinde binlerce kelime vardır ve sayısı önceden bilinmez. Satır kopyalamak ölçeklenmez.\n\n**Döngü** (loop) bir bloğu tekrarlar. Python'da iki tane vardır: `while` bir koşul True olduğu sürece tekrarlar, `for` ise bloğu bir koleksiyonun her öğesi için bir kez çalıştırır. Her tekrara **tur** (iteration) denir.\n\nBlok, tıpkı `if` bloğu gibi girintiyle belirlenir.",
+      "body": "On Day 8 you counted three words by writing the same line three times. A real text has thousands of words, and the number is not known in advance. Copying lines does not scale.\n\nA **loop** repeats a block. Python has two: `while` repeats as long as a condition is True, and `for` runs the block once for each item of a collection. Each repetition is called an **iteration** (a round).\n\nThe block is defined by indentation, exactly like an `if` block.",
+      "code": "words = 'tea coffee tea milk tea'.split()\ncounts = {}\nfor w in words:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts)",
+      "expected_output": "{'tea': 3, 'coffee': 1, 'milk': 1}"
     },
     {
       "id": "d10-c02",
-      "type": "predict",
+      "type": "explain",
       "section": "While Loop",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "total = 0\ni = 1\nwhile i < 4:\n    total += i\n    i += 1\nprint(total)",
-      "choices": [
-        "3",
-        "6",
-        "10",
-        "4"
-      ],
-      "answer": "6",
-      "why_tr": "1 + 2 + 3 = 6; i 4 olunca döngü durur.",
-      "why": "1 + 2 + 3 = 6; the loop stops when i becomes 4."
+      "title_tr": "while: koşul sağlandıkça tekrarla",
+      "title": "while: repeat while the condition holds",
+      "body_tr": "`while condition:` koşulu kontrol eder; True ise blok çalışır, sonra Python `while` satırına geri döner ve yeniden kontrol eder. Koşul False olduğunda döngü biter ve program bloğun ardından devam eder.\n\nAdım adım izle ve kontrolleri say: `count < 5` altı kez hesaplanır. Beş kez True'dur (0'dan 4'e yazdırılır), altıncıda `count` 5'tir ve döngü durur. Döngüden sonraki satır son değeri yazdırır.",
+      "body": "`while condition:` checks the condition; if it is True, the block runs, and then Python jumps back to the `while` line and checks again. When the condition is False, the loop ends and the program continues after the block.\n\nStep through and count the checks: `count < 5` is evaluated six times. Five times it is True (0 to 4 print), the sixth time `count` is 5 and the loop stops. The line after the loop prints the final value.",
+      "code": "count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1\nprint('after the loop:', count)",
+      "expected_output": "0\n1\n2\n3\n4\nafter the loop: 5",
+      "trace": true
     },
     {
       "id": "d10-c03",
       "type": "explain",
       "section": "While Loop",
-      "title_tr": "while ... else",
-      "title": "while ... else",
-      "body_tr": "Döngü koşulu False olduğunda bir kez çalışan `else` bloğu ekleyebilirsin. Aşağıda döngü bitince `count` 5 olur ve else bunu yazar.",
-      "body": "You can add an `else` block that runs once when the loop condition becomes False. Below, `count` is 5 when the loop ends and the else prints it.",
-      "code": "count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1\nelse:\n    print('else:', count)",
-      "expected_output": "0\n1\n2\n3\n4\nelse: 5"
+      "title_tr": "Sık hata: hiç bitmeyen döngü",
+      "title": "Common mistake: the loop that never ends",
+      "body_tr": "Bloğun içindeki hiçbir şey koşulu False'a yaklaştırmazsa döngü sonsuza kadar sürer. `count = count + 1`'i unut, `count < 5` hep True kalır: program sonsuza kadar 0 yazdırır ve sonraki satıra hiç ulaşmaz. Hata mesajı yoktur; program yalnızca takılır (bu uygulamada çalıştırma birkaç saniye sonra durdurulur).\n\nBir `while` yazmadan önce sor: her turda hangi değişken değişiyor ve koşul neden False olacak? 3. günden `count += 1` artırılmış ataması adımı yazmanın olağan yoludur.",
+      "body": "If nothing inside the block brings the condition closer to False, the loop runs forever. Forget `count = count + 1` and `count < 5` stays True: the program prints 0 endlessly and never reaches the next line. There is no error message; the program simply hangs (in this app the run is stopped after a few seconds).\n\nBefore writing a `while`, ask: which variable changes in every round, and why will the condition become False? The augmented assignment `count += 1` from Day 3 is the usual way to write the step.",
+      "code": "count = 3\nwhile count > 0:\n    print(count)\n    count -= 1\nprint('Go!')",
+      "expected_output": "3\n2\n1\nGo!"
     },
     {
       "id": "d10-c04",
-      "type": "truefalse",
+      "type": "predict",
       "section": "While Loop",
-      "title_tr": "Doğru mu, yanlış mı?",
-      "title": "True or false?",
-      "statement_tr": "`while` koşulu en baştan False ise döngü bloğu hiç çalışmaz.",
-      "statement": "If the `while` condition is False from the start, the loop block never runs.",
-      "answer": true,
-      "why_tr": "Doğru: koşul her turdan önce kontrol edilir.",
-      "why": "True: the condition is checked before every round."
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "n = 1\nwhile n < 20:\n    n = n * 3\nprint(n)",
+      "choices": [
+        "18",
+        "27",
+        "9",
+        "20"
+      ],
+      "answer": "27",
+      "why_tr": "n sırasıyla 1, 3, 9, 27 olur. n 9 iken koşul hâlâ True'dur ve n 27 olur; sonra 27 < 20 False'tur ve döngü biter.",
+      "why": "n goes 1, 3, 9, 27. When n is 9 the condition is still True and n becomes 27; then 27 < 20 is False and the loop ends."
     },
     {
       "id": "d10-c05",
       "type": "explain",
-      "section": "Break and Continue - Part 1",
-      "title_tr": "break: döngüyü kır",
-      "title": "break: leave the loop",
-      "body_tr": "`break` döngüyü hemen bitirir. Aşağıda count 3 olunca döngüden çıkılır; yalnızca 0, 1, 2 yazılır.",
-      "body": "`break` ends the loop at once. Below, the loop is left when count becomes 3; only 0, 1, 2 are printed.",
-      "code": "count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1\n    if count == 3:\n        break",
-      "expected_output": "0\n1\n2",
-      "trace": true
+      "section": "While Loop",
+      "title_tr": "Gerçekçi örnek: önceden sayamayacağın turlar",
+      "title": "Realistic: rounds you cannot count in advance",
+      "body_tr": "Kaç tura ihtiyacın olduğunu bilmediğinde doğru döngü `while`'dır. Soru: 1000 TL biriktiriyorsun ve yılda %10 büyüyor; kaç yıl sonra en az 2000 TL'n olur?\n\nYıl sayısını önceden yazamazsın; cevap zaten o. Bu yüzden döngü \"hedefe ulaşılmadığı sürece\" çalışır ve turları sayar. Öğeler (bir list) ya da tur sayısı (`range`) elindeyse `for` döngüsü daha uygundur.",
+      "body": "`while` is the right loop when you do not know how many rounds you need. Question: you save 1000 TL and it grows 10% per year; after how many years do you have at least 2000 TL?\n\nYou cannot write the number of years in advance; it is the answer. So the loop runs \"while the goal is not reached\" and counts the rounds. A `for` loop fits better when you already have the items (a list) or the number of rounds (`range`).",
+      "code": "money = 1000\nyears = 0\nwhile money < 2000:\n    money = money * 1.10\n    years += 1\nprint(years, round(money))",
+      "expected_output": "8 2144"
     },
     {
       "id": "d10-c06",
       "type": "explain",
-      "section": "Break and Continue - Part 1",
-      "title_tr": "continue: bu turu atla",
-      "title": "continue: skip this round",
-      "body_tr": "`continue` o turun kalanını atlar ve döngünün başına döner. Burada 3 yazılmaz. `continue`'dan önce sayacı artırmayı unutma, yoksa sonsuz döngü olur.",
-      "body": "`continue` skips the rest of that round and jumps to the top of the loop. Here 3 is not printed. Remember to increase the counter before `continue`, otherwise it loops forever.",
-      "code": "count = 0\nwhile count < 5:\n    if count == 3:\n        count += 1\n        continue\n    print(count)\n    count = count + 1",
-      "expected_output": "0\n1\n2\n4",
-      "hide_output": true
+      "section": "While Loop",
+      "title_tr": "while ... else",
+      "title": "while ... else",
+      "body_tr": "Bir `while`'ın `else` bloğu olabilir. Döngü koşulu False olduğu için bittiğinde bir kez çalışır. Orijinal ders bunu `count` ile gösterir; `else` yazdırdığında `count` 5'tir.\n\nÖnemli ayrıntı: döngüden `break` ile çıkılırsa (sonraki bölüm) `else` atlanır. Yani `else` \"döngü normal bitti\" demektir. `while` ile nadiren kullanılır; `for` ile \"her yere baktım, bulamadım\" demenin şık bir yoludur, bugünün sonunda göreceksin.",
+      "body": "A `while` can have an `else` block. It runs once when the loop ends because its condition became False. The original course shows it with `count`, which is 5 when the `else` prints.\n\nThe detail that matters: the `else` is skipped when the loop is left with `break` (next section). So `else` means \"the loop finished normally\". It is rarely used with `while`; with `for` it is a neat way to say \"searched everything and found nothing\", as you will see at the end of today.",
+      "code": "count = 0\nwhile count < 3:\n    print(count)\n    count = count + 1\nelse:\n    print('finished with', count)",
+      "expected_output": "0\n1\n2\nfinished with 3"
     },
     {
       "id": "d10-c07",
-      "type": "predict",
-      "section": "Break and Continue - Part 1",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "res = []\ni = 0\nwhile i < 4:\n    i += 1\n    if i == 2:\n        continue\n    res.append(i)\nprint(res)",
-      "choices": [
-        "[1, 2, 3, 4]",
-        "[1, 3, 4]",
-        "[1, 3]",
-        "[2]"
+      "type": "fill",
+      "section": "While Loop",
+      "title_tr": "Döngüyü bitir (10)",
+      "title": "Make the loop finish (10)",
+      "code": "total = 0\nn = 1\nwhile n <= 4:\n    total += n\n    n ___ 1\nprint(total)",
+      "answers": [
+        "+="
       ],
-      "answer": "[1, 3, 4]",
-      "why_tr": "i == 2 olduğunda tur atlanır; listeye 1, 3, 4 eklenir.",
-      "why": "When i == 2 the round is skipped; 1, 3, 4 are added to the list."
+      "expected_output": "10",
+      "why_tr": "n her turda bir artmalı; yoksa `n <= 4` sonsuza kadar True kalır. `n += 1` ile toplam 1 + 2 + 3 + 4 = 10 olur.",
+      "why": "n must grow by one each round, otherwise `n <= 4` stays True forever. With `n += 1`, total is 1 + 2 + 3 + 4 = 10."
     },
     {
       "id": "d10-c08",
       "type": "explain",
-      "section": "For Loop",
-      "title_tr": "for döngüsü: liste",
-      "title": "The for loop: lists",
-      "body_tr": "`for` bir koleksiyonun (list, tuple, dict, set, string) öğeleri üzerinde tek tek gezer. `number` geçici bir addır: her turda sıradaki öğeyi taşır. Satır satır izle.",
-      "body": "`for` walks over the items of a collection (list, tuple, dict, set, string) one by one. `number` is a temporary name that holds the next item each round. Step through.",
-      "code": "numbers = [0, 1, 2, 3, 4, 5]\nfor number in numbers:\n    print(number)",
-      "expected_output": "0\n1\n2\n3\n4\n5",
-      "trace": true
+      "section": "Break and Continue - Part 1",
+      "title_tr": "break: döngüden hemen çık",
+      "title": "break: leave the loop now",
+      "body_tr": "`break` koşul hâlâ True olsa bile döngüyü hemen bitirir. Çalışma döngüden sonraki ilk satırda devam eder. Neredeyse her zaman bir `if`'in içindedir: \"bu olur olmaz dur\".\n\nGerçekçi kullanım: en fazla 3 denemeye izin veren ama ilk doğru denemede duran bir PIN kontrolü. Burada ikinci deneme doğru, bu yüzden üçüncüsü hiç kontrol edilmez. `break` olmasaydı döngü sormaya devam ederdi.",
+      "body": "`break` ends the loop immediately, even if the condition is still True. Execution continues at the first line after the loop. It is almost always inside an `if`: \"stop as soon as this happens\".\n\nRealistic use: a PIN check that allows at most 3 attempts but stops at the first correct one. Here the second attempt is right, so the third is never checked. Without `break` the loop would keep asking.",
+      "code": "attempts = ['1111', '4321', '9999']\ni = 0\nwhile i < len(attempts):\n    print('trying', attempts[i])\n    if attempts[i] == '4321':\n        print('unlocked')\n        break\n    i += 1",
+      "expected_output": "trying 1111\ntrying 4321\nunlocked"
     },
     {
       "id": "d10-c09",
       "type": "explain",
-      "section": "For Loop",
-      "title_tr": "for: string ve tuple",
-      "title": "for: strings and tuples",
-      "body_tr": "String'in üzerinde gezince karakterleri, tuple'ın üzerinde gezince öğeleri alırsın. `range(len(...))` ile indeksler üzerinde de gezebilirsin.",
-      "body": "Looping over a string gives its characters and over a tuple gives its items. With `range(len(...))` you can loop over the indexes too.",
-      "code": "language = 'Py'\nfor letter in language:\n    print(letter)\nfor i in range(len(language)):\n    print(i, language[i])\nfor number in (1, 2):\n    print(number)",
-      "expected_output": "P\ny\n0 P\n1 y\n1\n2",
-      "hide_output": true
+      "section": "Break and Continue - Part 1",
+      "title_tr": "continue: sonraki tura geç",
+      "title": "continue: skip to the next round",
+      "body_tr": "`continue` yalnızca o anki turu bitirir: bloğun geri kalanı atlanır ve Python koşula geri döner. Orijinal örneği adım adım izle; 3 atlanır, 4 yine yazdırılır.\n\n`count += 1`'in nerede durduğuna bak. `continue`'dan önce çalışır. Artırma yalnızca bloğun en altında olsaydı `continue` onun üzerinden atlardı, `count` sonsuza kadar 3'te kalırdı ve döngü hiç bitmezdi. `while` ile her `continue` yolu yine de döngü değişkenini değiştirmelidir.",
+      "body": "`continue` ends the current round only: the rest of the block is skipped and Python goes back to the condition. Step through the original example; 3 is skipped and 4 still prints.\n\nWatch where `count += 1` sits. It runs before `continue`. If the increment were only at the bottom of the block, `continue` would jump over it, `count` would stay 3 forever and the loop would never end. With `while`, every `continue` path must still change the loop variable.",
+      "code": "count = 0\nwhile count < 5:\n    if count == 3:\n        count += 1\n        continue\n    print(count)\n    count += 1",
+      "expected_output": "0\n1\n2\n4",
+      "trace": true
     },
     {
       "id": "d10-c10",
       "type": "predict",
-      "section": "For Loop",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "s = ''\nfor ch in 'abc':\n    s = ch + s\nprint(s)",
+      "section": "Break and Continue - Part 1",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "n = 0\nwhile n < 10:\n    n += 1\n    if n % 2 == 0:\n        continue\n    if n > 6:\n        break\n    print(n)",
       "choices": [
-        "abc",
-        "cba",
-        "bca",
-        "acb"
+        "1\n3\n5",
+        "1\n3\n5\n7",
+        "2\n4\n6",
+        "1\n3\n5\n7\n9"
       ],
-      "answer": "cba",
-      "why_tr": "Her harf mevcut metnin önüne eklenir: a, ba, cba.",
-      "why": "Each letter is put in front of the current text: a, ba, cba."
+      "answer": "1\n3\n5",
+      "why_tr": "Çift sayılar `continue` ile atlanır. Tek sayılar 1, 3, 5 yazdırılır; 7'de `break` print'ten önce döngüyü bitirir.",
+      "why": "Even numbers are skipped by `continue`. The odd numbers 1, 3, 5 print; at 7 the `break` ends the loop before the print."
     },
     {
       "id": "d10-c11",
-      "type": "explain",
-      "section": "For Loop",
-      "title_tr": "for: dictionary",
-      "title": "for: dictionaries",
-      "body_tr": "Dictionary üzerinde gezince **anahtarları** alırsın. Hem anahtar hem değer için `items()` kullan ve ikisini birden aç: `for key, value in d.items()`.",
-      "body": "Looping over a dictionary gives the **keys**. For both key and value use `items()` and unpack both: `for key, value in d.items()`.",
-      "code": "person = {'first_name': 'Asabeneh', 'age': 250, 'country': 'Finland'}\nfor key in person:\n    print(key)\nfor key, value in person.items():\n    print(key, value)",
-      "expected_output": "first_name\nage\ncountry\nfirst_name Asabeneh\nage 250\ncountry Finland"
+      "type": "truefalse",
+      "section": "Break and Continue - Part 1",
+      "title_tr": "Doğru mu, yanlış mı?",
+      "title": "True or false?",
+      "statement_tr": "`break` ve `continue` bir programın her yerinde, döngü dışında da kullanılabilir.",
+      "statement": "`break` and `continue` can be used anywhere in a program, also outside a loop.",
+      "answer": false,
+      "why_tr": "Yalnızca bir döngünün içinde anlamlıdırlar. Dışarıda Python şu mesajla reddeder: `SyntaxError: 'break' outside loop`.",
+      "why": "They only make sense inside a loop. Outside one Python refuses with `SyntaxError: 'break' outside loop`."
     },
     {
       "id": "d10-c12",
       "type": "explain",
       "section": "For Loop",
-      "title_tr": "for: set",
-      "title": "for: sets",
-      "body_tr": "Set'te sıra garanti değildir, bu yüzden çıktının sabit olması için `sorted()` ile sıralayarak geziyoruz.",
-      "body": "Sets have no guaranteed order, so to get a stable output we loop over a `sorted()` copy.",
-      "code": "it_companies = {'Facebook', 'Google', 'Apple', 'IBM'}\nfor company in sorted(it_companies):\n    print(company)",
-      "expected_output": "Apple\nFacebook\nGoogle\nIBM"
+      "title_tr": "for: her öğe için bir tur",
+      "title": "for: one round per item",
+      "body_tr": "`for item in collection:` koleksiyondan öğelerini birer birer ister. Her turda `item` ismi sıradaki öğeye bağlanır ve blok çalışır. Öğe kalmadığında döngü biter. Yönetilecek bir sayaç ya da yanlış gidebilecek bir koşul yoktur.\n\nAdım adım izle ve `price`'ın hareketine bak: 12, sonra 30, sonra 8. İsim, sırayla her öğeye taşınan bir etiketten ibarettir. JavaScript'teki `for...in` değil, `for (const price of prices)` ile aynıdır.",
+      "body": "`for item in collection:` asks the collection for its items one at a time. In each round the name `item` is bound to the next item, and the block runs. When there are no items left, the loop ends. There is no counter to manage and no condition that can go wrong.\n\nStep through and watch `price` move: 12, then 30, then 8. The name is just a tag moved onto each item in turn. It is the same as JavaScript's `for (const price of prices)`, not `for...in`.",
+      "code": "prices = [12, 30, 8]\nfor price in prices:\n    with_tax = price * 1.2\n    print(price, round(with_tax, 1))\nprint('last price seen:', price)",
+      "expected_output": "12 14.4\n30 36.0\n8 9.6\nlast price seen: 8",
+      "trace": true
     },
     {
       "id": "d10-c13",
-      "type": "predict",
+      "type": "explain",
       "section": "For Loop",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "d = {'a': 1, 'b': 2}\ntotal = 0\nfor k in d:\n    total += d[k]\nprint(total)",
-      "choices": [
-        "ab",
-        "3",
-        "12",
-        "2"
-      ],
-      "answer": "3",
-      "why_tr": "`k` anahtarları gezer; `d[k]` değerleri verir: 1 + 2 = 3.",
-      "why": "`k` walks the keys; `d[k]` gives the values: 1 + 2 = 3."
+      "title_tr": "String ve tuple'lar da aynı şekilde çalışır",
+      "title": "Strings and tuples work the same way",
+      "body_tr": "Öğelerini birer birer verebilen her şey `in`'in ardından gelebilir: string karakterlerini, tuple öğelerini, list öğelerini verir.\n\nOrijinal ders `language[i]` ile `for i in range(len(language)):` da gösterir. Çalışır; ama doğrudan string üzerinde dönmek daha kısadır ve aralık dışına çıkamaz. İndeksleri yalnızca konuma gerçekten ihtiyaç duyduğunda kullan; bugün ileride göreceğin `enumerate` ikisini birden verir.",
+      "body": "Anything that can hand out items one by one can follow `in`: a string gives its characters, a tuple its items, a list its items.\n\nThe original course also shows `for i in range(len(language)):` with `language[i]`. That works, but iterating directly over the string is shorter and cannot go out of range. Use indexes only when you really need the position; `enumerate`, later today, gives both.",
+      "code": "language = 'Python'\nfor letter in language:\n    print(letter, end=' ')\nprint()\nnumbers = (0, 1, 2)\nfor number in numbers:\n    print(number * 10)",
+      "expected_output": "P y t h o n \n0\n10\n20"
     },
     {
       "id": "d10-c14",
-      "type": "explain",
-      "section": "Break and Continue - Part 2",
-      "title_tr": "for içinde break",
-      "title": "break inside for",
-      "body_tr": "`break` `for` döngüsünde de aynı çalışır: koşul sağlanınca döngüyü erken bitirir. Burada 3 yazıldıktan sonra durulur.",
-      "body": "`break` works the same in a `for` loop: it ends the loop early once the condition holds. Here it stops after printing 3.",
-      "code": "numbers = (0, 1, 2, 3, 4, 5)\nfor number in numbers:\n    print(number)\n    if number == 3:\n        break",
-      "expected_output": "0\n1\n2\n3"
+      "type": "predict",
+      "section": "For Loop",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "word = 'kayak'\nvowels = 0\nfor ch in word:\n    if ch in 'aeiou':\n        vowels += 1\nprint(vowels, len(word))",
+      "choices": [
+        "3 5",
+        "2 5",
+        "5 5",
+        "1 5"
+      ],
+      "answer": "2 5",
+      "why_tr": "Döngü k, a, y, a, k harflerine bakar. Yalnızca iki a sesli harftir; vowels 2 olur; kelimede 5 karakter var.",
+      "why": "The loop looks at k, a, y, a, k. Only the two a's are vowels, so vowels is 2; the word has 5 characters."
     },
     {
       "id": "d10-c15",
       "type": "explain",
-      "section": "Break and Continue - Part 2",
-      "title_tr": "for içinde continue",
-      "title": "continue inside for",
-      "body_tr": "`continue` yalnızca o turun kalan satırlarını atlar; döngü sonraki öğeyle devam eder. Çıktıyı tahmin et.",
-      "body": "`continue` skips only the remaining lines of that round; the loop carries on with the next item. Guess the output.",
-      "code": "for number in range(6):\n    if number == 3:\n        continue\n    print(number)",
-      "expected_output": "0\n1\n2\n4\n5",
-      "hide_output": true
+      "section": "For Loop",
+      "title_tr": "Biriktirici kalıbı",
+      "title": "The accumulator pattern",
+      "body_tr": "Birçok döngü tek bir şekli izler: döngüden **önce** bir değişken oluştur, **içinde** güncelle, **sonra** kullan. Bu değişkene biriktirici (accumulator) denir.\n\nSepet toplamını adım adım izle. Her öğe bir (ad, fiyat) tuple'ıdır ve 6. gündeki gibi `for` satırında açılır. `total` 0'dan başlar; her tur bir fiyat ekler; döngüden sonra toplamı tutar. Aynı şekil bir sayım (`count += 1`), bir en büyük değer (daha büyükse değiştir) ya da yeni bir string veya list verir.\n\nSık bir hata biriktiriciyi döngünün içinde oluşturmaktır: her turda yeniden 0'a dönerdi.",
+      "body": "Many loops follow one shape: create a variable **before** the loop, update it **inside**, use it **after**. That variable is called an accumulator.\n\nStep through the cart total. Each item is a (name, price) tuple, unpacked in the `for` line as on Day 6. `total` starts at 0; each round adds one price; after the loop it holds the sum. The same shape gives a count (`count += 1`), a maximum (replace when bigger), or a new string or list.\n\nA common bug is creating the accumulator inside the loop: it would be reset to 0 in every round.",
+      "code": "cart = [('tea', 10), ('cake', 40), ('water', 5)]\ntotal = 0\nfor name, price in cart:\n    total += price\nprint('total:', total)",
+      "expected_output": "total: 55",
+      "trace": true
     },
     {
       "id": "d10-c16",
-      "type": "fill",
-      "section": "Break and Continue - Part 2",
-      "title_tr": "Boşluğu doldur",
-      "title": "Fill in the blank",
-      "code": "for number in range(6):\n    if number == 3:\n        ___\n    print(number)",
-      "answers": [
-        "continue"
-      ],
-      "expected_output": "0\n1\n2\n4\n5",
-      "why_tr": "3'ü yazdırmadan atlamak için `continue` gerekir.",
-      "why": "`continue` is needed to skip 3 without printing it."
+      "type": "explain",
+      "section": "For Loop",
+      "title_tr": "Döngüde yeni bir list kurmak",
+      "title": "Building a new list in a loop",
+      "body_tr": "Biriktirici bir list de olabilir. `[]` ile başla, döngünün içinde bir `if` ile karar ver ve tutmak istediğini `append` et. Asıl list değişmez. Aynı şekil tekrarları atıp ilk sırayı korur, set'in yapamadığı bu işi (7. gün) böyle yaparsın: öğeyi yalnızca `if item not in unique` ise ekle.\n\nBurada aynı döngüde geçen notları tutuyor, kalan notları sayıyoruz. Bu \"süzme\" şekli 13. günde tek satırlık bir biçim kazanacak (comprehension); ama altta yapılan şey döngü sürümüdür ve daha fazla mantıkla genişletmek daha kolaydır.",
+      "body": "The accumulator can be a list. Start with `[]`, decide with an `if` inside the loop, and `append` what you want to keep. The original list is not changed. The same shape removes duplicates and keeps the first order, which a set cannot do (Day 7): append an item only `if item not in unique`.\n\nHere we keep the passing grades and count the failing ones in the same loop. This \"filter\" shape will get a one-line form on Day 13 (comprehensions), but the loop version is what it does underneath, and it is easier to extend with more logic.",
+      "code": "grades = [72, 45, 90, 58, 66]\npassed = []\nfailed = 0\nfor g in grades:\n    if g >= 60:\n        passed.append(g)\n    else:\n        failed += 1\nprint(passed, failed)",
+      "expected_output": "[72, 90, 66] 2"
     },
     {
       "id": "d10-c17",
-      "type": "explain",
-      "section": "The Range Function",
-      "title_tr": "range() fonksiyonu",
-      "title": "The range() function",
-      "body_tr": "`range(başlangıç, bitiş, adım)` sayı dizisi üretir; bitiş **dahil değildir**. Varsayılan başlangıç 0, adım 1'dir. Geriye saymak için adım negatif olur. Liste olarak görmek için `list()` kullan.",
-      "body": "`range(start, end, step)` produces a number sequence; the end is **not included**. The default start is 0 and the step 1. To count backwards use a negative step. Wrap it in `list()` to see it.",
-      "code": "print(list(range(11)))\nprint(list(range(0, 11, 2)))\nprint(list(range(11, 0, -2)))\nfor number in range(3):\n    print(number)",
-      "expected_output": "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n[0, 2, 4, 6, 8, 10]\n[11, 9, 7, 5, 3, 1]\n0\n1\n2"
+      "type": "fill",
+      "section": "For Loop",
+      "title_tr": "En büyüğü elle bul (30)",
+      "title": "Find the maximum by hand (30)",
+      "code": "temps = [21, 25, 19, 30]\nhottest = temps[0]\nfor t in temps:\n    if t > hottest:\n        hottest = ___\nprint(hottest)",
+      "answers": [
+        "t"
+      ],
+      "expected_output": "30",
+      "why_tr": "O anki öğe şimdiye kadarki en iyiden büyükse yeni en iyi o olur: döngüden sonra hottest 30'dur.",
+      "why": "Whenever the current item is bigger than the best so far, it becomes the new best: after the loop hottest is 30."
     },
     {
       "id": "d10-c18",
-      "type": "predict",
-      "section": "The Range Function",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "print(list(range(2, 10, 3)))",
-      "choices": [
-        "[2, 5, 8, 11]",
-        "[2, 5, 8, 10]",
-        "[2, 5, 8]",
-        "[3, 6, 9]"
-      ],
-      "answer": "[2, 5, 8]",
-      "why_tr": "2'den başlar, 3'er artar, 10'dan önce durur: 2, 5, 8.",
-      "why": "It starts at 2, steps by 3 and stops before 10: 2, 5, 8."
+      "type": "explain",
+      "section": "For Loop",
+      "title_tr": "Sözlük üzerinde döngü",
+      "title": "Looping over a dictionary",
+      "body_tr": "`for key in d:` anahtarları eklenme sırasıyla verir. Değeri de almak için `d[key]` yazabilirsin; ama olağan yol `for key, value in d.items():`'dir. Her öğe bir (anahtar, değer) tuple'ıdır ve 6. günün açma işlemi onu her turda iki isme böler.\n\nYalnızca değerler gerekiyorsa `for value in d.values():` kullan. Orijinal dersin person dict'i döngüsü her anahtarı yazdırır; `items()` döngüsü anahtar ve değeri birlikte yazdırır.",
+      "body": "`for key in d:` gives the keys, in insertion order. To get the value as well you could write `d[key]`, but the usual way is `for key, value in d.items():`. Each item is a (key, value) tuple, and Day 6's unpacking splits it into two names in every round.\n\nUse `for value in d.values():` when you only need the values. The original course's person dict loop prints every key; the `items()` loop prints key and value together.",
+      "code": "stock = {'apple': 5, 'pear': 0, 'plum': 7}\nfor fruit in stock:\n    print(fruit, end=' ')\nprint()\nfor fruit, qty in stock.items():\n    status = 'ok' if qty > 0 else 'sold out'\n    print(f'{fruit}: {qty} ({status})')",
+      "expected_output": "apple pear plum \napple: 5 (ok)\npear: 0 (sold out)\nplum: 7 (ok)"
     },
     {
       "id": "d10-c19",
       "type": "explain",
-      "section": "Nested For Loop",
-      "title_tr": "İç içe for",
-      "title": "Nested for loops",
-      "body_tr": "Bir döngünün içine başka bir döngü yazabilirsin. İç döngü, dış döngünün **her turunda** baştan sona çalışır. Burada `skills` anahtarına gelince iç döngü o listeyi gezer. Satır satır izle.",
-      "body": "You can write a loop inside another. The inner loop runs fully on **every round** of the outer loop. Here, when the key is `skills`, the inner loop walks that list. Step through.",
-      "code": "person = {'name': 'Asabeneh', 'skills': ['JS', 'React', 'Python']}\nfor key in person:\n    if key == 'skills':\n        for skill in person['skills']:\n            print(skill)",
-      "expected_output": "JS\nReact\nPython",
-      "trace": true
+      "section": "For Loop",
+      "title_tr": "Set üzerinde döngü",
+      "title": "Looping over a set",
+      "body_tr": "Set üzerindeki bir `for` döngüsü her öğeyi tam bir kez ziyaret eder, ama garanti edilen bir sırada değil: string'lerin sırası çalıştırmalar arasında bile değişebilir. Orijinal ders bir şirket set'i üzerinde döner ve onları Python hangi sırayı seçerse o sırayla yazdırır.\n\nÇıktıda sıra önemliyse bir list olan `sorted(the_set)` üzerinde dön. Bu derste testlerin set'leri `==` ile, yazdırılan çıktıyı ise yalnızca sıraladıktan sonra karşılaştırmasının sebebi de budur.",
+      "body": "A `for` loop over a set visits every item exactly once, but in no guaranteed order: the order of strings can even change between runs. The original course loops over a set of companies and prints them in whatever order Python chooses.\n\nWhen the order matters for the output, loop over `sorted(the_set)`, which is a list. That is also why the tests in this course compare sets with `==` but compare printed output only after sorting.",
+      "code": "it_companies = {'Google', 'IBM', 'Apple', 'Oracle'}\nfor company in sorted(it_companies):\n    print(company)\nprint(len(it_companies))",
+      "expected_output": "Apple\nGoogle\nIBM\nOracle\n4"
     },
     {
       "id": "d10-c20",
       "type": "predict",
-      "section": "Nested For Loop",
-      "title_tr": "Tahmin et",
-      "title": "Predict",
-      "code": "count = 0\nfor i in range(3):\n    for j in range(2):\n        count += 1\nprint(count)",
+      "section": "For Loop",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "grades = {'Ali': 85, 'Ece': 92, 'Can': 78}\nbest_name = ''\nbest = 0\nfor name, g in grades.items():\n    if g > best:\n        best, best_name = g, name\nprint(best_name, best)",
       "choices": [
-        "5",
-        "6",
-        "8",
-        "3"
+        "Can 78",
+        "Ece 85",
+        "Ece 92",
+        "Ali 85"
       ],
-      "answer": "6",
-      "why_tr": "Dış döngü 3 tur, her turda iç döngü 2 tur: 3 x 2 = 6.",
-      "why": "The outer loop has 3 rounds and the inner has 2 per round: 3 x 2 = 6."
+      "answer": "Ece 92",
+      "why_tr": "best 0'dan başlar. Ali (85) onu geçer, Ece (92) 85'i geçer, Can (78) 92'yi geçemez. Sonda tutulan çift Ece ve 92'dir.",
+      "why": "best starts at 0. Ali (85) beats it, Ece (92) beats 85, Can (78) does not beat 92. The pair kept at the end is Ece and 92."
     },
     {
       "id": "d10-c21",
       "type": "explain",
-      "section": "For Else",
-      "title_tr": "for ... else",
-      "title": "for ... else",
-      "body_tr": "`for` döngüsünün sonuna eklenen `else` bloğu, döngü normal biterse (break ile kesilmezse) bir kez çalışır. Döngü değişkeni (`number`) döngüden sonra son değerinde kalır.",
-      "body": "An `else` block after a `for` loop runs once if the loop ends normally (not cut by `break`). The loop variable (`number`) keeps its last value afterwards.",
-      "code": "for number in range(3):\n    print(number)\nelse:\n    print('The loop stops at', number)",
-      "expected_output": "0\n1\n2\nThe loop stops at 2"
+      "section": "For Loop",
+      "title_tr": "Sık hata: 'int' object is not iterable",
+      "title": "Common mistake: 'int' object is not iterable",
+      "body_tr": "`for i in 5:` şu hatayla düşer: `TypeError: 'int' object is not iterable`. **Iterable**, \"öğelerini birer birer verebilir\" demektir. Bir sayı tek bir değerdir, koleksiyon değildir; verecek öğesi yoktur.\n\nKastettiğin \"beş kez\" ise o `for i in range(5):`'tir. Aynı mesaj `for x in len(names):` için de çıkar, çünkü `len()` bir sayı döndürür; `for x in names:` ya da `for i in range(len(names)):` yaz.",
+      "body": "`for i in 5:` fails with `TypeError: 'int' object is not iterable`. **Iterable** means \"can hand out items one by one\". A number is a single value, not a collection, so it has no items to give.\n\nWhat you meant is \"five times\", which is `for i in range(5):`. The same message appears for `for x in len(names):`, because `len()` returns a number; write `for x in names:` or `for i in range(len(names)):`.",
+      "code": "names = ['Ece', 'Can']\nfor i in range(3):\n    print('round', i)\nfor name in names:\n    print(name)",
+      "expected_output": "round 0\nround 1\nround 2\nEce\nCan"
     },
     {
       "id": "d10-c22",
       "type": "explain",
-      "section": "Pass",
-      "title_tr": "pass: boş blok",
-      "title": "pass: an empty block",
-      "body_tr": "Python'da `:` sonrası bir blok yazmak zorundasın. Henüz kod yazmak istemiyorsan `pass` kullan; hiçbir şey yapmaz, yer tutucudur.",
-      "body": "In Python a block after `:` is mandatory. If you do not want to write code yet use `pass`; it does nothing and is a placeholder.",
-      "code": "for number in range(6):\n    pass\nprint('no error, last number:', number)",
-      "expected_output": "no error, last number: 5"
+      "section": "For Loop",
+      "title_tr": "Sık hata: üzerinde döndüğün list'i değiştirmek",
+      "title": "Common mistake: changing a list while looping over it",
+      "body_tr": "Üzerinde döndüğün list'ten öğe silmek öğelerin atlanmasına yol açar. Adım adım izle: döngü 1. konumdaki ilk 2'yi siler, her şey sola kayar, ikinci 2 1. konuma geçer ve döngü 2. konuma ilerler. O 2 hiç kontrol edilmez. Hata çıkmaz; `[1, 2, 3]` sonucu yalnızca yanlıştır.\n\nÇözüm: bunun yerine yeni bir list kur (önceki kartlar) ya da bir kopya üzerinde dön: `for n in nums.copy():`. Dict'ler daha katıdır: döngü sırasında anahtar eklemek ya da silmek `RuntimeError: dictionary changed size during iteration` verir.",
+      "body": "Removing items from the list you are looping over skips items. Step through: the loop removes the first 2 at position 1, everything shifts left, the second 2 moves into position 1, and the loop moves on to position 2. That 2 is never checked. No error appears; the result `[1, 2, 3]` is simply wrong.\n\nThe fix: build a new list instead (previous cards), or loop over a copy: `for n in nums.copy():`. Dicts are stricter: adding or removing keys during a loop raises `RuntimeError: dictionary changed size during iteration`.",
+      "code": "nums = [1, 2, 2, 3]\nfor n in nums:\n    if n == 2:\n        nums.remove(n)\nprint(nums)\nclean = []\nfor n in [1, 2, 2, 3]:\n    if n != 2:\n        clean.append(n)\nprint(clean)",
+      "expected_output": "[1, 2, 3]\n[1, 3]",
+      "trace": true
     },
     {
       "id": "d10-c23",
-      "type": "order",
+      "type": "truefalse",
       "section": "For Loop",
-      "title_tr": "Satırları doğru sıraya diz",
-      "title": "Put the lines in order",
+      "title_tr": "Doğru mu, yanlış mı?",
+      "title": "True or false?",
+      "statement_tr": "`for x in [10, 20, 30]: pass` satırından sonra `x` ismi hâlâ vardır ve 30'u gösterir.",
+      "statement": "After `for x in [10, 20, 30]: pass`, the name `x` still exists and refers to 30.",
+      "answer": true,
+      "why_tr": "Döngü değişkeni sıradan bir isimdir; son tur onu 30'a bağladı ve sonrasında hiçbir şey onu kaldırmaz.",
+      "why": "The loop variable is an ordinary name; the last round bound it to 30 and nothing removes it afterwards."
+    },
+    {
+      "id": "d10-c24",
+      "type": "explain",
+      "section": "For Loop",
+      "title_tr": "enumerate(): konum ve öğe birlikte",
+      "title": "enumerate(): position and item together",
+      "body_tr": "Konuma da ihtiyacın olduğunda `range(len(...))`'e uzanma. `enumerate(items)` (indeks, öğe) çiftleri verir ve onları `for` satırında açarsın.\n\n`enumerate(items, start=1)` saymaya 1'den başlar; ekrandaki numaralı bir listede insanların beklediği de budur. İndeksin list üzerinde yine hiçbir etkisi yoktur; Python'un senin için saydığı bir sayıdan ibarettir.",
+      "body": "When you need the position too, do not reach for `range(len(...))`. `enumerate(items)` hands out (index, item) pairs, and you unpack them in the `for` line.\n\n`enumerate(items, start=1)` starts counting at 1, which is what people expect in a numbered list on screen. The index still has no effect on the list; it is only a number Python counts for you.",
+      "code": "todo = ['buy milk', 'call Ece', 'study loops']\nfor i, task in enumerate(todo, start=1):\n    print(f'{i}. {task}')\nfor i, task in enumerate(todo):\n    if task.startswith('call'):\n        print('found at index', i)",
+      "expected_output": "1. buy milk\n2. call Ece\n3. study loops\nfound at index 1"
+    },
+    {
+      "id": "d10-c25",
+      "type": "explain",
+      "section": "For Loop",
+      "title_tr": "zip(): iki list'te yan yana yürümek",
+      "title": "zip(): walking two lists side by side",
+      "body_tr": "`zip(a, b)`, `a`'nın ilk öğesini `b`'nin ilk öğesiyle, ikincisini ikincisiyle eşler ve böyle devam eder. Her tur, iki isme açtığın bir tuple alır.\n\nKısa olan list'te durur; fazla öğeler sessizce yok sayılır. Gerçekçi kullanım: bir list'te isimler, başka birinde puanlar ya da sütun başlıkları ile bir satırın değerleri. `dict(zip(keys, values))` tek adımda bir sözlük bile kurar.",
+      "body": "`zip(a, b)` pairs the first item of `a` with the first item of `b`, the second with the second, and so on. Each round gets a tuple that you unpack into two names.\n\nIt stops at the shorter list, so extra items are silently ignored. Realistic use: names in one list and scores in another, or column headers and the values of one row. `dict(zip(keys, values))` even builds a dictionary in one step.",
+      "code": "names = ['Ali', 'Ece', 'Can']\nscores = [85, 92, 78]\nfor name, score in zip(names, scores):\n    print(name, score)\ntable = dict(zip(names, scores))\nprint(table)",
+      "expected_output": "Ali 85\nEce 92\nCan 78\n{'Ali': 85, 'Ece': 92, 'Can': 78}"
+    },
+    {
+      "id": "d10-c26",
+      "type": "predict",
+      "section": "For Loop",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "letters = ['a', 'b', 'c']\nnums = [1, 2]\nfor i, (l, n) in enumerate(zip(letters, nums)):\n    print(i, l * n)",
+      "choices": [
+        "1 a\n2 bb",
+        "0 a\n1 b",
+        "0 a\n1 bb",
+        "0 a\n1 bb\n2 ccc"
+      ],
+      "answer": "0 a\n1 bb",
+      "why_tr": "zip kısa list'te durur; yalnızca ('a', 1) ve ('b', 2) vardır. enumerate onları 0 ve 1 diye numaralar, l * n harfi tekrarlar.",
+      "why": "zip stops at the shorter list, so only ('a', 1) and ('b', 2) exist. enumerate numbers them 0 and 1, and l * n repeats the letter."
+    },
+    {
+      "id": "d10-c27",
+      "type": "explain",
+      "section": "Break and Continue - Part 2",
+      "title_tr": "for döngüsünde break ve continue",
+      "title": "break and continue in a for loop",
+      "body_tr": "`for` döngüsünde de aynı şekilde çalışırlar. `break` bütün döngüyü durdurur: arama yaparken işe yarar, çünkü ilk eşleşmeyi bulduktan sonra yapılacak bir şey kalmaz. `continue` o anki turun geri kalanını atlar ve sıradaki öğeye geçer: hatalı veriyi yok saymak için işe yarar.\n\n`for`'da unutulacak bir sayaç olmadığı için `continue` sonsuz döngüye yol açamaz. Örnekte boş satırlar atlanır ve döngü 'END' satırında durur.",
+      "body": "They work the same in a `for` loop. `break` stops the whole loop: useful when searching, because once you have found the first match there is nothing left to do. `continue` skips the rest of the current round and goes to the next item: useful for ignoring bad data.\n\nWith `for` there is no counter to forget, so `continue` cannot cause an endless loop. In the example empty lines are skipped and the loop stops at the line 'END'.",
+      "code": "lines = ['first', '', 'second', 'END', 'never read']\nfor line in lines:\n    if line == '':\n        continue\n    if line == 'END':\n        break\n    print(line.upper())",
+      "expected_output": "FIRST\nSECOND"
+    },
+    {
+      "id": "d10-c28",
+      "type": "predict",
+      "section": "Break and Continue - Part 2",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "numbers = (0, 1, 2, 3, 4, 5)\nfor number in numbers:\n    if number == 3:\n        continue\n    if number == 5:\n        break\n    print(number)",
+      "choices": [
+        "0\n1\n2\n3\n4",
+        "0\n1\n2",
+        "0\n1\n2\n4\n5",
+        "0\n1\n2\n4"
+      ],
+      "answer": "0\n1\n2\n4",
+      "why_tr": "3 `continue` ile atlanır, 5 ise print'inden önce `break`'i tetikler; yalnızca 0, 1, 2 ve 4 yazdırılır.",
+      "why": "3 is skipped by `continue`, and 5 triggers `break` before its print, so only 0, 1, 2 and 4 are printed."
+    },
+    {
+      "id": "d10-c29",
+      "type": "order",
+      "section": "Break and Continue - Part 2",
+      "title_tr": "Ücretsizleri atlayan döngüyü sırala",
+      "title": "Order the loop that skips free items",
       "lines": [
-        "print(total)",
-        "for number in range(1, 5):",
-        "total = 0",
-        "    total += number"
+        "    print(p)",
+        "    if p == 0:",
+        "for p in [40, 0, 25]:",
+        "        continue"
       ],
       "correct_order": [
         2,
@@ -311,41 +379,186 @@
         3,
         0
       ],
-      "expected_output": "10"
+      "expected_output": "40\n25"
     },
     {
-      "id": "d10-c24",
+      "id": "d10-c30",
+      "type": "explain",
+      "section": "The Range Function",
+      "title_tr": "range(): istenince üretilen sayılar",
+      "title": "range(): numbers on demand",
+      "body_tr": "`range(stop)` 0, 1, ..., stop - 1 üretir. `range(start, stop)` başka bir yerden başlar, `range(start, stop, step)` `step` kadar atlar. Bitiş değeri, tıpkı dilimlerdeki gibi, asla dahil edilmez.\n\nOrijinal ders range'in bir list döndürdüğünü söyler. Döndürmez: her sayıyı yalnızca döngü istediğinde üreten bir `range` nesnesi döndürür; bu yüzden `range(1_000_000)` neredeyse hiç bellek kullanmaz. Sayıları görmek ya da saklamak istediğinde onu `list()` ile sar.",
+      "body": "`range(stop)` produces 0, 1, ..., stop - 1. `range(start, stop)` starts elsewhere, and `range(start, stop, step)` jumps by `step`. The stop value is never included, just like a slice.\n\nThe original course says range returns a list. It does not: it returns a `range` object that produces each number only when the loop asks for it, so `range(1_000_000)` uses almost no memory. Wrap it in `list()` when you want to see or store the numbers.",
+      "code": "print(range(5))\nprint(list(range(5)))\nprint(list(range(1, 11, 3)))\nprint(list(range(0, 11, 2)))\nfor i in range(3):\n    print('round', i)",
+      "expected_output": "range(0, 5)\n[0, 1, 2, 3, 4]\n[1, 4, 7, 10]\n[0, 2, 4, 6, 8, 10]\nround 0\nround 1\nround 2"
+    },
+    {
+      "id": "d10-c31",
+      "type": "explain",
+      "section": "The Range Function",
+      "title_tr": "Geriye saymak ve sık bir hata",
+      "title": "Counting down, and a common error",
+      "body_tr": "Negatif adım geriye sayar: `range(10, 0, -2)` 10, 8, 6, 4, 2 verir. Bitiş (0) yine dahil değildir. Negatif adımda başlangıç bitişten büyük olmalıdır; `range(0, 10, -1)` basitçe boştur.\n\n`range` yalnızca tam sayı kabul eder. `range(2.5)` şu hatayı verir: `TypeError: 'float' object cannot be interpreted as an integer`. Bu çoğu zaman bir bölmeden sonra olur: `range(n / 2)` düşer, `range(n // 2)` çalışır, çünkü `//` int döndürür.",
+      "body": "A negative step counts down: `range(10, 0, -2)` gives 10, 8, 6, 4, 2. The stop (0) is still excluded. With a negative step the start must be larger than the stop; `range(0, 10, -1)` is simply empty.\n\n`range` only accepts whole numbers. `range(2.5)` raises `TypeError: 'float' object cannot be interpreted as an integer`. This often happens after a division: `range(n / 2)` fails, `range(n // 2)` works, because `//` returns an int.",
+      "code": "print(list(range(10, 0, -2)))\nprint(list(range(0, 10, -1)))\nn = 7\nprint(list(range(n // 2)))\nfor i in range(3, 0, -1):\n    print(i, end=' ')\nprint('lift off')",
+      "expected_output": "[10, 8, 6, 4, 2]\n[]\n[0, 1, 2]\n3 2 1 lift off"
+    },
+    {
+      "id": "d10-c32",
+      "type": "predict",
+      "section": "The Range Function",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "total = 0\nfor i in range(1, 10, 3):\n    total += i\nprint(total, list(range(1, 10, 3))[-1])",
+      "choices": [
+        "22 10",
+        "15 9",
+        "45 9",
+        "12 7"
+      ],
+      "answer": "12 7",
+      "why_tr": "range(1, 10, 3) 1, 4, 7 verir (10 bitiştir ve dahil değildir). Toplamları 12, sonuncusu 7'dir.",
+      "why": "range(1, 10, 3) gives 1, 4, 7 (10 is the stop and excluded). Their sum is 12 and the last one is 7."
+    },
+    {
+      "id": "d10-c33",
+      "type": "fill",
+      "section": "The Range Function",
+      "title_tr": "10'dan 1'e geri say",
+      "title": "Count down from 10 to 1",
+      "code": "for i in range(___):\n    print(i, end=' ')",
+      "answers": [
+        "10, 0, -1"
+      ],
+      "expected_output": "10 9 8 7 6 5 4 3 2 1 ",
+      "why_tr": "10'dan başla, 0'dan ÖNCE dur ve -1 adımla git: döngü 10'dan 1'e kadar yazdırır.",
+      "why": "Start at 10, stop BEFORE 0 and step by -1: the loop prints 10 down to 1."
+    },
+    {
+      "id": "d10-c34",
+      "type": "explain",
+      "section": "Nested For Loop",
+      "title_tr": "Döngü içinde döngü",
+      "title": "A loop inside a loop",
+      "body_tr": "İçteki döngü, dıştaki döngünün her bir turu için baştan sona çalışır. Dışta 3, içte 2 tur varsa iç blok 3 x 2 = 6 kez çalışır.\n\nKüçük çarpım tablosunu adım adım izle ve `row` ile `col`'a bak. `col` 1, 2 giderken `row` 1'de kalır; sonra `row` 2 olur ve `col` yeniden 1'den başlar. İç döngüden sonra, dış girintideki `print()` her satırı bitirir.",
+      "body": "The inner loop runs completely for every single round of the outer loop. With 3 outer rounds and 2 inner rounds, the inner block runs 3 x 2 = 6 times.\n\nStep through the small multiplication table and watch `row` and `col`. `row` stays 1 while `col` goes 1, 2; then `row` becomes 2 and `col` starts again at 1. The `print()` after the inner loop, at the outer indentation, ends each line.",
+      "code": "for row in range(1, 4):\n    for col in range(1, 3):\n        print(row * col, end=' ')\n    print()",
+      "expected_output": "1 2 \n2 4 \n3 6 ",
+      "trace": true
+    },
+    {
+      "id": "d10-c35",
+      "type": "explain",
+      "section": "Nested For Loop",
+      "title_tr": "Gerçekçi örnek: desenler ve iç içe veri",
+      "title": "Realistic: patterns and nested data",
+      "body_tr": "Orijinal alıştırmalar `#` ile şekiller çizer. Dış döngü satırı seçer, iç döngü o satırın simgelerini yazdırır. Üçgende iç döngünün uzunluğu dış değişkene bağlıdır: `range(i)`. `_` ismi, hiç kullanmadığın bir döngü değişkeni için gelenektir.\n\nİç içe veri diğer günlük sebeptir. Orijinal ders person dict'i üzerinde döner ve anahtar 'skills' olduğunda içteki list üzerinde döner. Verinin her seviyesi kendi döngüsünü alır.",
+      "body": "The original exercises draw shapes with `#`. An outer loop chooses the line, an inner loop prints the symbols of that line. For a triangle the inner loop's length depends on the outer variable: `range(i)`. The name `_` is a convention for a loop variable you never use.\n\nNested data is the other everyday reason. The original course loops over the person dict and, when the key is 'skills', loops over the inner list. Each level of data gets its own loop.",
+      "code": "for i in range(1, 4):\n    for _ in range(i):\n        print('#', end='')\n    print()\nperson = {'name': 'Elif', 'skills': ['Python', 'SQL']}\nfor key in person:\n    if key == 'skills':\n        for skill in person['skills']:\n            print('-', skill)",
+      "expected_output": "#\n##\n###\n- Python\n- SQL"
+    },
+    {
+      "id": "d10-c36",
+      "type": "predict",
+      "section": "Nested For Loop",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "count = 0\nfor a in range(3):\n    for b in range(4):\n        count += 1\nprint(count, a, b)",
+      "choices": [
+        "12 2 3",
+        "7 3 4",
+        "12 3 4",
+        "7 2 3"
+      ],
+      "answer": "12 2 3",
+      "why_tr": "İç blok 3 x 4 = 12 kez çalışır. Döngülerden sonra a ve b son değerlerini tutar: range(3) 2'de, range(4) 3'te biter.",
+      "why": "The inner block runs 3 x 4 = 12 times. After the loops, a and b keep their last values: range(3) ends at 2, range(4) at 3."
+    },
+    {
+      "id": "d10-c37",
+      "type": "explain",
+      "section": "For Else",
+      "title_tr": "for ... else: hiçbir şey bulunamadığında",
+      "title": "for ... else: when nothing was found",
+      "body_tr": "`for` döngüsünün `else`'i yalnızca döngü **break olmadan** bütün öğelerden geçtiğinde çalışır. Orijinal ders onu \"döngü bitince bir mesaj\" diye anlatır; bu asıl noktayı kaçırır: `break` sonrası `else` atlanır.\n\nGerçek kullanımı aramadır. Öğeyi bulunca `break` yap; o zaman `else` \"her yere baktım, bulamadım\" demektir. Onsuz fazladan bir `found = False` bayrağı gerekirdi.",
+      "body": "The `else` of a `for` loop runs only when the loop went through every item **without** a `break`. The original course describes it as \"a message when the loop ends\", which misses the point: after a `break` the `else` is skipped.\n\nIts real use is searching. `break` when you find the item; the `else` then means \"searched everything, not found\". Without it you would need an extra `found = False` flag.",
+      "code": "users = ['ayse', 'can', 'deniz']\nfor u in users:\n    if u == 'mert':\n        print('found mert')\n        break\nelse:\n    print('mert is not registered')",
+      "expected_output": "mert is not registered"
+    },
+    {
+      "id": "d10-c38",
+      "type": "predict",
+      "section": "For Else",
+      "title_tr": "Çıktıyı tahmin et",
+      "title": "Predict the output",
+      "code": "for n in [3, 7, 10, 12]:\n    if n % 5 == 0:\n        print('first multiple of 5:', n)\n        break\nelse:\n    print('none')",
+      "choices": [
+        "first multiple of 5: 10",
+        "none",
+        "first multiple of 5: 10\nnone",
+        "first multiple of 5: 10\nfirst multiple of 5: 12"
+      ],
+      "answer": "first multiple of 5: 10",
+      "why_tr": "10 5'in ilk katıdır; döngü onu yazdırır ve break yapar. break olduğu için `else` bloğu atlanır.",
+      "why": "10 is the first multiple of 5, so the loop prints it and breaks. Because of the break, the `else` block is skipped."
+    },
+    {
+      "id": "d10-c39",
+      "type": "explain",
+      "section": "Pass",
+      "title_tr": "pass: bilerek boş bırakılmış blok",
+      "title": "pass: an empty block on purpose",
+      "body_tr": "Her blok en az bir deyim ister. Altında girintili hiçbir şey olmayan bir `for`, `if` ya da `while` satırı şu hatayı verir: `IndentationError: expected an indented block after 'for' statement on line 1`.\n\n`pass` hiçbir şey yapmayan bir deyimdir. Henüz yazmadığın bir bloğu doldurur, bir yer tutucudur: \"bu durumla sonra ilgileneceğim\". (Orijinal ders \"noktalı virgülden sonra\" gerektiğini söyler; kastettiği iki noktadan sonradır.) Bitmiş kodda boş blok nadirdir; `pass` çoğunlukla taslaklarda yaşar.",
+      "body": "Every block needs at least one statement. A `for`, `if` or `while` line with nothing indented below it raises `IndentationError: expected an indented block after 'for' statement on line 1`.\n\n`pass` is a statement that does nothing. It fills a block you have not written yet, a placeholder: \"I will handle this case later\". (The original course says it is needed \"after semicolon\"; it means after the colon.) In finished code an empty block is rare; `pass` mostly lives in drafts.",
+      "code": "for number in range(6):\n    pass\nprint('loop ran, number is', number)\nstatus = 'new'\nif status == 'archived':\n    pass\nelse:\n    print('processing', status)",
+      "expected_output": "loop ran, number is 5\nprocessing new"
+    },
+    {
+      "id": "d10-c40",
       "type": "truefalse",
       "section": "Pass",
       "title_tr": "Doğru mu, yanlış mı?",
       "title": "True or false?",
-      "statement_tr": "`pass` ifadesi döngüyü sonlandırır.",
-      "statement": "The `pass` statement ends the loop.",
+      "statement_tr": "`pass`, `continue` gibi o anki döngü turunun geri kalanını atlar.",
+      "statement": "`pass` skips the rest of the current loop round, like `continue`.",
       "answer": false,
-      "why_tr": "`pass` hiçbir şey yapmaz; yalnızca boş blokta hata çıkmasını önler. Döngüyü bitiren `break`'tir.",
-      "why": "`pass` does nothing; it only prevents an error in an empty block. It is `break` that ends a loop."
+      "why_tr": "`pass` hiçbir şey yapmaz; ondan sonraki satırlar yine çalışır. Sonraki tura atlayan deyim `continue`'dur.",
+      "why": "`pass` does nothing at all; the lines after it still run. `continue` is the statement that jumps to the next round."
     },
     {
-      "id": "d10-c25",
+      "id": "d10-c41",
+      "type": "explain",
+      "section": "Loops",
+      "title_tr": "Doğru döngüyü seçmek",
+      "title": "Choosing the right loop",
+      "body_tr": "Öğeler elindeyse `for` kullan: bir list, bir string, bir dict, bir dosyanın satırları ya da `range` ile bilinen bir tur sayısı. Öğelerin kendisi üzerinde dön; konum ya da çift gerektiğinde `enumerate` ya da `zip` ekle.\n\nTur sayısı döngünün içinde olan bir şeye bağlıysa `while` kullan: ulaşılacak bir hedef, 'quit' yazabilecek bir kullanıcı, yakınsayan bir değer.\n\nİkisinde de biriktiricileri döngünün dışında tut, her `while` turunda döngü değişkenini değiştir ve üzerinde döndüğün list'i asla değiştirme.",
+      "body": "Use `for` when you have the items: a list, a string, a dict, a file's lines, or a known number of rounds with `range`. Loop over the items themselves, and add `enumerate` or `zip` when you need positions or pairs.\n\nUse `while` when the number of rounds depends on something that happens inside the loop: a goal to reach, a user who may type 'quit', a value that converges.\n\nIn both, keep accumulators outside the loop, change the loop variable in every `while` round, and never modify the list you are looping over.",
+      "code": "goal = 100\nlevel = 1\nwhile level * level < goal:\n    level += 1\nprint('smallest square >=', goal, 'is', level * level)\nfor i, word in enumerate(['for', 'while']):\n    print(i, word)",
+      "expected_output": "smallest square >= 100 is 100\n0 for\n1 while"
+    },
+    {
+      "id": "d10-c42",
       "type": "recap",
-      "section": "Pass",
-      "title_tr": "Özet",
-      "title": "Recap",
+      "section": "Loops",
+      "title_tr": "Bugünün beş notu",
+      "title": "Today in five notes",
       "points_tr": [
-        "`while` koşul True olduğu sürece tekrarlar; `for` bir koleksiyonun öğelerini gezer.",
-        "`break` döngüyü bitirir, `continue` o turu atlar, `pass` hiçbir şey yapmaz.",
-        "`range(başlangıç, bitiş, adım)` sayı dizisi üretir; bitiş dahil değildir.",
-        "Dictionary'de `for` anahtarları verir, `items()` hem anahtar hem değer verir; `else` döngü normal bitince çalışır."
+        "while döngüsü koşul True olduğu sürece bloğunu tekrarlar; içerideki bir şey değişmeli ki koşul sonunda False olsun.",
+        "for döngüsü ismini sırayla bir koleksiyonun (list, string, tuple, dict anahtarları, set) her öğesine bağlar; böylece indeks yönetmek yerine öğeler üzerinde dönersin.",
+        "break döngüden hemen çıkar, continue sonraki tura geçer; bir döngünün else'i yalnızca döngü break olmadan bittiğinde çalışır.",
+        "range(start, stop, step) tam sayıları istendikçe üretir ve stop'u asla dahil etmez; enumerate() konum ekler, zip() iki koleksiyonu eşler.",
+        "Biriktiricileri döngünün dışında tut, üzerinde döndüğün list'i değiştirmek yerine yeni bir list kur ve dıştaki her tur içte tam bir geçiş istiyorsa iç içe döngü kullan."
       ],
       "points": [
-        "`while` repeats as long as the condition is True; `for` walks the items of a collection.",
-        "`break` ends the loop, `continue` skips the round, `pass` does nothing.",
-        "`range(start, end, step)` makes a number sequence; the end is not included.",
-        "On a dictionary `for` gives keys and `items()` gives key and value; `else` runs when the loop ends normally."
+        "A while loop repeats its block as long as the condition is True; something inside must change so that the condition eventually becomes False.",
+        "A for loop binds its name to each item of a collection in turn (list, string, tuple, dict keys, set), so you loop over items instead of managing an index.",
+        "break leaves the loop at once, continue skips to the next round, and the else of a loop runs only when the loop ended without break.",
+        "range(start, stop, step) produces whole numbers on demand and never includes stop; enumerate() adds positions and zip() pairs two collections.",
+        "Keep accumulators outside the loop, build a new list instead of changing the one you loop over, and use nested loops when every outer round needs a full inner pass."
       ],
-      "cta_tr": "Şimdi alıştırmalara geç",
-      "cta": "Go to the exercises now",
-      "target": "learn"
+      "target": "learn",
+      "cta_tr": "Döngü alıştırmalarına geç",
+      "cta": "Practise loops"
     }
   ]
 }

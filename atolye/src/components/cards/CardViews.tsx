@@ -92,6 +92,18 @@ function ExplainCode({ card, day }: { card: ExplainCard; day: number }) {
     }
   }
 
+  // a glossary example sent from the side column ("Dene") replaces the code in the editor
+  useEffect(() => {
+    const f = (e: Event) => {
+      const code = (e as CustomEvent<string>).detail
+      if (typeof code !== 'string') return
+      setSrc(code)
+      setMode('run')
+    }
+    window.addEventListener('atolye:try-code', f)
+    return () => window.removeEventListener('atolye:try-code', f)
+  }, [])
+
   const wait = running && phase !== 'ready' ? localize(status || '@@prepare') : ''
 
   return (

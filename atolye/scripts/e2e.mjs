@@ -162,10 +162,10 @@ async function playDay(page, n, { skipTwin = false, stopAtQuiz = true } = {}) {
     if (kind === 'worked') {
       await page.getByRole('button', { name: 'Anladım' }).click()
     } else {
-      // identify the exercise by its prompt text
-      const prompt = (await page.locator('.step-card .step-prompt').first().innerText()).trim()
-      const ex = d.blocks.flatMap((b) => b.exercises).find((e) => promptOf(e).trim() === prompt && e.type === kind)
-      if (!ex) throw new Error(`no exercise for prompt "${prompt.slice(0, 50)}" (${kind})`)
+      // The app walks the day in stepsOf() order and every step (solved, skipped or read) advances by one, so the exercise on
+      // screen is steps[guard]. Prompts are not unique ("Bu program ne yazdırır?" opens many predicts), so never look one up by text.
+      const ex = steps[guard]?.ex
+      if (!ex || ex.type !== kind) throw new Error(`step ${guard} is ${steps[guard]?.kind}, the page shows ${kind}`)
       const isOpt = (await page.locator('.step-card .step-note', { hasText: 'isteğe bağlı' }).count()) > 0
       if (isOpt && skipTwin) {
         await page.getByRole('button', { name: 'Atla' }).click()
@@ -422,7 +422,9 @@ T('i2-explain-rules', async () => {
   const card = page.locator('.step-card')
   await card.locator('textarea[name=aciklama]').fill('aaaaaaaaaaaaaa')
   assert(await card.getByRole('button', { name: 'Cevabımı gönder' }).isDisabled(), 'one long word is not an answer')
-  await card.locator('textarea[name=aciklama]').fill('qqq www eee rrr ttt yyy')
+  // the exercise says how many words an answer needs (min_words, 6 by default): enough gibberish words to reach it
+  const need = steps[target].ex.min_words ?? 6
+  await card.locator('textarea[name=aciklama]').fill(Array.from({ length: need }, (_, i) => 'qq' + 'wertyuiopasdfghjkl'.slice(i % 18, (i % 18) + 3)).join(' '))
   await card.getByRole('button', { name: 'Cevabımı gönder' }).click()
   const xp0 = (await store(page))?.xp ?? 0
   assert((await card.getByRole('button', { name: /^Tamam$/ }).count()) === 0, 'no instant Tamam for a gibberish answer')
@@ -501,7 +503,11 @@ T('c3-real-content-hardcoded-answer-fails', async () => {
   const d = await loadDayJson(page, 1)
   assert(/__source__/.test(d.test_conventions || ''), 'day01 test_conventions must mention __source__ (content has not landed)')
   const steps = stepsOf(d)
-  const target = steps.findIndex((s) => s.ex?.id === 'd01-b3-e3')
+  // The first write exercise that carries an anti-hardcode test and an exact-output test: typing its expected line must not pass.
+  const outputOf = (e) => (e.tests || []).map((t) => /__stdout__\.rstrip\(\)\s*==\s*'((?:[^'\\]|\\.)*)'/.exec(t.code || '')?.[1]).find((x) => x !== undefined)
+  const target = steps.findIndex((s) => s.ex?.type === 'write' && (s.ex.tests || []).some((t) => t.anti_hardcode) && outputOf(s.ex) !== undefined)
+  assert(target >= 0, 'day 1 has a write exercise with an anti-hardcode test')
+  const ex = steps[target].ex
   for (let k = 0; k < target; k++) {
     const st = steps[k]
     const isOpt = (await page.locator('.step-card .step-note', { hasText: 'isteğe bağlı' }).count()) > 0
@@ -517,26 +523,26 @@ T('c3-real-content-hardcoded-answer-fails', async () => {
     await nextBtn(page).click()
   }
   const card = page.locator('.step-card')
-  await setEditor(page, 'x1 = 2\ny1 = 3\nx2 = 10\ny2 = 8\ndistance = 9.433981132056603\nprint(distance)')
+  const typed = outputOf(ex).replace(/\\n/g, '\n')
+  await setEditor(page, `print(${JSON.stringify(typed)})`)
   await card.getByRole('button', { name: 'Kontrol et' }).click()
   await card.locator('.tests').waitFor({ timeout: 60000 })
   const bad = await card.locator('.tests li.is-bad').count()
   const ok = await card.locator('.tests li.is-ok').count()
-  console.log(`    hard-coded answer: ${ok} checks passed, ${bad} failed`)
+  console.log(`    hard-coded answer (${ex.id}): ${ok} checks passed, ${bad} failed`)
   assert(bad >= 1, 'the hidden re-run test must fail a hard-coded answer')
   assert((await page.locator('.step-card p.solved').count()) === 0, 'must not complete the step')
   // visible tests show words, not assert code
   const names = await card.locator('.test-name').allInnerTexts()
   assert(!names.some((n) => /assert|abs\(/.test(n)), 'visible tests must show labels, not assert code: ' + JSON.stringify(names))
   await card.locator('.test-code summary').first().click()
-  assert((await card.locator('.test-code code').first().innerText()).includes('distance'), '"Kodu göster" reveals the assert')
-  await setEditor(page, d.blocks[2].exercises[2].solution.code)
+  assert((await card.locator('.test-code code').first().innerText()).includes('__stdout__'), '"Kodu göster" reveals the assert')
+  await setEditor(page, ex.solution.code)
   await card.getByRole('button', { name: 'Kontrol et' }).click()
   await waitSolved(page)
   await page.context().close()
 })
 
-/** I3: language toggle, default TR, persisted. */
 T('i3-language-toggle', async () => {
   const page = await newPage()
   await page.goto(BASE + '#/day/1/learn')
@@ -734,8 +740,24 @@ T('r4-answer-feedback-classes', async () => {
   await page.goto(BASE + '#/day/1/learn')
   await page.locator('.learn').waitFor()
   const d = await loadDayJson(page, 1)
-  const st = stepsOf(d).find((s) => s.kind === 'predict' && (s.ex.choices ?? []).length > 1)
-  const ex = st.ex
+  const steps = stepsOf(d)
+  const target = steps.findIndex((s) => s.kind === 'predict' && (s.ex.choices ?? []).length > 1)
+  // the first multiple-choice prediction is not necessarily the first step: solve what comes before it
+  for (let k = 0; k < target; k++) {
+    const st = steps[k]
+    const isOpt = (await page.locator('.step-card .step-note', { hasText: 'isteğe bağlı' }).count()) > 0
+    if (isOpt) {
+      await page.getByRole('button', { name: 'Atla' }).click()
+      continue
+    }
+    if (st.kind === 'worked') await page.getByRole('button', { name: 'Anladım' }).click()
+    else {
+      await solve(page, st.ex)
+      await waitSolved(page)
+    }
+    await nextBtn(page).click()
+  }
+  const ex = steps[target].ex
   const card = page.locator('.step-card')
   const wrong = ex.choices.findIndex((c) => c !== ex.expected_output)
   await card.locator('label.choice').nth(wrong).click()
@@ -1157,7 +1179,8 @@ T('r5-cards-touch-swipe', async () => {
   await openCards(page)
   const cdp = await ctx.newCDPSession(page)
   const box = await page.locator('.cards-stage').boundingBox()
-  const y = box.y + 14
+  // start on the card's text: the header row now holds the Notlar / Orijinali gör buttons, and a press on a button never starts a swipe
+  const y = box.y + 150
   const touch = (type, x) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] })
   await touch('touchStart', 330)
   for (const x of [300, 260, 220, 200]) {
@@ -1345,15 +1368,16 @@ T('r5-cards-first-visit-opens-anlatim-and-original-text', async () => {
   await page.waitForFunction(() => location.hash === '#/day/2/learn', null, { timeout: 15000 })
   await page.getByRole('tab', { name: 'Anlatım' }).click()
   await page.getByRole('heading', { name: /hazırlanıyor/ }).waitFor()
-  // the original English section is collapsed by default and opens on demand
+  // the original English section sits on the back of the card: it is not shown until the card is turned
   await page.goto(BASE + '#/day/4/text')
   await page.locator('.cards').waitFor()
-  assert((await page.locator('details.orig[open]').count()) === 0, 'the original text is collapsed')
-  await page.locator('details.orig summary').click()
-  await page.locator('.orig-body').waitFor({ timeout: 15000 })
-  const txt = await page.locator('.orig-body').innerText()
+  assert((await page.locator('.card-flip[data-flipped="true"]').count()) === 0, 'the card starts on its front')
+  assert((await page.locator('details.orig').count()) === 0, 'no click-to-open box under the card any more')
+  await page.getByRole('button', { name: 'Orijinali gör' }).first().click()
+  await page.locator('.card-back .orig-body').waitFor({ timeout: 15000 })
+  const txt = await page.locator('.card-back .orig-body').innerText()
   assert(/String/i.test(txt) && txt.length > 80, 'the English section is shown (' + txt.length + ' chars)')
-  assert((await page.locator('.orig-body pre').count()) > 0, 'its code comes back as code blocks')
+  assert((await page.locator('.card-back .orig-body pre').count()) > 0, 'its code comes back as code blocks')
   // the full lesson page is still there
   await page.goto(BASE + '#/day/4/full')
   await page.locator('.md').first().waitFor({ timeout: 20000 })
@@ -1468,6 +1492,7 @@ T('r6-lang-switch-same-place-on-every-route', async () => {
 })
 
 T('r6-lang-switch-phone-bottom-centre', async () => {
+  // v10: on a phone the switch no longer floats over the card at the bottom; it sits at the top, right under the header bar
   const ctx = await seeded({ done: DONE(range(1, 7)) }, { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
   const page = await newPage({ ctx })
   let first = null
@@ -1475,9 +1500,8 @@ T('r6-lang-switch-phone-bottom-centre', async () => {
     await page.goto(BASE + r)
     await langSwitch(page).waitFor({ timeout: 20000 })
     const box = await langSwitch(page).boundingBox()
-    assert(Math.abs(box.x + box.width / 2 - 195) < 2, `${r}: centred on a phone: ${JSON.stringify(box)}`)
-    assert(box.y + box.height < 844 - 60, `${r}: above the thumb zone: ${JSON.stringify(box)}`)
-    assert(box.x >= 16 && box.x + box.width <= 390 - 16, `${r}: inside the 16px gutters`)
+    assert(box.y >= 0 && box.y + box.height <= 130, `${r}: in the header area: ${JSON.stringify(box)}`)
+    assert(box.x >= 16 && box.x + box.width <= 390 - 12, `${r}: inside the gutters`)
     if (!first) first = box
     else assert(Math.abs(box.x - first.x) < 1.5 && Math.abs(box.y - first.y) < 1.5, `${r}: same place`)
   }
@@ -1520,10 +1544,10 @@ T('r6-lang-switch-changes-chrome-exercise-card-and-boss', async () => {
   await langSwitch(page).getByRole('button', { name: /Türkçe/ }).click()
   await waitLang(page, 'tr')
   assert(squashText(await cmd.innerText()).startsWith(squashText(c0.body_tr).slice(0, 30)), 'card body switches to Turkish: ' + (await cmd.innerText()).slice(0, 60))
-  assert((await page.locator('.orig summary').first().innerText()) === 'Orijinal metin', 'disclosure label in Turkish')
+  assert((await page.locator('.card-front .flip-btn').first().innerText()) === 'Orijinali gör', 'flip button label in Turkish')
   await langSwitch(page).getByRole('button', { name: /English/ }).click()
   await waitLang(page, 'en')
-  assert((await page.locator('.orig summary').first().innerText()) === 'Original text', 'disclosure label in English')
+  assert((await page.locator('.card-front .flip-btn').first().innerText()) === 'See the original', 'flip button label in English')
   // a boss story: the file has Turkish only, the English one lives in the dictionary
   const boss = await page.evaluate((u) => fetch(u).then((r) => r.json()), BASE + 'bosses/part1.json')
   await page.goto(BASE + '#/boss/1')
@@ -1934,6 +1958,426 @@ T('b1-no-reload-loop-when-the-new-build-never-arrives', async () => {
   assert((await page.locator('.ver-bar').count()) === 1, 'the learner is told instead')
   await ctx.close()
 })
+
+// ---------------------------------------------------------------------------------------------------------------------
+// v10: flip cards for the original text, side columns that teach, skeleton, long cards.
+
+const FIX = (f) => readFileSync(new URL('./fixtures/' + f, import.meta.url), 'utf8')
+const isCheck = (c) => ['predict', 'fill', 'truefalse', 'order'].includes(c.type)
+const dayFile = (n) => JSON.parse(readFileSync(join(dist, 'cards', `day${String(n).padStart(2, '0')}.json`), 'utf8'))
+/** A store that has the whole day unlocked (every checkpoint answered), the learner standing on card `pos`. */
+const openDay = (n, pos = 0) => {
+  const d = dayFile(n)
+  return { cards: { [n]: { pos, max: d.cards.length, recap: '', res: Object.fromEntries(d.cards.filter(isCheck).map((c) => [c.id, { r: 'ok', done: true }])) } } }
+}
+async function sideFiles(page, mode = 'fixture') {
+  const hit = (name) => (route) => (mode === 'missing' ? route.fulfill({ status: 404, body: 'nf' }) : route.fulfill({ status: 200, contentType: 'application/json', body: FIX(name) }))
+  await page.route('**/glossary.json', hit('glossary.json'))
+  await page.route('**/resources.json', hit('resources.json'))
+}
+async function dayAt(n, pos, opts = {}) {
+  const { side = 'fixture', ...ctxOpts } = opts
+  const ctx = await seeded({ v: 1, ...openDay(n, pos) }, { viewport: { width: 1280, height: 900 }, ...ctxOpts })
+  const page = await newPage({ ctx })
+  if (side) await sideFiles(page, side)
+  await page.goto(BASE + `#/day/${n}/text`)
+  await page.locator('.card-flip').waitFor({ timeout: 20000 })
+  await page.locator('.cards-strip').waitFor()
+  return page
+}
+const flipped = (page) => page.locator('.card-flip').getAttribute('data-flipped')
+
+T('v10-flip-by-double-click-button-and-F', async () => {
+  const page = await dayAt(1, 0, { reducedMotion: 'reduce' })
+  assert((await flipped(page)) === 'false', 'starts on the front')
+  await page.locator('.card-front .ctitle').dblclick()
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true')
+  assert((await page.locator('.card-back').getAttribute('inert')) === null, 'the back is live when shown')
+  assert((await page.locator('.card-front').getAttribute('inert')) !== null, 'the front is inert while the back shows')
+  await page.locator('.card-back .orig-body').first().waitFor({ timeout: 15000 })
+  await page.locator('.card-back h2, .card-back .orig-body').first().dblclick({ position: { x: 12, y: 12 } })
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'false')
+  // the labelled button, same place on front and back
+  const b1 = await page.locator('.card-front .flip-btn').boundingBox()
+  assert((await page.locator('.card-front .flip-btn').innerText()) === 'Orijinali gör', 'front label')
+  await page.locator('.card-front .flip-btn').click()
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true')
+  assert((await page.locator('.card-back .flip-btn').innerText()) === 'Karta dön', 'back label')
+  const b2 = await page.locator('.card-back .flip-btn').boundingBox()
+  assert(Math.abs(b1.x + b1.width - (b2.x + b2.width)) < 2 && Math.abs(b1.y - b2.y) < 2, `the button stays in the same place: ${JSON.stringify(b1)} vs ${JSON.stringify(b2)}`)
+  await page.locator('.card-back .flip-btn').click()
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'false')
+  // keyboard: F, then Esc on the back
+  await page.locator('.card-front .ctitle').click()
+  await page.keyboard.press('f')
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true')
+  await page.keyboard.press('Escape')
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'false')
+  await page.keyboard.press('F')
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true')
+  await page.keyboard.press('f')
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'false')
+  await page.context().close()
+})
+
+T('v10-double-tap-flips-on-touch-and-a-single-tap-does-not', async () => {
+  const page = await dayAt(3, 0, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce' })
+  const t = await page.locator('.card-front .ctitle').boundingBox()
+  const x = t.x + 40
+  const y = t.y + t.height / 2
+  await page.touchscreen.tap(x, y)
+  await sleep(500)
+  assert((await flipped(page)) === 'false', 'one tap does nothing')
+  await page.touchscreen.tap(x, y)
+  await page.touchscreen.tap(x, y)
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true', null, { timeout: 5000 })
+  await sleep(700)
+  assert((await flipped(page)) === 'true', 'a double-tap turns the card once (the follow-up double-click does not turn it back)')
+  await page.context().close()
+})
+
+T('v10-double-click-in-the-editor-does-not-flip', async () => {
+  const page = await dayAt(1, 0, { reducedMotion: 'reduce' })
+  const ed = page.locator('.card-front .cm-content').first()
+  await ed.waitFor({ timeout: 20000 })
+  await ed.dblclick()
+  await sleep(500)
+  assert((await flipped(page)) === 'false', 'double-click in the editor must not flip')
+  await page.locator('.card-front .cards-keys, .card-front .ccode-cell').first().click({ position: { x: 5, y: 5 } }).catch(() => {})
+  // typing an f in the editor must not flip either
+  await ed.click()
+  await page.keyboard.type('f')
+  await sleep(300)
+  assert((await flipped(page)) === 'false', 'typing f in the editor must not flip')
+  await page.context().close()
+})
+
+T('v10-flip-is-a-real-3d-turn-with-an-animated-height', async () => {
+  const page = await dayAt(3, 0)
+  const css = await page.evaluate(() => {
+    const flip = document.querySelector('.card-flip')
+    const inner = document.querySelector('.card-flip-inner')
+    return { perspective: getComputedStyle(flip).perspective, style: getComputedStyle(inner).transformStyle, bf: getComputedStyle(document.querySelector('.card-back')).backfaceVisibility, bf2: getComputedStyle(document.querySelector('.card-front')).backfaceVisibility }
+  })
+  assert(css.perspective !== 'none' && css.style === 'preserve-3d' && css.bf === 'hidden' && css.bf2 === 'hidden', 'perspective + preserve-3d + backface hidden: ' + JSON.stringify(css))
+  // lazy parts (fonts, glossary, resources) can still change the front's height right after load: wait until it holds still
+  let h0 = -1
+  for (let i = 0; i < 20; i++) {
+    const h = await page.locator('.card-flip').evaluate((e) => e.getBoundingClientRect().height)
+    if (h === h0) break
+    h0 = h
+    await sleep(400)
+  }
+  await page.keyboard.press('f')
+  await sleep(120)
+  const mid = await page.locator('.card-flip-inner').evaluate((e) => getComputedStyle(e).transform)
+  assert(mid !== 'none' && mid.startsWith('matrix3d'), 'mid-turn the card is rotated in 3D: ' + mid)
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true')
+  await sleep(700)
+  const m = await page.evaluate(() => ({ box: document.querySelector('.card-flip').getBoundingClientRect().height, back: document.querySelector('.card-back').getBoundingClientRect().height }))
+  assert(Math.abs(m.box - m.back) < 3, `the card takes the back's height: box ${m.box} back ${m.back}`)
+  // no nested scrollbar anywhere inside the card
+  const nested = await page.evaluate(() => [...document.querySelectorAll('.card-flip *')].filter((e) => /(auto|scroll)/.test(getComputedStyle(e).overflowY) && e.scrollHeight > e.clientHeight + 1).map((e) => e.className))
+  assert(nested.length === 0, 'no element in the card scrolls on its own: ' + nested.join(','))
+  await page.keyboard.press('f')
+  await sleep(700)
+  const h1 = await page.locator('.card-flip').evaluate((e) => e.getBoundingClientRect().height)
+  assert(Math.abs(h1 - h0) < 3, `back on the front: height returns (${h0} vs ${h1})`)
+  await page.context().close()
+})
+
+T('v10-flip-reduced-motion-uses-no-3d-transform', async () => {
+  const page = await dayAt(3, 0, { reducedMotion: 'reduce' })
+  await page.keyboard.press('f')
+  await sleep(60)
+  const css = await page.evaluate(() => ({ t: getComputedStyle(document.querySelector('.card-flip-inner')).transform, p: getComputedStyle(document.querySelector('.card-flip')).perspective, s: getComputedStyle(document.querySelector('.card-flip-inner')).transformStyle }))
+  assert(css.t === 'none' && css.p === 'none' && css.s !== 'preserve-3d', 'reduced motion: no 3D transform ' + JSON.stringify(css))
+  await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true')
+  await page.context().close()
+})
+
+T('v10-back-of-day3-card1-is-its-own-section-only', async () => {
+  const page = await dayAt(3, 0, { reducedMotion: 'reduce' })
+  await page.keyboard.press('f')
+  await page.locator('.card-back .orig-body h2').waitFor({ timeout: 15000 })
+  const heads = await page.locator('.card-back .orig-body h1, .card-back .orig-body h2, .card-back .orig-body h3').allInnerTexts()
+  assert(heads.length === 1 && /Boolean/i.test(heads[0]), 'only the Boolean heading: ' + JSON.stringify(heads))
+  const len = (await page.locator('.card-back .orig-body').innerText()).length
+  assert(len > 80 && len < 1500, 'a short section, not the rest of the document: ' + len + ' chars')
+  await page.context().close()
+})
+
+T('v10-original-text-never-repeats-across-a-days-backs', async () => {
+  for (const day of [1, 2, 3, 4, 5]) {
+    const page = await dayAt(day, 0, { reducedMotion: 'reduce' })
+    const n = dayFile(day).cards.length
+    const seen = new Map()
+    let notes = 0
+    let originals = 0
+    for (let i = 0; i < n; i++) {
+      await page.locator('.cards-strip li').nth(i).locator('button').click()
+      await page.waitForFunction((k) => document.querySelector('.cards')?.getAttribute('data-card') === String(k), i)
+      await page.keyboard.press('f')
+      await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'true')
+      await page.locator('.card-back .orig-body, .card-back .back-notes').first().waitFor({ timeout: 15000 })
+      const parts = await page.locator('.card-back .orig-body p, .card-back .orig-body li, .card-back .orig-body pre').allInnerTexts()
+      if (parts.length) originals++
+      else {
+        assert((await page.locator('.card-back .back-notes').count()) === 1, `card ${i + 1}: a back without original text shows the notes face`)
+        assert(/\d+\. kartta|bulunamadı|alt başlıklarda/.test(await page.locator('.card-back .back-notes').innerText()), `card ${i + 1}: notes name the card that holds the original`)
+        notes++
+      }
+      for (const p of parts) {
+        const k = p.replace(/\s+/g, ' ').trim()
+        if (!k) continue
+        assert(!seen.has(k) || seen.get(k) === i + 1, `day ${day}: card ${i + 1} repeats a paragraph already on card ${seen.get(k)}: "${k.slice(0, 60)}"`)
+        seen.set(k, i + 1)
+      }
+      await page.keyboard.press('f')
+      await page.waitForFunction(() => document.querySelector('.card-flip')?.getAttribute('data-flipped') === 'false')
+    }
+    assert(originals >= 3 && notes >= 1, `day ${day}: some backs hold original text (${originals}) and some are notes (${notes})`)
+    await page.context().close()
+  }
+})
+
+T('v10-flip-hint-for-the-first-three-cards-only', async () => {
+  const ctx = await seeded({ v: 1, ...openDay(1, 0) }, { viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })
+  const page = await newPage({ ctx })
+  await sideFiles(page)
+  await page.goto(BASE + '#/day/1/text')
+  await page.locator('.cards').waitFor({ timeout: 20000 })
+  const hint = page.locator('.card-slide:not(.is-leaving) .flip-hint')
+  for (let i = 0; i < 3; i++) {
+    await hint.waitFor({ timeout: 5000 })
+    assert(/çift tıkla/.test(await hint.innerText()), 'the tip says double-click')
+    await page.locator('.cards-next').click()
+    await page.waitForFunction((k) => document.querySelector('.cards')?.getAttribute('data-card') === String(k), i + 1)
+  }
+  await sleep(300)
+  assert((await hint.count()) === 0, 'the tip is gone from card 4 on')
+  await page.reload()
+  await page.locator('.cards').waitFor({ timeout: 20000 })
+  await page.getByRole('button', { name: /Orijinali gör/ }).first().waitFor()
+  assert((await page.locator('.card-slide:not(.is-leaving) .flip-hint').count()) === 0, 'and never comes back after a reload')
+  await ctx.close()
+})
+
+const rail = (page, side) => page.locator(`.rail-${side}`)
+
+T('v10-rails-at-1440-sit-beside-the-card-and-teach', async () => {
+  const page = await dayAt(3, 0, { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
+  const L = await rail(page, 'left').boundingBox()
+  const R = await rail(page, 'right').boundingBox()
+  const C = await page.locator('.card-flip').boundingBox()
+  assert(L && R && C, 'both rails and the card are on screen')
+  assert(L.x + L.width <= C.x - 8 && R.x >= C.x + C.width + 8, `rails do not overlap the card: ${JSON.stringify({ L, C, R })}`)
+  assert(Math.abs(L.y - C.y) <= 2 && Math.abs(R.y - C.y) <= 2, `rails start at the card's top: ${L.y} ${R.y} vs ${C.y}`)
+  assert(L.width >= 220 && L.width <= 300 && R.width >= 250 && R.width <= 330, `rail widths ~260 / ~300: ${L.width} ${R.width}`)
+  // right rail: the glossary lists the fixture boolean term (card 1 of day 3 mentions True)
+  const terms = rail(page, 'right').locator('.rail-box', { has: page.getByRole('heading', { name: 'Terimler' }) })
+  await terms.waitFor({ timeout: 10000 })
+  assert(/boolean/i.test(await terms.innerText()), 'Terimler lists the boolean term')
+  assert((await terms.locator('.term').count()) <= 4, 'at most four terms')
+  assert((await rail(page, 'right').getByRole('heading', { name: 'Kısayollar' }).count()) === 1, 'shortcuts box is there')
+  assert((await rail(page, 'right').locator('details.rail-box[open]').count()) === 0, 'shortcuts start collapsed')
+  // left rail: today's outline and outside resources
+  const outline = rail(page, 'left').locator('.rail-box', { has: page.getByRole('heading', { name: 'Bu gün' }) })
+  assert((await outline.locator('li').count()) >= 6, 'the outline lists the day sections')
+  assert((await outline.locator('li[aria-current="step"], li.is-active').count()) === 1, 'one active section')
+  const links = rail(page, 'left').locator('.rail-res a')
+  assert((await links.count()) >= 1, 'resources listed')
+  for (const a of await links.all()) {
+    assert((await a.getAttribute('target')) === '_blank' && /noopener/.test((await a.getAttribute('rel')) || '') && /^https:\/\//.test((await a.getAttribute('href')) || ''), 'valid external link')
+  }
+  assert(/Makale|Doküman/.test(await rail(page, 'left').locator('.rail-res').first().innerText()), 'the kind is written in words')
+  // the current section's resource comes first
+  assert(/Truth value/.test(await links.first().innerText()), 'the current section first: ' + (await links.first().innerText()))
+  // clicking an outline entry jumps to its first card
+  await outline.locator('li', { hasText: 'Arithmetic Operators' }).locator('button').click()
+  await page.waitForFunction(() => Number(document.querySelector('.cards')?.getAttribute('data-card')) === 9, null, { timeout: 5000 })
+  // "Dene" loads a term example into the card's editor when the card has one
+  await page.locator('.cards-strip li').nth(1).locator('button').click()
+  await terms.waitFor()
+  await terms.locator('summary').first().click()
+  await terms.getByRole('button', { name: 'Dene' }).first().click()
+  await page.waitForFunction(() => /print\(True\)/.test(document.querySelector('.card-front .cm-content')?.textContent || ''), null, { timeout: 8000 }).catch(() => {
+    throw new Error('the example landed in the editor')
+  })
+  await page.context().close()
+})
+
+T('v10-rails-stick-while-the-card-scrolls', async () => {
+  const d = dayFile(1)
+  let longest = 0
+  d.cards.forEach((c, i) => {
+    if (JSON.stringify(c).length > JSON.stringify(d.cards[longest]).length) longest = i
+  })
+  const page = await dayAt(1, longest, { viewport: { width: 1440, height: 700 }, reducedMotion: 'reduce' })
+  await page.keyboard.press('f')
+  await page.locator('.card-back .orig-body, .card-back .back-notes').first().waitFor({ timeout: 15000 })
+  await sleep(300)
+  const before = await rail(page, 'right').boundingBox()
+  await page.evaluate(() => window.scrollTo(0, 300))
+  await sleep(200)
+  const sc = await page.evaluate(() => window.scrollY)
+  const after = await rail(page, 'right').boundingBox()
+  if (sc > 100) assert(after.y > 0 && after.y < 140 && after.y < before.y, `the rail stays in view while the page scrolls: ${before.y} -> ${after.y}`)
+  await page.context().close()
+})
+
+T('v10-rails-at-1100-only-the-right-one', async () => {
+  const page = await dayAt(3, 0, { viewport: { width: 1100, height: 900 }, reducedMotion: 'reduce' })
+  assert((await rail(page, 'left').count()) === 0, 'no left rail')
+  const R = rail(page, 'right')
+  assert(await R.isVisible(), 'right rail visible')
+  const C = await page.locator('.card-flip').boundingBox()
+  const RB = await R.boundingBox()
+  assert(RB.x >= C.x + C.width + 8, 'right rail beside the card')
+  assert((await R.locator('details.rail-group').count()) === 1, 'the left rail content became a collapsible group in the right rail')
+  assert((await R.locator('details.rail-group[open]').count()) === 0, 'collapsed by default')
+  await R.locator('details.rail-group summary').click()
+  assert((await R.locator('details.rail-group li').count()) >= 6, 'the outline is inside')
+  await page.context().close()
+})
+
+T('v10-notes-sheet-on-a-phone', async () => {
+  const page = await dayAt(3, 0, { viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'reduce' })
+  assert((await page.locator('.rail').count()) === 0, 'no rails on a phone')
+  const btn = page.locator('.card-front .notes-btn')
+  assert((await btn.innerText()) === 'Notlar', 'the Notlar button is in the card header')
+  const inHead = await btn.evaluate((b) => !!b.closest('.card-head'))
+  assert(inHead, 'inside the header')
+  await btn.click()
+  const sheet = page.getByRole('dialog', { name: 'Notlar' })
+  await sheet.waitFor()
+  assert((await sheet.getByRole('heading', { name: 'Terimler' }).count()) === 1, 'terms in the sheet')
+  assert((await sheet.getByRole('heading', { name: 'Bu gün' }).count()) === 1, 'outline in the sheet')
+  const box = await sheet.boundingBox()
+  assert(box.width <= 390 && box.height >= 600, 'a full-height sheet: ' + JSON.stringify(box))
+  await page.keyboard.press('Escape')
+  await sheet.waitFor({ state: 'detached' })
+  await btn.click()
+  await sheet.waitFor()
+  await sheet.getByRole('button', { name: 'Kapat' }).click()
+  await sheet.waitFor({ state: 'detached' })
+  assert((await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)) === true, 'no horizontal scroll')
+  await page.context().close()
+})
+
+T('v10-rails-with-no-glossary-or-resources', async () => {
+  const page = await dayAt(3, 0, { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', side: 'missing' })
+  await sleep(600)
+  assert(page.errors.length === 0, 'no page errors: ' + page.errors.join('; '))
+  assert((await page.getByRole('heading', { name: 'Terimler' }).count()) === 0, 'the Terimler box is hidden')
+  assert((await page.getByRole('heading', { name: 'Kaynaklar' }).count()) === 0, 'the Kaynaklar box is hidden')
+  assert((await page.getByRole('heading', { name: 'Hatırla' }).count()) === 0, 'the Hatırla box is hidden')
+  assert((await page.getByRole('heading', { name: 'Bu gün' }).count()) === 1, 'the outline stays (it needs no data)')
+  const empty = await page.evaluate(() => [...document.querySelectorAll('.rail > *')].filter((e) => e.getBoundingClientRect().height < 2).length)
+  assert(empty === 0, 'no zero-height leftovers that would open a gap')
+  const R = await rail(page, 'right').boundingBox()
+  const first = await rail(page, 'right').locator('> *').first().boundingBox()
+  assert(Math.abs(first.y - R.y) < 2, 'no gap above the first remaining box')
+  await page.context().close()
+})
+
+T('v10-skeleton-instead-of-a-black-loading-screen', async () => {
+  const ctx = await seeded({ v: 1, ...openDay(2, 0) }, { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
+  const page = await newPage({ ctx })
+  await sideFiles(page)
+  // hold the lesson chunk back so the loading state can be looked at
+  await page.route('**/assets/Reader-*.js', async (route) => {
+    await sleep(1500)
+    await route.continue()
+  })
+  await page.addInitScript(() => {
+    window.__cls = 0
+    new PerformanceObserver((l) => {
+      for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value
+    }).observe({ type: 'layout-shift', buffered: true })
+  })
+  await page.goto(BASE + '#/day/2/text')
+  await page.locator('.lesson-skel').waitFor({ timeout: 5000 })
+  const sk = await page.evaluate(() => ({ bar: !!document.querySelector('.lesson-skel .skel-strip'), card: !!document.querySelector('.lesson-skel .skel-card'), rails: document.querySelectorAll('.lesson-skel .skel-rail').length, text: document.querySelector('.lesson-skel')?.innerText.trim() }))
+  assert(sk.bar && sk.card && sk.rails === 2, 'skeleton has the bar, the card frame and both rails: ' + JSON.stringify(sk))
+  assert(sk.text === '', 'no visible loading words')
+  await page.locator('.card-flip').waitFor({ timeout: 20000 })
+  await sleep(800)
+  assert((await page.locator('.lesson-skel').count()) === 0, 'skeleton gone')
+  const cls = await page.evaluate(() => window.__cls)
+  assert(cls < 0.1, 'layout shift stays small when the content arrives: ' + cls.toFixed(3))
+  await ctx.close()
+})
+
+T('v10-long-cards-keep-the-action-in-view-and-the-measure-readable', async () => {
+  for (const vp of [{ width: 1440, height: 850 }, { width: 390, height: 844 }]) {
+    let place = null
+    for (const day of [1, 2, 3, 4, 5]) {
+      const d = dayFile(day)
+      const order = d.cards.map((c, i) => [JSON.stringify(c).length, i]).sort((a, b) => b[0] - a[0]).slice(0, 5)
+      const ctx = await seeded({ v: 1, ...openDay(day, order[0][1]) }, { viewport: vp, hasTouch: vp.width < 700, reducedMotion: 'reduce' })
+      const page = await newPage({ ctx })
+      await sideFiles(page)
+      await page.goto(BASE + `#/day/${day}/text`)
+      await page.locator('.card-flip').waitFor({ timeout: 20000 })
+      for (const [, idx] of order) {
+        await page.locator('.cards-strip li').nth(idx).locator('button').click()
+        await page.waitForFunction((k) => document.querySelector('.cards')?.getAttribute('data-card') === String(k), idx)
+        await page.evaluate(() => window.scrollTo(0, 0))
+        await sleep(250)
+        const next = page.locator('.cards-next')
+        const b = await next.boundingBox()
+        assert(b && b.y >= 0 && b.y + b.height <= vp.height, `${vp.width}px day ${day} card ${idx + 1}: Next is in view without scrolling: ${JSON.stringify(b)}`)
+        if (!place) place = b
+        assert(Math.abs(b.x + b.width - (place.x + place.width)) < 2 && Math.abs(b.y - place.y) < 2, `${vp.width}px day ${day} card ${idx + 1}: Next stays in one place: ${JSON.stringify(b)} vs ${JSON.stringify(place)}`)
+        const prim = page.locator('.card-front .ccode-cell .btn-chev, .card-front .cbody .btn-chev').first()
+        if (await prim.count()) {
+          const pb = await prim.boundingBox()
+          assert(pb.y + pb.height > 0, 'the primary action exists')
+        }
+        if ((await page.locator('.card-front .cmd').count()) && vp.width > 1000) {
+          const m = await page.locator('.card-front .cmd').first().evaluate((e) => ({ fs: parseFloat(getComputedStyle(e).fontSize), w: e.getBoundingClientRect().width }))
+          assert(m.fs >= 18 && m.fs <= 20, `body text 18-20px: ${m.fs}`)
+          assert(m.w / m.fs <= 40, 'measure is bounded: ' + m.w) // ch ~ 0.5em: 70ch is about 35-40em
+        }
+        const sw = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)
+        assert(sw, `${vp.width}px day ${day} card ${idx + 1}: no horizontal scroll`)
+      }
+      await ctx.close()
+    }
+  }
+})
+
+T('v10-back-button-has-no-stray-square', async () => {
+  const page = await dayAt(1, 1, { reducedMotion: 'reduce' })
+  assert((await page.locator('.cards-prev .tb-chev').count()) === 0, 'no glyph element in Geri')
+  const b = await page.locator('.cards-prev').evaluate((e) => ({ before: getComputedStyle(e, '::before').content, after: getComputedStyle(e, '::after').content }))
+  assert(b.before === 'none' && b.after === 'none', 'no pseudo glyph either: ' + JSON.stringify(b))
+  await page.context().close()
+})
+
+T('v10-lang-switch-on-a-phone-sits-at-the-top-and_covers-nothing', async () => {
+  const ctx = await seeded({ v: 1, ...openDay(1, 0) }, { viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'reduce' })
+  const page = await newPage({ ctx })
+  await sideFiles(page)
+  await page.goto(BASE + '#/day/1/text')
+  await page.locator('.card-flip').waitFor({ timeout: 20000 })
+  await sleep(300)
+  const hit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+  const sw = await langSwitch(page).boundingBox()
+  assert(sw.y < 130, 'the switch is up in the header area: ' + JSON.stringify(sw))
+  for (const sel of ['.card-flip', '.cards-bar', '.appbar', '.cards-strip', '.tabs']) {
+    const o = await page.locator(sel).first().boundingBox()
+    assert(!hit(sw, o), `the switch does not overlap ${sel}: ${JSON.stringify(sw)} vs ${JSON.stringify(o)}`)
+  }
+  await page.evaluate(() => window.scrollTo(0, 400))
+  await sleep(200)
+  const sw2 = await langSwitch(page).boundingBox()
+  const bar = await page.locator('.cards-bar').boundingBox()
+  assert(!hit(sw2, bar), 'still clear of the action bar after scrolling')
+  await ctx.close()
+})
+
 
 function assert(c, m) {
   if (!c) throw new Error(m)

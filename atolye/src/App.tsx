@@ -12,6 +12,7 @@ import { armSound } from './lib/sound'
 import { setUi, useUi } from './lib/ui'
 import { loadChunk } from './lib/chunkError'
 import { RouteBoundary } from './components/RouteBoundary'
+import { LessonSkeleton } from './components/Skeleton'
 
 // The reader pulls in CodeMirror and the lesson renderer; the home page does not need them.
 const Home = lazy(() => loadChunk(() => import('./components/Home')).then((m) => ({ default: m.Home })))
@@ -46,7 +47,7 @@ export default function App() {
   let page
   if (route.name === 'day') {
     page = (
-      <Suspense fallback={<p className="boot" role="status">{t('boot.lesson')}</p>}>
+      <Suspense fallback={<LessonSkeleton cards={route.view === 'cards' || route.view === 'auto'} />}>
         <Reader day={route.n} view={route.view} />
       </Suspense>
     )

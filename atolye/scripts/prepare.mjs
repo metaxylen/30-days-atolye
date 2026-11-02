@@ -2,7 +2,7 @@
 //   public/course-images/   copy of ../images
 //   public/lessons/NN.md   the 30 lessons, fetched one at a time (never bundled)
 //   src/data/previews.generated.json   topics and a first snippet per day for the home page
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -109,4 +109,18 @@ const bossSrc = join(root, 'content/bosses')
 if (existsSync(bossSrc)) {
   cpSync(bossSrc, join(root, 'public/bosses'), { recursive: true })
   console.log(`prepare: ${readdirSync(bossSrc).filter((f) => f.endsWith('.json')).length} boss files copied`)
+}
+
+// Side-column data (content/glossary.json, content/resources.json) is served from public/ and fetched lazily by the card
+// screen. Either file may be absent: nothing is copied, and the app hides the boxes that would have used it.
+// A stale copy from an earlier run is removed so that deleting a source file really hides its boxes.
+for (const f of ['glossary.json', 'resources.json']) {
+  const from = join(root, 'content', f)
+  const to = join(root, 'public', f)
+  if (existsSync(from)) {
+    cpSync(from, to)
+    console.log(`prepare: ${f} copied`)
+  } else if (existsSync(to)) {
+    rmSync(to)
+  }
 }

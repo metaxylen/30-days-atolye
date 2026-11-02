@@ -8,7 +8,13 @@ import { actions, getState, useStore } from '../../lib/store'
 import { reducedMotion } from '../../lib/ui'
 import { runner } from '../../lib/runner'
 import { ExplainView, FillView, OrderView, PredictView, RecapView, TrueFalseView, type Outcome } from './CardViews'
-import { Original } from './Original'
+import { CardBackBody, type BackState } from './CardBack'
+import { Flip } from './Flip'
+import { MidRail, NotesSheet, WideRails, type SideProps } from './Rails'
+import { useRailMode } from '../../lib/railmode'
+import { fragmentsOf, planBacks, cardSections, type Back, type Frag } from '../../lib/original'
+import { loadGlossary, loadResources, resourcesFor, termsFor, type Resource, type Term } from '../../lib/side'
+import { CardSkeleton } from '../Skeleton'
 
 /** Getters over the dictionary, so a label read at render time follows the language switch. */
 const KICKER = {
@@ -33,7 +39,28 @@ const KICKER = {
 } as Record<Card['type'], string>
 
 /** Places where a drag must not start a swipe: things you press, type into, select or scroll sideways. */
-const NO_SWIPE = 'input, textarea, select, button, a, summary, label, .cm-editor, .pyview, .parsons, .trace, .orig-body, [data-noswipe]'
+const NO_SWIPE = 'input, textarea, select, button, a, summary, label, .cm-editor, .pyview, .parsons, .trace, .orig-body, .back-notes, [data-noswipe]'
+
+/** Places where a double-click (or double-tap) must not turn the card: things you press, type into or select code in. */
+const NO_FLIP = 'input, textarea, select, button, a, summary, label, details, .cm-editor, .pyview, .orig-body pre, .parsons, .trace, .cchoice, [role="radio"], [role="button"], [data-noflip]'
+
+const HINT_KEY = 'atolye:flip-hint'
+const hintShown = new Set<string>()
+
+/** The "double-click the card" tip: on the first three cards the learner ever sees, then never again (it also survives a reload). */
+function flipHintFor(id: string): boolean {
+  if (hintShown.has(id)) return true
+  try {
+    const seen: unknown = JSON.parse(localStorage.getItem(HINT_KEY) || '[]')
+    const list = Array.isArray(seen) ? (seen as string[]) : []
+    if (list.length >= 3) return false
+    localStorage.setItem(HINT_KEY, JSON.stringify([...list, id]))
+  } catch {
+    if (hintShown.size >= 3) return false
+  }
+  hintShown.add(id)
+  return true
+}
 
 const clamp = (n: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, n))
 
@@ -75,10 +102,21 @@ export function Cards({ day, title }: { day: number; title: string }) {
   const [idx, setIdx] = useState<number | null>(null)
   const [nudge, setNudge] = useState(0)
   const stage = useRef<HTMLDivElement>(null)
+  const main = useRef<HTMLDivElement>(null)
   const slide = useRef<HTMLDivElement>(null)
   const face = useRef<HTMLElement>(null)
   const shown = useRef(false)
   const dirRef = useRef(1)
+  const railMode = useRailMode()
+  const [flipState, setFlipState] = useState<{ id: string; on: boolean }>({ id: '', on: false })
+  const [sheet, setSheet] = useState(false)
+  const [terms, setTerms] = useState<Term[] | null>(null)
+  const [resAll, setResAll] = useState<Record<string, Resource[]> | null>(null)
+  const [orig, setOrig] = useState<{ frags: Frag[] | null; backs: Back[] } | undefined>(undefined)
+  const origReq = useRef(false)
+  const lastFlip = useRef(0)
+  const flipFocus = useRef(false)
+  const lastTap = useRef<{ t: number; x: number; y: number } | null>(null)
   const drag = useRef<{ id: number; x0: number; y0: number; locked: boolean; dx: number; w: number; samples: { t: number; x: number }[] } | null>(null)
 
   useEffect(() => {
@@ -93,6 +131,8 @@ export function Cards({ day, title }: { day: number; title: string }) {
         const at = clamp(getState().cards[day]?.pos ?? 0, 0, d.cards.length - 1)
         setIdx(at)
         actions.setCardPos(day, at)
+        // `?flip` in the address opens the card on its back (a deep link, also what the design inspection uses)
+        if (new URLSearchParams(window.location.search).has('flip')) setFlipState({ id: d.cards[at].id, on: true })
       }
     })
     return () => {
@@ -105,9 +145,96 @@ export function Cards({ day, title }: { day: number; title: string }) {
     return () => window.clearTimeout(id)
   }, [])
 
+  useEffect(() => {
+    let live = true
+    loadGlossary().then((g) => live && setTerms(g))
+    loadResources().then((r) => live && setResAll(r))
+    return () => {
+      live = false
+    }
+  }, [])
+
   const cards = data?.cards ?? []
   const n = cards.length
   const card = idx !== null ? cards[idx] : undefined
+  const flipped = !!card && flipState.id === card.id && flipState.on
+  const cardRef = useRef(card)
+  cardRef.current = card
+  const flippedRef = useRef(flipped)
+  flippedRef.current = flipped
+
+  /** Reads the lesson and decides what each card's back shows. Runs once per day, when the cards are ready (or on the first turn). */
+  const ensureOrig = useCallback(() => {
+    if (origReq.current || !data) return
+    origReq.current = true
+    import('../../lib/lesson')
+      .then((m) => m.loadLesson(day))
+      .then((p) => {
+        const frags = fragmentsOf(p)
+        setOrig({ frags, backs: planBacks(frags, data.cards) })
+      })
+      .catch(() => setOrig({ frags: null, backs: [] }))
+  }, [data, day])
+  useEffect(() => {
+    if (!data) return
+    const id = window.setTimeout(ensureOrig, 700)
+    return () => window.clearTimeout(id)
+  }, [data, ensureOrig])
+
+  /** Turn the card over (or to a given side). */
+  const toggleFlip = useCallback(
+    (to?: boolean, byUser = true) => {
+      const c = cardRef.current
+      if (!c) return
+      flipFocus.current = byUser
+      setFlipState({ id: c.id, on: to ?? !(flippedRef.current) })
+      ensureOrig()
+      window.getSelection()?.removeAllRanges()
+    },
+    [ensureOrig],
+  )
+
+  // The column is at least as tall as what is left of the screen, so Back / Next sit at the bottom edge on every card,
+  // short or long (a long card pins the same bar there with `position: sticky`).
+  useLayoutEffect(() => {
+    const m = main.current
+    if (!m) return
+    const fit = () => {
+      m.style.minHeight = ''
+      const top = m.getBoundingClientRect().top + window.scrollY
+      m.style.minHeight = `${Math.max(0, window.innerHeight - top)}px`
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    const ro = new ResizeObserver(fit)
+    if (m.parentElement?.parentElement) ro.observe(m.parentElement.parentElement)
+    document.fonts?.ready.then(fit)
+    return () => {
+      window.removeEventListener('resize', fit)
+      ro.disconnect()
+    }
+  }, [data === undefined || idx === null])
+
+  // after a turn the focus follows the learner to the other face's button, and a tall back starts at its top
+  useEffect(() => {
+    if (!flipFocus.current) return
+    flipFocus.current = false
+    const root = stage.current
+    requestAnimationFrame(() => {
+      root?.querySelector<HTMLElement>(flipped ? '.card-back .flip-btn' : '.card-front .flip-btn')?.focus({ preventScroll: true })
+      const box = root?.querySelector('.card-flip')?.getBoundingClientRect()
+      if (box && box.top < 72) window.scrollBy({ top: box.top - 76, behavior: 'auto' })
+    })
+  }, [flipped])
+
+  const tryCode = useCallback(
+    (code: string) => {
+      setSheet(false)
+      toggleFlip(false, false)
+      window.dispatchEvent(new CustomEvent('atolye:try-code', { detail: code }))
+    },
+    [toggleFlip],
+  )
   const max = prog?.max ?? 0
   const needsAnswer = (c: Card | undefined): boolean => !!c && isCheckpoint(c) && !getState().cards[day]?.res[c.id]?.done
   const gated = needsAnswer(card)
@@ -175,7 +302,19 @@ export function Cards({ day, title }: { day: number; title: string }) {
 
   useEffect(() => {
     const f = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const inField = (e.target as HTMLElement).closest('input, textarea, select, [contenteditable], .cm-editor, dialog, [role="dialog"]')
+      if (!inField && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault()
+        if (!e.repeat) toggleFlip()
+        return
+      }
+      if (!inField && e.key === 'Escape' && flippedRef.current) {
+        e.preventDefault()
+        toggleFlip(false)
+        return
+      }
+      if (e.shiftKey) return
       if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable], .cm-editor, dialog, [data-own-arrows]')) return
       if (e.key === 'ArrowRight') {
         e.preventDefault()
@@ -187,7 +326,7 @@ export function Cards({ day, title }: { day: number; title: string }) {
     }
     window.addEventListener('keydown', f)
     return () => window.removeEventListener('keydown', f)
-  }, [])
+  }, [toggleFlip])
 
   const finish = (c: Card, o: Outcome) => {
     const had = getState().cards[day]?.res[c.id]
@@ -250,6 +389,15 @@ export function Cards({ day, title }: { day: number; title: string }) {
     if (!d || e.pointerId !== d.id) return
     drag.current = null
     stage.current?.classList.remove('is-dragging')
+    if (!d.locked && !cancelled && e.pointerType === 'touch') {
+      // a double-tap turns the card (touch has no reliable double-click)
+      const p = lastTap.current
+      if (p && e.timeStamp - p.t < 320 && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 30) {
+        lastTap.current = null
+        lastFlip.current = performance.now()
+        toggleFlip()
+      } else lastTap.current = { t: e.timeStamp, x: e.clientX, y: e.clientY }
+    }
     if (!d.locked || !el) return
     const off = offsetFor(d.dx, d.w)
     // velocity over the last ~120 ms: a quick flick is enough, no matter how short
@@ -267,7 +415,7 @@ export function Cards({ day, title }: { day: number; title: string }) {
   }
 
   // ---- render --------------------------------------------------------------------------------------------------------
-  if (data === undefined) return <p className="boot" role="status">{t('boot.cards')}</p>
+  if (data === undefined) return <CardSkeleton />
   if (data === null || idx === null || !card) {
     return (
       <section className="learn-missing" aria-labelledby="miss-h">
@@ -312,8 +460,32 @@ export function Cards({ day, title }: { day: number; title: string }) {
   const ctaTarget = recap?.target ?? recap?.link
   const ctaHref = ctaTarget === 'full' ? fullHref(day) : learnHref(day)
 
+  // ---- the back of this card, the side boxes and the header both faces share ----
+  const hintOn = flipHintFor(card.id)
+  const mine = orig?.backs[idx]
+  const backState: BackState = { frags: orig ? orig.frags : undefined, back: mine }
+  const noteTerms = terms ? termsFor(card, terms, day) : []
+  const noteRes = resourcesFor(resAll, day, cardSections(card))
+  const canTry = card.type === 'explain' && typeof card.code === 'string'
+  const sideProps: SideProps = { day, cards, idx, max, go, terms, resources: resAll, onTry: tryCode }
+  const head = (back: boolean) => (
+    <div className="card-head">
+      <p className="card-kicker">{back ? t('orig.summary') : KICKER[card.type]}</p>
+      <div className="card-tools">
+        {railMode === 'narrow' && (
+          <button type="button" className="btn btn-quiet notes-btn" onClick={() => setSheet(true)} aria-haspopup="dialog">
+            {t('side.notes')}
+          </button>
+        )}
+        <button type="button" className="btn btn-quiet flip-btn" onClick={() => toggleFlip()} aria-keyshortcuts="F">
+          {t(back ? 'flip.from' : 'flip.to')}
+        </button>
+      </div>
+    </div>
+  )
+
   return (
-    <section className="cards" aria-label={t('cards.aria', { day, title })} data-card={idx} data-card-id={card.id} data-card-type={card.type} data-gated={gated || undefined}>
+    <section className={`cards rails-${railMode}`} aria-label={t('cards.aria', { day, title })} data-card={idx} data-card-id={card.id} data-card-type={card.type} data-gated={gated || undefined}>
       <div className="cards-top">
         <ol
           className="strip cards-strip"
@@ -349,6 +521,8 @@ export function Cards({ day, title }: { day: number; title: string }) {
         </p>
       </div>
 
+      {railMode === 'wide' && <WideRails {...sideProps} />}
+      <div className="cards-main" ref={main}>
       <div
         ref={stage}
         className="cards-stage"
@@ -356,19 +530,51 @@ export function Cards({ day, title }: { day: number; title: string }) {
         onPointerMove={onMove}
         onPointerUp={(e) => end(e, false)}
         onPointerCancel={(e) => end(e, true)}
+        onDoubleClick={(e) => {
+          if ((e.target as HTMLElement).closest(NO_FLIP)) return
+          // a double-tap on touch screens has just turned the card and then also fires a double-click: that one is the same gesture
+          if (performance.now() - lastFlip.current < 600) return
+          toggleFlip()
+        }}
       >
         <div className="card-slide" key={card.id} ref={slide}>
-          <article ref={face} className={`card-face fx-card t-${card.type}`}>
-            <p className="card-kicker">{KICKER[card.type]}</p>
-            {body}
-            {card.type !== 'recap' && <Original day={day} sections={card.type === 'explain' ? [card.section, ...(card.also_sections ?? [])] : [card.section]} />}
-          </article>
+          <Flip
+            flipped={flipped}
+            front={
+              <article ref={face} className={`card-face fx-card t-${card.type}`}>
+                {head(false)}
+                {hintOn && (
+                  <p className="flip-hint">{t(matchMedia('(pointer: coarse)').matches ? 'flip.hintTouch' : 'flip.hint')}</p>
+                )}
+                {body}
+              </article>
+            }
+            back={
+              <article className="card-face card-backface fx-card" aria-label={t('flip.back')}>
+                {head(true)}
+                <CardBackBody
+                  day={day}
+                  state={backState}
+                  terms={noteTerms}
+                  resources={noteRes}
+                  canTry={canTry}
+                  onTry={tryCode}
+                  onJump={(i) => {
+                    toggleFlip(false, false)
+                    go(i)
+                  }}
+                />
+              </article>
+            }
+          />
         </div>
       </div>
 
+      <p className="cards-keys" aria-hidden="true">
+        {t('cards.keys')}
+      </p>
       <div className="cards-bar">
         <button type="button" className="btn btn-quiet cards-prev" onClick={() => go(idx - 1)} disabled={idx === 0} aria-label={t('cards.prevAria')}>
-          <span className="tb-chev is-back" aria-hidden="true" />
           {t('cards.back')}
         </button>
         <p className="cards-msg" role="status" key={nudge}>
@@ -397,12 +603,12 @@ export function Cards({ day, title }: { day: number; title: string }) {
           </button>
         )}
       </div>
-      <p className="cards-keys" aria-hidden="true">
-        {t('cards.keys')}
-      </p>
       <span className="sr-only" role="status" aria-live="polite">
         {t('cards.live', { i: idx + 1, n, label: label(card) })}
       </span>
+      </div>
+      {railMode === 'mid' && <MidRail {...sideProps} />}
+      {sheet && railMode === 'narrow' && <NotesSheet {...sideProps} onClose={() => setSheet(false)} />}
     </section>
   )
 }

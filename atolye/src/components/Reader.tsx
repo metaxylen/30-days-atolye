@@ -16,6 +16,7 @@ import { Celebrate } from './Celebrate'
 import { Learn } from './learn/Learn'
 import { AppBar } from './AppBar'
 import { Chev, Wordmark } from './bits'
+import { CardSkeleton } from './Skeleton'
 
 // The card player (and its editor, tracer and Markdown) downloads only when the Anlatım tab opens.
 const Cards = lazy(() => loadChunk(() => import('./cards/Cards')).then((m) => ({ default: m.Cards })))
@@ -430,9 +431,9 @@ export function Reader({ day, view: want }: { day: number; view: DayView }) {
           )}
 
           {view === null ? (
-            <p className="boot" role="status">{t('boot.lesson')}</p>
+            <CardSkeleton />
           ) : cards ? (
-            <Suspense fallback={<p className="boot" role="status">{t('boot.cards')}</p>}>
+            <Suspense fallback={<CardSkeleton />}>
               <Cards key={day} day={day} title={meta.title} />
             </Suspense>
           ) : !text ? (
