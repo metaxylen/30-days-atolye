@@ -193,7 +193,7 @@
       "title": "Common mistake: forgetting self",
       "body_tr": "İki klasik hata var. Önce tahmin et, sonra çıktıya bak.\n\n`def __init__(name):` yazarsan Python nesneyi yine ilk argüman olarak gönderir; `'Ada'` ile birlikte iki argüman gelir ama metot bir tane bekler. Mesaj tam olarak bunu söyler: \"takes 1 positional argument but 2 were given\". Çözüm: ilk parametre `self` olmalı.\n\n`name = name` yazarsan hata çıkmaz, yalnızca yerel bir değişken oluşur ve nesneye hiçbir şey yazılmaz. Hata ancak sonra, `p.name` okunurken `AttributeError` olarak gelir. Çözüm: `self.name = name`.",
       "body": "There are two classic mistakes. Guess first, then look at the output.\n\nIf you write `def __init__(name):`, Python still sends the object as the first argument; together with `'Ada'` that is two arguments, but the method expects one. The message says exactly that: \"takes 1 positional argument but 2 were given\". Fix: the first parameter must be `self`.\n\nIf you write `name = name`, nothing fails yet; it only creates a local variable and writes nothing onto the object. The error comes later, as an `AttributeError` when `p.name` is read. Fix: `self.name = name`.",
-      "code": "class Bad1:\n    def __init__(name):\n        pass\n\ntry:\n    Bad1('Ada')\nexcept TypeError as e:\n    print('TypeError:', e)\n\nclass Bad2:\n    def __init__(self, name):\n        name = name\n\ntry:\n    print(Bad2('Ada').name)\nexcept AttributeError as e:\n    print('AttributeError:', e)",
+      "code": "class Bad1:\n    def __init__(name):\n        pass\n\nclass Bad2:\n    def __init__(self, name):\n        name = name\n\nfor attempt in (lambda: Bad1('Ada'), lambda: Bad2('Ada').name):\n    try:\n        attempt()\n    except Exception as e:\n        print(type(e).__name__ + ':', e)",
       "expected_output": "TypeError: Bad1.__init__() takes 1 positional argument but 2 were given\nAttributeError: 'Bad2' object has no attribute 'name'",
       "hide_output": true,
       "section": "Class Constructor"
@@ -255,7 +255,7 @@
       "title": "Common mistake: self missing in a method",
       "body_tr": "Metotta da aynı iki hata olur.\n\n`def describe():` yazarsan `t.describe()` çağrısı nesneyi gönderir ama metot hiç parametre beklemez: \"takes 0 positional arguments but 1 was given\".\n\nMetodun içinde `self.` önekini unutursan Python `name`'i yerel ya da global bir değişken olarak arar ve bulamaz: `NameError: name 'name' is not defined`. Nitelikler kendiliğinden görünmez; JavaScript'teki gibi her zaman nesne üzerinden (`self.name`) erişirsin.",
       "body": "Methods suffer from the same two mistakes.\n\nIf you write `def describe():`, the call `t.describe()` sends the object, but the method expects no parameters: \"takes 0 positional arguments but 1 was given\".\n\nIf you forget the `self.` prefix inside a method, Python looks for `name` as a local or global variable and does not find it: `NameError: name 'name' is not defined`. Attributes are not in scope by themselves; as with `this` in JavaScript, you always reach them through the object (`self.name`).",
-      "code": "class Team:\n    def __init__(self, name):\n        self.name = name\n    def describe():\n        return 'team'\n    def shout(self):\n        return name.upper()\n\nt = Team('Kartal')\nfor m in (t.describe, t.shout):\n    try:\n        m()\n    except Exception as e:\n        print(type(e).__name__ + ':', e)",
+      "code": "class Team:\n    def __init__(self, name):\n        self.name = name\n    def describe(): return 'team'\n    def shout(self):\n        return name.upper()\n\nt = Team('Kartal')\nfor m in (t.describe, t.shout):\n    try:\n        m()\n    except Exception as e:\n        print(type(e).__name__ + ':', e)",
       "expected_output": "TypeError: Team.describe() takes 0 positional arguments but 1 was given\nNameError: name 'name' is not defined",
       "hide_output": true,
       "section": "Object Methods"
@@ -357,7 +357,7 @@
       "type": "predict",
       "prompt_tr": "Çıktı ne olur?",
       "prompt": "What is printed?",
-      "code": "class Account:\n    def __init__(self, owner):\n        self.owner = owner\n        self.balance = 0\n\n    def deposit(self, amount):\n        self.balance += amount\n\n    def withdraw(self, amount):\n        if amount <= self.balance:\n            self.balance -= amount\n\nacc = Account('Zeynep')\nacc.deposit(100)\nacc.withdraw(30)\nacc.withdraw(500)\nprint(acc.balance)",
+      "code": "class Account:\n    def __init__(self, balance):\n        self.balance = balance\n\n    def withdraw(self, amount):\n        if amount <= self.balance:\n            self.balance -= amount\n\nacc = Account(100)\nacc.withdraw(30)\nacc.withdraw(500)\nprint(acc.balance)",
       "choices": [
         "70",
         "-430",
@@ -365,8 +365,8 @@
         "0"
       ],
       "answer": "70",
-      "why_tr": "100 yatırılır, 30 çekilir: bakiye 70 olur. 500 çekme isteği `amount <= self.balance` koşulunu geçemez, bakiye değişmez.",
-      "why": "100 is deposited and 30 withdrawn, leaving 70. The request for 500 fails the `amount <= self.balance` check, so the balance stays.",
+      "why_tr": "Hesap 100 ile açılır, 30 çekilir: bakiye 70 olur. 500 çekme isteği `amount <= self.balance` koşulunu geçemez, bakiye değişmez.",
+      "why": "The account opens with 100 and 30 is withdrawn, leaving 70. The request for 500 fails the `amount <= self.balance` check, so the balance stays.",
       "section": "Method to Modify Class Default Values"
     },
     {
@@ -423,10 +423,10 @@
       "type": "explain",
       "title_tr": "@property: hesaplanan nitelik",
       "title": "@property: a computed attribute",
-      "body_tr": "Bazı değerler saklanmak yerine hesaplanmalıdır. Dikdörtgenin alanını ayrı bir nitelikte tutarsan, genişlik değişince alan eskimiş kalır. `@property` ile yazılan metot nitelik gibi okunur: `r.area`, parantez yok.\n\nAynı mekanizma doğrulama için de kullanılır: `@age.setter` ile atamayı yakalar, geçersiz değerde 17. günde gördüğün gibi `raise ValueError` yaparsın. Değer içeride `_age` adıyla saklanır; baştaki alt çizgi \"buna dışarıdan dokunma\" anlamına gelen bir gelenektir.",
-      "body": "Some values should be computed, not stored. If you keep a rectangle's area in its own attribute, it goes stale when the width changes. A method written with `@property` is read like an attribute: `r.area`, no parentheses.\n\nThe same mechanism serves validation: `@age.setter` intercepts assignment, and for an invalid value you `raise ValueError`, as on Day 17. The value is stored inside as `_age`; the leading underscore is a convention meaning \"do not touch this from outside\".",
-      "code": "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\n    @property\n    def age(self):\n        return self._age\n\n    @age.setter\n    def age(self, value):\n        if value < 0:\n            raise ValueError('age cannot be negative')\n        self._age = value\n\ns = Student('Can', 20)\ns.age = 21\nprint(s.age)\ntry:\n    s.age = -5\nexcept ValueError as e:\n    print('Error:', e)",
-      "expected_output": "21\nError: age cannot be negative",
+      "body_tr": "Bazı değerler saklanmak yerine hesaplanmalıdır. Dikdörtgenin alanını `__init__` içinde `self.area = w * h` diye saklarsan, genişlik sonradan değişince alan eskimiş ve yanlış kalır.\n\n`@property` ile işaretlenen metot bir nitelik gibi okunur: `r.area`, parantez yok. Ama her okunuşta yeniden çalışır, yani sonuç her zaman o anki `w` ve `h` ile hesaplanır. Satırın başındaki `@property` bir **dekoratördür** (14. gün): altındaki fonksiyonu sarıp davranışını değiştirir. JavaScript'teki `get area() { ... }` ile aynı fikirdir.",
+      "body": "Some values should be computed, not stored. If you store a rectangle's area in `__init__` as `self.area = w * h`, the area goes stale and wrong once the width changes.\n\nA method marked with `@property` is read like an attribute: `r.area`, no parentheses. But it runs again on every read, so the result is always computed from the current `w` and `h`. The `@property` line is a **decorator** (Day 14): it wraps the function below and changes how it behaves. It is the same idea as `get area() { ... }` in JavaScript.",
+      "code": "class Rect:\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n\n    @property\n    def area(self):\n        return self.w * self.h\n\nr = Rect(2, 3)\nprint(r.area)\nr.w = 10\nprint(r.area)",
+      "expected_output": "6\n30",
       "section": "Method to Modify Class Default Values"
     },
     {
@@ -434,20 +434,31 @@
       "type": "predict",
       "prompt_tr": "Çıktı ne olur?",
       "prompt": "What is printed?",
-      "code": "class Rect:\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n\n    @property\n    def area(self):\n        return self.w * self.h\n\nr = Rect(2, 3)\nr.w = 10\nprint(r.area)",
+      "code": "class Circle:\n    def __init__(self, r):\n        self.r = r\n\n    @property\n    def diameter(self):\n        return self.r * 2\n\nc = Circle(5)\nc.r = 1\nprint(c.diameter, c.r)",
       "choices": [
-        "6",
-        "30",
-        "<bound method>",
+        "10 1",
+        "2 1",
+        "10 5",
         "Error"
       ],
-      "answer": "30",
-      "why_tr": "`area` her okunduğunda yeniden hesaplanır. Okuma anında `w` 10 olduğu için `10 * 3 = 30` gelir. `@property` sayesinde parantez gerekmez.",
-      "why": "`area` is recomputed every time it is read. At that moment `w` is 10, so it gives `10 * 3 = 30`. Thanks to `@property` no parentheses are needed.",
+      "answer": "2 1",
+      "why_tr": "`diameter` saklanmaz, her okunuşta `self.r`'den hesaplanır. Okuma anında `r` 1 olduğu için çap 2'dir; parantez gerekmez.",
+      "why": "`diameter` is not stored; it is computed from `self.r` on every read. At that moment `r` is 1, so the diameter is 2, and no parentheses are needed.",
       "section": "Method to Modify Class Default Values"
     },
     {
       "id": "d21-c34",
+      "type": "explain",
+      "title_tr": "Setter ile doğrulama",
+      "title": "Validation with a setter",
+      "body_tr": "Property yalnızca okumayı değil, atamayı da yakalayabilir. `@age.setter` ile yazılan metot, biri `s.age = değer` dediğinde çalışır. Böylece geçersiz değeri daha nesneye girmeden reddedersin: 17. günde gördüğün gibi `raise ValueError(...)`.\n\nDeğerin kendisi içeride `_age` adıyla saklanır. Baştaki alt çizgi \"buna dışarıdan dokunma\" anlamına gelen bir gelenektir; Python bunu zorlamaz. Dikkat: `__init__` içindeki `self.age = age` de setter'dan geçer, yani `Student(-5)` bile reddedilir.",
+      "body": "A property can intercept assignment as well as reading. A method written with `@age.setter` runs whenever someone says `s.age = value`. That lets you reject an invalid value before it ever reaches the object: `raise ValueError(...)`, as on Day 17.\n\nThe value itself is stored inside as `_age`. The leading underscore is a convention meaning \"do not touch this from outside\"; Python does not enforce it. Note that `self.age = age` inside `__init__` also goes through the setter, so even `Student(-5)` is rejected.",
+      "code": "class Student:\n    def __init__(self, age):\n        self.age = age\n    @property\n    def age(self): return self._age\n    @age.setter\n    def age(self, value):\n        if value < 0: raise ValueError('age cannot be negative')\n        self._age = value\n\nfor v in (21, -5):\n    try: print(Student(v).age)\n    except ValueError as e: print('Error:', e)",
+      "expected_output": "21\nError: age cannot be negative",
+      "section": "Method to Modify Class Default Values"
+    },
+    {
+      "id": "d21-c35",
       "type": "explain",
       "title_tr": "Kalıtım: ebeveyn sınıfı yeniden kullanmak",
       "title": "Inheritance: reusing a parent class",
@@ -458,7 +469,7 @@
       "section": "Inheritance"
     },
     {
-      "id": "d21-c35",
+      "id": "d21-c36",
       "type": "truefalse",
       "statement_tr": "`class Student(Person)` yazıldığında `isinstance(Student('A', 1), Person)` `True` olur.",
       "statement": "With `class Student(Person)`, `isinstance(Student('A', 1), Person)` is `True`.",
@@ -468,7 +479,7 @@
       "section": "Inheritance"
     },
     {
-      "id": "d21-c36",
+      "id": "d21-c37",
       "type": "explain",
       "title_tr": "super(): ebeveynin yapıcısını çağırmak",
       "title": "super(): calling the parent's constructor",
@@ -480,7 +491,7 @@
       "section": "Inheritance"
     },
     {
-      "id": "d21-c37",
+      "id": "d21-c38",
       "type": "explain",
       "title_tr": "Sık hata: super() çağrısını unutmak",
       "title": "Common mistake: forgetting super()",
@@ -492,7 +503,7 @@
       "section": "Inheritance"
     },
     {
-      "id": "d21-c38",
+      "id": "d21-c39",
       "type": "fill",
       "prompt_tr": "Boşluğu doldur: ebeveynin yapıcısını çağır.",
       "prompt": "Fill the blank: call the parent's constructor.",
@@ -506,18 +517,18 @@
       "section": "Inheritance"
     },
     {
-      "id": "d21-c39",
+      "id": "d21-c40",
       "type": "explain",
       "title_tr": "Metodu ezmek (override)",
       "title": "Overriding a method",
       "body_tr": "Alt sınıf, ebeveyndeki bir metotla **aynı isimde** bir metot yazarsa onu ezer (override): arama sırasında önce alt sınıftaki bulunur. Orijinal dersteki `Student`, cinsiyete göre He/She seçmek için `person_info`'yu böyle yeniden yazar.\n\nÇoğu zaman ebeveynin işini tamamen atmak istemezsin, genişletmek istersin. O zaman yeni metodun içinde `super().person_info()` ile ebeveynin sonucunu alır ve üstüne eklersin. Böylece ortak metin tek yerde kalır ve kod tekrarı oluşmaz.",
       "body": "If a child class writes a method with the **same name** as one in the parent, it overrides it: the search finds the child's version first. In the original lesson `Student` rewrites `person_info` this way to choose He or She from the gender.\n\nOften you do not want to throw away the parent's work, only to extend it. Then the new method gets the parent's result with `super().person_info()` and adds to it. The shared text stays in one place and no code is duplicated.",
-      "code": "class Person:\n    def __init__(self, name, city):\n        self.name = name\n        self.city = city\n\n    def person_info(self):\n        return f'{self.name} lives in {self.city}.'\n\nclass Student(Person):\n    def __init__(self, name, city, school):\n        super().__init__(name, city)\n        self.school = school\n\n    def person_info(self):\n        return super().person_info() + f' Studies at {self.school}.'\n\nprint(Person('Eyob', 'Helsinki').person_info())\nprint(Student('Lidiya', 'Espoo', 'Aalto').person_info())",
-      "expected_output": "Eyob lives in Helsinki.\nLidiya lives in Espoo. Studies at Aalto.",
+      "code": "class Person:\n    def __init__(self, name, city):\n        self.name, self.city = name, city\n\n    def person_info(self):\n        return f'{self.name} lives in {self.city}.'\n\nclass Student(Person):\n    def __init__(self, name, city, school):\n        super().__init__(name, city)\n        self.school = school\n\n    def person_info(self):\n        return super().person_info() + f' Studies at {self.school}.'\n\nprint(Student('Lidiya', 'Espoo', 'Aalto').person_info())",
+      "expected_output": "Lidiya lives in Espoo. Studies at Aalto.",
       "section": "Overriding parent method"
     },
     {
-      "id": "d21-c40",
+      "id": "d21-c41",
       "type": "predict",
       "prompt_tr": "Çıktı ne olur?",
       "prompt": "What is printed?",
@@ -534,18 +545,18 @@
       "section": "Overriding parent method"
     },
     {
-      "id": "d21-c41",
+      "id": "d21-c42",
       "type": "explain",
       "title_tr": "Gerçekçi örnek: maaş bordrosu",
       "title": "Realistic example: a payroll",
       "body_tr": "Bir şirkette herkes çalışandır ama maaş hesabı farklıdır: yöneticinin bir de primi vardır. Ortak kısım `Employee`'de durur, `Manager` yalnızca `pay` metodunu ezip genişletir.\n\nAsıl güzellik döngüde: `for e in staff:` satırı her nesnenin hangi sınıftan geldiğini sormaz, sadece `e.pay()` der. Python her nesne için doğru metodu kendi bulur. Buna **çok biçimlilik** (polymorphism) denir: aynı çağrı, nesneye göre farklı davranış. Yeni bir çalışan türü eklemek döngüyü değiştirmeyi gerektirmez.",
       "body": "In a company everybody is an employee, but pay is computed differently: a manager also gets a bonus. The shared part lives in `Employee`, and `Manager` only overrides and extends `pay`.\n\nThe real beauty is the loop: `for e in staff:` never asks which class each object came from; it just says `e.pay()`. Python finds the right method for each object itself. This is called **polymorphism**: the same call, different behaviour depending on the object. Adding a new kind of employee does not require changing the loop.",
-      "code": "class Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n\n    def pay(self):\n        return self.salary\n\nclass Manager(Employee):\n    def __init__(self, name, salary, bonus):\n        super().__init__(name, salary)\n        self.bonus = bonus\n\n    def pay(self):\n        return super().pay() + self.bonus\n\nstaff = [Employee('Ece', 30000), Manager('Mert', 45000, 8000)]\nfor e in staff:\n    print(e.name, e.pay())\nprint('Total:', sum(e.pay() for e in staff))",
-      "expected_output": "Ece 30000\nMert 53000\nTotal: 83000",
+      "code": "class Employee:\n    def __init__(self, name, salary):\n        self.name, self.salary = name, salary\n\n    def pay(self): return self.salary\n\nclass Manager(Employee):\n    def __init__(self, name, salary, bonus):\n        super().__init__(name, salary)\n        self.bonus = bonus\n\n    def pay(self): return super().pay() + self.bonus\n\nstaff = [Employee('Ece', 30000), Manager('Mert', 45000, 8000)]\nfor e in staff:\n    print(e.name, e.pay())",
+      "expected_output": "Ece 30000\nMert 53000",
       "section": "Overriding parent method"
     },
     {
-      "id": "d21-c42",
+      "id": "d21-c43",
       "type": "order",
       "prompt_tr": "Satırları sırala: ebeveyn sınıf, metodu ezen alt sınıf ve çağrı.",
       "prompt": "Order the lines: the parent class, a child that overrides the method, and the call.",
@@ -567,7 +578,7 @@
       "expected_output": "kare şekil"
     },
     {
-      "id": "d21-c43",
+      "id": "d21-c44",
       "type": "truefalse",
       "statement_tr": "Alt sınıf bir metodu ezdikten sonra ebeveynin o metodu hiçbir şekilde çağrılamaz.",
       "statement": "Once a child class overrides a method, the parent's version can no longer be called in any way.",
@@ -577,7 +588,7 @@
       "section": "Overriding parent method"
     },
     {
-      "id": "d21-c44",
+      "id": "d21-c45",
       "type": "recap",
       "title_tr": "Bugünün özeti",
       "title": "Today's summary",

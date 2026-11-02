@@ -1,659 +1,1362 @@
 {
- "day": 22,
- "title": "Web Scraping",
- "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
- "blocks": [
-  {
-   "id": "d22-b1",
-   "concept": "response-status",
-   "tags": [
-    "web-scraping",
-    "http",
-    "status-codes"
-   ],
-   "worked_example": {
-    "code": "class FakeResponse:\n    def __init__(self, status_code, content):\n        self.status_code = status_code\n        self.content = content\n\nresponse = FakeResponse(200, '<html></html>')\nprint(response.status_code == 200)",
-    "notes": [
-     "requests.get() returns a response object with status_code and content. FakeResponse imitates it so we can practise offline.",
-     "Status 200 means the fetch worked."
-    ],
-    "notes_tr": [
-     "requests.get() bir yanıt nesnesi döndürür; içinde status_code ve content vardır. FakeResponse onu taklit eder, böylece internetsiz çalışabiliriz.",
-     "200 durum kodu, sayfanın başarıyla alındığı anlamına gelir."
-    ]
-   },
-   "exercises": [
+  "day": 22,
+  "title": "Web Scraping",
+  "title_tr": "Web Kazıma",
+  "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+  "blocks": [
     {
-     "id": "d22-b1-e1",
-     "type": "predict",
-     "concept": "response-status",
-     "tags": [
-      "web-scraping",
-      "http",
-      "status-codes"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "class FakeResponse:\n    def __init__(self, status_code, content):\n        self.status_code = status_code\n        self.content = content\n\nr1 = FakeResponse(200, '<h1>Hi</h1>')\nr2 = FakeResponse(404, '')\nfor r in [r1, r2]:\n    if r.status_code == 200:\n        print('ok', len(r.content))\n    else:\n        print('failed', r.status_code)",
-     "choices": [
-      "ok 11\nfailed 404",
-      "ok 11\nok 0",
-      "failed 404\nok 11",
-      "ok 11"
-     ],
-     "expected_output": "ok 11\nfailed 404",
-     "explanation": "'<h1>Hi</h1>' has 11 characters. The second response has status 404, so the else branch prints failed 404.",
-     "misconceptions": {
-      "ok 11\nok 0": "Only status 200 counts as success; 404 goes to the else branch.",
-      "failed 404\nok 11": "The loop goes through r1 first, then r2.",
-      "ok 11": "The loop runs for both responses and the else branch prints for r2."
-     },
-     "explanation_tr": "'<h1>Hi</h1>' 11 karakterdir. İkinci yanıtın durumu 404 olduğu için else dalı çalışır ve failed 404 yazdırır.",
-     "misconceptions_tr": {
-      "ok 11\nok 0": "Yalnızca 200 durumu başarı sayılır; 404 else dalına gider.",
-      "failed 404\nok 11": "Döngü önce r1'i, sonra r2'yi dolaşır.",
-      "ok 11": "Döngü iki yanıt için de çalışır ve r2 için else dalı yazdırır."
-     }
+      "id": "d22-b1",
+      "concept": "html-tree-select",
+      "concept_tr": "HTML ağacında öğe bulmak ve seçmek",
+      "tags": [
+        "scraping",
+        "html",
+        "elementtree",
+        "select"
+      ],
+      "worked_example": {
+        "code": "import xml.etree.ElementTree as ET\n\nhtml = '<ul><li class=\"new\">Sefiller</li><li>Nutuk</li><li class=\"new\">Dune</li></ul>'\nroot = ET.fromstring(html)\nprint(root.find('.//li').text)\nprint([li.text for li in root.iter('li') if li.get('class') == 'new'])\nprint([li.text for li in root.findall(\".//li[@class='new']\")])",
+        "notes": [
+          "ET.fromstring turns the text into a tree; root is the outermost tag (ul) and every li is one of its children.",
+          "find returns the FIRST match (or None), while iter and findall give every match, so they belong in a loop or comprehension.",
+          "get('class') reads an attribute and returns None when the tag has no such attribute, which is why the plain Nutuk item is filtered out."
+        ],
+        "notes_tr": [
+          "ET.fromstring metni bir ağaca çevirir; root en dıştaki etikettir (ul) ve her li onun bir çocuğudur.",
+          "find İLK eşleşmeyi (ya da None) döndürür; iter ve findall ise bütün eşleşmeleri verir, bu yüzden bir döngüde ya da comprehension içinde kullanılır.",
+          "get('class') bir niteliği okur ve etikette o nitelik yoksa None döndürür; sade Nutuk öğesi bu yüzden elenir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d22-b1-e1",
+          "type": "predict",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import xml.etree.ElementTree as ET\n\nroot = ET.fromstring('<p><b>x</b><i>y</i><b>z</b></p>')\nprint(root.find('.//b').text, len(root.findall('.//b')))",
+          "choices": [
+            "x 2",
+            "z 2",
+            "x 3",
+            "['x', 'z'] 2"
+          ],
+          "expected_output": "x 2",
+          "explanation": "find gives the first b, whose text is 'x'. findall returns a list of both b elements, so its length is 2.",
+          "explanation_tr": "find ilk b'yi verir, metni 'x'tir. findall iki b öğesinin listesini döndürür, uzunluğu 2'dir.",
+          "misconceptions": {
+            "z 2": "find stops at the first match in document order, which is the first b.",
+            "x 3": "findall('.//b') counts only b tags; the i tag is not a b.",
+            "['x', 'z'] 2": "find returns one element, and .text is that element's string."
+          },
+          "misconceptions_tr": {
+            "z 2": "find belge sırasındaki ilk eşleşmede durur; o da ilk b'dir.",
+            "x 3": "findall('.//b') yalnızca b etiketlerini sayar; i etiketi b değildir.",
+            "['x', 'z'] 2": "find tek bir öğe döndürür; .text de o öğenin string'idir."
+          }
+        },
+        {
+          "id": "d22-b1-e2",
+          "type": "fill_blank",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "Complete the code so that hrefs holds the href of every link (a tag) on the page.",
+          "prompt_tr": "Kodu tamamla: hrefs sayfadaki her bağlantının (a etiketi) href değerini tutsun.",
+          "starter_code": "import xml.etree.ElementTree as ET\n\nroot = ET.fromstring('<div><a href=\"/a\">A</a><p>x</p><a href=\"/b\">B</a></div>')\nhrefs = [a.get('___') for a in root.iter('___')]",
+          "blanks": [
+            {
+              "answer": [
+                "href"
+              ]
+            },
+            {
+              "answer": [
+                "a"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert hrefs == ['/a', '/b']",
+              "visible": true,
+              "label": "Both links are collected",
+              "label_tr": "İki bağlantı da toplanıyor"
+            }
+          ]
+        },
+        {
+          "id": "d22-b1-e3",
+          "type": "modify",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "headlines(html) returns the text of every h2. Change it so that it returns only the h2 headings whose class is 'news', in page order. Example: headlines('<div><h2 class=\"news\">Seçim</h2><h2>Reklam</h2></div>') returns ['Seçim'].",
+          "prompt_tr": "headlines(html) her h2'nin metnini döndürüyor. Yalnızca class'ı 'news' olan h2 başlıklarını, sayfadaki sırasıyla döndürecek şekilde değiştir. Örnek: headlines('<div><h2 class=\"news\">Seçim</h2><h2>Reklam</h2></div>') ['Seçim'] döndürür.",
+          "starter_code": "import xml.etree.ElementTree as ET\n\ndef headlines(html):\n    root = ET.fromstring(html)\n    return [h.text for h in root.iter('h2')]",
+          "tests": [
+            {
+              "code": "assert headlines('<div><h2 class=\"news\">Seçim</h2><h2>Reklam</h2></div>') == ['Seçim']",
+              "visible": true,
+              "label": "The advert heading is dropped",
+              "label_tr": "Reklam başlığı eleniyor"
+            },
+            {
+              "code": "assert headlines('<div><h2>x</h2></div>') == []",
+              "visible": true,
+              "label": "No news heading gives an empty list",
+              "label_tr": "Haber başlığı yoksa boş liste"
+            },
+            {
+              "code": "html = '<div><h2 class=\"news\">A</h2><p><h2 class=\"news\">B</h2></p><h2 class=\"ad\">C</h2></div>'\nassert headlines(html) == ['A', 'B']",
+              "visible": false,
+              "failure_message": "Keep only h2 elements whose class attribute equals 'news', at any depth and in page order.",
+              "failure_message_tr": "Yalnızca class niteliği 'news' olan h2 öğelerini tut; derinlik fark etmez, sayfa sırası korunmalı."
+            }
+          ],
+          "hints": [
+            "You only need to filter the h2 elements you already have.",
+            "A comprehension can take an if at the end; the class is read with h.get('class').",
+            "Add a condition of the form if h.get('class') == ___ at the end of the comprehension."
+          ],
+          "hints_tr": [
+            "Elindeki h2 öğelerini yalnızca süzmen gerekiyor.",
+            "Comprehension'ın sonuna bir if eklenebilir; class değeri h.get('class') ile okunur.",
+            "Comprehension'ın sonuna şu biçimde bir koşul ekle: if h.get('class') == ___."
+          ],
+          "solution": {
+            "approach": "Filter the comprehension on the class attribute.",
+            "approach_tr": "Comprehension'ı class niteliğine göre süz.",
+            "code": "import xml.etree.ElementTree as ET\n\ndef headlines(html):\n    root = ET.fromstring(html)\n    return [h.text for h in root.iter('h2') if h.get('class') == 'news']"
+          }
+        },
+        {
+          "id": "d22-b1-e4",
+          "type": "debug",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "get_price(html) must return the text of the span with class 'price', or None when the page has no such span. It crashes on pages without a price. Fix it.",
+          "prompt_tr": "get_price(html), class'ı 'price' olan span'in metnini, sayfada böyle bir span yoksa None döndürmeli. Fiyatsız sayfalarda çöküyor. Onar.",
+          "starter_code": "import xml.etree.ElementTree as ET\n\ndef get_price(html):\n    root = ET.fromstring(html)\n    return root.find(\".//span[@class='price']\").text\n\nprint(get_price('<div><span class=\"price\">120</span></div>'))\nprint(get_price('<div><span>yok</span></div>'))",
+          "hints": [
+            "The second call raises AttributeError: 'NoneType' object has no attribute 'text'. What did find return there?",
+            "find returns None when nothing matches, and None has no .text. Keep the result of find in a variable before reading .text.",
+            "Check the variable with if el is None: return None before the final return."
+          ],
+          "hints_tr": [
+            "İkinci çağrı AttributeError: 'NoneType' object has no attribute 'text' veriyor. find orada ne döndürdü?",
+            "Eşleşme yoksa find None döndürür ve None'ın .text'i yoktur. .text okumadan önce find'ın sonucunu bir değişkende tut.",
+            "Son return'den önce değişkeni if el is None: return None ile kontrol et."
+          ],
+          "solution": {
+            "approach": "Keep find's result and return None when it is None.",
+            "approach_tr": "find'ın sonucunu sakla, None ise None döndür.",
+            "code": "import xml.etree.ElementTree as ET\n\ndef get_price(html):\n    root = ET.fromstring(html)\n    el = root.find(\".//span[@class='price']\")\n    if el is None:\n        return None\n    return el.text\n\nprint(get_price('<div><span class=\"price\">120</span></div>'))\nprint(get_price('<div><span>yok</span></div>'))"
+          },
+          "tests": [
+            {
+              "code": "assert get_price('<p><span class=\"price\">9</span></p>') == '9' and get_price('<p></p>') is None",
+              "visible": false,
+              "failure_message": "Return the price text when it exists and None when it does not.",
+              "failure_message_tr": "Fiyat varsa metnini, yoksa None döndür."
+            }
+          ],
+          "expected_output": "120\nNone"
+        },
+        {
+          "id": "d22-b1-e5",
+          "type": "write",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "Write a function absolute_links(html, base) that returns a list of the full URLs of every a tag's href on the page, in page order, using urllib.parse.urljoin(base, href). Example: absolute_links('<div><a href=\"/iletisim\">x</a></div>', 'https://ornek.com/blog/') returns ['https://ornek.com/iletisim'].",
+          "prompt_tr": "absolute_links(html, base) adında bir fonksiyon yaz: sayfadaki her a etiketinin href'inin tam URL'sini, sayfa sırasıyla, urllib.parse.urljoin(base, href) kullanarak bir liste olarak döndürsün. Örnek: absolute_links('<div><a href=\"/iletisim\">x</a></div>', 'https://ornek.com/blog/') ['https://ornek.com/iletisim'] döndürür.",
+          "starter_code": "",
+          "signature": "def absolute_links(html, base):",
+          "tests": [
+            {
+              "code": "assert absolute_links('<div><a href=\"/iletisim\">x</a></div>', 'https://ornek.com/blog/') == ['https://ornek.com/iletisim']",
+              "visible": true,
+              "label": "A root-relative link",
+              "label_tr": "Köke göre yazılmış bağlantı"
+            },
+            {
+              "code": "assert absolute_links('<div><a href=\"yazi-2\">x</a></div>', 'https://ornek.com/blog/') == ['https://ornek.com/blog/yazi-2']",
+              "visible": true,
+              "label": "A folder-relative link",
+              "label_tr": "Klasöre göre yazılmış bağlantı"
+            },
+            {
+              "code": "html = '<ul><li><a href=\"a\">1</a></li><li><a href=\"https://dis.org/x\">2</a></li><li>3</li></ul>'\nassert absolute_links(html, 'https://site.com/k/') == ['https://site.com/k/a', 'https://dis.org/x']",
+              "visible": false,
+              "failure_message": "Find a tags at any depth, keep page order, and let urljoin handle full URLs too.",
+              "failure_message_tr": "a etiketlerini her derinlikte bul, sayfa sırasını koru; tam URL'leri de urljoin halletsin."
+            },
+            {
+              "code": "assert absolute_links('<p>no links</p>', 'https://x.com/') == []",
+              "visible": false,
+              "failure_message": "A page without links gives an empty list.",
+              "failure_message_tr": "Bağlantısız sayfa boş liste vermeli."
+            }
+          ],
+          "hints": [
+            "Parse the html with ET.fromstring, then visit every a element.",
+            "root.iter('a') walks all a tags at any depth; a.get('href') reads the address and urljoin(base, ...) completes it.",
+            "The whole body can be a return of a comprehension of the form [urljoin(base, a.get('href')) for a in ___]."
+          ],
+          "hints_tr": [
+            "html'i ET.fromstring ile ayrıştır, sonra her a öğesini dolaş.",
+            "root.iter('a') her derinlikteki a etiketlerini gezer; a.get('href') adresi okur, urljoin(base, ...) onu tamamlar.",
+            "Gövde şu biçimde bir comprehension döndürebilir: [urljoin(base, a.get('href')) for a in ___]."
+          ],
+          "solution": {
+            "approach": "Parse once, iterate over a tags, and join each href with the base URL.",
+            "approach_tr": "Bir kez ayrıştır, a etiketlerini dolaş ve her href'i temel URL ile birleştir.",
+            "code": "import xml.etree.ElementTree as ET\nfrom urllib.parse import urljoin\n\ndef absolute_links(html, base):\n    root = ET.fromstring(html)\n    return [urljoin(base, a.get('href')) for a in root.iter('a')]"
+          },
+          "twin": "d22-b1-e6"
+        },
+        {
+          "id": "d22-b1-e6",
+          "type": "write",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "Write a function count_tags(html) that returns a dict mapping every tag name in the fragment (the outer tag included) to how many times it appears. Example: count_tags('<ul><li>a</li><li>b</li></ul>') returns {'ul': 1, 'li': 2}.",
+          "prompt_tr": "count_tags(html) adında bir fonksiyon yaz: parçadaki her etiket adını (dıştaki etiket dahil) kaç kez geçtiğine eşleyen bir dict döndürsün. Örnek: count_tags('<ul><li>a</li><li>b</li></ul>') {'ul': 1, 'li': 2} döndürür.",
+          "starter_code": "",
+          "signature": "def count_tags(html):",
+          "tests": [
+            {
+              "code": "assert count_tags('<ul><li>a</li><li>b</li></ul>') == {'ul': 1, 'li': 2}",
+              "visible": true,
+              "label": "A list with two items",
+              "label_tr": "İki öğeli bir liste"
+            },
+            {
+              "code": "assert count_tags('<p>x</p>') == {'p': 1}",
+              "visible": true,
+              "label": "A single tag",
+              "label_tr": "Tek bir etiket"
+            },
+            {
+              "code": "assert count_tags('<div><p><b>x</b></p><p>y</p><b>z</b></div>') == {'div': 1, 'p': 2, 'b': 2}",
+              "visible": false,
+              "failure_message": "Count nested tags at every depth; root.iter() with no argument visits every element, the root included.",
+              "failure_message_tr": "İç içe etiketleri her derinlikte say; argümansız root.iter() kök dahil her öğeyi gezer."
+            },
+            {
+              "code": "assert count_tags('<table><tr><td>1</td><td>2</td></tr><tr><td>3</td></tr></table>') == {'table': 1, 'tr': 2, 'td': 3}",
+              "visible": false,
+              "failure_message": "Return a fresh dict computed from this html; every tag name must map to its own count.",
+              "failure_message_tr": "Bu html'den hesaplanan yeni bir dict döndür; her etiket adı kendi sayısına eşlenmeli."
+            }
+          ],
+          "hints": [
+            "Day 8 counting pattern: an empty dict, then one increase per tag.",
+            "root.iter() without an argument yields every element, starting with the root. For each one increase counts[el.tag].",
+            "The increase is one line of the form counts[el.tag] = counts.get(el.tag, 0) + 1."
+          ],
+          "hints_tr": [
+            "8. günün sayma kalıbı: boş bir dict, sonra her etiket için bir artırma.",
+            "Argümansız root.iter() kökten başlayarak her öğeyi verir. Her biri için counts[el.tag] değerini artır.",
+            "Artırma şu biçimde tek satırdır: counts[el.tag] = counts.get(el.tag, 0) + 1."
+          ],
+          "solution": {
+            "approach": "Walk every element with iter() and count tag names with dict.get.",
+            "approach_tr": "iter() ile her öğeyi gez ve etiket adlarını dict.get ile say.",
+            "code": "import xml.etree.ElementTree as ET\n\ndef count_tags(html):\n    counts = {}\n    for el in ET.fromstring(html).iter():\n        counts[el.tag] = counts.get(el.tag, 0) + 1\n    return counts"
+          },
+          "twin": "d22-b1-e5"
+        },
+        {
+          "id": "d22-b1-e7",
+          "type": "predict",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import xml.etree.ElementTree as ET\n\nroot = ET.fromstring('<ul><li>a</li><li>b</li></ul>')\nprint([el.tag for el in root.iter()])",
+          "choices": [
+            "['li', 'li']",
+            "['ul']",
+            "['a', 'b']",
+            "['ul', 'li', 'li']"
+          ],
+          "expected_output": "['ul', 'li', 'li']",
+          "explanation": "Without an argument iter() visits the element itself and then all its descendants in document order.",
+          "explanation_tr": "Argümansız iter() önce öğenin kendisini, sonra belge sırasıyla bütün alt öğelerini gezer.",
+          "misconceptions": {
+            "['li', 'li']": "iter() starts with the element it is called on, so the root ul is included.",
+            "['ul']": "iter() goes into every descendant, not only the top level.",
+            "['a', 'b']": "el.tag is the tag name; 'a' and 'b' are the text inside the tags."
+          },
+          "misconceptions_tr": {
+            "['li', 'li']": "iter() çağrıldığı öğeden başlar, bu yüzden kök ul de dahildir.",
+            "['ul']": "iter() yalnızca en üst düzeyi değil, bütün alt öğeleri gezer.",
+            "['a', 'b']": "el.tag etiket adıdır; 'a' ve 'b' etiketlerin içindeki metindir."
+          }
+        },
+        {
+          "id": "d22-b1-e8",
+          "type": "explain",
+          "concept": "html-tree-select",
+          "tags": [
+            "scraping",
+            "html",
+            "elementtree",
+            "select"
+          ],
+          "prompt": "Why does a scraper that worked yesterday often crash today with 'NoneType' object has no attribute 'text', and how do you make it safer?",
+          "prompt_tr": "Dün çalışan bir kazıyıcı bugün neden sıkça 'NoneType' object has no attribute 'text' hatasıyla çöker ve onu nasıl daha güvenli yaparsın?",
+          "model_answer": "The page changed, so find no longer matches anything and returns None instead of an element. Reading .text on None raises the AttributeError. Keep the result in a variable and check it with is None (or use findtext with a default) before reading text.",
+          "model_answer_tr": "Sayfa değişmiştir, find artık hiçbir şeyle eşleşmez ve öğe yerine None döndürür. None üzerinde .text okumak AttributeError fırlatır. Sonucu bir değişkende tut ve metni okumadan önce is None ile kontrol et (ya da varsayılan değerli findtext kullan).",
+          "keywords": [
+            "None",
+            "find",
+            "check"
+          ],
+          "keywords_tr": [
+            "None",
+            "find",
+            "kontrol"
+          ],
+          "min_words": 12
+        }
+      ]
     },
     {
-     "id": "d22-b1-e2",
-     "type": "fill_blank",
-     "concept": "response-status",
-     "tags": [
-      "web-scraping",
-      "http",
-      "status-codes"
-     ],
-     "prompt": "Complete page_text: return the content only when the status code is 200, otherwise None.",
-     "prompt_tr": "page_text fonksiyonunu tamamla: durum kodu 200 ise içeriği döndür, değilse None döndür.",
-     "starter_code": "class FakeResponse:\n    def __init__(self, status_code, content):\n        self.status_code = status_code\n        self.content = content\n\ndef page_text(response):\n    if response.status_code ___ 200:\n        return response.___\n    return None",
-     "blanks": [
-      {
-       "answer": [
-        "=="
-       ]
+      "id": "d22-b2",
+      "concept": "fetch-status",
+      "concept_tr": "Sayfayı getirmek ve durum kodunu ele almak",
+      "tags": [
+        "scraping",
+        "requests",
+        "status-code",
+        "exceptions"
+      ],
+      "worked_example": {
+        "code": "class Response:\n    def __init__(self, status_code, text=''):\n        self.status_code, self.text = status_code, text\nPAGES = {'/kitaplar': '<ul><li>Nutuk</li></ul>'}\ndef fake_get(url):\n    return Response(200, PAGES[url]) if url in PAGES else Response(404)\nfor url in ['/kitaplar', '/yok']:\n    r = fake_get(url)\n    print(url, r.status_code, r.text if r.status_code == 200 else '-')",
+        "notes": [
+          "fake_get stands in for requests.get: it returns an object with the same two attributes, status_code and text, so the rest of the code looks exactly like a real scraper.",
+          "The status code is an int; check it before touching the text, because a 404 page is an error page, not your data.",
+          "In a real project you would delete PAGES and fake_get and write r = requests.get(url) instead; the loop does not change."
+        ],
+        "notes_tr": [
+          "fake_get, requests.get'in yerine geçer: aynı iki niteliği (status_code ve text) taşıyan bir nesne döndürür, böylece kodun geri kalanı gerçek bir kazıyıcıyla birebir aynı görünür.",
+          "Durum kodu bir int'tir; metne dokunmadan önce onu kontrol et, çünkü 404 sayfası verin değil, bir hata sayfasıdır.",
+          "Gerçek projede PAGES ve fake_get'i silip yerine r = requests.get(url) yazarsın; döngü değişmez."
+        ]
       },
-      {
-       "answer": [
-        "content"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert page_text(FakeResponse(200, '<p>x</p>')) == '<p>x</p>'",
-       "visible": true,
-       "label_tr": "200 durumunda içerik döndürülüyor"
-      },
-      {
-       "code": "assert page_text(FakeResponse(404, 'not found')) is None",
-       "visible": true,
-       "label_tr": "404 durumunda None döndürülüyor"
-      }
-     ]
+      "exercises": [
+        {
+          "id": "d22-b2-e1",
+          "type": "predict",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "class Response:\n    def __init__(self, status_code):\n        self.status_code = status_code\n\n    @property\n    def ok(self):\n        return self.status_code < 400\n\nprint([Response(c).ok for c in (200, 301, 404, 500)])",
+          "choices": [
+            "[True, False, False, False]",
+            "[True, True, False, False]",
+            "[True, True, True, False]",
+            "[<bound method>, ...]"
+          ],
+          "expected_output": "[True, True, False, False]",
+          "explanation": "Like requests' Response.ok, the property is True for every code below 400: 200 and 301 pass, 404 and 500 do not.",
+          "explanation_tr": "requests'teki Response.ok gibi bu property de 400'ün altındaki her kod için True'dur: 200 ve 301 geçer, 404 ve 500 geçmez.",
+          "misconceptions": {
+            "[True, False, False, False]": "ok means 'below 400'; a 301 redirect is not an error.",
+            "[True, True, True, False]": "404 is not below 400, so ok is False for it.",
+            "[<bound method>, ...]": "ok is a property, so reading r.ok runs it and gives a bool."
+          },
+          "misconceptions_tr": {
+            "[True, False, False, False]": "ok '400'ün altında' demektir; 301 yönlendirmesi bir hata değildir.",
+            "[True, True, True, False]": "404, 400'ün altında değildir; onun için ok False olur.",
+            "[<bound method>, ...]": "ok bir property'dir; r.ok okumak onu çalıştırır ve bir bool verir."
+          }
+        },
+        {
+          "id": "d22-b2-e2",
+          "type": "parsons",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "Order the lines: fetch returns the page for a known URL and raises LookupError for an unknown one; the loop prints the page or the error.",
+          "prompt_tr": "Satırları sırala: fetch bilinen bir URL için sayfayı döndürür, bilinmeyen için LookupError fırlatır; döngü sayfayı ya da hatayı yazdırır.",
+          "lines": [
+            "for url in ['/a', '/b']:",
+            "def fetch(url):",
+            "    except LookupError as e:",
+            "PAGES = {'/a': 'A sayfası'}",
+            "        raise LookupError(url)",
+            "        print('yok:', e)",
+            "    try:",
+            "    if url not in PAGES:",
+            "        print(fetch(url))",
+            "    return PAGES[url]"
+          ],
+          "correct_order": [
+            3,
+            1,
+            7,
+            4,
+            9,
+            0,
+            6,
+            8,
+            2,
+            5
+          ],
+          "distractors": [
+            "        return LookupError(url)",
+            "    except:"
+          ],
+          "expected_output": "A sayfası\nyok: /b"
+        },
+        {
+          "id": "d22-b2-e3",
+          "type": "modify",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "Add a method raise_for_status() to Response: it raises RuntimeError(f'HTTP {status_code}') (for example RuntimeError('HTTP 404')) when status_code is 400 or more, and does nothing otherwise.",
+          "prompt_tr": "Response'a raise_for_status() adında bir metot ekle: status_code 400 ya da üstündeyse RuntimeError(f'HTTP {status_code}') fırlatsın (örneğin RuntimeError('HTTP 404')), değilse hiçbir şey yapmasın.",
+          "starter_code": "class Response:\n    def __init__(self, status_code, text=''):\n        self.status_code = status_code\n        self.text = text",
+          "tests": [
+            {
+              "code": "Response(200).raise_for_status()\nResponse(301).raise_for_status()",
+              "visible": true,
+              "label": "Success and redirect do not raise",
+              "label_tr": "Başarı ve yönlendirme hata fırlatmaz"
+            },
+            {
+              "code": "try:\n    Response(404).raise_for_status()\n    ok = False\nexcept RuntimeError as e:\n    ok = str(e) == 'HTTP 404'\nassert ok",
+              "visible": true,
+              "label": "404 raises RuntimeError('HTTP 404')",
+              "label_tr": "404, RuntimeError('HTTP 404') fırlatır"
+            },
+            {
+              "code": "for code in (400, 429, 503):\n    try:\n        Response(code).raise_for_status()\n        assert False\n    except RuntimeError as e:\n        assert str(e) == f'HTTP {code}'\nResponse(399).raise_for_status()",
+              "visible": false,
+              "failure_message": "Raise for every code from 400 upward with the message 'HTTP <code>', and stay silent below 400.",
+              "failure_message_tr": "400 ve üstündeki her kod için 'HTTP <kod>' mesajıyla fırlat; 400'ün altında sessiz kal."
+            }
+          ],
+          "hints": [
+            "The method needs only self; it compares self.status_code with 400.",
+            "raise RuntimeError(...) stops the method and travels up to whoever called it. Build the message with an f-string.",
+            "The body is one if with a raise inside: if self.status_code >= 400: raise RuntimeError(f'HTTP {___}')."
+          ],
+          "hints_tr": [
+            "Metodun yalnızca self'e ihtiyacı var; self.status_code'u 400 ile karşılaştırır.",
+            "raise RuntimeError(...) metodu durdurur ve onu çağırana kadar yukarı çıkar. Mesajı bir f-string ile kur.",
+            "Gövde, içinde raise olan tek bir if'tir: if self.status_code >= 400: raise RuntimeError(f'HTTP {___}')."
+          ],
+          "solution": {
+            "approach": "One comparison and one raise with an f-string message.",
+            "approach_tr": "Bir karşılaştırma ve f-string mesajlı bir raise.",
+            "code": "class Response:\n    def __init__(self, status_code, text=''):\n        self.status_code = status_code\n        self.text = text\n\n    def raise_for_status(self):\n        if self.status_code >= 400:\n            raise RuntimeError(f'HTTP {self.status_code}')"
+          }
+        },
+        {
+          "id": "d22-b2-e4",
+          "type": "debug",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "The scraper should print 'parsing /kitaplar' and 'skip /yok (404)'. Instead it skips every page. Fix the comparison.",
+          "prompt_tr": "Kazıyıcı 'parsing /kitaplar' ve 'skip /yok (404)' yazdırmalı. Oysa her sayfayı atlıyor. Karşılaştırmayı onar.",
+          "starter_code": "class Response:\n    def __init__(self, status_code):\n        self.status_code = status_code\n\ncodes = {'/kitaplar': 200, '/yok': 404}\nfor url, code in codes.items():\n    r = Response(code)\n    if r.status_code == '200':\n        print('parsing', url)\n    else:\n        print(f'skip {url} ({r.status_code})')",
+          "hints": [
+            "Print type(r.status_code) and type('200'). Can those two ever be equal?",
+            "status_code is the int 200, '200' is a string; Day 2: values of different types are never == equal, so the if is always False.",
+            "Compare with the number itself: remove the quotes around 200."
+          ],
+          "hints_tr": [
+            "type(r.status_code) ve type('200') değerlerini yazdır. Bu ikisi hiç eşit olabilir mi?",
+            "status_code int olan 200'dür, '200' ise bir string; 2. gün: farklı türdeki değerler asla == ile eşit olmaz, bu yüzden if hep False'tur.",
+            "Sayının kendisiyle karşılaştır: 200'ün etrafındaki tırnakları kaldır."
+          ],
+          "solution": {
+            "approach": "Compare the int with an int: r.status_code == 200.",
+            "approach_tr": "int'i int ile karşılaştır: r.status_code == 200.",
+            "code": "class Response:\n    def __init__(self, status_code):\n        self.status_code = status_code\n\ncodes = {'/kitaplar': 200, '/yok': 404}\nfor url, code in codes.items():\n    r = Response(code)\n    if r.status_code == 200:\n        print('parsing', url)\n    else:\n        print(f'skip {url} ({r.status_code})')"
+          },
+          "expected_output": "parsing /kitaplar\nskip /yok (404)"
+        },
+        {
+          "id": "d22-b2-e5",
+          "type": "write",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "Write a function fetch_all(urls, pages) where pages is a dict that maps a URL to its HTML (it plays the website). Return a dict with two keys: 'ok', the list of URLs found in pages, and 'missing', the list of URLs not found, both in the order of urls. Example: fetch_all(['/a', '/x'], {'/a': '<p>A</p>'}) returns {'ok': ['/a'], 'missing': ['/x']}.",
+          "prompt_tr": "fetch_all(urls, pages) adında bir fonksiyon yaz; pages bir URL'yi HTML'ine eşleyen bir dict'tir (web sitesini oynar). İki anahtarlı bir dict döndür: 'ok' pages içinde bulunan URL'lerin, 'missing' bulunmayanların listesi; ikisi de urls sırasıyla. Örnek: fetch_all(['/a', '/x'], {'/a': '<p>A</p>'}) {'ok': ['/a'], 'missing': ['/x']} döndürür.",
+          "starter_code": "",
+          "signature": "def fetch_all(urls, pages):",
+          "tests": [
+            {
+              "code": "assert fetch_all(['/a', '/x'], {'/a': '<p>A</p>'}) == {'ok': ['/a'], 'missing': ['/x']}",
+              "visible": true,
+              "label": "One found, one missing",
+              "label_tr": "Biri bulundu, biri eksik"
+            },
+            {
+              "code": "assert fetch_all([], {'/a': ''}) == {'ok': [], 'missing': []}",
+              "visible": true,
+              "label": "No URLs gives two empty lists",
+              "label_tr": "URL yoksa iki boş liste"
+            },
+            {
+              "code": "pages = {'/1': 'x', '/2': 'y', '/3': 'z'}\nassert fetch_all(['/3', '/9', '/1', '/8'], pages) == {'ok': ['/3', '/1'], 'missing': ['/9', '/8']}",
+              "visible": false,
+              "failure_message": "Keep the order of urls in both lists; use `in` on the pages dict to decide.",
+              "failure_message_tr": "İki listede de urls sırasını koru; karar için pages dict'i üzerinde `in` kullan."
+            },
+            {
+              "code": "assert fetch_all(['/a', '/a'], {'/a': ''}) == {'ok': ['/a', '/a'], 'missing': []}",
+              "visible": false,
+              "failure_message": "Every URL in the input is reported, even repeated ones.",
+              "failure_message_tr": "Girdideki her URL, tekrar edenler de dahil, raporlanmalı."
+            }
+          ],
+          "hints": [
+            "Start with result = {'ok': [], 'missing': []} and loop over urls.",
+            "url in pages checks the dict's keys (Day 8). Append to one list or the other.",
+            "Inside the loop one if/else appends url to result['ok'] or to result['missing']."
+          ],
+          "hints_tr": [
+            "result = {'ok': [], 'missing': []} ile başla ve urls üzerinde döngü kur.",
+            "url in pages dict'in anahtarlarına bakar (8. gün). Ya bir listeye ya diğerine ekle.",
+            "Döngünün içinde tek bir if/else, url'yi result['ok']'a ya da result['missing']'e ekler."
+          ],
+          "solution": {
+            "approach": "Loop over the URLs and sort each into one of two lists with an in check.",
+            "approach_tr": "URL'leri dolaş ve her birini bir in kontrolüyle iki listeden birine yerleştir.",
+            "code": "def fetch_all(urls, pages):\n    result = {'ok': [], 'missing': []}\n    for url in urls:\n        if url in pages:\n            result['ok'].append(url)\n        else:\n            result['missing'].append(url)\n    return result"
+          },
+          "twin": "d22-b2-e6"
+        },
+        {
+          "id": "d22-b2-e6",
+          "type": "write",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "Write a function polite_schedule(urls, delay) that plans a polite crawl: skip URLs already planned, and give each new URL a start time that grows by delay seconds. Return a list of (url, seconds) tuples. Example: polite_schedule(['/a', '/b', '/a', '/c'], 2) returns [('/a', 0), ('/b', 2), ('/c', 4)].",
+          "prompt_tr": "Nazik bir tarama planlayan polite_schedule(urls, delay) fonksiyonunu yaz: daha önce planlanmış URL'leri atla ve her yeni URL'ye delay saniye artan bir başlama zamanı ver. (url, saniye) demetlerinden oluşan bir liste döndür. Örnek: polite_schedule(['/a', '/b', '/a', '/c'], 2) [('/a', 0), ('/b', 2), ('/c', 4)] döndürür.",
+          "starter_code": "",
+          "signature": "def polite_schedule(urls, delay):",
+          "tests": [
+            {
+              "code": "assert polite_schedule(['/a', '/b', '/a', '/c'], 2) == [('/a', 0), ('/b', 2), ('/c', 4)]",
+              "visible": true,
+              "label": "Duplicates are skipped",
+              "label_tr": "Tekrar edenler atlanır"
+            },
+            {
+              "code": "assert polite_schedule([], 5) == []",
+              "visible": true,
+              "label": "Nothing to crawl",
+              "label_tr": "Taranacak bir şey yok"
+            },
+            {
+              "code": "assert polite_schedule(['/x', '/x', '/x', '/y'], 1.5) == [('/x', 0), ('/y', 1.5)]",
+              "visible": false,
+              "failure_message": "Times count only planned URLs: the n-th new URL starts at n * delay.",
+              "failure_message_tr": "Zamanlar yalnızca planlanan URL'leri sayar: n'inci yeni URL n * delay anında başlar."
+            },
+            {
+              "code": "assert polite_schedule(['/3', '/1', '/2'], 10) == [('/3', 0), ('/1', 10), ('/2', 20)]",
+              "visible": false,
+              "failure_message": "Keep the input order; do not sort the URLs.",
+              "failure_message_tr": "Girdi sırasını koru; URL'leri sıralama."
+            }
+          ],
+          "hints": [
+            "Keep a set of URLs you have planned (Day 7) and a result list.",
+            "The start time of a new URL is len(result) * delay, because len(result) is how many URLs were planned before it.",
+            "Inside the loop: skip the url if it is in the set; otherwise append (url, len(result) * delay) and add url to the set."
+          ],
+          "hints_tr": [
+            "Planladığın URL'ler için bir set (7. gün) ve bir sonuç listesi tut.",
+            "Yeni bir URL'nin başlama zamanı len(result) * delay'dir, çünkü len(result) ondan önce planlanan URL sayısıdır.",
+            "Döngünün içinde: url set'teyse atla; değilse (url, len(result) * delay) ekle ve url'yi set'e ekle."
+          ],
+          "solution": {
+            "approach": "A set remembers planned URLs; the position in the plan gives the start time.",
+            "approach_tr": "Bir set planlanan URL'leri hatırlar; plandaki sıra başlama zamanını verir.",
+            "code": "def polite_schedule(urls, delay):\n    seen = set()\n    plan = []\n    for url in urls:\n        if url in seen:\n            continue\n        plan.append((url, len(plan) * delay))\n        seen.add(url)\n    return plan"
+          },
+          "twin": "d22-b2-e5"
+        },
+        {
+          "id": "d22-b2-e7",
+          "type": "predict",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def fetch(code):\n    if code != 200:\n        raise ValueError(code)\n    return 'html'\n\nfor c in [200, 404]:\n    try:\n        page = fetch(c)\n    except ValueError as e:\n        print('error', e)\n    else:\n        print('ok', page)",
+          "choices": [
+            "ok html\nok html",
+            "ok html",
+            "ok html\nerror 404",
+            "error 200\nerror 404"
+          ],
+          "expected_output": "ok html\nerror 404",
+          "explanation": "Day 17: else runs only when try raised nothing. 200 gives 'ok html'; 404 raises inside fetch, the exception travels up to the except and prints 'error 404'.",
+          "explanation_tr": "17. gün: else yalnızca try hiçbir şey fırlatmadıysa çalışır. 200 'ok html' verir; 404 fetch içinde fırlatır, istisna yukarı except'e çıkar ve 'error 404' yazdırır.",
+          "misconceptions": {
+            "ok html\nok html": "For 404 fetch raises before return, so page is never set and else is skipped.",
+            "ok html": "The loop continues after the except block; the error is caught, not fatal.",
+            "error 200\nerror 404": "The exception is raised only when code != 200."
+          },
+          "misconceptions_tr": {
+            "ok html\nok html": "404 için fetch return'den önce fırlatır; page hiç atanmaz ve else atlanır.",
+            "ok html": "Döngü except bloğundan sonra devam eder; hata yakalanmıştır, programı durdurmaz.",
+            "error 200\nerror 404": "İstisna yalnızca code != 200 olduğunda fırlatılır."
+          }
+        },
+        {
+          "id": "d22-b2-e8",
+          "type": "explain",
+          "concept": "fetch-status",
+          "tags": [
+            "scraping",
+            "requests",
+            "status-code",
+            "exceptions"
+          ],
+          "prompt": "Why should a scraper check the status code before parsing the response text?",
+          "prompt_tr": "Bir kazıyıcı cevap metnini ayrıştırmadan önce neden durum kodunu kontrol etmelidir?",
+          "model_answer": "A code like 404, 403 or 500 means the server sent an error page instead of the data. Parsing that text would silently produce empty or wrong results, so you check the status code first and handle the error.",
+          "model_answer_tr": "404, 403 ya da 500 gibi bir kod, sunucunun veri yerine bir hata sayfası gönderdiği anlamına gelir. O metni ayrıştırmak sessizce boş ya da yanlış sonuç üretir; bu yüzden önce durum kodunu kontrol eder ve hatayı ele alırsın.",
+          "keywords": [
+            "404",
+            "error",
+            "status"
+          ],
+          "keywords_tr": [
+            "404",
+            "hata",
+            "durum kodu"
+          ],
+          "min_words": 12
+        }
+      ]
     },
     {
-     "id": "d22-b1-e3",
-     "type": "write",
-     "concept": "response-status",
-     "tags": [
-      "web-scraping",
-      "http",
-      "status-codes"
-     ],
-     "prompt": "Write status_label(code). It returns 'success' for 200, 'not found' for 404, 'server error' for 500 and 'unknown' for any other code.",
-     "prompt_tr": "status_label(code) yaz. 200 için 'success', 404 için 'not found', 500 için 'server error', diğer tüm kodlar için 'unknown' döndürsün.",
-     "starter_code": "",
-     "signature": "def status_label(code):",
-     "tests": [
-      {
-       "code": "assert status_label(200) == 'success'",
-       "visible": true,
-       "label_tr": "200 için 'success'"
+      "id": "d22-b3",
+      "concept": "htmlparser",
+      "concept_tr": "HTMLParser ile dağınık HTML'i okumak",
+      "tags": [
+        "scraping",
+        "html.parser",
+        "inheritance",
+        "state"
+      ],
+      "worked_example": {
+        "code": "from html.parser import HTMLParser\n\nclass ImgParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.sources = []\n    def handle_starttag(self, tag, attrs):\n        if tag == 'img':\n            self.sources.append(dict(attrs).get('src'))\np = ImgParser(); p.feed('<p>Logo<br><img src=\"a.png\"><img src=\"b.png\"></p>'); print(p.sources)",
+        "notes": [
+          "ImgParser inherits from HTMLParser (Day 21) and overrides handle_starttag; feed reads the text and calls that method for every opening tag.",
+          "Because the child defines __init__, super().__init__() must run first; HTMLParser sets up its own reading state there.",
+          "attrs is a list of (name, value) tuples, so dict(attrs).get('src') reads the attribute. Unclosed tags such as br and img are no problem."
+        ],
+        "notes_tr": [
+          "ImgParser, HTMLParser'dan kalıtım alır (21. gün) ve handle_starttag'i ezer; feed metni okur ve her açılış etiketinde bu metodu çağırır.",
+          "Alt sınıf __init__ tanımladığı için önce super().__init__() çalışmalı; HTMLParser kendi okuma durumunu orada kurar.",
+          "attrs (ad, değer) demetlerinden oluşan bir listedir; dict(attrs).get('src') niteliği okur. br ve img gibi kapanmayan etiketler sorun çıkarmaz."
+        ]
       },
-      {
-       "code": "assert status_label(404) == 'not found'",
-       "visible": true,
-       "label_tr": "404 için 'not found'"
-      },
-      {
-       "code": "assert status_label(500) == 'server error'",
-       "visible": false,
-       "failure_message": "500 must return 'server error'.",
-       "failure_message_tr": "500 için 'server error' döndürmelisin."
-      },
-      {
-       "code": "assert status_label(302) == 'unknown' and status_label(0) == 'unknown'",
-       "visible": false,
-       "failure_message": "Any code that is not 200, 404 or 500 must return 'unknown'.",
-       "failure_message_tr": "200, 404 ve 500 dışındaki her kod 'unknown' döndürmeli."
-      }
-     ],
-     "hints": [
-      "Think of three special cases and one default.",
-      "Use if / elif for 200, 404, 500 and a final return for everything else; or a dict with .get().",
-      "Last step: put the three code-to-text pairs in a dict and return labels.get(code, ___) so unknown codes get the default."
-     ],
-     "solution": {
-      "approach": "A dict lookup with a default value keeps the mapping in one place.",
-      "code": "def status_label(code):\n    labels = {200: 'success', 404: 'not found', 500: 'server error'}\n    return labels.get(code, 'unknown')",
-      "approach_tr": "Varsayılan değerli bir dict araması, eşlemeyi tek yerde tutar."
-     },
-     "twin": "d22-b1-e4",
-     "hints_tr": [
-      "Üç özel durum ve bir varsayılan durum düşün.",
-      "200, 404, 500 için if / elif kullan, geri kalan her şey için son bir return yaz; ya da .get() ile bir dict kullan.",
-      "Son adım: üç kod-metin çiftini bir dict'e koy ve labels.get(code, ___) döndür; böylece bilinmeyen kodlar varsayılanı alır."
-     ]
+      "exercises": [
+        {
+          "id": "d22-b3-e1",
+          "type": "predict",
+          "concept": "htmlparser",
+          "tags": [
+            "scraping",
+            "html.parser",
+            "inheritance",
+            "state"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "from html.parser import HTMLParser\n\nclass Log(HTMLParser):\n    def handle_starttag(self, tag, attrs):\n        print('start', tag)\n    def handle_endtag(self, tag):\n        print('end', tag)\n    def handle_data(self, data):\n        print('data', data)\n\nLog().feed('<b>hi</b>')",
+          "choices": [
+            "data hi",
+            "start b\nend b\ndata hi",
+            "Error",
+            "start b\ndata hi\nend b"
+          ],
+          "expected_output": "start b\ndata hi\nend b",
+          "explanation": "feed walks the text once: the opening <b> calls handle_starttag, 'hi' calls handle_data, and </b> calls handle_endtag.",
+          "explanation_tr": "feed metni bir kez dolaşır: açılan <b> handle_starttag'i, 'hi' handle_data'yı, </b> de handle_endtag'i çağırır.",
+          "misconceptions": {
+            "data hi": "All three methods are overridden, and the parser calls each one as it meets the opening tag, the text and the closing tag.",
+            "start b\nend b\ndata hi": "The parser reads the text from left to right, so the calls follow the order in the HTML.",
+            "Error": "Overriding these methods is exactly how HTMLParser is meant to be used."
+          },
+          "misconceptions_tr": {
+            "data hi": "Üç metot da ezildi; ayrıştırıcı açılış etiketine, metne ve kapanış etiketine geldikçe her birini çağırır.",
+            "start b\nend b\ndata hi": "Ayrıştırıcı metni soldan sağa okur; çağrılar HTML'deki sırayı izler.",
+            "Error": "Bu metotları ezmek, HTMLParser'ın tam olarak kullanılma biçimidir."
+          }
+        },
+        {
+          "id": "d22-b3-e2",
+          "type": "fill_blank",
+          "concept": "htmlparser",
+          "tags": [
+            "scraping",
+            "html.parser",
+            "inheritance",
+            "state"
+          ],
+          "prompt": "Complete the parser so that it collects the alt text of every image.",
+          "prompt_tr": "Ayrıştırıcıyı tamamla: her resmin alt metnini toplasın.",
+          "starter_code": "from html.parser import HTMLParser\n\nclass AltParser(___):\n    def __init__(self):\n        super().__init__()\n        self.alts = []\n    def handle_starttag(self, tag, attrs):\n        if tag == '___':\n            self.alts.append(dict(attrs).get('alt'))\n\np = AltParser()\np.feed('<div><img alt=\"Galata\"><p>x</p><img alt=\"Kız Kulesi\"></div>')",
+          "blanks": [
+            {
+              "answer": [
+                "HTMLParser"
+              ]
+            },
+            {
+              "answer": [
+                "img"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert p.alts == ['Galata', 'Kız Kulesi']",
+              "visible": true,
+              "label": "Both alt texts are collected",
+              "label_tr": "İki alt metni de toplanıyor"
+            }
+          ]
+        },
+        {
+          "id": "d22-b3-e3",
+          "type": "modify",
+          "concept": "htmlparser",
+          "tags": [
+            "scraping",
+            "html.parser",
+            "inheritance",
+            "state"
+          ],
+          "prompt": "LinkParser collects every href. Change it so that it collects only external links, that is hrefs that start with 'http'. Keep the attribute name links. Example: after feeding '<a href=\"/a\">x</a><a href=\"https://b.org\">y</a>', links is ['https://b.org'].",
+          "prompt_tr": "LinkParser her href'i topluyor. Yalnızca dış bağlantıları, yani 'http' ile başlayan href'leri toplayacak şekilde değiştir. Nitelik adı links kalsın. Örnek: '<a href=\"/a\">x</a><a href=\"https://b.org\">y</a>' verildikten sonra links ['https://b.org'] olur.",
+          "starter_code": "from html.parser import HTMLParser\n\nclass LinkParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.links = []\n\n    def handle_starttag(self, tag, attrs):\n        if tag == 'a':\n            self.links.append(dict(attrs).get('href'))",
+          "tests": [
+            {
+              "code": "p = LinkParser()\np.feed('<a href=\"/a\">x</a><a href=\"https://b.org\">y</a>')\nassert p.links == ['https://b.org']",
+              "visible": true,
+              "label": "Only the external link remains",
+              "label_tr": "Yalnızca dış bağlantı kalıyor"
+            },
+            {
+              "code": "p = LinkParser()\np.feed('<p>yok</p>')\nassert p.links == []",
+              "visible": true,
+              "label": "No links gives an empty list",
+              "label_tr": "Bağlantı yoksa boş liste"
+            },
+            {
+              "code": "p = LinkParser()\np.feed('<a href=\"http://x.com\">1</a><a href=\"iletisim\">2</a><a>3</a><a href=\"https://y.com/z\">4</a>')\nassert p.links == ['http://x.com', 'https://y.com/z']",
+              "visible": false,
+              "failure_message": "Skip relative links and a tags without an href; keep both http and https links in order.",
+              "failure_message_tr": "Göreli bağlantıları ve href'i olmayan a etiketlerini atla; http ve https bağlantılarını sırayla tut."
+            }
+          ],
+          "hints": [
+            "Read the href into a variable first, then decide whether to keep it.",
+            "dict(attrs).get('href') can be None when there is no href, and None has no startswith. Check that it exists before calling startswith('http').",
+            "Use a condition of the form if href and href.startswith('http'): before appending."
+          ],
+          "hints_tr": [
+            "Önce href'i bir değişkene oku, sonra tutup tutmayacağına karar ver.",
+            "href yoksa dict(attrs).get('href') None olabilir ve None'ın startswith'i yoktur. startswith('http') çağırmadan önce var olduğunu kontrol et.",
+            "Eklemeden önce şu biçimde bir koşul kullan: if href and href.startswith('http'):"
+          ],
+          "solution": {
+            "approach": "Read href, guard against None, and keep it only when it starts with 'http'.",
+            "approach_tr": "href'i oku, None'a karşı korun ve yalnızca 'http' ile başlıyorsa tut.",
+            "code": "from html.parser import HTMLParser\n\nclass LinkParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.links = []\n\n    def handle_starttag(self, tag, attrs):\n        if tag == 'a':\n            href = dict(attrs).get('href')\n            if href and href.startswith('http'):\n                self.links.append(href)"
+          }
+        },
+        {
+          "id": "d22-b3-e4",
+          "type": "debug",
+          "concept": "htmlparser",
+          "tags": [
+            "scraping",
+            "html.parser",
+            "inheritance",
+            "state"
+          ],
+          "prompt": "This parser should print ['/a', '/b'] but crashes with AttributeError: 'LinkParser' object has no attribute 'rawdata'. Fix the class.",
+          "prompt_tr": "Bu ayrıştırıcı ['/a', '/b'] yazdırmalı ama AttributeError: 'LinkParser' object has no attribute 'rawdata' veriyor. Sınıfı onar.",
+          "starter_code": "from html.parser import HTMLParser\n\nclass LinkParser(HTMLParser):\n    def __init__(self):\n        self.links = []\n\n    def handle_starttag(self, tag, attrs):\n        if tag == 'a':\n            self.links.append(dict(attrs).get('href'))\n\np = LinkParser()\np.feed('<a href=\"/a\">A</a><a href=\"/b\">B</a>')\nprint(p.links)",
+          "hints": [
+            "rawdata is not something you wrote. Which class was supposed to create it?",
+            "HTMLParser creates rawdata (and the rest of its reading state) in its own __init__. LinkParser's __init__ overrides it and never calls it: the Day 21 super() mistake.",
+            "Add super().__init__() as the first line of LinkParser.__init__."
+          ],
+          "hints_tr": [
+            "rawdata senin yazdığın bir şey değil. Onu hangi sınıf oluşturacaktı?",
+            "HTMLParser rawdata'yı (ve okuma durumunun geri kalanını) kendi __init__'inde kurar. LinkParser'ın __init__'i onu ezer ve hiç çağırmaz: 21. günün super() hatası.",
+            "LinkParser.__init__'in ilk satırı olarak super().__init__() ekle."
+          ],
+          "solution": {
+            "approach": "Call the parent constructor before adding your own attribute.",
+            "approach_tr": "Kendi niteliğini eklemeden önce ebeveynin yapıcısını çağır.",
+            "code": "from html.parser import HTMLParser\n\nclass LinkParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.links = []\n\n    def handle_starttag(self, tag, attrs):\n        if tag == 'a':\n            self.links.append(dict(attrs).get('href'))\n\np = LinkParser()\np.feed('<a href=\"/a\">A</a><a href=\"/b\">B</a>')\nprint(p.links)"
+          },
+          "expected_output": "['/a', '/b']"
+        },
+        {
+          "id": "d22-b3-e5",
+          "type": "write",
+          "concept": "htmlparser",
+          "tags": [
+            "scraping",
+            "html.parser",
+            "inheritance",
+            "state"
+          ],
+          "prompt": "Write a class HeadingParser that inherits from html.parser.HTMLParser and collects headings. After feed(html), its attribute headings must be a list of (tag, text) tuples for every h1, h2 and h3, in page order. Example: after feeding '<h1>Haberler</h1><p>x</p><h2>Spor</h2>', headings is [('h1', 'Haberler'), ('h2', 'Spor')].",
+          "prompt_tr": "html.parser.HTMLParser'dan kalıtım alan ve başlıkları toplayan HeadingParser sınıfını yaz. feed(html) sonrasında headings niteliği her h1, h2 ve h3 için (etiket, metin) demetlerinden oluşan, sayfa sırasındaki bir liste olmalı. Örnek: '<h1>Haberler</h1><p>x</p><h2>Spor</h2>' verildikten sonra headings [('h1', 'Haberler'), ('h2', 'Spor')] olur.",
+          "starter_code": "",
+          "signature": "class HeadingParser(HTMLParser):",
+          "tests": [
+            {
+              "code": "p = HeadingParser()\np.feed('<h1>Haberler</h1><p>x</p><h2>Spor</h2>')\nassert p.headings == [('h1', 'Haberler'), ('h2', 'Spor')]",
+              "visible": true,
+              "label": "Two headings, the paragraph is ignored",
+              "label_tr": "İki başlık, paragraf yok sayılıyor"
+            },
+            {
+              "code": "p = HeadingParser()\np.feed('<p>yok</p>')\nassert p.headings == []",
+              "visible": true,
+              "label": "No headings",
+              "label_tr": "Başlık yok"
+            },
+            {
+              "code": "p = HeadingParser()\np.feed('<div><h3>A</h3><span>s</span><h2>B</h2><h4>C</h4><h1>D</h1></div>')\nassert p.headings == [('h3', 'A'), ('h2', 'B'), ('h1', 'D')]",
+              "visible": false,
+              "failure_message": "Collect h1, h2 and h3 only, in page order; text outside a heading must not be collected.",
+              "failure_message_tr": "Yalnızca h1, h2 ve h3'ü sayfa sırasıyla topla; başlık dışındaki metin toplanmamalı."
+            },
+            {
+              "code": "a = HeadingParser()\nb = HeadingParser()\na.feed('<h1>X</h1>')\nassert b.headings == []",
+              "visible": false,
+              "failure_message": "Create the list in __init__ (after super().__init__()) so every parser has its own list.",
+              "failure_message_tr": "Listeyi __init__ içinde (super().__init__()'ten sonra) kur ki her ayrıştırıcının kendi listesi olsun."
+            }
+          ],
+          "hints": [
+            "You need __init__, handle_starttag, handle_endtag and handle_data, plus an attribute that remembers the current heading tag (None when outside).",
+            "handle_starttag sets self.current to the tag when it is in ('h1', 'h2', 'h3'); handle_endtag sets it back to None; handle_data appends only while self.current is not None.",
+            "In handle_data the append has the form self.headings.append((self.current, data))."
+          ],
+          "hints_tr": [
+            "__init__, handle_starttag, handle_endtag ve handle_data metotlarına ve o anki başlık etiketini hatırlayan bir niteliğe (dışarıdayken None) ihtiyacın var.",
+            "handle_starttag, etiket ('h1', 'h2', 'h3') içindeyse self.current'ı o etikete ayarlar; handle_endtag onu None'a geri çeker; handle_data yalnızca self.current None değilken ekler.",
+            "handle_data içindeki ekleme şu biçimde: self.headings.append((self.current, data))."
+          ],
+          "solution": {
+            "approach": "A current-tag attribute works as the flag; text is collected only while it is set.",
+            "approach_tr": "O anki etiketi tutan nitelik bayrak görevi görür; metin yalnızca o doluyken toplanır.",
+            "code": "from html.parser import HTMLParser\n\nclass HeadingParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.headings = []\n        self.current = None\n\n    def handle_starttag(self, tag, attrs):\n        if tag in ('h1', 'h2', 'h3'):\n            self.current = tag\n\n    def handle_endtag(self, tag):\n        self.current = None\n\n    def handle_data(self, data):\n        if self.current is not None:\n            self.headings.append((self.current, data))"
+          },
+          "twin": "d22-b3-e6"
+        },
+        {
+          "id": "d22-b3-e6",
+          "type": "write",
+          "concept": "htmlparser",
+          "tags": [
+            "scraping",
+            "html.parser",
+            "inheritance",
+            "state"
+          ],
+          "prompt": "Write a class PriceParser that inherits from HTMLParser. After feed(html), its attribute prices must be a list of floats, one for every span whose class is 'price', in page order. The text inside looks like '1.250,50 TL' (Turkish format: dot for thousands, comma for decimals). Example: after feeding '<span class=\"price\">1.250,50 TL</span><span>x</span>', prices is [1250.5].",
+          "prompt_tr": "HTMLParser'dan kalıtım alan PriceParser sınıfını yaz. feed(html) sonrasında prices niteliği, class'ı 'price' olan her span için bir float içeren, sayfa sırasında bir liste olmalı. İçerideki metin '1.250,50 TL' biçimindedir (Türkçe biçim: binlik için nokta, ondalık için virgül). Örnek: '<span class=\"price\">1.250,50 TL</span><span>x</span>' verildikten sonra prices [1250.5] olur.",
+          "starter_code": "",
+          "signature": "class PriceParser(HTMLParser):",
+          "tests": [
+            {
+              "code": "p = PriceParser()\np.feed('<span class=\"price\">1.250,50 TL</span><span>x</span>')\nassert p.prices == [1250.5]",
+              "visible": true,
+              "label": "One price in Turkish format",
+              "label_tr": "Türkçe biçimde bir fiyat"
+            },
+            {
+              "code": "p = PriceParser()\np.feed('<div>fiyat yok</div>')\nassert p.prices == []",
+              "visible": true,
+              "label": "No price spans",
+              "label_tr": "Fiyat span'i yok"
+            },
+            {
+              "code": "p = PriceParser()\np.feed('<li><span class=\"name\">Kalem</span><span class=\"price\"> 12,00 TL </span></li><li><span class=\"price\">2.000 TL</span></li>')\nassert p.prices == [12.0, 2000.0]",
+              "visible": false,
+              "failure_message": "Only spans with class 'price' count; strip spaces and 'TL', remove thousands dots, then turn the comma into a dot before float().",
+              "failure_message_tr": "Yalnızca class'ı 'price' olan span'ler sayılır; boşlukları ve 'TL'yi at, binlik noktalarını sil, sonra float()'tan önce virgülü noktaya çevir."
+            },
+            {
+              "code": "a = PriceParser()\nb = PriceParser()\na.feed('<span class=\"price\">5 TL</span>')\nb.feed('<span class=\"price\">7,25 TL</span><span class=\"price\">3 TL</span>')\nassert a.prices == [5.0] and b.prices == [7.25, 3.0]",
+              "visible": false,
+              "failure_message": "Each parser needs its own prices list created in __init__ after super().__init__().",
+              "failure_message_tr": "Her ayrıştırıcının, __init__ içinde super().__init__()'ten sonra kurulan kendi prices listesi olmalı."
+            }
+          ],
+          "hints": [
+            "Use a flag attribute (for example self.inside) set in handle_starttag and cleared in handle_endtag, and convert the text in handle_data.",
+            "('class', 'price') in attrs tells you whether the span is a price. Clean the text with strip, replace('TL', ''), replace('.', '') and replace(',', '.') in that order.",
+            "In handle_data the append has the form self.prices.append(float(cleaned_text))."
+          ],
+          "hints_tr": [
+            "handle_starttag'de açılıp handle_endtag'de kapanan bir bayrak niteliği (örneğin self.inside) kullan ve metni handle_data'da dönüştür.",
+            "('class', 'price') in attrs, span'in bir fiyat olup olmadığını söyler. Metni sırasıyla strip, replace('TL', ''), replace('.', '') ve replace(',', '.') ile temizle.",
+            "handle_data içindeki ekleme şu biçimde: self.prices.append(float(temizlenmiş_metin))."
+          ],
+          "solution": {
+            "approach": "A flag marks price spans; handle_data cleans the Turkish number and converts it to float.",
+            "approach_tr": "Bir bayrak fiyat span'lerini işaretler; handle_data Türkçe sayıyı temizleyip float'a çevirir.",
+            "code": "from html.parser import HTMLParser\n\nclass PriceParser(HTMLParser):\n    def __init__(self):\n        super().__init__()\n        self.prices = []\n        self.inside = False\n\n    def handle_starttag(self, tag, attrs):\n        self.inside = tag == 'span' and ('class', 'price') in attrs\n\n    def handle_endtag(self, tag):\n        self.inside = False\n\n    def handle_data(self, data):\n        if self.inside:\n            text = data.strip().replace('TL', '').strip()\n            self.prices.append(float(text.replace('.', '').replace(',', '.')))"
+          },
+          "twin": "d22-b3-e5"
+        },
+        {
+          "id": "d22-b3-e7",
+          "type": "predict",
+          "concept": "htmlparser",
+          "tags": [
+            "scraping",
+            "html.parser",
+            "inheritance",
+            "state"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "from html.parser import HTMLParser\n\nclass Show(HTMLParser):\n    def handle_starttag(self, tag, attrs):\n        print(attrs)\n\nShow().feed('<input type=\"checkbox\" disabled>')",
+          "choices": [
+            "[('type', 'checkbox'), ('disabled', None)]",
+            "[('type', 'checkbox')]",
+            "{'type': 'checkbox', 'disabled': None}",
+            "[('type', 'checkbox'), ('disabled', '')]"
+          ],
+          "expected_output": "[('type', 'checkbox'), ('disabled', None)]",
+          "explanation": "Each attribute becomes a (name, value) tuple. disabled is written without a value, so its value is None; that is why code like href.startswith(...) must check for None first.",
+          "explanation_tr": "Her nitelik bir (ad, değer) demeti olur. disabled değersiz yazıldığı için değeri None'dır; href.startswith(...) gibi kodun önce None kontrolü yapması bu yüzden gerekir.",
+          "misconceptions": {
+            "[('type', 'checkbox')]": "An attribute without a value is still reported; it is not dropped.",
+            "{'type': 'checkbox', 'disabled': None}": "attrs is a list of tuples, not a dict.",
+            "[('type', 'checkbox'), ('disabled', '')]": "HTMLParser uses None, not an empty string, for an attribute written without a value."
+          },
+          "misconceptions_tr": {
+            "[('type', 'checkbox')]": "Değeri olmayan bir nitelik de bildirilir; atılmaz.",
+            "{'type': 'checkbox', 'disabled': None}": "attrs bir dict değil, demetlerden oluşan bir listedir.",
+            "[('type', 'checkbox'), ('disabled', '')]": "HTMLParser değersiz yazılmış bir nitelik için boş string değil None kullanır."
+          }
+        }
+      ]
     },
     {
-     "id": "d22-b1-e4",
-     "type": "write",
-     "concept": "response-status",
-     "tags": [
-      "web-scraping",
-      "http",
-      "status-codes"
-     ],
-     "prompt": "Write status_line(code). It returns 'HTTP 200 OK', 'HTTP 404 Not Found' or 'HTTP 500 Server Error' for those codes, and 'HTTP <code>' (for example 'HTTP 302') for any other code.",
-     "prompt_tr": "status_line(code) yaz. 200, 404, 500 için sırasıyla 'HTTP 200 OK', 'HTTP 404 Not Found', 'HTTP 500 Server Error' döndürsün; diğer kodlarda 'HTTP <kod>' döndürsün (örneğin 'HTTP 302').",
-     "starter_code": "",
-     "signature": "def status_line(code):",
-     "tests": [
-      {
-       "code": "assert status_line(200) == 'HTTP 200 OK'",
-       "visible": true,
-       "label_tr": "200 için 'HTTP 200 OK'"
+      "id": "d22-b4",
+      "concept": "table-to-json",
+      "concept_tr": "Tabloyu kayıtlara ve JSON'a çevirmek",
+      "tags": [
+        "scraping",
+        "tables",
+        "zip",
+        "json",
+        "cleaning"
+      ],
+      "worked_example": {
+        "code": "import json\nimport xml.etree.ElementTree as ET\n\nhtml = '<table><tr><th>city</th><th>pop</th></tr><tr><td>Ankara</td><td>5,7</td></tr><tr><td>İzmir</td><td>4,4</td></tr></table>'\nrows = [[c.text for c in tr] for tr in ET.fromstring(html).iter('tr')]\nheader, *data = rows\nrecords = [dict(zip(header, row)) for row in data]\nfor r in records:\n    r['pop'] = float(r['pop'].replace(',', '.'))\nprint(json.dumps(records, ensure_ascii=False))",
+        "notes": [
+          "A nested comprehension turns the table into a list of rows: the outer part walks tr elements, the inner part walks their cells.",
+          "header, *data = rows splits off the first row (Day 17 unpacking); zip pairs each header with the matching cell and dict turns the pairs into a record.",
+          "Scraped numbers are strings in local format, so they are cleaned and converted before storing. ensure_ascii=False keeps İzmir readable in the JSON text."
+        ],
+        "notes_tr": [
+          "İç içe bir comprehension tabloyu satır listesine çevirir: dış kısım tr öğelerini, iç kısım onların hücrelerini dolaşır.",
+          "header, *data = rows ilk satırı ayırır (17. gün paketten çıkarma); zip her başlığı karşılık gelen hücreyle eşler, dict de bu çiftleri bir kayda çevirir.",
+          "Kazınan sayılar yerel biçimde string'lerdir; saklamadan önce temizlenip dönüştürülür. ensure_ascii=False JSON metninde İzmir'i okunur tutar."
+        ]
       },
-      {
-       "code": "assert status_line(404) == 'HTTP 404 Not Found'",
-       "visible": true,
-       "label_tr": "404 için 'HTTP 404 Not Found'"
-      },
-      {
-       "code": "assert status_line(500) == 'HTTP 500 Server Error'",
-       "visible": false,
-       "failure_message": "500 must return 'HTTP 500 Server Error'.",
-       "failure_message_tr": "500 için 'HTTP 500 Server Error' döndürmelisin."
-      },
-      {
-       "code": "assert status_line(302) == 'HTTP 302' and status_line(418) == 'HTTP 418'",
-       "visible": false,
-       "failure_message": "For other codes return 'HTTP ' followed by the number (use an f-string).",
-       "failure_message_tr": "Diğer kodlarda 'HTTP ' ve ardından numarayı döndür (f-string kullan)."
-      }
-     ],
-     "hints": [
-      "Three known codes with a text each, and a default that contains the number.",
-      "A dict maps code to the reason text; the default can be built with an f-string.",
-      "Last step: if code is a key of your dict, return an f-string with the code and the reason; otherwise return f'HTTP {___}'."
-     ],
-     "solution": {
-      "approach": "Look the reason up in a dict; fall back to just the number.",
-      "code": "def status_line(code):\n    reasons = {200: 'OK', 404: 'Not Found', 500: 'Server Error'}\n    if code in reasons:\n        return f'HTTP {code} {reasons[code]}'\n    return f'HTTP {code}'",
-      "approach_tr": "Nedeni bir dict'ten ara; bulunamazsa yalnızca numarayı döndür."
-     },
-     "twin": "d22-b1-e3",
-     "hints_tr": [
-      "Metni olan üç bilinen kod ve numarayı içeren bir varsayılan durum var.",
-      "Bir dict kodu neden metnine eşler; varsayılan metin bir f-string ile kurulabilir.",
-      "Son adım: code dict'in anahtarıysa kod ve nedeni içeren bir f-string döndür; değilse f'HTTP {___}' döndür."
-     ]
+      "exercises": [
+        {
+          "id": "d22-b4-e1",
+          "type": "predict",
+          "concept": "table-to-json",
+          "tags": [
+            "scraping",
+            "tables",
+            "zip",
+            "json",
+            "cleaning"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\nprint(json.dumps({'şehir': 'İzmir'}))",
+          "choices": [
+            "{\"şehir\": \"İzmir\"}",
+            "{'şehir': 'İzmir'}",
+            "{\"\\u015fehir\": \"\\u0130zmir\"}",
+            "Error"
+          ],
+          "expected_output": "{\"\\u015fehir\": \"\\u0130zmir\"}",
+          "explanation": "Without ensure_ascii=False, json.dumps escapes ş as \\u015f and İ as \\u0130. The data is the same, but the text is hard to read, which is why the lesson passes ensure_ascii=False.",
+          "explanation_tr": "ensure_ascii=False olmadan json.dumps ş'yi \\u015f, İ'yi \\u0130 olarak kaçırır. Veri aynıdır ama metin zor okunur; derste ensure_ascii=False verilmesinin nedeni budur.",
+          "misconceptions": {
+            "{\"şehir\": \"İzmir\"}": "By default ensure_ascii is True, so every non-ASCII letter is written as a \\u escape.",
+            "{'şehir': 'İzmir'}": "json.dumps produces JSON text, which always uses double quotes.",
+            "Error": "Turkish letters are valid in JSON; they are only escaped, not rejected."
+          },
+          "misconceptions_tr": {
+            "{\"şehir\": \"İzmir\"}": "ensure_ascii varsayılan olarak True'dur; ASCII dışındaki her harf \\u kaçış dizisi olarak yazılır.",
+            "{'şehir': 'İzmir'}": "json.dumps JSON metni üretir ve JSON her zaman çift tırnak kullanır.",
+            "Error": "Türkçe harfler JSON'da geçerlidir; reddedilmez, yalnızca kaçış dizisine çevrilir."
+          }
+        },
+        {
+          "id": "d22-b4-e2",
+          "type": "fill_blank",
+          "concept": "table-to-json",
+          "tags": [
+            "scraping",
+            "tables",
+            "zip",
+            "json",
+            "cleaning"
+          ],
+          "prompt": "Complete the code so that records becomes a list of dicts built from the header and each row.",
+          "prompt_tr": "Kodu tamamla: records başlık ve her satırdan kurulan dict'lerin listesi olsun.",
+          "starter_code": "header = ['ad', 'puan']\nrows = [['Ece', 88], ['Can', 75]]\nrecords = [dict(___(header, row)) for row in rows]",
+          "blanks": [
+            {
+              "answer": [
+                "zip"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert records == [{'ad': 'Ece', 'puan': 88}, {'ad': 'Can', 'puan': 75}]",
+              "visible": true,
+              "label": "Two records",
+              "label_tr": "İki kayıt"
+            }
+          ]
+        },
+        {
+          "id": "d22-b4-e3",
+          "type": "modify",
+          "concept": "table-to-json",
+          "tags": [
+            "scraping",
+            "tables",
+            "zip",
+            "json",
+            "cleaning"
+          ],
+          "prompt": "table_rows(html) returns every row (header row included) as a list of cell texts. Change it so that it returns a list of dicts instead: use the first row as the keys and every other row as the values. Example: for a table with the header ['city', 'pop'] and one row ['Van', '1.1'], it returns [{'city': 'Van', 'pop': '1.1'}].",
+          "prompt_tr": "table_rows(html) her satırı (başlık satırı dahil) hücre metinlerinin listesi olarak döndürüyor. Bunun yerine dict'lerin listesini döndürecek şekilde değiştir: ilk satırı anahtar, diğer her satırı değer olarak kullan. Örnek: başlığı ['city', 'pop'] ve tek satırı ['Van', '1.1'] olan bir tablo için [{'city': 'Van', 'pop': '1.1'}] döndürür.",
+          "starter_code": "import xml.etree.ElementTree as ET\n\ndef table_rows(html):\n    root = ET.fromstring(html)\n    return [[cell.text for cell in tr] for tr in root.iter('tr')]",
+          "tests": [
+            {
+              "code": "h = '<table><tr><th>city</th><th>pop</th></tr><tr><td>Van</td><td>1.1</td></tr></table>'\nassert table_rows(h) == [{'city': 'Van', 'pop': '1.1'}]",
+              "visible": true,
+              "label": "One data row becomes one dict",
+              "label_tr": "Bir veri satırı bir dict olur"
+            },
+            {
+              "code": "h = '<table><tr><th>a</th></tr></table>'\nassert table_rows(h) == []",
+              "visible": true,
+              "label": "Only a header gives no records",
+              "label_tr": "Yalnızca başlık varsa kayıt yok"
+            },
+            {
+              "code": "h = '<table><tr><th>ad</th><th>il</th><th>yaş</th></tr><tr><td>Ali</td><td>Rize</td><td>30</td></tr><tr><td>Su</td><td>Muş</td><td>25</td></tr></table>'\nassert table_rows(h) == [{'ad': 'Ali', 'il': 'Rize', 'yaş': '30'}, {'ad': 'Su', 'il': 'Muş', 'yaş': '25'}]",
+              "visible": false,
+              "failure_message": "Use the first row's cells as keys for every following row, whatever the column names are.",
+              "failure_message_tr": "Sütun adları ne olursa olsun, ilk satırın hücrelerini sonraki her satır için anahtar olarak kullan."
+            }
+          ],
+          "hints": [
+            "Keep the existing comprehension in a variable rows instead of returning it.",
+            "header, *data = rows splits the first row off. Then build one dict per row in data.",
+            "The last line has the form return [dict(zip(header, row)) for row in ___]."
+          ],
+          "hints_tr": [
+            "Var olan comprehension'ı döndürmek yerine rows adlı bir değişkende tut.",
+            "header, *data = rows ilk satırı ayırır. Sonra data'daki her satır için bir dict kur.",
+            "Son satır şu biçimde: return [dict(zip(header, row)) for row in ___]."
+          ],
+          "solution": {
+            "approach": "Split off the header with unpacking and zip it with every data row.",
+            "approach_tr": "Başlığı paketten çıkarmayla ayır ve her veri satırıyla zip'le.",
+            "code": "import xml.etree.ElementTree as ET\n\ndef table_rows(html):\n    root = ET.fromstring(html)\n    rows = [[cell.text for cell in tr] for tr in root.iter('tr')]\n    header, *data = rows\n    return [dict(zip(header, row)) for row in data]"
+          }
+        },
+        {
+          "id": "d22-b4-e4",
+          "type": "debug",
+          "concept": "table-to-json",
+          "tags": [
+            "scraping",
+            "tables",
+            "zip",
+            "json",
+            "cleaning"
+          ],
+          "prompt": "parse_price should turn '1.250,50 TL' into 1250.5, but it prints 125050.0. Fix the order of the clean-up steps.",
+          "prompt_tr": "parse_price '1.250,50 TL' değerini 1250.5'e çevirmeli ama 125050.0 yazdırıyor. Temizlik adımlarının sırasını düzelt.",
+          "starter_code": "def parse_price(text):\n    text = text.replace('TL', '').strip()\n    text = text.replace(',', '.')\n    text = text.replace('.', '')\n    return float(text)\n\nprint(parse_price('1.250,50 TL'))\nprint(parse_price('85,00 TL'))",
+          "hints": [
+            "Print text after each line. What does it look like after the comma has become a dot?",
+            "After the comma becomes a dot, the decimal dot looks exactly like a thousands dot, so the next line deletes both.",
+            "Swap the two replace lines so that the thousands dots are removed before the comma is changed."
+          ],
+          "hints_tr": [
+            "Her satırdan sonra text'i yazdır. Virgül noktaya döndükten sonra neye benziyor?",
+            "Virgül noktaya dönünce ondalık noktası binlik noktasından ayırt edilemez; sonraki satır ikisini de siler.",
+            "İki replace satırının yerini değiştir: virgül değişmeden önce binlik noktaları silinsin."
+          ],
+          "solution": {
+            "approach": "Remove thousands dots first, then turn the decimal comma into a dot.",
+            "approach_tr": "Önce binlik noktalarını sil, sonra ondalık virgülünü noktaya çevir.",
+            "code": "def parse_price(text):\n    text = text.replace('TL', '').strip()\n    text = text.replace('.', '')\n    text = text.replace(',', '.')\n    return float(text)\n\nprint(parse_price('1.250,50 TL'))\nprint(parse_price('85,00 TL'))"
+          },
+          "expected_output": "1250.5\n85.0"
+        },
+        {
+          "id": "d22-b4-e5",
+          "type": "write",
+          "concept": "table-to-json",
+          "tags": [
+            "scraping",
+            "tables",
+            "zip",
+            "json",
+            "cleaning"
+          ],
+          "prompt": "Write a function parse_count(text) that converts a scraped count such as ' 12.345 kişi ' or '1.000.000 kişi' into an int. Remove surrounding spaces, the word 'kişi' and the thousands dots. Example: parse_count(' 12.345 kişi ') returns 12345.",
+          "prompt_tr": "' 12.345 kişi ' ya da '1.000.000 kişi' gibi kazınmış bir sayıyı int'e çeviren parse_count(text) fonksiyonunu yaz. Baştaki ve sondaki boşlukları, 'kişi' kelimesini ve binlik noktalarını kaldır. Örnek: parse_count(' 12.345 kişi ') 12345 döndürür.",
+          "starter_code": "",
+          "signature": "def parse_count(text):",
+          "tests": [
+            {
+              "code": "assert parse_count(' 12.345 kişi ') == 12345",
+              "visible": true,
+              "label": "Thousands dot and spaces",
+              "label_tr": "Binlik noktası ve boşluklar"
+            },
+            {
+              "code": "assert parse_count('7 kişi') == 7",
+              "visible": true,
+              "label": "A small number",
+              "label_tr": "Küçük bir sayı"
+            },
+            {
+              "code": "assert parse_count('1.000.000 kişi') == 1000000 and isinstance(parse_count('3 kişi'), int)",
+              "visible": false,
+              "failure_message": "Remove every thousands dot (not just the first) and return an int, not a string or float.",
+              "failure_message_tr": "Yalnızca ilkini değil bütün binlik noktalarını kaldır ve string ya da float değil int döndür."
+            },
+            {
+              "code": "assert parse_count('  45.600   kişi') == 45600",
+              "visible": false,
+              "failure_message": "Spaces between the number and the word must go too.",
+              "failure_message_tr": "Sayı ile kelime arasındaki boşluklar da gitmeli."
+            }
+          ],
+          "hints": [
+            "Clean the string step by step, then convert it with int().",
+            "replace('kişi', '') removes the word, replace('.', '') removes every dot, and strip() removes spaces at both ends.",
+            "The last line has the form return int(cleaned) where cleaned contains only digits."
+          ],
+          "hints_tr": [
+            "String'i adım adım temizle, sonra int() ile dönüştür.",
+            "replace('kişi', '') kelimeyi, replace('.', '') bütün noktaları, strip() de iki uçtaki boşlukları kaldırır.",
+            "Son satır şu biçimde: return int(temiz); temiz yalnızca rakamlardan oluşur."
+          ],
+          "solution": {
+            "approach": "Chain replace calls to drop the unit and the dots, strip the spaces, then int().",
+            "approach_tr": "Birimi ve noktaları zincirleme replace ile at, boşlukları strip ile temizle, sonra int().",
+            "code": "def parse_count(text):\n    cleaned = text.replace('kişi', '').replace('.', '').strip()\n    return int(cleaned)"
+          },
+          "twin": "d22-b4-e6"
+        },
+        {
+          "id": "d22-b4-e6",
+          "type": "write",
+          "concept": "table-to-json",
+          "tags": [
+            "scraping",
+            "tables",
+            "zip",
+            "json",
+            "cleaning"
+          ],
+          "prompt": "Write a function table_to_json(html) that turns an HTML table (first row th headers, other rows td cells) into JSON text: a list of objects, one per data row, written with json.dumps(..., ensure_ascii=False). Example: for header ['şehir'] and one row ['Muğla'] it returns '[{\"şehir\": \"Muğla\"}]'.",
+          "prompt_tr": "Bir HTML tablosunu (ilk satır th başlıklar, diğer satırlar td hücreler) JSON metnine çeviren table_to_json(html) fonksiyonunu yaz: her veri satırı için bir nesne içeren, json.dumps(..., ensure_ascii=False) ile yazılmış bir liste. Örnek: başlığı ['şehir'] ve tek satırı ['Muğla'] olan tablo için '[{\"şehir\": \"Muğla\"}]' döndürür.",
+          "starter_code": "",
+          "signature": "def table_to_json(html):",
+          "tests": [
+            {
+              "code": "assert table_to_json('<table><tr><th>şehir</th></tr><tr><td>Muğla</td></tr></table>') == '[{\"şehir\": \"Muğla\"}]'",
+              "visible": true,
+              "label": "One column, one row, Turkish letters kept",
+              "label_tr": "Bir sütun, bir satır, Türkçe harfler korunuyor"
+            },
+            {
+              "code": "import json\nh = '<table><tr><th>a</th><th>b</th></tr><tr><td>1</td><td>2</td></tr></table>'\nassert json.loads(table_to_json(h)) == [{'a': '1', 'b': '2'}]",
+              "visible": true,
+              "label": "Valid JSON with two columns",
+              "label_tr": "İki sütunlu geçerli JSON"
+            },
+            {
+              "code": "import json\nh = '<table><tr><th>ürün</th><th>fiyat</th></tr><tr><td>çay</td><td>40</td></tr><tr><td>simit</td><td>15</td></tr></table>'\nout = table_to_json(h)\nassert json.loads(out) == [{'ürün': 'çay', 'fiyat': '40'}, {'ürün': 'simit', 'fiyat': '15'}] and 'ü' in out",
+              "visible": false,
+              "failure_message": "Build one object per data row with the header cells as keys, and pass ensure_ascii=False so Turkish letters stay readable.",
+              "failure_message_tr": "Her veri satırı için başlık hücrelerini anahtar yapan bir nesne kur ve Türkçe harfler okunur kalsın diye ensure_ascii=False ver."
+            },
+            {
+              "code": "assert table_to_json('<table><tr><th>x</th></tr></table>') == '[]'",
+              "visible": false,
+              "failure_message": "A table with only a header gives an empty JSON list.",
+              "failure_message_tr": "Yalnızca başlığı olan tablo boş bir JSON listesi vermeli."
+            }
+          ],
+          "hints": [
+            "Three steps: rows from the table, records from the rows, JSON text from the records.",
+            "Rows: [[c.text for c in tr] for tr in root.iter('tr')]. Records: header, *data = rows and dict(zip(header, row)).",
+            "The last line has the form return json.dumps(records, ensure_ascii=___)."
+          ],
+          "hints_tr": [
+            "Üç adım: tablodan satırlar, satırlardan kayıtlar, kayıtlardan JSON metni.",
+            "Satırlar: [[c.text for c in tr] for tr in root.iter('tr')]. Kayıtlar: header, *data = rows ve dict(zip(header, row)).",
+            "Son satır şu biçimde: return json.dumps(records, ensure_ascii=___)."
+          ],
+          "solution": {
+            "approach": "Rows, then records with zip, then json.dumps with ensure_ascii=False.",
+            "approach_tr": "Önce satırlar, sonra zip ile kayıtlar, sonra ensure_ascii=False ile json.dumps.",
+            "code": "import json\nimport xml.etree.ElementTree as ET\n\ndef table_to_json(html):\n    rows = [[c.text for c in tr] for tr in ET.fromstring(html).iter('tr')]\n    header, *data = rows\n    records = [dict(zip(header, row)) for row in data]\n    return json.dumps(records, ensure_ascii=False)"
+          },
+          "twin": "d22-b4-e5"
+        },
+        {
+          "id": "d22-b4-e7",
+          "type": "predict",
+          "concept": "table-to-json",
+          "tags": [
+            "scraping",
+            "tables",
+            "zip",
+            "json",
+            "cleaning"
+          ],
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "records = [{'city': 'Ankara', 'pop': '5.7'}, {'city': 'İstanbul', 'pop': '15.6'}, {'city': 'İzmir', 'pop': '4.4'}]\nbiggest = sorted(records, key=lambda r: r['pop'], reverse=True)\nprint([r['city'] for r in biggest])",
+          "choices": [
+            "['İstanbul', 'Ankara', 'İzmir']",
+            "['İzmir', 'Ankara', 'İstanbul']",
+            "['Ankara', 'İzmir', 'İstanbul']",
+            "Error"
+          ],
+          "expected_output": "['Ankara', 'İzmir', 'İstanbul']",
+          "explanation": "Day 14's sorted(key=...) with scraped data: the populations are still strings, so '5.7' > '4.4' > '15.6'. Convert with float(r['pop']) in the key to sort by value.",
+          "explanation_tr": "14. günün sorted(key=...) kalıbı kazınmış veriyle: nüfuslar hâlâ string, bu yüzden '5.7' > '4.4' > '15.6'. Değere göre sıralamak için key içinde float(r['pop']) ile dönüştür.",
+          "misconceptions": {
+            "['İstanbul', 'Ankara', 'İzmir']": "That would be true for numbers, but pop holds strings, and strings are compared character by character: '5' > '4' > '1'.",
+            "['İzmir', 'Ankara', 'İstanbul']": "reverse=True sorts from largest to smallest; '5.7' is the largest string here.",
+            "Error": "Comparing strings is allowed; it just follows alphabetical (character) order."
+          },
+          "misconceptions_tr": {
+            "['İstanbul', 'Ankara', 'İzmir']": "Sayılar için doğru olurdu, ama pop string tutuyor ve string'ler karakter karakter karşılaştırılır: '5' > '4' > '1'.",
+            "['İzmir', 'Ankara', 'İstanbul']": "reverse=True büyükten küçüğe sıralar; burada en büyük string '5.7'dir.",
+            "Error": "String karşılaştırmak serbesttir; yalnızca alfabetik (karakter) sırayı izler."
+          }
+        }
+      ]
     }
-   ],
-   "concept_tr": "HTTP yanıt durumu (status code)"
-  },
-  {
-   "id": "d22-b2",
-   "concept": "html-tag-extraction",
-   "tags": [
-    "web-scraping",
-    "html",
-    "regex"
-   ],
-   "worked_example": {
-    "code": "import re\nhtml = '<title>UCI Data Sets</title>'\nmatch = re.search(r'<title>(.*?)</title>', html)\nprint(match.group(1))",
-    "notes": [
-     "The part inside ( ) is the group we want to extract.",
-     ".*? is non-greedy: it stops at the first closing tag."
-    ],
-    "notes_tr": [
-     "Parantez ( ) içindeki kısım, çıkarmak istediğimiz gruptur.",
-     ".*? açgözlü olmayan (non-greedy) kalıptır: ilk kapanış etiketinde durur."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d22-b2-e1",
-     "type": "predict",
-     "concept": "html-tag-extraction",
-     "tags": [
-      "web-scraping",
-      "html",
-      "regex"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "import re\nhtml = '<a href=\"/a\">One</a> <a href=\"/b\">Two</a>'\nprint(re.findall(r'href=\"(.*?)\"', html))",
-     "choices": [
-      "['/a', '/b']",
-      "['One', 'Two']",
-      "['href=\"/a\"', 'href=\"/b\"']",
-      "['/a\">One</a> <a href=\"/b']"
-     ],
-     "expected_output": "['/a', '/b']",
-     "explanation": "findall returns what the group matched: the text between the quotes after href=. There are two links, so two items.",
-     "misconceptions": {
-      "['One', 'Two']": "The pattern captures the value of href, not the link text between the tags.",
-      "['href=\"/a\"', 'href=\"/b\"']": "Only the parentheses are returned, so 'href=' and the quotes are not part of the result.",
-      "['/a\">One</a> <a href=\"/b']": "That is what a greedy .* would do. With .*? each match stops at the first closing quote."
-     },
-     "explanation_tr": "findall grubun yakaladığını döndürür: href= sonrasında tırnaklar arasındaki metin. İki bağlantı olduğu için iki öğe çıkar.",
-     "misconceptions_tr": {
-      "['One', 'Two']": "Desen href değerini yakalar, etiketler arasındaki bağlantı metnini değil.",
-      "['href=\"/a\"', 'href=\"/b\"']": "Yalnızca parantez içi döndürülür; 'href=' ve tırnaklar sonuca girmez.",
-      "['/a\">One</a> <a href=\"/b']": "Bunu açgözlü (greedy) .* yapardı. .*? ile her eşleşme ilk kapanış tırnağında durur."
-     }
-    },
-    {
-     "id": "d22-b2-e2",
-     "type": "fill_blank",
-     "concept": "html-tag-extraction",
-     "tags": [
-      "web-scraping",
-      "html",
-      "regex"
-     ],
-     "prompt": "Complete the pattern so heading holds the text inside <h1>.",
-     "prompt_tr": "Deseni tamamla: heading değişkeni <h1> içindeki metni tutsun.",
-     "starter_code": "import re\nhtml = '<h1>Boston University</h1>'\nheading = re.search(r'<h1>(.___)</h1>', html).group(___)",
-     "blanks": [
-      {
-       "answer": [
-        "*?"
-       ]
-      },
-      {
-       "answer": [
-        "1"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert heading == 'Boston University'",
-       "visible": true,
-       "label_tr": "heading doğru metni tutuyor"
-      }
-     ]
-    },
-    {
-     "id": "d22-b2-e3",
-     "type": "write",
-     "concept": "html-tag-extraction",
-     "tags": [
-      "web-scraping",
-      "html",
-      "regex"
-     ],
-     "prompt": "Write get_title(html). It returns the text inside the first <title>...</title>, or None when the page has no title.",
-     "prompt_tr": "get_title(html) yaz. İlk <title>...</title> içindeki metni döndürsün; sayfada başlık yoksa None döndürsün.",
-     "starter_code": "",
-     "signature": "def get_title(html):",
-     "tests": [
-      {
-       "code": "assert get_title('<html><head><title>UCI Data Sets</title></head></html>') == 'UCI Data Sets'",
-       "visible": true,
-       "label_tr": "Başlık doğru çıkarılıyor"
-      },
-      {
-       "code": "assert get_title('<title>A &amp; B</title>') == 'A &amp; B'",
-       "visible": true,
-       "label_tr": "Özel karakterli başlık olduğu gibi döndürülüyor"
-      },
-      {
-       "code": "assert get_title('<html><body>No title</body></html>') is None",
-       "visible": false,
-       "failure_message": "Return None when there is no <title> tag (check the result of re.search before calling group).",
-       "failure_message_tr": "<title> yoksa None döndür (group'u çağırmadan önce re.search sonucunu kontrol et)."
-      },
-      {
-       "code": "assert get_title('<title>One</title><title>Two</title>') == 'One'",
-       "visible": false,
-       "failure_message": "Use a non-greedy pattern (.*?) so you stop at the first closing tag.",
-       "failure_message_tr": "İlk kapanış etiketinde durmak için açgözlü olmayan desen (.*?) kullan."
-      }
-     ],
-     "hints": [
-      "re.search returns None when nothing matches.",
-      "Pattern: r'<title>(.*?)</title>'. Call .group(1) only if the match exists.",
-      "Last step: store the re.search result in m, then return m.group(___) when m is not None, otherwise None."
-     ],
-     "solution": {
-      "approach": "Search with a non-greedy group and guard against no match.",
-      "code": "import re\n\ndef get_title(html):\n    m = re.search(r'<title>(.*?)</title>', html)\n    return m.group(1) if m else None",
-      "approach_tr": "Açgözlü olmayan bir grupla ara ve eşleşme yoksa durumu kontrol et."
-     },
-     "twin": "d22-b2-e4",
-     "hints_tr": [
-      "re.search hiçbir şey eşleşmezse None döndürür.",
-      "Desen: r'<title>(.*?)</title>'. .group(1)'i yalnızca eşleşme varsa çağır.",
-      "Son adım: re.search sonucunu m'ye ata; m None değilse m.group(___) döndür, değilse None döndür."
-     ]
-    },
-    {
-     "id": "d22-b2-e4",
-     "type": "write",
-     "concept": "html-tag-extraction",
-     "tags": [
-      "web-scraping",
-      "html",
-      "regex"
-     ],
-     "prompt": "Write get_links(html). It returns a list with the value of every href=\"...\" in the page, in order (an empty list if there are none).",
-     "prompt_tr": "get_links(html) yaz. Sayfadaki her href=\"...\" değerini sırayla içeren bir liste döndürsün (hiç yoksa boş liste).",
-     "starter_code": "",
-     "signature": "def get_links(html):",
-     "tests": [
-      {
-       "code": "assert get_links('<a href=\"/home\">Home</a><a href=\"/about\">About</a>') == ['/home', '/about']",
-       "visible": true,
-       "label_tr": "İki bağlantı sırayla bulunuyor"
-      },
-      {
-       "code": "assert get_links('<p>no links</p>') == []",
-       "visible": true,
-       "label_tr": "Bağlantı yoksa boş liste"
-      },
-      {
-       "code": "assert get_links('<a class=\"nav\" href=\"https://example.com\">x</a>') == ['https://example.com']",
-       "visible": false,
-       "failure_message": "href may come after other attributes; search for href=\"...\" anywhere inside the tag.",
-       "failure_message_tr": "href başka özelliklerden sonra da gelebilir; etiketin içinde her yerde href=\"...\" ara."
-      },
-      {
-       "code": "assert get_links('<a href=\"/a\">1</a> <a href=\"/b\">2</a> <a href=\"/c\">3</a>') == ['/a', '/b', '/c']",
-       "visible": false,
-       "failure_message": "Use re.findall with a non-greedy group so every link is returned separately.",
-       "failure_message_tr": "Her bağlantı ayrı dönsün diye açgözlü olmayan gruplu re.findall kullan."
-      }
-     ],
-     "hints": [
-      "You want all matches, not just the first.",
-      "re.findall(r'href=\"(.*?)\"', html) returns the group for every match.",
-      "Last step: return the result of re.findall with your pattern and the html argument."
-     ],
-     "solution": {
-      "approach": "findall with one group returns a list of the captured values.",
-      "code": "import re\n\ndef get_links(html):\n    return re.findall(r'href=\"(.*?)\"', html)",
-      "approach_tr": "Tek gruplu findall, yakalanan değerlerin listesini döndürür."
-     },
-     "twin": "d22-b2-e3",
-     "hints_tr": [
-      "Yalnızca ilkini değil, tüm eşleşmeleri istiyorsun.",
-      "re.findall(r'href=\"(.*?)\"', html) her eşleşmenin grubunu döndürür.",
-      "Son adım: desenin ve html argümanıyla re.findall sonucunu return et."
-     ]
-    },
-    {
-     "id": "d22-b2-e5",
-     "type": "debug",
-     "concept": "html-tag-extraction",
-     "tags": [
-      "web-scraping",
-      "html",
-      "regex"
-     ],
-     "prompt": "This should print ['Finland', 'Sweden', 'UK'] but prints one long string inside the list. Fix the pattern.",
-     "prompt_tr": "Bu kod ['Finland', 'Sweden', 'UK'] yazdırmalı ama listede tek uzun bir metin çıkıyor. Deseni düzelt.",
-     "starter_code": "import re\nhtml = '<td>Finland</td><td>Sweden</td><td>UK</td>'\ncells = re.findall(r'<td>(.*)</td>', html)\nprint(cells)",
-     "hints": [
-      "Print cells: how many items does the list have?",
-      "The .* is greedy: it runs to the LAST </td>. You need the non-greedy version.",
-      "Last step: in the pattern, the group (.*) needs a question mark after the star."
-     ],
-     "solution": {
-      "approach": "A greedy .* swallows as much as possible; .*? stops at the first closing tag.",
-      "code": "import re\nhtml = '<td>Finland</td><td>Sweden</td><td>UK</td>'\ncells = re.findall(r'<td>(.*?)</td>', html)\nprint(cells)",
-      "approach_tr": "Açgözlü .* mümkün olduğunca çok şey yutar; .*? ilk kapanış etiketinde durur."
-     },
-     "expected_output": "['Finland', 'Sweden', 'UK']",
-     "hints_tr": [
-      "cells'i yazdır: listede kaç öğe var?",
-      "Buradaki .* açgözlüdür (greedy): SON </td> etiketine kadar gider. Açgözlü olmayan sürümü gerekiyor.",
-      "Son adım: desendeki (.*) grubunda yıldızdan sonra bir soru işareti gerekiyor."
-     ]
-    }
-   ],
-   "concept_tr": "HTML etiketinden metin çıkarma (regex)"
-  },
-  {
-   "id": "d22-b3",
-   "concept": "table-to-json",
-   "tags": [
-    "web-scraping",
-    "json",
-    "tables"
-   ],
-   "worked_example": {
-    "code": "import re, json\nhtml = '<tr><td>Finland</td><td>Helsinki</td></tr>'\ncells = re.findall(r'<td>(.*?)</td>', html)\nprint(json.dumps({'country': cells[0], 'city': cells[1]}))",
-    "notes": [
-     "A table row is a list of <td> cells; findall gets them all.",
-     "json.dumps turns a dict into JSON text, the format the lesson saves to a file."
-    ],
-    "notes_tr": [
-     "Tablo satırı, <td> hücrelerinin listesidir; findall hepsini toplar.",
-     "json.dumps bir dict'i JSON metnine çevirir; ders bu biçimi dosyaya kaydeder."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d22-b3-e1",
-     "type": "predict",
-     "concept": "table-to-json",
-     "tags": [
-      "web-scraping",
-      "json",
-      "tables"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "import json\nrows = [['Finland', 'Helsinki'], ['UK', 'London']]\nrecords = [{'country': r[0], 'city': r[1]} for r in rows]\nprint(json.dumps(records))",
-     "choices": [
-      "[{\"country\": \"Finland\", \"city\": \"Helsinki\"}, {\"country\": \"UK\", \"city\": \"London\"}]",
-      "[{'country': 'Finland', 'city': 'Helsinki'}, {'country': 'UK', 'city': 'London'}]",
-      "{\"country\": \"UK\", \"city\": \"London\"}",
-      "[[\"Finland\", \"Helsinki\"], [\"UK\", \"London\"]]"
-     ],
-     "expected_output": "[{\"country\": \"Finland\", \"city\": \"Helsinki\"}, {\"country\": \"UK\", \"city\": \"London\"}]",
-     "explanation": "The list comprehension builds one dict per row. json.dumps writes valid JSON, which uses double quotes.",
-     "misconceptions": {
-      "[{'country': 'Finland', 'city': 'Helsinki'}, {'country': 'UK', 'city': 'London'}]": "That is what print(records) would show. json.dumps produces JSON text with double quotes.",
-      "{\"country\": \"UK\", \"city\": \"London\"}": "The comprehension keeps every row, not just the last one.",
-      "[[\"Finland\", \"Helsinki\"], [\"UK\", \"London\"]]": "The comprehension turns each row into a dict, so keys like country appear."
-     },
-     "explanation_tr": "Liste kapsamı (list comprehension) her satır için bir dict kurar. json.dumps geçerli JSON yazar ve JSON çift tırnak kullanır.",
-     "misconceptions_tr": {
-      "[{'country': 'Finland', 'city': 'Helsinki'}, {'country': 'UK', 'city': 'London'}]": "Bunu print(records) gösterirdi. json.dumps çift tırnaklı JSON metni üretir.",
-      "{\"country\": \"UK\", \"city\": \"London\"}": "Liste kapsamı yalnızca son satırı değil, her satırı tutar.",
-      "[[\"Finland\", \"Helsinki\"], [\"UK\", \"London\"]]": "Liste kapsamı her satırı bir dict'e çevirir, bu yüzden country gibi anahtarlar görünür."
-     }
-    },
-    {
-     "id": "d22-b3-e2",
-     "type": "parsons",
-     "concept": "table-to-json",
-     "tags": [
-      "web-scraping",
-      "json",
-      "tables"
-     ],
-     "prompt": "Put the lines in order: read the table cells, pair them up and print the result as JSON.",
-     "prompt_tr": "Satırları sırala: tablo hücrelerini oku, ikişer ikişer eşle ve sonucu JSON olarak yazdır.",
-     "lines": [
-      "pairs = [(cells[i], int(cells[i + 1])) for i in range(0, len(cells), 2)]",
-      "import re, json",
-      "print(json.dumps(dict(pairs)))",
-      "html = '<tr><td>Ankara</td><td>5700000</td></tr><tr><td>Izmir</td><td>4400000</td></tr>'",
-      "cells = re.findall(r'<td>(.*?)</td>', html)"
-     ],
-     "correct_order": [
-      1,
-      3,
-      4,
-      0,
-      2
-     ],
-     "distractors": [
-      "cells = re.findall(r'<td>(.*)</td>', html)",
-      "print(dict(pairs))"
-     ],
-     "expected_output": "{\"Ankara\": 5700000, \"Izmir\": 4400000}"
-    },
-    {
-     "id": "d22-b3-e3",
-     "type": "write",
-     "concept": "table-to-json",
-     "tags": [
-      "web-scraping",
-      "json",
-      "tables"
-     ],
-     "prompt": "Write rows_from_table(html). It returns a list of rows; each row is the list of text values of the <td> cells inside one <tr>...</tr>.",
-     "prompt_tr": "rows_from_table(html) yaz. Satırlardan oluşan bir liste döndürsün; her satır, bir <tr>...</tr> içindeki <td> hücrelerinin metin listesi olsun.",
-     "starter_code": "",
-     "signature": "def rows_from_table(html):",
-     "tests": [
-      {
-       "code": "html = '<table><tr><td>Ankara</td><td>5700000</td></tr><tr><td>Izmir</td><td>4400000</td></tr></table>'\nassert rows_from_table(html) == [['Ankara', '5700000'], ['Izmir', '4400000']]",
-       "visible": true,
-       "label_tr": "İki satırlı tablo doğru ayrılıyor"
-      },
-      {
-       "code": "assert rows_from_table('<table></table>') == []",
-       "visible": true,
-       "label_tr": "Boş tablo boş liste veriyor"
-      },
-      {
-       "code": "assert rows_from_table('<tr><td>a</td><td>b</td><td>c</td></tr>') == [['a', 'b', 'c']]",
-       "visible": false,
-       "failure_message": "A row can have more than two cells; return all of them.",
-       "failure_message_tr": "Bir satırda ikiden fazla hücre olabilir; hepsini döndür."
-      },
-      {
-       "code": "assert rows_from_table('<tr><td>x</td></tr><tr><td>y</td></tr><tr><td>z</td></tr>') == [['x'], ['y'], ['z']]",
-       "visible": false,
-       "failure_message": "Return one inner list per <tr>, even when a row has a single cell.",
-       "failure_message_tr": "Satırda tek hücre olsa bile her <tr> için bir iç liste döndür."
-      }
-     ],
-     "hints": [
-      "Two steps: first split into rows, then each row into cells.",
-      "re.findall(r'<tr>(.*?)</tr>', html) gives the rows; then re.findall on each row for the <td> texts.",
-      "Last step: build the list of rows with one findall, then use a list comprehension that calls findall for the cells on each row."
-     ],
-     "solution": {
-      "approach": "Extract rows first, then extract cells inside each row.",
-      "code": "import re\n\ndef rows_from_table(html):\n    rows = re.findall(r'<tr>(.*?)</tr>', html)\n    return [re.findall(r'<td>(.*?)</td>', row) for row in rows]",
-      "approach_tr": "Önce satırları, sonra her satırın içindeki hücreleri çıkar."
-     },
-     "twin": "d22-b3-e4",
-     "hints_tr": [
-      "İki adım: önce satırlara, sonra her satırı hücrelere ayır.",
-      "re.findall(r'<tr>(.*?)</tr>', html) satırları verir; sonra her satırda <td> metinleri için tekrar re.findall kullan.",
-      "Son adım: satır listesini bir findall ile kur, sonra her satır için hücreleri findall ile alan bir liste kapsamı (list comprehension) yaz."
-     ]
-    },
-    {
-     "id": "d22-b3-e4",
-     "type": "write",
-     "concept": "table-to-json",
-     "tags": [
-      "web-scraping",
-      "json",
-      "tables"
-     ],
-     "prompt": "Write column_values(html, index). It returns the text of the <td> cell at position index in every row of the table (an empty list when there are no rows).",
-     "prompt_tr": "column_values(html, index) yaz. Tablodaki her satırda, index konumundaki <td> hücresinin metnini liste olarak döndürsün (satır yoksa boş liste).",
-     "starter_code": "",
-     "signature": "def column_values(html, index):",
-     "tests": [
-      {
-       "code": "html = '<tr><td>Ankara</td><td>5700000</td></tr><tr><td>Izmir</td><td>4400000</td></tr>'\nassert column_values(html, 1) == ['5700000', '4400000']",
-       "visible": true,
-       "label_tr": "İkinci sütun doğru çıkarılıyor"
-      },
-      {
-       "code": "assert column_values('<table></table>', 0) == []",
-       "visible": true,
-       "label_tr": "Boş tablo boş liste veriyor"
-      },
-      {
-       "code": "assert column_values('<tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr>', 0) == ['a', 'c']",
-       "visible": false,
-       "failure_message": "index 0 is the first cell of each row.",
-       "failure_message_tr": "index 0, her satırın ilk hücresidir."
-      },
-      {
-       "code": "assert column_values('<tr><td>x</td><td>y</td><td>z</td></tr>', 2) == ['z']",
-       "visible": false,
-       "failure_message": "Rows can have more than two cells; use the index you were given.",
-       "failure_message_tr": "Satırlarda ikiden fazla hücre olabilir; sana verilen index'i kullan."
-      }
-     ],
-     "hints": [
-      "Reuse the idea from rows_from_table: rows first, cells second.",
-      "For each row, take cells[index] and collect them in a list.",
-      "Last step: loop over the rows and, for each one, take the cell at position index from its findall result."
-     ],
-     "solution": {
-      "approach": "Split into rows, extract cells, and keep only the one at the given index.",
-      "code": "import re\n\ndef column_values(html, index):\n    rows = re.findall(r'<tr>(.*?)</tr>', html)\n    return [re.findall(r'<td>(.*?)</td>', row)[index] for row in rows]",
-      "approach_tr": "Satırlara ayır, hücreleri çıkar ve yalnızca verilen konumdakini tut."
-     },
-     "twin": "d22-b3-e3",
-     "hints_tr": [
-      "rows_from_table'daki fikri yeniden kullan: önce satırlar, sonra hücreler.",
-      "Her satır için cells[index] değerini al ve bir listede topla.",
-      "Son adım: satırlar üzerinde dön ve her birinin findall sonucundan index konumundaki hücreyi al."
-     ]
-    },
-    {
-     "id": "d22-b3-e5",
-     "type": "explain",
-     "concept": "table-to-json",
-     "tags": [
-      "web-scraping",
-      "json",
-      "tables"
-     ],
-     "prompt": "In your own words: why should a scraper check the status code before parsing, and why can it break when the website changes?",
-     "prompt_tr": "Kendi cümlelerinle anlat: bir scraper ayrıştırmadan (parse) önce neden durum kodunu kontrol etmeli ve site değişince neden bozulabilir?",
-     "model_answer": "A status code of 200 tells you the page was fetched successfully; without checking it you might parse an error page as if it were data. A scraper also depends on the structure of the HTML (tags, classes, ids), so when the site changes its layout the pattern no longer matches and the scraper breaks.",
-     "keywords": [
-      "200",
-      "structure",
-      "error"
-     ],
-     "model_answer_tr": "200 durum kodu sayfanın başarıyla alındığını söyler; kontrol etmezsen bir hata sayfasını veriymiş gibi ayrıştırabilirsin. Scraper ayrıca HTML'in yapısına (etiketler, class ve id'ler) bağlıdır; site düzenini değiştirince desen artık eşleşmez ve scraper bozulur.",
-     "keywords_tr": [
-      "200",
-      "yapı",
-      "hata"
-     ],
-     "min_words": 6
-    }
-   ],
-   "concept_tr": "Tablodan JSON'a"
-  }
- ],
- "review_pool": [
-  "d22-b1-e1",
-  "d22-b1-e3",
-  "d22-b2-e1",
-  "d22-b2-e3",
-  "d22-b3-e1",
-  "d22-b3-e3"
- ],
- "title_tr": "Web Scraping (Web'den Veri Çekme)"
+  ],
+  "review_pool": [
+    "d22-b1-e1",
+    "d22-b1-e5",
+    "d22-b2-e5",
+    "d22-b3-e1",
+    "d22-b4-e6"
+  ]
 }
