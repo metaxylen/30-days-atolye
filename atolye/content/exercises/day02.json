@@ -1,62 +1,380 @@
 {
   "day": 2,
-  "title": "Variables and Built-in Functions",
-  "title_tr": "Değişkenler ve Yerleşik Fonksiyonlar",
-  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly. The learner source code is available to tests as the string __source__.",
+  "title": "Variables and built-in functions",
+  "title_tr": "Değişkenler ve yerleşik fonksiyonlar",
+  "test_conventions": "Tests are Python assert snippets executed AFTER the learner's code, in the same namespace, one snippet at a time. Everything the learner's code printed is available to tests as the string variable __stdout__, and the learner's source code is available as the string __source__ (some hidden tests re-run that source with different input values to make sure the result is computed, not typed). expected_output comparisons are exact after stripping trailing whitespace on each line (and trailing blank lines). tests[].visible defaults to true; visible:false tests are hidden and always carry a failure_message. For fill_blank, blanks in starter_code are written ___ and are filled in order; every alternative in blanks[].answer must pass the tests. For parsons, lines are shown shuffled; correct_order lists, for each position of the solution, the index into lines; distractors are extra lines that must not be used. For predict, expected_output must be one of choices; for debug with expected_output the fixed program's stdout must match it exactly.",
   "blocks": [
     {
       "id": "d02-b1",
       "concept": "variables-assignment",
-      "concept_tr": "Değişkenler ve atama",
+      "concept_tr": "Değişkenler: isim etiketi ve yeniden atama",
       "tags": [
         "variables",
-        "naming",
-        "assignment"
+        "assignment",
+        "rebinding"
       ],
       "worked_example": {
-        "code": "country = 'Finland'\ncity = 'Helsinki'\nprint(country, city)",
+        "code": "score = 10\nscore = score + 5\nbonus = score\nscore = 0\nprint(score, bonus)",
         "notes": [
-          "= stores a value in a name; it is not a maths equals sign.",
-          "Names use letters, digits and underscores, and cannot start with a digit."
+          "Assignment evaluates the right side first and then attaches the name on the left to the result, so score = score + 5 uses the old score (10) and moves the tag to 15.",
+          "bonus = score attaches a second tag to the same value 15; it does not create a link between the two names.",
+          "score = 0 moves only the score tag, so bonus still shows 15 and the program prints 0 15."
         ],
         "notes_tr": [
-          "= bir değeri bir isme kaydeder; matematikteki eşittir değildir.",
-          "İsimler harf, rakam ve alt çizgi içerir; rakamla başlayamaz."
+          "Atama önce sağ tarafı hesaplar, sonra soldaki ismi sonuca bağlar; bu yüzden score = score + 5 eski score'u (10) kullanır ve etiketi 15'e taşır.",
+          "bonus = score aynı 15 değerine ikinci bir etiket takar; iki isim arasında bir bağ kurmaz.",
+          "score = 0 yalnızca score etiketini taşır; bonus hâlâ 15'i gösterir ve program 0 15 yazdırır."
         ]
       },
       "exercises": [
         {
           "id": "d02-b1-e1",
           "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
           "code": "x = 5\ny = x\nx = 10\nprint(x, y)",
           "choices": [
-            "10 10",
             "10 5",
+            "10 10",
             "5 5",
             "5 10"
           ],
           "expected_output": "10 5",
-          "explanation": "y = x copies the value 5 into y. Changing x afterwards does not touch y, so we get 10 5.",
+          "explanation": "y = x attaches y to the value 5. x = 10 then moves only the x tag, so y keeps showing 5.",
+          "explanation_tr": "y = x, y'yi 5 değerine bağlar. x = 10 sonra yalnızca x etiketini taşır; y 5'i göstermeye devam eder.",
           "misconceptions": {
-            "10 10": "y is not a live link to x. It received the value 5 at that moment and kept it.",
-            "5 5": "x was reassigned to 10 on line 3, so x is 10.",
+            "10 10": "y is not a live link to x; it was attached to the value 5 at that moment.",
+            "5 5": "x was reassigned to 10 on line 3, so x shows 10.",
             "5 10": "The print order is x first, then y."
           },
-          "explanation_tr": "y = x değeri 5'i y'ye kopyalar. Sonradan x'i değiştirmek y'yi etkilemez, bu yüzden 10 5 çıkar.",
           "misconceptions_tr": {
-            "10 10": "y, x'e bağlı canlı bir bağlantı değildir. O anda 5 değerini aldı ve onu korudu.",
-            "5 5": "x 3. satırda 10 olarak yeniden atandı, yani x 10'dur.",
+            "10 10": "y, x'e bağlı canlı bir bağlantı değildir; o anda 5 değerine bağlandı.",
+            "5 5": "x 3. satırda 10'a yeniden atandı, yani x 10'u gösterir.",
             "5 10": "Yazdırma sırası önce x, sonra y'dir."
           }
         },
         {
           "id": "d02-b1-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank with a valid snake_case name so print shows Tallinn.",
-          "prompt_tr": "print'in Tallinn göstermesi için boşluğa geçerli bir snake_case isim yaz.",
-          "starter_code": "___ = 'Tallinn'\nprint(capital_city)",
+          "prompt": "Fill the blank so the balance grows by the deposit and the program prints 1250. Do not type a number in the blank.",
+          "prompt_tr": "Bakiye yatırılan para kadar artsın ve program 1250 yazdırsın diye boşluğu doldur. Boşluğa sayı yazma.",
+          "starter_code": "balance = 1000\ndeposit = 250\nbalance = ___ + deposit\nprint(balance)",
+          "blanks": [
+            {
+              "answer": [
+                "balance"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '1250', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 1250",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 1250"
+            },
+            {
+              "code": "assert '1000 +' not in __source__ and '1250' not in __source__",
+              "visible": false,
+              "failure_message": "Use the variable, not the number.",
+              "failure_message_tr": "Sayıyı değil değişkeni kullan."
+            }
+          ],
+          "hints": [
+            "The new balance is the old balance plus the deposit.",
+            "On the right side of =, a name means 'its current value'.",
+            "Write the name of the variable that holds the old balance."
+          ],
+          "hints_tr": [
+            "Yeni bakiye, eski bakiye artı yatırılan paradır.",
+            "= işaretinin sağında bir isim 'şu anki değeri' demektir.",
+            "Eski bakiyeyi tutan değişkenin adını yaz."
+          ]
+        },
+        {
+          "id": "d02-b1-e3",
+          "type": "debug",
+          "prompt": "The program should print Toplam: 200, but Python reports NameError: name 'totl' is not defined. Fix it.",
+          "prompt_tr": "Program Toplam: 200 yazdırmalı, ama Python NameError: name 'totl' is not defined diyor. Düzelt.",
+          "starter_code": "total = 120 + 80\nprint('Toplam:', totl)",
+          "hints": [
+            "Compare the name in the error message with the name on the first line.",
+            "For Python, totl and total are two unrelated names.",
+            "Correct the spelling inside print() so it matches the assignment."
+          ],
+          "hints_tr": [
+            "Hata mesajındaki ismi ilk satırdaki isimle karşılaştır.",
+            "Python için totl ve total ilgisiz iki isimdir.",
+            "print() içindeki yazımı atamayla aynı olacak şekilde düzelt."
+          ],
+          "solution": {
+            "approach": "The name in print() is misspelled; use exactly the name that was assigned.",
+            "approach_tr": "print() içindeki isim yanlış yazılmış; atanan ismin aynısını kullan.",
+            "code": "total = 120 + 80\nprint('Toplam:', total)"
+          },
+          "expected_output": "Toplam: 200"
+        },
+        {
+          "id": "d02-b1-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "count = 3\ncount = count * 2\ncount = count - 1\nprint(count)",
+          "choices": [
+            "5",
+            "6",
+            "2",
+            "3"
+          ],
+          "expected_output": "5",
+          "explanation": "Each line uses the current value: 3 * 2 = 6, then 6 - 1 = 5.",
+          "explanation_tr": "Her satır şu anki değeri kullanır: 3 * 2 = 6, sonra 6 - 1 = 5.",
+          "misconceptions": {
+            "6": "The last line still runs and subtracts 1.",
+            "2": "The multiplication uses the value at that moment, 3, not the final value.",
+            "3": "Reassigning count really changes which value the name shows."
+          },
+          "misconceptions_tr": {
+            "6": "Son satır da çalışır ve 1 çıkarır.",
+            "2": "Çarpma o anki değeri, 3'ü kullanır; son değeri değil.",
+            "3": "count'a yeniden atama, ismin gösterdiği değeri gerçekten değiştirir."
+          }
+        },
+        {
+          "id": "d02-b1-e5",
+          "type": "modify",
+          "prompt": "The program prints a price including 20% VAT for 150 lira, but the number 150 is typed twice. Change it so a variable price holds 150, a variable vat_rate holds 0.20, and a variable total holds price * (1 + vat_rate). Print total. Output: 180.0",
+          "prompt_tr": "Program 150 TL için %20 KDV dahil fiyatı yazdırıyor, ama 150 sayısı iki kez yazılmış. Programı, price değişkeni 150'yi, vat_rate değişkeni 0.20'yi, total değişkeni price * (1 + vat_rate) değerini tutacak şekilde değiştir. total'ı yazdır. Çıktı: 180.0",
+          "starter_code": "print(150 + 150 * 0.20)",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '180.0', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 180.0",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 180.0"
+            },
+            {
+              "code": "assert price == 150 and vat_rate == 0.2",
+              "visible": true,
+              "label": "price and vat_rate are set",
+              "label_tr": "price ve vat_rate tanımlı",
+              "failure_message": "Create price = 150 and vat_rate = 0.20.",
+              "failure_message_tr": "price = 150 ve vat_rate = 0.20 değişkenlerini oluştur."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^price[ \\t]*=.*$', 'price = 200', __s, count=1)\nassert __n == 1, 'line price = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert abs(__ns['total'] - 240.0) < 1e-9",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "total must be computed from price and vat_rate; with price = 200 it should be 240.0.",
+              "failure_message_tr": "total, price ve vat_rate değişkenlerinden hesaplanmalı; price = 200 iken 240.0 olmalı."
+            }
+          ],
+          "hints": [
+            "Start with two assignment lines, one for each input value.",
+            "Price with VAT is price times (1 plus the rate); the parentheses matter.",
+            "Store that calculation in total on its own line, then print the variable."
+          ],
+          "hints_tr": [
+            "Her girdi değeri için bir tane olmak üzere iki atama satırıyla başla.",
+            "KDV dahil fiyat, fiyat çarpı (1 artı oran)'dır; parantez önemlidir.",
+            "Bu hesabı ayrı bir satırda total değişkenine ata, sonra değişkeni yazdır."
+          ],
+          "solution": {
+            "approach": "Name the two inputs, compute total from them, print total.",
+            "approach_tr": "İki girdiye isim ver, total'ı onlardan hesapla, total'ı yazdır.",
+            "code": "price = 150\nvat_rate = 0.20\ntotal = price * (1 + vat_rate)\nprint(total)"
+          }
+        },
+        {
+          "id": "d02-b1-e6",
+          "type": "write",
+          "prompt": "Create num_one = 5 and num_two = 4 (each on its own line). Then create these variables from them: total (sum), diff (num_one - num_two), product, division (num_one / num_two), remainder (num_two % num_one), exp (num_one ** num_two) and floor_division (num_one // num_two). Finally print total and division on one line: 9 1.25",
+          "prompt_tr": "num_one = 5 ve num_two = 4 değişkenlerini (her biri ayrı satırda) oluştur. Sonra onlardan şu değişkenleri oluştur: total (toplam), diff (num_one - num_two), product (çarpım), division (num_one / num_two), remainder (num_two % num_one), exp (num_one ** num_two) ve floor_division (num_one // num_two). Son olarak total ile division'ı tek satırda yazdır: 9 1.25",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '9 1.25', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 9 1.25",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 9 1.25"
+            },
+            {
+              "code": "assert (diff, product, remainder) == (1, 20, 4)",
+              "visible": true,
+              "label": "diff, product and remainder are right",
+              "label_tr": "diff, product ve remainder doğru",
+              "failure_message": "Check diff (5 - 4), product (5 * 4) and remainder (4 % 5).",
+              "failure_message_tr": "diff (5 - 4), product (5 * 4) ve remainder (4 % 5) değerlerini kontrol et."
+            },
+            {
+              "code": "assert exp == 625 and floor_division == 1",
+              "visible": false,
+              "failure_message": "exp should be 5 ** 4 = 625 and floor_division 5 // 4 = 1.",
+              "failure_message_tr": "exp 5 ** 4 = 625, floor_division 5 // 4 = 1 olmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^num_one[ \\t]*=.*$', 'num_one = 7', __s, count=1)\nassert __n == 1, 'line num_one = ... not found'\n__s, __n = re.subn(r'(?m)^num_two[ \\t]*=.*$', 'num_two = 2', __s, count=1)\nassert __n == 1, 'line num_two = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['total'], __ns['diff'], __ns['product'], __ns['remainder'], __ns['exp'], __ns['floor_division']) == (9, 5, 14, 2, 49, 3) and __ns['division'] == 3.5",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Every result must be computed from num_one and num_two; with 7 and 2 the results must change accordingly.",
+              "failure_message_tr": "Her sonuç num_one ve num_two üzerinden hesaplanmalı; 7 ve 2 ile sonuçlar buna göre değişmeli."
+            }
+          ],
+          "hints": [
+            "Write the two input lines first; every later line uses only the names num_one and num_two.",
+            "Each result is one assignment line: name = expression. Watch the order in remainder: num_two comes first.",
+            "The last line passes the two variables total and division to one print()."
+          ],
+          "hints_tr": [
+            "Önce iki girdi satırını yaz; sonraki her satır yalnızca num_one ve num_two isimlerini kullanır.",
+            "Her sonuç bir atama satırıdır: isim = ifade. remainder'da sıraya dikkat: önce num_two gelir.",
+            "Son satır total ve division değişkenlerini tek bir print()'e verir."
+          ],
+          "solution": {
+            "approach": "Two input variables, seven calculations that use only the names, one print.",
+            "approach_tr": "İki girdi değişkeni, yalnızca isimleri kullanan yedi hesap, bir print.",
+            "code": "num_one = 5\nnum_two = 4\ntotal = num_one + num_two\ndiff = num_one - num_two\nproduct = num_one * num_two\ndivision = num_one / num_two\nremainder = num_two % num_one\nexp = num_one ** num_two\nfloor_division = num_one // num_two\nprint(total, division)"
+          },
+          "twin": "d02-b1-e7"
+        },
+        {
+          "id": "d02-b1-e7",
+          "type": "write",
+          "prompt": "A circle has radius = 30 (write it on its own line). Using pi = 3.14 (on its own line), create area_of_circle = pi * radius ** 2 and circum_of_circle = 2 * pi * radius. Print both on one line: 2826.0 188.4",
+          "prompt_tr": "Bir dairenin yarıçapı radius = 30 (ayrı satırda yaz). pi = 3.14 (ayrı satırda) kullanarak area_of_circle = pi * radius ** 2 ve circum_of_circle = 2 * pi * radius değişkenlerini oluştur. İkisini tek satırda yazdır: 2826.0 188.4",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '2826.0 188.4', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 2826.0 188.4",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 2826.0 188.4"
+            },
+            {
+              "code": "assert area_of_circle == 2826.0",
+              "visible": false,
+              "failure_message": "area_of_circle must be pi * radius ** 2.",
+              "failure_message_tr": "area_of_circle, pi * radius ** 2 olmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^radius[ \\t]*=.*$', 'radius = 10', __s, count=1)\nassert __n == 1, 'line radius = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert abs(__ns['area_of_circle'] - 314.0) < 1e-9 and abs(__ns['circum_of_circle'] - 62.8) < 1e-9",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Both results must be computed from radius; with radius = 10 they should be 314.0 and 62.8.",
+              "failure_message_tr": "İki sonuç da radius üzerinden hesaplanmalı; radius = 10 iken 314.0 ve 62.8 olmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^radius[ \\t]*=.*$', 'radius = 0', __s, count=1)\nassert __n == 1, 'line radius = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['area_of_circle'] == 0 and __ns['circum_of_circle'] == 0",
+              "visible": false,
+              "failure_message": "Edge case: a circle with radius 0 has area 0 and circumference 0.",
+              "failure_message_tr": "Uç durum: yarıçapı 0 olan dairenin alanı ve çevresi 0 olmalı."
+            }
+          ],
+          "hints": [
+            "Put radius and pi on two separate assignment lines.",
+            "** binds before *, so pi * radius ** 2 squares only the radius, which is what the formula wants.",
+            "Store each formula in its own variable, then give both variables to one print()."
+          ],
+          "hints_tr": [
+            "radius ve pi'yi iki ayrı atama satırına koy.",
+            "** işlemi *'dan önce yapılır; pi * radius ** 2 yalnızca yarıçapın karesini alır, formülün istediği de budur.",
+            "Her formülü kendi değişkenine ata, sonra iki değişkeni tek bir print()'e ver."
+          ],
+          "solution": {
+            "approach": "Two inputs, two formulas that use the names, one print with both results.",
+            "approach_tr": "İki girdi, isimleri kullanan iki formül, iki sonucu birlikte yazdıran tek print.",
+            "code": "radius = 30\npi = 3.14\narea_of_circle = pi * radius ** 2\ncircum_of_circle = 2 * pi * radius\nprint(area_of_circle, circum_of_circle)"
+          },
+          "twin": "d02-b1-e6"
+        },
+        {
+          "id": "d02-b1-e8",
+          "type": "explain",
+          "prompt": "In your own words: after a = 10, b = a, a = 20, why is b still 10? Use the idea of a name tag.",
+          "prompt_tr": "Kendi cümlelerinle: a = 10, b = a, a = 20 satırlarından sonra b neden hâlâ 10? İsim etiketi fikrini kullan.",
+          "model_answer": "A variable is a name tag on an object. b = a puts a second tag on the same object, 10. a = 20 moves only the a tag to a new object, 20; the b tag stays on 10 because there is no link between the names.",
+          "model_answer_tr": "Değişken bir nesneye takılmış isim etiketidir. b = a aynı nesneye, 10'a ikinci bir etiket takar. a = 20 yalnızca a etiketini yeni nesneye, 20'ye taşır; isimler arasında bağ olmadığı için b etiketi 10'da kalır.",
+          "keywords": [
+            "tag",
+            "object",
+            "same",
+            "move",
+            "name"
+          ],
+          "keywords_tr": [
+            "etiket",
+            "nesne",
+            "aynı",
+            "taşı",
+            "isim"
+          ],
+          "min_words": 12
+        }
+      ]
+    },
+    {
+      "id": "d02-b2",
+      "concept": "naming-rules",
+      "concept_tr": "İsimlendirme kuralları, snake_case ve yerleşik isimler",
+      "tags": [
+        "naming",
+        "snake_case",
+        "keywords"
+      ],
+      "worked_example": {
+        "code": "first_name = 'Elif'\nlast_name = 'Yılmaz'\nfull_name = first_name + ' ' + last_name\ntotal = 120 + 80\nprint(full_name, total)",
+        "notes": [
+          "Names use letters, digits and underscores, start with a letter or underscore, and are case-sensitive.",
+          "Python style is snake_case: lowercase words joined by underscores, such as first_name and full_name.",
+          "The sum is called total, not sum, because sum is a built-in function and reusing its name would break later calls to sum()."
+        ],
+        "notes_tr": [
+          "İsimler harf, rakam ve alt çizgi içerir, harf ya da alt çizgiyle başlar ve büyük-küçük harfe duyarlıdır.",
+          "Python stili snake_case'tir: alt çizgiyle birleşen küçük harfli kelimeler, örneğin first_name ve full_name.",
+          "Toplamın adı sum değil total'dır, çünkü sum yerleşik bir fonksiyondur ve adını yeniden kullanmak sonraki sum() çağrılarını bozar."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d02-b2-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "age = 20\nAge = 30\nprint(age)",
+          "choices": [
+            "20",
+            "30",
+            "50",
+            "NameError"
+          ],
+          "expected_output": "20",
+          "explanation": "age and Age are different names, so the second line creates a new variable and age still shows 20.",
+          "explanation_tr": "age ve Age farklı isimlerdir; ikinci satır yeni bir değişken oluşturur ve age hâlâ 20'yi gösterir.",
+          "misconceptions": {
+            "30": "Python is case-sensitive; Age = 30 does not touch age.",
+            "50": "Assignment never adds values together.",
+            "NameError": "age was assigned on line 1, so the name exists."
+          },
+          "misconceptions_tr": {
+            "30": "Python büyük-küçük harfe duyarlıdır; Age = 30 age'e dokunmaz.",
+            "50": "Atama değerleri asla toplamaz.",
+            "NameError": "age 1. satırda atandı, yani isim var."
+          }
+        },
+        {
+          "id": "d02-b2-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank with a valid snake_case name so the program prints Ankara.",
+          "prompt_tr": "Program Ankara yazdırsın diye boşluğa geçerli bir snake_case isim yaz.",
+          "starter_code": "___ = 'Ankara'\nprint(capital_city)",
           "blanks": [
             {
               "answer": [
@@ -66,368 +384,909 @@
           ],
           "tests": [
             {
-              "code": "assert capital_city == 'Tallinn'",
+              "code": "assert __stdout__.rstrip() == 'Ankara', repr(__stdout__)",
               "visible": true,
-              "failure_message": "The variable must be named capital_city.",
-              "failure_message_tr": "Değişkenin adı capital_city olmalı.",
-              "label_tr": "capital_city değişkeni Tallinn değerini tutuyor"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Ankara",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Ankara"
             }
           ],
           "hints": [
             "Look at the name used in the print line.",
-            "A name with two words uses an underscore between them, all lowercase.",
-            "The blank is the left side of the assignment: write exactly the name that print() uses."
+            "The name on the left of = must match the name you use later, letter by letter.",
+            "Two lowercase words joined by an underscore."
           ],
           "hints_tr": [
             "print satırında kullanılan isme bak.",
-            "İki kelimeli bir isimde kelimeler arasına alt çizgi konur, hepsi küçük harfle.",
-            "Boşluk atamanın sol tarafıdır: print()'in kullandığı ismi aynen yaz."
-          ]
-        },
-        {
-          "id": "d02-b1-e3",
-          "type": "modify",
-          "prompt": "Change the program so it prints three lines: First name: Asabeneh, Last name: Yetayeh, Country: Finland. Declare country and city together in ONE line (city is Helsinki).",
-          "prompt_tr": "Programı üç satır yazdıracak şekilde değiştir: First name: Asabeneh, Last name: Yetayeh, Country: Finland. country ve city'yi TEK satırda tanımla (city Helsinki).",
-          "starter_code": "first_name = 'Asabeneh'\nprint('First name:', first_name)",
-          "tests": [
-            {
-              "code": "assert __stdout__.strip().split('\\n') == ['First name: Asabeneh', 'Last name: Yetayeh', 'Country: Finland']",
-              "visible": true,
-              "failure_message": "Check the three output lines.",
-              "failure_message_tr": "Üç çıktı satırını kontrol et.",
-              "label_tr": "Üç satır doğru yazdırılıyor"
-            },
-            {
-              "code": "assert city == 'Helsinki' and country == 'Finland'",
-              "visible": true,
-              "failure_message": "Declare country and city: country, city = 'Finland', 'Helsinki'.",
-              "failure_message_tr": "country ve city'yi tek satırda tanımla: country, city = 'Finland', 'Helsinki'.",
-              "label_tr": "country ve city doğru tanımlı"
-            },
-            {
-              "code": "import ast\n__t = ast.parse(__source__)\n__calls = [n for n in ast.walk(__t) if isinstance(n, ast.Call) and getattr(n.func, 'id', '') == 'print']\nassert sum(1 for c in __calls if any(isinstance(m, ast.Name) for a in c.args for m in ast.walk(a))) >= 3, 'print the variables, not typed text'\nimport io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = __source__.replace('Yetayeh', 'Smith')\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert 'Last name: Smith' in __out, 'rerun mismatch'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "Print the values through the variables instead of typing the whole output text.",
-              "failure_message_tr": "Çıktıyı elle yazma; değişkenleri print ile yazdır."
-            }
-          ],
-          "hints": [
-            "You need two more variables for the last name and the country/city pair.",
-            "Multiple assignment: a, b = value1, value2 creates two variables in one line.",
-            "Add last_name, add one multiple-assignment line for country and city, then add two more print lines in the same style as the first."
-          ],
-          "solution": {
-            "approach": "Add last_name and use multiple assignment for country and city.",
-            "code": "first_name = 'Asabeneh'\nlast_name = 'Yetayeh'\ncountry, city = 'Finland', 'Helsinki'\nprint('First name:', first_name)\nprint('Last name:', last_name)\nprint('Country:', country)",
-            "approach_tr": "last_name ekle ve country ile city için çoklu atama kullan."
-          },
-          "hints_tr": [
-            "Soyadı ve ülke/şehir çifti için iki değişken daha lazım.",
-            "Çoklu atama: a, b = değer1, değer2 tek satırda iki değişken oluşturur.",
-            "last_name'i ekle, country ve city için tek bir çoklu atama satırı ekle, sonra ilk satırın biçiminde iki print satırı daha ekle."
-          ]
-        },
-        {
-          "id": "d02-b1-e4",
-          "type": "debug",
-          "prompt": "This program should print Asabeneh, but Python reports an error on the first line. Fix it.",
-          "prompt_tr": "Bu program Asabeneh yazdırmalı ama Python ilk satırda hata veriyor. Düzelt.",
-          "starter_code": "first-name = 'Asabeneh'\nprint(first-name)",
-          "expected_output": "Asabeneh",
-          "hints": [
-            "Which character in the variable name is not allowed?",
-            "A hyphen means subtraction. Python names may only use letters, digits and underscores.",
-            "Change the hyphen to an underscore in the name, and make the same change on the print line."
-          ],
-          "solution": {
-            "approach": "Hyphens are not allowed in names; use snake_case.",
-            "code": "first_name = 'Asabeneh'\nprint(first_name)",
-            "approach_tr": "İsimlerde tire kullanılamaz; snake_case kullan."
-          },
-          "hints_tr": [
-            "Değişken adındaki hangi karakter yasak?",
-            "Tire çıkarma anlamına gelir. Python isimleri sadece harf, rakam ve alt çizgi içerebilir.",
-            "İsimdeki tireyi alt çizgiyle değiştir ve aynı değişikliği print satırında da yap."
-          ]
-        },
-        {
-          "id": "d02-b1-e5",
-          "type": "type_it",
-          "prompt": "Study the snippet, then retype it from memory.",
-          "prompt_tr": "Parçayı incele, sonra aklından yeniden yaz.",
-          "code": "first_name = 'Asabeneh'\nage = 250\nprint('Name:', first_name)\nprint('Age:', age)",
-          "expected_output": "Name: Asabeneh\nAge: 250"
-        }
-      ]
-    },
-    {
-      "id": "d02-b2",
-      "concept": "builtin-functions",
-      "concept_tr": "Yerleşik (built-in) fonksiyonlar",
-      "tags": [
-        "builtins",
-        "len",
-        "min",
-        "max",
-        "sum"
-      ],
-      "worked_example": {
-        "code": "scores = [70, 95, 82]\nprint(min(scores), max(scores), sum(scores))",
-        "notes": [
-          "Built-in functions need no import: len, min, max, sum, sorted...",
-          "min and max find the smallest and largest item; sum adds them."
-        ],
-        "notes_tr": [
-          "Yerleşik fonksiyonlar import gerektirmez: len, min, max, sum, sorted...",
-          "min ve max en küçük ve en büyük öğeyi bulur; sum hepsini toplar."
-        ]
-      },
-      "exercises": [
-        {
-          "id": "d02-b2-e1",
-          "type": "predict",
-          "prompt": "What does this print?",
-          "prompt_tr": "Bu ne yazdırır?",
-          "code": "nums = [4, 9, 2]\nprint(len(nums), max(nums), sum(nums))",
-          "choices": [
-            "3 9 15",
-            "3 9 3",
-            "15 9 3",
-            "3 2 15"
-          ],
-          "expected_output": "3 9 15",
-          "explanation": "len counts 3 items, max is 9, and sum is 4 + 9 + 2 = 15.",
-          "misconceptions": {
-            "3 9 3": "sum adds the values (15); it does not count items. len counts.",
-            "15 9 3": "The functions run in the order written: len first, then max, then sum.",
-            "3 2 15": "max gives the largest value (9). min would give 2."
-          },
-          "explanation_tr": "len 3 öğe sayar, max 9'dur ve sum 4 + 9 + 2 = 15 eder.",
-          "misconceptions_tr": {
-            "3 9 3": "sum değerleri toplar (15); öğe saymaz. Saymayı len yapar.",
-            "15 9 3": "Fonksiyonlar yazıldığı sırayla çalışır: önce len, sonra max, sonra sum.",
-            "3 2 15": "max en büyük değeri verir (9). min 2 verirdi."
-          }
-        },
-        {
-          "id": "d02-b2-e2",
-          "type": "fill_blank",
-          "prompt": "Fill the blank to print the spread between the highest and lowest score (25).",
-          "prompt_tr": "En yüksek ve en düşük puan arasındaki farkı (25) yazdırmak için boşluğu doldur.",
-          "starter_code": "scores = [70, 95, 82]\nprint(___(scores) - min(scores))",
-          "blanks": [
-            {
-              "answer": [
-                "max"
-              ]
-            }
-          ],
-          "tests": [
-            {
-              "code": "assert __stdout__.strip() == '25'",
-              "visible": true,
-              "failure_message": "The program must print 25.",
-              "failure_message_tr": "Program 25 yazdırmalı.",
-              "label_tr": "Program 25 yazdırıyor"
-            }
-          ],
-          "hints": [
-            "You already subtract the minimum. What do you subtract it from?",
-            "You need the highest value of the list, using the built-in that mirrors min.",
-            "Put the built-in function that returns the largest item in the blank (it takes scores as its argument)."
-          ],
-          "hints_tr": [
-            "Minimumu zaten çıkarıyorsun. Onu neyden çıkarıyorsun?",
-            "Listenin en yüksek değeri lazım; min'in tersini yapan yerleşik fonksiyonu kullan.",
-            "Boşluğa en büyük öğeyi veren yerleşik fonksiyonu yaz (argüman olarak scores alır)."
+            "= işaretinin solundaki isim, sonra kullandığın isimle harf harf aynı olmalı.",
+            "Alt çizgiyle birleştirilmiş iki küçük harfli kelime."
           ]
         },
         {
           "id": "d02-b2-e3",
-          "type": "write",
-          "prompt": "Create a list temps with the numbers 12, 18, 9, 21, 15. Then use built-in functions to store the smallest value in lowest, the largest in highest, the sum in total and the number of items in count. Finally print total.",
-          "prompt_tr": "temps adında 12, 18, 9, 21, 15 sayılarından oluşan bir liste oluştur. Sonra yerleşik fonksiyonlarla en küçüğü lowest'a, en büyüğü highest'a, toplamı total'a, eleman sayısını count'a kaydet. Son olarak total'ı yazdır.",
-          "starter_code": "",
-          "tests": [
-            {
-              "code": "assert (lowest, highest) == (9, 21)",
-              "visible": true,
-              "failure_message": "lowest should be 9 and highest 21.",
-              "failure_message_tr": "lowest 9, highest 21 olmalı.",
-              "label_tr": "lowest ve highest doğru"
-            },
-            {
-              "code": "assert (total, count) == (75, 5)",
-              "visible": true,
-              "failure_message": "total should be 75 and count 5.",
-              "failure_message_tr": "total 75, count 5 olmalı.",
-              "label_tr": "total ve count doğru"
-            },
-            {
-              "code": "assert temps == [12, 18, 9, 21, 15]",
-              "visible": false,
-              "failure_message": "temps must contain exactly 12, 18, 9, 21, 15 in that order.",
-              "failure_message_tr": "temps tam olarak 12, 18, 9, 21, 15 olmalı (bu sırayla)."
-            },
-            {
-              "code": "assert total == sum(temps) and count == len(temps)",
-              "visible": false,
-              "failure_message": "Use sum(temps) and len(temps) instead of typing the numbers.",
-              "failure_message_tr": "Sayıları elle yazma; sum(temps) ve len(temps) kullan."
-            },
-            {
-              "code": "assert __stdout__.strip() == '75'",
-              "visible": false,
-              "failure_message": "Print total with print(total).",
-              "failure_message_tr": "total'ı print(total) ile yazdır."
-            },
-            {
-              "code": "import io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = re.sub(r'\\[[^\\]]*\\]', '[5, 30, 2]', __source__, count=1)\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['lowest'], __ns['highest'], __ns['total'], __ns['count']) == (2, 30, 37, 3), 'rerun mismatch'",
-              "visible": false,
-              "anti_hardcode": true,
-              "failure_message": "Compute the values with min, max, sum and len from the list; do not type the results.",
-              "failure_message_tr": "Değerleri listeden min, max, sum ve len ile hesapla; sonuçları elle yazma."
-            }
-          ],
+          "type": "debug",
+          "prompt": "This program should print Elif but stops with a SyntaxError on the first line. Fix the variable name (use snake_case) in both lines.",
+          "prompt_tr": "Bu program Elif yazdırmalı ama ilk satırda SyntaxError ile duruyor. Değişken adını (snake_case kullanarak) iki satırda da düzelt.",
+          "starter_code": "first-name = 'Elif'\nprint(first-name)",
           "hints": [
-            "Start with the list in square brackets.",
-            "Each of min(), max(), sum() and len() takes the list as its argument.",
-            "Write the list, then four assignments, each calling one built-in on temps, then print the variable total."
+            "Which character in the name is not allowed?",
+            "Python reads first-name as first minus name.",
+            "Replace the hyphen with an underscore on both lines."
+          ],
+          "hints_tr": [
+            "İsimdeki hangi karakter yasak?",
+            "Python first-name'i first eksi name olarak okur.",
+            "Tireyi iki satırda da alt çizgiyle değiştir."
           ],
           "solution": {
-            "approach": "Call min, max, sum, len on the list.",
-            "code": "temps = [12, 18, 9, 21, 15]\nlowest = min(temps)\nhighest = max(temps)\ntotal = sum(temps)\ncount = len(temps)\nprint(total)",
-            "approach_tr": "Liste üzerinde min, max, sum, len fonksiyonlarını çağır."
+            "approach": "A hyphen is a minus sign in Python; use an underscore.",
+            "approach_tr": "Tire Python'da eksi işaretidir; alt çizgi kullan.",
+            "code": "first_name = 'Elif'\nprint(first_name)"
           },
-          "twin": "d02-b2-e4",
-          "hints_tr": [
-            "Listeyi köşeli parantezle yazarak başla.",
-            "min(), max(), sum() ve len() fonksiyonlarının her biri listeyi argüman olarak alır.",
-            "Listeyi yaz, sonra her biri temps üzerinde bir yerleşik fonksiyon çağıran dört atama yap, sonra total değişkenini yazdır."
-          ]
+          "expected_output": "Elif"
         },
         {
           "id": "d02-b2-e4",
-          "type": "write",
-          "prompt": "Create a list prices with 4.5, 2.0, 7.25, 3.0. Store the cheapest price in cheapest, the most expensive in priciest, the total bill in bill and the number of items in items. Finally print bill.",
-          "prompt_tr": "prices adında 4.5, 2.0, 7.25, 3.0 değerlerinden bir liste oluştur. En ucuzu cheapest'a, en pahalıyı priciest'a, toplam hesabı bill'e, ürün sayısını items'a kaydet. Son olarak bill'i yazdır.",
-          "starter_code": "",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "total = 0\nprices = [10, 20, 30]\ntotal = sum(prices)\nprint(total, len(prices))",
+          "choices": [
+            "60 3",
+            "0 3",
+            "60 60",
+            "30 3"
+          ],
+          "expected_output": "60 3",
+          "explanation": "sum(prices) adds the three prices, 60, and the name total is moved to that value. len(prices) counts the items: 3.",
+          "explanation_tr": "sum(prices) üç fiyatı toplar, 60 eder ve total ismi bu değere taşınır. len(prices) elemanları sayar: 3.",
+          "misconceptions": {
+            "0 3": "total = sum(prices) reassigns total after the first line.",
+            "60 60": "len counts items, it does not add them.",
+            "30 3": "sum adds all items, not just the last one."
+          },
+          "misconceptions_tr": {
+            "0 3": "total = sum(prices) ilk satırdan sonra total'a yeniden atama yapar.",
+            "60 60": "len elemanları sayar, toplamaz.",
+            "30 3": "sum yalnızca sonuncuyu değil, bütün elemanları toplar."
+          }
+        },
+        {
+          "id": "d02-b2-e5",
+          "type": "debug",
+          "prompt": "The program should print 60 and then 6, but the second print fails with TypeError: 'int' object is not callable. Fix it by renaming the variable, not by removing the sum() call.",
+          "prompt_tr": "Program önce 60 sonra 6 yazdırmalı, ama ikinci print TypeError: 'int' object is not callable ile çöküyor. sum() çağrısını silmeden, değişkenin adını değiştirerek düzelt.",
+          "starter_code": "sum = 10 + 20 + 30\nprint(sum)\nprint(sum([1, 2, 3]))",
+          "hints": [
+            "After the first line, what does the name sum point to?",
+            "Calling a number with parentheses is what 'not callable' means.",
+            "Rename the variable on the first two lines and leave the sum([1, 2, 3]) call as it is."
+          ],
+          "hints_tr": [
+            "İlk satırdan sonra sum ismi neyi gösteriyor?",
+            "'not callable', bir sayıyı parantezle çağırmaya çalışmak demektir.",
+            "İlk iki satırdaki değişkenin adını değiştir, sum([1, 2, 3]) çağrısını olduğu gibi bırak."
+          ],
+          "solution": {
+            "approach": "The variable named sum hides the built-in sum(); give the variable another name such as total.",
+            "approach_tr": "sum adlı değişken yerleşik sum() fonksiyonunu gizliyor; değişkene total gibi başka bir isim ver.",
+            "code": "total = 10 + 20 + 30\nprint(total)\nprint(sum([1, 2, 3]))"
+          },
+          "expected_output": "60\n6",
           "tests": [
             {
-              "code": "assert (cheapest, priciest) == (2.0, 7.25)",
+              "code": "assert 'sum([1, 2, 3])' in __source__.replace(' ', '').replace('sum([1,2,3])', 'sum([1, 2, 3])')",
+              "visible": false,
+              "failure_message": "Keep the call sum([1, 2, 3]).",
+              "failure_message_tr": "sum([1, 2, 3]) çağrısını koru."
+            }
+          ]
+        },
+        {
+          "id": "d02-b2-e6",
+          "type": "modify",
+          "prompt": "The variable names below work but break Python style (camelCase and a one-letter name). Rename them to first_name, last_name and full_name (snake_case) without changing the output: Ada Lovelace",
+          "prompt_tr": "Aşağıdaki değişken adları çalışıyor ama Python stiline uymuyor (camelCase ve tek harfli isim). Çıktıyı değiştirmeden onları first_name, last_name ve full_name (snake_case) olarak yeniden adlandır: Ada Lovelace",
+          "starter_code": "firstName = 'Ada'\nlastName = 'Lovelace'\nx = firstName + ' ' + lastName\nprint(x)",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'Ada Lovelace', repr(__stdout__)",
               "visible": true,
-              "failure_message": "cheapest is 2.0 and priciest is 7.25.",
-              "failure_message_tr": "cheapest 2.0, priciest 7.25 olmalı.",
-              "label_tr": "cheapest ve priciest doğru"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Ada Lovelace",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Ada Lovelace"
             },
             {
-              "code": "assert (bill, items) == (16.75, 4)",
+              "code": "assert first_name == 'Ada' and last_name == 'Lovelace' and full_name == 'Ada Lovelace'",
               "visible": true,
-              "failure_message": "bill should be 16.75 and items 4.",
-              "failure_message_tr": "bill 16.75, items 4 olmalı.",
-              "label_tr": "bill ve items doğru"
+              "label": "The three snake_case variables exist",
+              "label_tr": "Üç snake_case değişken var",
+              "failure_message": "Create first_name, last_name and full_name.",
+              "failure_message_tr": "first_name, last_name ve full_name değişkenlerini oluştur."
             },
             {
-              "code": "assert prices == [4.5, 2.0, 7.25, 3.0]",
-              "visible": false,
-              "failure_message": "prices must hold exactly 4.5, 2.0, 7.25, 3.0.",
-              "failure_message_tr": "prices tam olarak 4.5, 2.0, 7.25, 3.0 içermeli."
-            },
-            {
-              "code": "assert bill == sum(prices) and items == len(prices)",
-              "visible": false,
-              "failure_message": "Use sum(prices) and len(prices).",
-              "failure_message_tr": "sum(prices) ve len(prices) kullan."
-            },
-            {
-              "code": "assert __stdout__.strip() == '16.75'",
-              "visible": false,
-              "failure_message": "Print bill.",
-              "failure_message_tr": "bill'i yazdır."
-            },
-            {
-              "code": "import io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = re.sub(r'\\[[^\\]]*\\]', '[1.5, 2.5]', __source__, count=1)\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['cheapest'], __ns['priciest'], __ns['bill'], __ns['items']) == (1.5, 2.5, 4.0, 2), 'rerun mismatch'",
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^first_name[ \\t]*=.*$', \"first_name = 'Grace'\", __s, count=1)\nassert __n == 1, 'line first_name = ... not found'\n__s, __n = re.subn(r'(?m)^last_name[ \\t]*=.*$', \"last_name = 'Hopper'\", __s, count=1)\nassert __n == 1, 'line last_name = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['full_name'] == 'Grace Hopper' and __out.strip() == 'Grace Hopper'",
               "visible": false,
               "anti_hardcode": true,
-              "failure_message": "Compute the values with min, max, sum and len from the list; do not type the results.",
-              "failure_message_tr": "Değerleri listeden min, max, sum ve len ile hesapla; sonuçları elle yazma."
+              "failure_message": "full_name must be built from first_name and last_name, and print must use full_name.",
+              "failure_message_tr": "full_name, first_name ve last_name üzerinden kurulmalı ve print full_name kullanmalı."
+            },
+            {
+              "code": "assert 'firstName' not in __source__ and 'lastName' not in __source__",
+              "visible": false,
+              "failure_message": "Remove the camelCase names.",
+              "failure_message_tr": "camelCase isimleri kaldır."
             }
           ],
           "hints": [
-            "Create the list first.",
-            "min, max, sum and len each take the list as their argument.",
-            "Write the list, then four assignments, each calling one built-in on prices, then print the variable bill."
+            "Each old name appears more than once; every occurrence must change.",
+            "snake_case: lowercase words joined with an underscore.",
+            "x holds the whole name, so its new name describes that."
+          ],
+          "hints_tr": [
+            "Her eski isim birden fazla yerde geçiyor; hepsi değişmeli.",
+            "snake_case: alt çizgiyle birleşen küçük harfli kelimeler.",
+            "x tam adı tutuyor; yeni adı da bunu anlatmalı."
           ],
           "solution": {
-            "approach": "Same four built-ins on a list of floats.",
-            "code": "prices = [4.5, 2.0, 7.25, 3.0]\ncheapest = min(prices)\npriciest = max(prices)\nbill = sum(prices)\nitems = len(prices)\nprint(bill)",
-            "approach_tr": "Float listesi üzerinde aynı dört yerleşik fonksiyon."
-          },
-          "twin": "d02-b2-e3",
+            "approach": "Rename every occurrence of each name.",
+            "approach_tr": "Her ismin geçtiği her yeri yeniden adlandır.",
+            "code": "first_name = 'Ada'\nlast_name = 'Lovelace'\nfull_name = first_name + ' ' + last_name\nprint(full_name)"
+          }
+        },
+        {
+          "id": "d02-b2-e7",
+          "type": "write",
+          "prompt": "Create these variables, each on its own line, with exactly these names and values: first_name = 'Elif', last_name = 'Yılmaz', country = 'Türkiye', city = 'İzmir', age = 21, is_married = False, is_light_on = True. Then create full_name from first_name and last_name with a space between (do not type 'Elif Yılmaz' yourself) and print full_name.",
+          "prompt_tr": "Her biri ayrı satırda olmak üzere tam olarak bu isim ve değerlerle şu değişkenleri oluştur: first_name = 'Elif', last_name = 'Yılmaz', country = 'Türkiye', city = 'İzmir', age = 21, is_married = False, is_light_on = True. Sonra full_name'i first_name ve last_name'den aralarına bir boşluk koyarak oluştur ('Elif Yılmaz' yazma) ve full_name'i yazdır.",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'Elif Yılmaz', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Elif Yılmaz",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Elif Yılmaz"
+            },
+            {
+              "code": "assert (country, city, age) == ('Türkiye', 'İzmir', 21)",
+              "visible": true,
+              "label": "country, city and age are right",
+              "label_tr": "country, city ve age doğru",
+              "failure_message": "Check country, city and age.",
+              "failure_message_tr": "country, city ve age değerlerini kontrol et."
+            },
+            {
+              "code": "assert is_married is False and is_light_on is True",
+              "visible": false,
+              "failure_message": "is_married must be False and is_light_on True (booleans, not strings).",
+              "failure_message_tr": "is_married False, is_light_on True olmalı (metin değil boolean)."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^first_name[ \\t]*=.*$', \"first_name = 'Can'\", __s, count=1)\nassert __n == 1, 'line first_name = ... not found'\n__s, __n = re.subn(r'(?m)^last_name[ \\t]*=.*$', \"last_name = 'Demir'\", __s, count=1)\nassert __n == 1, 'line last_name = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['full_name'] == 'Can Demir'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "full_name must be built from first_name and last_name.",
+              "failure_message_tr": "full_name, first_name ve last_name üzerinden kurulmalı."
+            }
+          ],
+          "hints": [
+            "One assignment per line; strings in quotes, numbers and booleans without.",
+            "Booleans start with a capital letter.",
+            "full_name joins three strings with +: the first name, a space, the last name."
+          ],
           "hints_tr": [
-            "Önce listeyi oluştur.",
-            "min, max, sum ve len her biri listeyi argüman olarak alır.",
-            "Listeyi yaz, sonra her biri prices üzerinde bir yerleşik fonksiyon çağıran dört atama yap, sonra bill değişkenini yazdır."
-          ]
+            "Her satıra bir atama; metinler tırnaklı, sayılar ve boolean'lar tırnaksız.",
+            "Boolean değerler büyük harfle başlar.",
+            "full_name üç metni + ile birleştirir: ad, bir boşluk, soyad."
+          ],
+          "solution": {
+            "approach": "Seven assignments, then full_name = first_name + ' ' + last_name.",
+            "approach_tr": "Yedi atama, sonra full_name = first_name + ' ' + last_name.",
+            "code": "first_name = 'Elif'\nlast_name = 'Yılmaz'\ncountry = 'Türkiye'\ncity = 'İzmir'\nage = 21\nis_married = False\nis_light_on = True\nfull_name = first_name + ' ' + last_name\nprint(full_name)"
+          },
+          "twin": "d02-b2-e8"
+        },
+        {
+          "id": "d02-b2-e8",
+          "type": "write",
+          "prompt": "Create these variables, each on its own line, with exactly these names and values: product_name = 'Kalem', unit_price = 15, quantity = 4, in_stock = True. Then create order_total from unit_price and quantity (do not type 60) and print exactly: Kalem 60",
+          "prompt_tr": "Her biri ayrı satırda olmak üzere tam olarak bu isim ve değerlerle şu değişkenleri oluştur: product_name = 'Kalem', unit_price = 15, quantity = 4, in_stock = True. Sonra order_total'ı unit_price ve quantity'den oluştur (60 yazma) ve tam olarak şunu yazdır: Kalem 60",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'Kalem 60', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Kalem 60",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Kalem 60"
+            },
+            {
+              "code": "assert (product_name, unit_price, quantity) == ('Kalem', 15, 4) and in_stock is True",
+              "visible": true,
+              "label": "The four variables are right",
+              "label_tr": "Dört değişken doğru",
+              "failure_message": "Check the names and values of the four variables.",
+              "failure_message_tr": "Dört değişkenin isimlerini ve değerlerini kontrol et."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^quantity[ \\t]*=.*$', 'quantity = 10', __s, count=1)\nassert __n == 1, 'line quantity = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['order_total'] == 150 and __out.strip() == 'Kalem 150'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "order_total must be computed from unit_price and quantity.",
+              "failure_message_tr": "order_total, unit_price ve quantity üzerinden hesaplanmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^quantity[ \\t]*=.*$', 'quantity = 0', __s, count=1)\nassert __n == 1, 'line quantity = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['order_total'] == 0",
+              "visible": false,
+              "failure_message": "Edge case: with quantity 0 the total must be 0.",
+              "failure_message_tr": "Uç durum: quantity 0 iken toplam 0 olmalı."
+            }
+          ],
+          "hints": [
+            "Write the four given assignments first, exactly as listed.",
+            "The total is the unit price times the quantity, written with the names.",
+            "print() gets two arguments: the product name variable and the total variable."
+          ],
+          "hints_tr": [
+            "Önce verilen dört atamayı listelendiği gibi yaz.",
+            "Toplam, birim fiyat çarpı adettir; isimlerle yazılır.",
+            "print() iki argüman alır: ürün adı değişkeni ve toplam değişkeni."
+          ],
+          "solution": {
+            "approach": "Four assignments, order_total = unit_price * quantity, print the name and the total.",
+            "approach_tr": "Dört atama, order_total = unit_price * quantity, adı ve toplamı yazdır.",
+            "code": "product_name = 'Kalem'\nunit_price = 15\nquantity = 4\nin_stock = True\norder_total = unit_price * quantity\nprint(product_name, order_total)"
+          },
+          "twin": "d02-b2-e7"
         }
       ]
     },
     {
       "id": "d02-b3",
-      "concept": "type-casting",
-      "concept_tr": "Tip dönüşümü (type casting)",
+      "concept": "builtin-functions",
+      "concept_tr": "Yerleşik fonksiyonlar: len, min, max, sum, round, abs",
       "tags": [
-        "casting",
-        "int",
-        "float",
-        "str"
+        "builtins",
+        "len",
+        "min",
+        "max",
+        "sum",
+        "round",
+        "abs"
       ],
       "worked_example": {
-        "code": "num_str = '10.6'\nprint(int(float(num_str)))",
+        "code": "scores = [72, 95, 64, 88]\nprint(len(scores), min(scores), max(scores))\naverage = sum(scores) / len(scores)\nprint(round(average, 1))\nprint(abs(min(scores) - average))",
         "notes": [
-          "float('10.6') turns text into a decimal number; int() then drops the decimals.",
-          "You cannot go from '10.6' straight to int: convert to float first."
+          "len, min, max and sum take the whole list as one argument and look at every item.",
+          "An average is sum divided by len; round(value, 1) keeps one decimal place for display.",
+          "Calls can be nested: abs(min(scores) - average) first finds the minimum, subtracts, then takes the size of the difference."
         ],
         "notes_tr": [
-          "float('10.6') metni ondalık sayıya çevirir; int() sonra ondalık kısmı atar.",
-          "'10.6' metninden doğrudan int'e geçemezsin: önce float'a çevir."
+          "len, min, max ve sum listenin tamamını tek argüman olarak alır ve her elemana bakar.",
+          "Ortalama, sum bölü len'dir; round(değer, 1) gösterim için tek ondalık basamak bırakır.",
+          "Çağrılar iç içe olabilir: abs(min(scores) - average) önce en küçüğü bulur, çıkarır, sonra farkın büyüklüğünü alır."
         ]
       },
       "exercises": [
         {
           "id": "d02-b3-e1",
           "type": "predict",
-          "prompt": "What do these two lines print?",
-          "prompt_tr": "Bu iki satır ne yazdırır?",
-          "code": "a = '5'\nb = 3\nprint(int(a) + b)\nprint(a + str(b))",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "print(len('Ankara'), max(3, 11, 7), min('elma', 'armut'))",
           "choices": [
-            "8\n8",
-            "8\n53",
-            "53\n8",
-            "8\n5 3"
+            "6 11 armut",
+            "6 11 elma",
+            "5 11 armut",
+            "6 7 armut"
           ],
-          "expected_output": "8\n53",
-          "explanation": "int(a) + b adds numbers: 8. a + str(b) glues two strings together: '53'.",
+          "expected_output": "6 11 armut",
+          "explanation": "Ankara has 6 letters; the largest of 3, 11 and 7 is 11; for strings min picks the one that comes first alphabetically, armut.",
+          "explanation_tr": "Ankara 6 harflidir; 3, 11 ve 7'nin en büyüğü 11'dir; metinlerde min alfabetik olarak önce geleni seçer: armut.",
           "misconceptions": {
-            "8\n8": "'5' + '3' joins text; it does not add. The second line prints 53.",
-            "53\n8": "The lines are swapped: the first adds numbers (8), the second joins text (53).",
-            "8\n5 3": "+ between strings adds no space."
+            "6 11 elma": "min on strings compares them alphabetically, and a comes before e.",
+            "5 11 armut": "Count again: A-n-k-a-r-a is 6 characters.",
+            "6 7 armut": "max looks at all arguments, not the last one."
           },
-          "explanation_tr": "int(a) + b sayıları toplar: 8. a + str(b) iki string'i yapıştırır: '53'.",
           "misconceptions_tr": {
-            "8\n8": "'5' + '3' metinleri birleştirir, toplamaz. İkinci satır 53 yazdırır.",
-            "53\n8": "Satırlar ters: birincisi sayıları toplar (8), ikincisi metinleri birleştirir (53).",
-            "8\n5 3": "String'ler arasındaki + boşluk eklemez."
+            "6 11 elma": "min metinleri alfabetik karşılaştırır ve a, e'den önce gelir.",
+            "5 11 armut": "Tekrar say: A-n-k-a-r-a 6 karakterdir.",
+            "6 7 armut": "max sonuncuya değil, bütün argümanlara bakar."
           }
         },
         {
           "id": "d02-b3-e2",
           "type": "fill_blank",
-          "prompt": "Fill the blank so the program prints 26.",
-          "prompt_tr": "Programın 26 yazdırması için boşluğu doldur.",
-          "starter_code": "age = '25'\nprint(___(age) + 1)",
+          "prompt": "Fill the blanks so the program prints the number of scores and their total: 4 319",
+          "prompt_tr": "Program not sayısını ve toplamını yazdırsın diye boşlukları doldur: 4 319",
+          "starter_code": "scores = [72, 95, 64, 88]\nprint(___(scores), ___(scores))",
+          "blanks": [
+            {
+              "answer": [
+                "len"
+              ]
+            },
+            {
+              "answer": [
+                "sum"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '4 319', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 4 319",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 4 319"
+            }
+          ],
+          "hints": [
+            "One function counts items, another adds them.",
+            "The counting function is the same one you use for the length of a text.",
+            "The adding function's name is the English word for a total."
+          ],
+          "hints_tr": [
+            "Bir fonksiyon elemanları sayar, diğeri toplar.",
+            "Sayma fonksiyonu, bir metnin uzunluğu için kullandığın fonksiyonun aynısıdır.",
+            "Toplama fonksiyonunun adı, toplamın İngilizcesidir."
+          ]
+        },
+        {
+          "id": "d02-b3-e3",
+          "type": "debug",
+          "prompt": "The program should print the number of digits in the year (4), but stops with TypeError: object of type 'int' has no len(). Fix it so it prints 4 and still uses the number 2026.",
+          "prompt_tr": "Program yıldaki rakam sayısını (4) yazdırmalı, ama TypeError: object of type 'int' has no len() ile duruyor. 4 yazdıracak ve yine 2026 sayısını kullanacak şekilde düzelt.",
+          "starter_code": "year = 2026\nprint(len(year))",
+          "hints": [
+            "Read the message: which type has no len()?",
+            "A text has characters you can count; a number does not.",
+            "Convert year to a string inside the len() call."
+          ],
+          "hints_tr": [
+            "Mesajı oku: hangi tipin len()'i yok?",
+            "Bir metnin sayılabilen karakterleri vardır; sayının yoktur.",
+            "year'ı len() çağrısının içinde metne çevir."
+          ],
+          "solution": {
+            "approach": "len() needs a text or a collection; convert the number to a string first with str().",
+            "approach_tr": "len() bir metin ya da koleksiyon ister; sayıyı önce str() ile metne çevir.",
+            "code": "year = 2026\nprint(len(str(year)))"
+          },
+          "expected_output": "4",
+          "tests": [
+            {
+              "code": "assert 'year = 2026' in __source__",
+              "visible": false,
+              "failure_message": "Keep year = 2026 as a number.",
+              "failure_message_tr": "year = 2026 sayı olarak kalsın."
+            }
+          ]
+        },
+        {
+          "id": "d02-b3-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "print(round(2.5), round(3.5), round(2.567, 2))",
+          "choices": [
+            "2 4 2.57",
+            "3 4 2.57",
+            "2 3 2.56",
+            "3 4 2.56"
+          ],
+          "expected_output": "2 4 2.57",
+          "explanation": "Exact halves go to the even neighbour: 2.5 becomes 2 and 3.5 becomes 4. 2.567 rounded to two places is 2.57.",
+          "explanation_tr": "Tam yarımlar çift komşuya gider: 2.5, 2 olur, 3.5, 4 olur. 2.567 iki basamağa yuvarlanınca 2.57'dir.",
+          "misconceptions": {
+            "3 4 2.57": "round() does not always round halves up; it picks the even neighbour.",
+            "2 3 2.56": "3.5 is a half too, and its even neighbour is 4.",
+            "3 4 2.56": "2.567 is above 2.565, so it rounds up to 2.57."
+          },
+          "misconceptions_tr": {
+            "3 4 2.57": "round() yarımları her zaman yukarı yuvarlamaz; çift komşuyu seçer.",
+            "2 3 2.56": "3.5 de bir yarımdır ve çift komşusu 4'tür.",
+            "3 4 2.56": "2.567, 2.565'ten büyük olduğu için 2.57'ye yuvarlanır."
+          }
+        },
+        {
+          "id": "d02-b3-e5",
+          "type": "modify",
+          "prompt": "The program prints the average temperature with many decimals. Change it so it prints the average rounded to 1 decimal place, and on a second line the difference between the highest and lowest temperature (the range). Output: 15.0 then 12",
+          "prompt_tr": "Program ortalama sıcaklığı çok sayıda ondalıkla yazdırıyor. Ortalamayı 1 ondalık basamağa yuvarlanmış yazdıracak, ikinci satırda da en yüksek ile en düşük sıcaklık arasındaki farkı (aralık) yazdıracak şekilde değiştir. Çıktı: 15.0 ve ardından 12",
+          "starter_code": "temps = [12, 18, 9, 21, 15]\nprint(sum(temps) / len(temps))",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '15.0\\n12', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 15.0 / 12",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 15.0 / 12"
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^temps[ \\t]*=.*$', 'temps = [1, 2, 4]', __s, count=1)\nassert __n == 1, 'line temps = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __out.split() == ['2.3', '3']",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Compute both lines from temps with round, max and min; do not type the results.",
+              "failure_message_tr": "İki satırı da temps üzerinden round, max ve min ile hesapla; sonuçları elle yazma."
+            }
+          ],
+          "hints": [
+            "round() takes the value to round and the number of decimal places.",
+            "The range is a subtraction of two built-in calls.",
+            "Two print lines: the rounded average first, then max(temps) minus the smallest value."
+          ],
+          "hints_tr": [
+            "round() yuvarlanacak değeri ve ondalık basamak sayısını alır.",
+            "Aralık, iki yerleşik çağrının farkıdır.",
+            "İki print satırı: önce yuvarlanmış ortalama, sonra max(temps) eksi en küçük değer."
+          ],
+          "solution": {
+            "approach": "Wrap the average in round(..., 1); the range is max minus min.",
+            "approach_tr": "Ortalamayı round(..., 1) içine al; aralık max eksi min'dir.",
+            "code": "temps = [12, 18, 9, 21, 15]\nprint(round(sum(temps) / len(temps), 1))\nprint(max(temps) - min(temps))"
+          }
+        },
+        {
+          "id": "d02-b3-e6",
+          "type": "write",
+          "prompt": "Create temps = [12, 18, 9, 21, 15] on its own line. Then use built-in functions to store the smallest value in lowest, the largest in highest, the total in total and the number of items in count. Print total and count on one line: 75 5",
+          "prompt_tr": "temps = [12, 18, 9, 21, 15] listesini ayrı satırda oluştur. Sonra yerleşik fonksiyonlarla en küçüğü lowest'a, en büyüğü highest'a, toplamı total'a, eleman sayısını count'a kaydet. total ve count'u tek satırda yazdır: 75 5",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '75 5', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 75 5",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 75 5"
+            },
+            {
+              "code": "assert (lowest, highest) == (9, 21)",
+              "visible": true,
+              "label": "lowest and highest are right",
+              "label_tr": "lowest ve highest doğru",
+              "failure_message": "lowest should be 9 and highest 21.",
+              "failure_message_tr": "lowest 9, highest 21 olmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^temps[ \\t]*=.*$', 'temps = [5, 30, 2]', __s, count=1)\nassert __n == 1, 'line temps = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['lowest'], __ns['highest'], __ns['total'], __ns['count']) == (2, 30, 37, 3)",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Compute the values from temps with min, max, sum and len; do not type the results.",
+              "failure_message_tr": "Değerleri temps üzerinden min, max, sum ve len ile hesapla; sonuçları elle yazma."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^temps[ \\t]*=.*$', 'temps = [7]', __s, count=1)\nassert __n == 1, 'line temps = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['lowest'], __ns['highest'], __ns['total'], __ns['count']) == (7, 7, 7, 1)",
+              "visible": false,
+              "failure_message": "Edge case: a list with one item has the same min, max and total.",
+              "failure_message_tr": "Uç durum: tek elemanlı listenin min, max ve toplamı aynıdır."
+            }
+          ],
+          "hints": [
+            "Start with the list in square brackets.",
+            "Each of min(), max(), sum() and len() takes the list as its argument.",
+            "Four assignment lines, one per built-in, then one print with two of the variables."
+          ],
+          "hints_tr": [
+            "Listeyi köşeli parantezle yazarak başla.",
+            "min(), max(), sum() ve len() fonksiyonlarının her biri listeyi argüman olarak alır.",
+            "Her yerleşik fonksiyon için bir atama satırı, sonra iki değişkeni yazdıran bir print."
+          ],
+          "solution": {
+            "approach": "Call min, max, sum and len on the list.",
+            "approach_tr": "Liste üzerinde min, max, sum ve len çağır.",
+            "code": "temps = [12, 18, 9, 21, 15]\nlowest = min(temps)\nhighest = max(temps)\ntotal = sum(temps)\ncount = len(temps)\nprint(total, count)"
+          },
+          "twin": "d02-b3-e7"
+        },
+        {
+          "id": "d02-b3-e7",
+          "type": "write",
+          "prompt": "Create first_name = 'Mustafa' and last_name = 'Öztürk', each on its own line. Store len(first_name) in first_len and len(last_name) in last_len, store the larger of the two lengths in longest (use max) and the absolute difference in gap (use abs). Print longest and gap on one line: 7 1",
+          "prompt_tr": "first_name = 'Mustafa' ve last_name = 'Öztürk' değişkenlerini ayrı satırlarda oluştur. len(first_name)'i first_len'e, len(last_name)'i last_len'e kaydet; iki uzunluğun büyüğünü longest'a (max kullan), farkın mutlak değerini gap'e (abs kullan) kaydet. longest ve gap'i tek satırda yazdır: 7 1",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '7 1', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 7 1",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 7 1"
+            },
+            {
+              "code": "assert (first_len, last_len) == (7, 6)",
+              "visible": true,
+              "label": "Both lengths are right",
+              "label_tr": "İki uzunluk da doğru",
+              "failure_message": "Mustafa has 7 letters and Öztürk 6.",
+              "failure_message_tr": "Mustafa 7, Öztürk 6 harflidir."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^first_name[ \\t]*=.*$', \"first_name = 'Al'\", __s, count=1)\nassert __n == 1, 'line first_name = ... not found'\n__s, __n = re.subn(r'(?m)^last_name[ \\t]*=.*$', \"last_name = 'Yıldırım'\", __s, count=1)\nassert __n == 1, 'line last_name = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['longest'], __ns['gap']) == (8, 6)",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Compute the results from the names with len, max and abs.",
+              "failure_message_tr": "Sonuçları isimlerden len, max ve abs ile hesapla."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^first_name[ \\t]*=.*$', \"first_name = 'Can'\", __s, count=1)\nassert __n == 1, 'line first_name = ... not found'\n__s, __n = re.subn(r'(?m)^last_name[ \\t]*=.*$', \"last_name = 'Ece'\", __s, count=1)\nassert __n == 1, 'line last_name = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['longest'], __ns['gap']) == (3, 0)",
+              "visible": false,
+              "failure_message": "Edge case: two names of equal length have gap 0.",
+              "failure_message_tr": "Uç durum: eşit uzunlukta iki isimde gap 0 olmalı."
+            }
+          ],
+          "hints": [
+            "len() gives the number of characters of each name.",
+            "max() can take two numbers as two arguments.",
+            "abs() turns a negative difference into a positive one, so the order of subtraction no longer matters."
+          ],
+          "hints_tr": [
+            "len() her ismin karakter sayısını verir.",
+            "max() iki sayıyı iki argüman olarak alabilir.",
+            "abs() negatif farkı pozitife çevirir; böylece çıkarmanın sırası önemini kaybeder."
+          ],
+          "solution": {
+            "approach": "Two len calls, then max and abs on the lengths.",
+            "approach_tr": "İki len çağrısı, sonra uzunluklar üzerinde max ve abs.",
+            "code": "first_name = 'Mustafa'\nlast_name = 'Öztürk'\nfirst_len = len(first_name)\nlast_len = len(last_name)\nlongest = max(first_len, last_len)\ngap = abs(first_len - last_len)\nprint(longest, gap)"
+          },
+          "twin": "d02-b3-e6"
+        },
+        {
+          "id": "d02-b3-e8",
+          "type": "type_it",
+          "prompt": "Read the snippet, close it, then type it from memory and run it.",
+          "prompt_tr": "Kodu oku, kapat, sonra aklından yaz ve çalıştır.",
+          "code": "prices = [120, 80, 250]\nprint(len(prices), sum(prices))\nprint(max(prices) - min(prices))",
+          "expected_output": "3 450\n170"
+        }
+      ]
+    },
+    {
+      "id": "d02-b4",
+      "concept": "multiple-assignment",
+      "concept_tr": "Tek satırda çoklu atama ve takas",
+      "tags": [
+        "unpacking",
+        "multiple-assignment",
+        "swap"
+      ],
+      "worked_example": {
+        "code": "first_name, age, city = 'Elif', 21, 'İzmir'\nprint(first_name, age, city)\nleft, right = 'sol', 'sağ'\nleft, right = right, left\nprint(left, right)",
+        "notes": [
+          "Values on the right are handed to the names on the left in order, so the counts on both sides must match.",
+          "In a swap, Python evaluates the whole right side first and builds the pair (right, left) from the current values.",
+          "Only after the right side is finished are the names moved, which is why no value is lost and no temporary variable is needed."
+        ],
+        "notes_tr": [
+          "Sağdaki değerler soldaki isimlere sırayla verilir; bu yüzden iki taraftaki sayılar eşit olmalıdır.",
+          "Takasta Python önce sağ tarafın tamamını hesaplar ve o anki değerlerle (right, left) çiftini kurar.",
+          "İsimler ancak sağ taraf bittikten sonra taşınır; bu yüzden hiçbir değer kaybolmaz ve geçici bir değişkene gerek kalmaz."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d02-b4-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a, b, c = 1, 2, 3\nprint(c, b, a)",
+          "choices": [
+            "3 2 1",
+            "1 2 3",
+            "3 1 2",
+            "6"
+          ],
+          "expected_output": "3 2 1",
+          "explanation": "a gets 1, b gets 2, c gets 3; print shows them in the order c, b, a.",
+          "explanation_tr": "a 1'i, b 2'yi, c 3'ü alır; print onları c, b, a sırasıyla yazar.",
+          "misconceptions": {
+            "1 2 3": "The print order is c, b, a, not a, b, c.",
+            "3 1 2": "Values are handed out strictly in order: a=1, b=2, c=3.",
+            "6": "Multiple assignment never adds the values."
+          },
+          "misconceptions_tr": {
+            "1 2 3": "Yazdırma sırası a, b, c değil; c, b, a'dır.",
+            "3 1 2": "Değerler tam sırayla dağıtılır: a=1, b=2, c=3.",
+            "6": "Çoklu atama değerleri asla toplamaz."
+          }
+        },
+        {
+          "id": "d02-b4-e2",
+          "type": "parsons",
+          "prompt": "Arrange the lines so the program swaps the two players and prints Ece Mert.",
+          "prompt_tr": "Satırları, program iki oyuncunun yerini değiştirip Ece Mert yazdıracak şekilde diz.",
+          "lines": [
+            "player_one, player_two = player_two, player_one",
+            "print(player_one, player_two)",
+            "player_two = 'Ece'",
+            "player_one = 'Mert'"
+          ],
+          "correct_order": [
+            3,
+            2,
+            0,
+            1
+          ],
+          "distractors": [
+            "player_one = player_two"
+          ],
+          "expected_output": "Ece Mert"
+        },
+        {
+          "id": "d02-b4-e3",
+          "type": "debug",
+          "prompt": "The program should print 3 4, but stops with ValueError: too many values to unpack. Fix it so x is 3 and y is 4.",
+          "prompt_tr": "Program 3 4 yazdırmalı, ama ValueError: too many values to unpack ile duruyor. x 3, y 4 olacak şekilde düzelt.",
+          "starter_code": "x, y = 3, 4, 5\nprint(x, y)",
+          "hints": [
+            "Count the names on the left and the values on the right.",
+            "The message says there are more values than names.",
+            "Keep the values that x and y should get and delete the other one."
+          ],
+          "hints_tr": [
+            "Soldaki isimleri ve sağdaki değerleri say.",
+            "Mesaj, isimden çok değer olduğunu söylüyor.",
+            "x ve y'nin alması gereken değerleri tut, diğerini sil."
+          ],
+          "solution": {
+            "approach": "Two names need exactly two values; remove the extra value.",
+            "approach_tr": "İki isim tam olarak iki değer ister; fazla değeri sil.",
+            "code": "x, y = 3, 4\nprint(x, y)"
+          },
+          "expected_output": "3 4"
+        },
+        {
+          "id": "d02-b4-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "x, y = 1, 2\nx, y = y, x + y\nx, y = y, x + y\nprint(x, y)",
+          "choices": [
+            "3 5",
+            "2 3",
+            "3 4",
+            "5 8"
+          ],
+          "expected_output": "3 5",
+          "explanation": "Each line uses the old values on the right: (1, 2) becomes (2, 3), then (2, 3) becomes (3, 5).",
+          "explanation_tr": "Her satır sağ tarafta eski değerleri kullanır: (1, 2), (2, 3) olur; sonra (2, 3), (3, 5) olur.",
+          "misconceptions": {
+            "2 3": "That is after one swap line; there are two.",
+            "3 4": "x + y on the third line uses the old x (2), not the new one.",
+            "5 8": "Only two update lines run, not three."
+          },
+          "misconceptions_tr": {
+            "2 3": "Bu bir takas satırından sonraki durum; iki tane var.",
+            "3 4": "Üçüncü satırdaki x + y yeni x'i değil, eski x'i (2) kullanır.",
+            "5 8": "Üç değil, yalnızca iki güncelleme satırı çalışır."
+          }
+        },
+        {
+          "id": "d02-b4-e5",
+          "type": "modify",
+          "prompt": "The program swaps two shelf labels with a temporary variable. Change it so the swap happens in ONE line with multiple assignment and there is no temp variable. Output stays: B A",
+          "prompt_tr": "Program iki raf etiketini geçici bir değişkenle takas ediyor. Takası çoklu atamayla TEK satırda yapacak ve temp değişkeni olmayacak şekilde değiştir. Çıktı aynı kalır: B A",
+          "starter_code": "shelf_1 = 'A'\nshelf_2 = 'B'\ntemp = shelf_1\nshelf_1 = shelf_2\nshelf_2 = temp\nprint(shelf_1, shelf_2)",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'B A', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: B A",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: B A"
+            },
+            {
+              "code": "assert 'temp' not in __source__",
+              "visible": true,
+              "label": "No temp variable",
+              "label_tr": "temp değişkeni yok",
+              "failure_message": "Remove the temp variable.",
+              "failure_message_tr": "temp değişkenini kaldır."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^shelf_1[ \\t]*=.*$', \"shelf_1 = 'X'\", __s, count=1)\nassert __n == 1, 'line shelf_1 = ... not found'\n__s, __n = re.subn(r'(?m)^shelf_2[ \\t]*=.*$', \"shelf_2 = 'Y'\", __s, count=1)\nassert __n == 1, 'line shelf_2 = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['shelf_1'], __ns['shelf_2']) == ('Y', 'X')",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "Swap the variables themselves; do not assign the letters directly.",
+              "failure_message_tr": "Değişkenlerin kendisini takas et; harfleri doğrudan atama."
+            }
+          ],
+          "hints": [
+            "Multiple assignment can move two tags at once.",
+            "On the right side, list the current values in the new order.",
+            "Left side: shelf_1, shelf_2. Right side: the same two names in the other order."
+          ],
+          "hints_tr": [
+            "Çoklu atama iki etiketi birden taşıyabilir.",
+            "Sağ tarafta şu anki değerleri yeni sırayla yaz.",
+            "Sol taraf: shelf_1, shelf_2. Sağ taraf: aynı iki isim ters sırada."
+          ],
+          "solution": {
+            "approach": "Replace the three temp lines with shelf_1, shelf_2 = shelf_2, shelf_1.",
+            "approach_tr": "Üç temp satırını shelf_1, shelf_2 = shelf_2, shelf_1 ile değiştir.",
+            "code": "shelf_1 = 'A'\nshelf_2 = 'B'\nshelf_1, shelf_2 = shelf_2, shelf_1\nprint(shelf_1, shelf_2)"
+          }
+        },
+        {
+          "id": "d02-b4-e6",
+          "type": "write",
+          "prompt": "Create width and height on ONE line with multiple assignment: width is 8 and height is 5. Then create area = width * height and perimeter = 2 * (width + height). Print area and perimeter on one line: 40 26",
+          "prompt_tr": "width ve height değişkenlerini çoklu atamayla TEK satırda oluştur: width 8, height 5. Sonra area = width * height ve perimeter = 2 * (width + height) değişkenlerini oluştur. area ve perimeter'ı tek satırda yazdır: 40 26",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '40 26', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 40 26",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 40 26"
+            },
+            {
+              "code": "import re\nassert re.search(r'^width\\s*,\\s*height\\s*=', __source__, re.M)",
+              "visible": true,
+              "label": "width, height assigned in one line",
+              "label_tr": "width, height tek satırda atanmış",
+              "failure_message": "Assign width and height in one line: width, height = 8, 5",
+              "failure_message_tr": "width ve height değişkenlerini tek satırda ata: width, height = 8, 5"
+            },
+            {
+              "code": "import io, contextlib, re\n__s, __n = re.subn(r'(?m)^width\\s*,\\s*height\\s*=.*$', 'width, height = 3, 2', __source__, count=1)\nassert __n == 1\n__ns = {}\nwith contextlib.redirect_stdout(io.StringIO()):\n    exec(__s, __ns)\nassert (__ns['area'], __ns['perimeter']) == (6, 10)",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "area and perimeter must be computed from width and height.",
+              "failure_message_tr": "area ve perimeter, width ve height üzerinden hesaplanmalı."
+            },
+            {
+              "code": "assert (width, height, area, perimeter) == (8, 5, 40, 26)",
+              "visible": false,
+              "failure_message": "Check the four variables: width 8, height 5, area 40, perimeter 26.",
+              "failure_message_tr": "Dört değişkeni kontrol et: width 8, height 5, area 40, perimeter 26."
+            }
+          ],
+          "hints": [
+            "Left of =: the two names separated by a comma. Right of =: the two values.",
+            "The perimeter adds the two sides first, so it needs parentheses.",
+            "Then one print() with the two result variables."
+          ],
+          "hints_tr": [
+            "= işaretinin solu: virgülle ayrılmış iki isim. Sağı: iki değer.",
+            "Çevre önce iki kenarı toplar, bu yüzden parantez ister.",
+            "Sonra iki sonuç değişkeniyle tek bir print()."
+          ],
+          "solution": {
+            "approach": "One multiple-assignment line, two formulas, one print.",
+            "approach_tr": "Bir çoklu atama satırı, iki formül, bir print.",
+            "code": "width, height = 8, 5\narea = width * height\nperimeter = 2 * (width + height)\nprint(area, perimeter)"
+          },
+          "twin": "d02-b4-e7"
+        },
+        {
+          "id": "d02-b4-e7",
+          "type": "write",
+          "prompt": "Create name, score_1 and score_2 on ONE line with multiple assignment: 'Deniz', 70 and 90. Create average = (score_1 + score_2) / 2 and print name and average on one line: Deniz 80.0",
+          "prompt_tr": "name, score_1 ve score_2 değişkenlerini çoklu atamayla TEK satırda oluştur: 'Deniz', 70 ve 90. average = (score_1 + score_2) / 2 değişkenini oluştur ve name ile average'ı tek satırda yazdır: Deniz 80.0",
+          "starter_code": "",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == 'Deniz 80.0', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Deniz 80.0",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Deniz 80.0"
+            },
+            {
+              "code": "import re\nassert re.search(r'^name\\s*,\\s*score_1\\s*,\\s*score_2\\s*=', __source__, re.M)",
+              "visible": true,
+              "label": "The three names are assigned in one line",
+              "label_tr": "Üç isim tek satırda atanmış",
+              "failure_message": "Assign name, score_1 and score_2 in one line.",
+              "failure_message_tr": "name, score_1 ve score_2 değişkenlerini tek satırda ata."
+            },
+            {
+              "code": "import io, contextlib, re\n__s, __n = re.subn(r'(?m)^name\\s*,\\s*score_1\\s*,\\s*score_2\\s*=.*$', \"name, score_1, score_2 = 'Ali', 50, 61\", __source__, count=1)\nassert __n == 1\n__o = io.StringIO()\n__ns = {}\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\nassert __ns['average'] == 55.5 and __o.getvalue().strip() == 'Ali 55.5'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "average must be computed from score_1 and score_2 and printed with name.",
+              "failure_message_tr": "average, score_1 ve score_2 üzerinden hesaplanmalı ve name ile yazdırılmalı."
+            },
+            {
+              "code": "assert (name, score_1, score_2, average) == ('Deniz', 70, 90, 80.0)",
+              "visible": false,
+              "failure_message": "Check the variables: name Deniz, scores 70 and 90, average 80.0.",
+              "failure_message_tr": "Değişkenleri kontrol et: name Deniz, notlar 70 ve 90, average 80.0."
+            }
+          ],
+          "hints": [
+            "Three names on the left, three values on the right, in the same order.",
+            "Add the two scores in parentheses before dividing by 2.",
+            "print() gets name and average as two arguments."
+          ],
+          "hints_tr": [
+            "Solda üç isim, sağda aynı sırayla üç değer.",
+            "2'ye bölmeden önce iki notu parantez içinde topla.",
+            "print() name ve average'ı iki argüman olarak alır."
+          ],
+          "solution": {
+            "approach": "One multiple-assignment line, one formula, one print.",
+            "approach_tr": "Bir çoklu atama satırı, bir formül, bir print.",
+            "code": "name, score_1, score_2 = 'Deniz', 70, 90\naverage = (score_1 + score_2) / 2\nprint(name, average)"
+          },
+          "twin": "d02-b4-e6"
+        }
+      ]
+    },
+    {
+      "id": "d02-b5",
+      "concept": "type-casting",
+      "concept_tr": "Tip kontrolü ve dönüşüm: int, float, str, bool",
+      "tags": [
+        "casting",
+        "int",
+        "float",
+        "str",
+        "bool",
+        "input"
+      ],
+      "worked_example": {
+        "code": "age_text = '21'          # input() would return a str like this\nage = int(age_text)\nprint(age + 1)\nprice = float('49.90')\nprint(int(price), round(price))\nprint('Yaş: ' + str(age))",
+        "notes": [
+          "Values from input() or a form are always strings, so int() or float() must turn them into numbers before you calculate.",
+          "int() drops the decimal part of a float (49.9 becomes 49), while round() rounds to the nearest whole number (50).",
+          "str() turns a number back into text so it can be joined to another string with +."
+        ],
+        "notes_tr": [
+          "input() ya da bir formdan gelen değerler her zaman string'dir; hesap yapmadan önce int() ya da float() onları sayıya çevirmelidir.",
+          "int() bir float'ın ondalık kısmını atar (49.9, 49 olur); round() ise en yakın tam sayıya yuvarlar (50).",
+          "str() bir sayıyı metne geri çevirir; böylece + ile başka bir metne eklenebilir."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d02-b5-e1",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "a = '7'\nb = 3\nprint(int(a) + b, a + str(b))",
+          "choices": [
+            "10 73",
+            "10 10",
+            "73 73",
+            "73 10"
+          ],
+          "expected_output": "10 73",
+          "explanation": "int('7') is the number 7, so 7 + 3 is 10. str(3) is the text '3', so '7' + '3' glues the texts: 73.",
+          "explanation_tr": "int('7') 7 sayısıdır, 7 + 3 = 10. str(3) '3' metnidir, '7' + '3' metinleri yapıştırır: 73.",
+          "misconceptions": {
+            "10 10": "a + str(b) joins two strings; it does not add numbers.",
+            "73 73": "int(a) turns '7' into a number first, so the first + is an addition.",
+            "73 10": "The order is reversed: the first expression adds numbers, the second joins texts."
+          },
+          "misconceptions_tr": {
+            "10 10": "a + str(b) iki metni birleştirir; sayı toplamaz.",
+            "73 73": "int(a) önce '7'yi sayıya çevirir, bu yüzden ilk + bir toplamadır.",
+            "73 10": "Sıra ters: ilk ifade sayı toplar, ikinci ifade metin birleştirir."
+          }
+        },
+        {
+          "id": "d02-b5-e2",
+          "type": "fill_blank",
+          "prompt": "Fill the blank so the program converts the text to a number and prints 42.",
+          "prompt_tr": "Program metni sayıya çevirip 42 yazdırsın diye boşluğu doldur.",
+          "starter_code": "count_text = '40'\ncount = ___(count_text)\nprint(count + 2)",
           "blanks": [
             {
               "answer": [
@@ -437,186 +1296,310 @@
           ],
           "tests": [
             {
-              "code": "assert __stdout__.strip() == '26'",
+              "code": "assert __stdout__.rstrip() == '42', repr(__stdout__)",
               "visible": true,
-              "failure_message": "Print 26 (not 26.0).",
-              "failure_message_tr": "26 yazdır (26.0 değil).",
-              "label_tr": "Program 26 yazdırıyor"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 42",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 42"
+            },
+            {
+              "code": "assert type(count) is int",
+              "visible": true,
+              "label": "count is an int",
+              "label_tr": "count bir int",
+              "failure_message": "count must be a whole number (int).",
+              "failure_message_tr": "count bir tam sayı (int) olmalı."
             }
           ],
           "hints": [
-            "age is text. You must make it a number before adding 1.",
-            "Type conversion functions are named after the type. A whole number type has a short three-letter name.",
-            "Put the whole-number conversion function in the blank, so it wraps age."
+            "count_text is a str; you cannot add 2 to it.",
+            "The function you need has the same name as the whole-number type.",
+            "It is a three-letter name."
           ],
           "hints_tr": [
-            "age bir metin. 1 eklemeden önce onu sayıya çevirmelisin.",
-            "Tip dönüştürme fonksiyonları tipin adını taşır. Tam sayı tipinin kısa, üç harfli bir adı var.",
-            "Boşluğa, age'i saran tam sayı dönüştürme fonksiyonunu yaz."
+            "count_text bir str'dir; ona 2 ekleyemezsin.",
+            "Gereken fonksiyonun adı tam sayı tipinin adıyla aynıdır.",
+            "Üç harfli bir isimdir."
           ]
         },
         {
-          "id": "d02-b3-e3",
+          "id": "d02-b5-e3",
+          "type": "debug",
+          "prompt": "The program should print 10 (the whole part of 10.6), but stops with ValueError: invalid literal for int() with base 10: '10.6'. Fix it in a way that still starts from the text '10.6'.",
+          "prompt_tr": "Program 10 yazdırmalı (10.6'nın tam kısmı), ama ValueError: invalid literal for int() with base 10: '10.6' ile duruyor. Yine '10.6' metninden başlayacak şekilde düzelt.",
+          "starter_code": "num_str = '10.6'\nprint(int(num_str))",
+          "hints": [
+            "Which part of '10.6' does int() not accept?",
+            "Another conversion function can read a decimal text.",
+            "Put that conversion inside the int() call."
+          ],
+          "hints_tr": [
+            "int() '10.6' metninin hangi kısmını kabul etmiyor?",
+            "Başka bir dönüşüm fonksiyonu ondalıklı bir metni okuyabilir.",
+            "Bu dönüşümü int() çağrısının içine koy."
+          ],
+          "solution": {
+            "approach": "int() cannot read a text with a dot; convert to float first, then to int.",
+            "approach_tr": "int() noktalı bir metni okuyamaz; önce float'a, sonra int'e çevir.",
+            "code": "num_str = '10.6'\nprint(int(float(num_str)))"
+          },
+          "expected_output": "10",
+          "tests": [
+            {
+              "code": "assert \"'10.6'\" in __source__",
+              "visible": false,
+              "failure_message": "Keep num_str = '10.6' as text.",
+              "failure_message_tr": "num_str = '10.6' metin olarak kalsın."
+            }
+          ]
+        },
+        {
+          "id": "d02-b5-e4",
+          "type": "predict",
+          "prompt": "What does this program print?",
+          "prompt_tr": "Bu program ne yazdırır?",
+          "code": "print(bool('False'), bool(0), bool('0'))",
+          "choices": [
+            "True False True",
+            "False False False",
+            "False False True",
+            "True False False"
+          ],
+          "expected_output": "True False True",
+          "explanation": "'False' and '0' are non-empty strings, so both are True. Only the number 0 is False.",
+          "explanation_tr": "'False' ve '0' boş olmayan metinlerdir, ikisi de True'dur. Yalnızca 0 sayısı False'tur.",
+          "misconceptions": {
+            "False False False": "bool() on a string only checks whether it is empty, not what it says.",
+            "False False True": "'False' is a text of five characters, so it is not empty: True.",
+            "True False False": "'0' is a one-character string, not the number zero."
+          },
+          "misconceptions_tr": {
+            "False False False": "Bir metinde bool() yalnızca boş olup olmadığına bakar, ne yazdığına değil.",
+            "False False True": "'False' beş karakterli bir metindir, boş değildir: True.",
+            "True False False": "'0' tek karakterli bir metindir, sıfır sayısı değildir."
+          }
+        },
+        {
+          "id": "d02-b5-e5",
+          "type": "debug",
+          "prompt": "The program should print the line Toplam: 150 TL, but stops with TypeError: can only concatenate str (not \"int\") to str. Keep the + joins and fix the conversion.",
+          "prompt_tr": "Program Toplam: 150 TL satırını yazdırmalı, ama TypeError: can only concatenate str (not \"int\") to str ile duruyor. + birleştirmelerini koru ve dönüşümü düzelt.",
+          "starter_code": "total = 150\nprint('Toplam: ' + total + ' TL')",
+          "hints": [
+            "Which value in the line is not a string?",
+            "A conversion function turns a number into text.",
+            "Wrap total in that function where it is joined."
+          ],
+          "hints_tr": [
+            "Satırdaki hangi değer metin değil?",
+            "Bir dönüşüm fonksiyonu sayıyı metne çevirir.",
+            "total'ı birleştirildiği yerde bu fonksiyonun içine al."
+          ],
+          "solution": {
+            "approach": "+ can only join strings; turn total into a string with str().",
+            "approach_tr": "+ yalnızca metinleri birleştirebilir; total'ı str() ile metne çevir.",
+            "code": "total = 150\nprint('Toplam: ' + str(total) + ' TL')"
+          },
+          "expected_output": "Toplam: 150 TL",
+          "tests": [
+            {
+              "code": "assert '+' in __source__",
+              "visible": false,
+              "failure_message": "Keep joining the pieces with +.",
+              "failure_message_tr": "Parçaları + ile birleştirmeye devam et."
+            }
+          ]
+        },
+        {
+          "id": "d02-b5-e6",
+          "type": "modify",
+          "prompt": "A form sent the price and the quantity as text. The program joins the texts by mistake. Change it so price_text is converted with float() into price, quantity_text with int() into quantity, total = price * quantity, and print total rounded to 2 decimals. Output: 149.7",
+          "prompt_tr": "Bir form fiyatı ve adedi metin olarak gönderdi. Program yanlışlıkla metinleri birleştiriyor. price_text float() ile price'a, quantity_text int() ile quantity'ye çevrilecek, total = price * quantity olacak ve total 2 ondalığa yuvarlanmış yazdırılacak şekilde değiştir. Çıktı: 149.7",
+          "starter_code": "price_text = '49.90'\nquantity_text = '3'\nprint(price_text + quantity_text)",
+          "tests": [
+            {
+              "code": "assert __stdout__.rstrip() == '149.7', repr(__stdout__)",
+              "visible": true,
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 149.7",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 149.7"
+            },
+            {
+              "code": "assert type(price) is float and type(quantity) is int",
+              "visible": true,
+              "label": "price is a float and quantity an int",
+              "label_tr": "price float, quantity int",
+              "failure_message": "Convert price_text with float() and quantity_text with int().",
+              "failure_message_tr": "price_text'i float() ile, quantity_text'i int() ile çevir."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^price_text[ \\t]*=.*$', \"price_text = '10.50'\", __s, count=1)\nassert __n == 1, 'line price_text = ... not found'\n__s, __n = re.subn(r'(?m)^quantity_text[ \\t]*=.*$', \"quantity_text = '4'\", __s, count=1)\nassert __n == 1, 'line quantity_text = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __out.strip() == '42.0'",
+              "visible": false,
+              "anti_hardcode": true,
+              "failure_message": "The total must be computed from the two texts.",
+              "failure_message_tr": "Toplam iki metinden hesaplanmalı."
+            }
+          ],
+          "hints": [
+            "The two values are strings; + on strings joins them.",
+            "The price has decimals, the quantity does not; pick the matching conversion for each.",
+            "After multiplying, give round() the total and the number 2 inside print()."
+          ],
+          "hints_tr": [
+            "İki değer de metindir; metinlerde + birleştirme yapar.",
+            "Fiyatta ondalık var, adette yok; her birine uygun dönüşümü seç.",
+            "Çarptıktan sonra print() içinde round()'a total'ı ve 2 sayısını ver."
+          ],
+          "solution": {
+            "approach": "Convert both texts, multiply, round for display.",
+            "approach_tr": "İki metni çevir, çarp, gösterim için yuvarla.",
+            "code": "price_text = '49.90'\nquantity_text = '3'\nprice = float(price_text)\nquantity = int(quantity_text)\ntotal = price * quantity\nprint(round(total, 2))"
+          }
+        },
+        {
+          "id": "d02-b5-e7",
           "type": "write",
-          "prompt": "Start with text = '42.7'. Create as_float (the text as a float), as_int (as_float cut to an int) and as_str (as_int as text). Print as_int + 1.",
-          "prompt_tr": "text = '42.7' ile başla. as_float (metnin float hali), as_int (as_float'ın int'e çevrilmiş hali), as_str (as_int'in metin hali) değişkenlerini oluştur. as_int + 1'i yazdır.",
+          "prompt": "Simulate input(): create hours_text = '40' and rate_text = '28' (each on its own line; they stand for what a user typed). Convert them to numbers in hours and rate (use int), compute weekly_pay = hours * rate, and print exactly: Haftalık kazanç: 1120",
+          "prompt_tr": "input()'u taklit et: hours_text = '40' ve rate_text = '28' değişkenlerini oluştur (her biri ayrı satırda; kullanıcının yazdığını temsil ediyorlar). Onları int ile hours ve rate sayılarına çevir, weekly_pay = hours * rate hesapla ve tam olarak şunu yazdır: Haftalık kazanç: 1120",
           "starter_code": "",
           "tests": [
             {
-              "code": "assert as_float == 42.7",
+              "code": "assert __stdout__.rstrip() == 'Haftalık kazanç: 1120', repr(__stdout__)",
               "visible": true,
-              "failure_message": "as_float should be the float 42.7.",
-              "failure_message_tr": "as_float, 42.7 sayısı (float) olmalı.",
-              "label_tr": "as_float doğru"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: Haftalık kazanç: 1120",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: Haftalık kazanç: 1120"
             },
             {
-              "code": "assert as_int == 42",
+              "code": "assert hours == 40 and rate == 28 and type(hours) is int",
               "visible": true,
-              "failure_message": "as_int should be 42.",
-              "failure_message_tr": "as_int 42 olmalı.",
-              "label_tr": "as_int doğru"
+              "label": "hours and rate are ints",
+              "label_tr": "hours ve rate int",
+              "failure_message": "Convert the two texts with int().",
+              "failure_message_tr": "İki metni int() ile çevir."
             },
             {
-              "code": "assert type(as_str) is str and as_str == '42'",
-              "visible": false,
-              "failure_message": "as_str must be the text '42'.",
-              "failure_message_tr": "as_str '42' metni olmalı."
-            },
-            {
-              "code": "assert text == '42.7'",
-              "visible": false,
-              "failure_message": "Start with text = '42.7'.",
-              "failure_message_tr": "text = '42.7' ile başla."
-            },
-            {
-              "code": "assert __stdout__.strip() == '43'",
-              "visible": false,
-              "failure_message": "Print as_int + 1 (it should print 43).",
-              "failure_message_tr": "as_int + 1 yazdır (43 çıkmalı)."
-            },
-            {
-              "code": "import io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = __source__.replace('42.7', '19.9')\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert (__ns['as_float'], __ns['as_int'], __ns['as_str']) == (19.9, 19, '19') and __out.strip() == '20', 'rerun mismatch'",
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^hours_text[ \\t]*=.*$', \"hours_text = '10'\", __s, count=1)\nassert __n == 1, 'line hours_text = ... not found'\n__s, __n = re.subn(r'(?m)^rate_text[ \\t]*=.*$', \"rate_text = '15'\", __s, count=1)\nassert __n == 1, 'line rate_text = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['weekly_pay'] == 150 and __out.strip() == 'Haftalık kazanç: 150'",
               "visible": false,
               "anti_hardcode": true,
-              "failure_message": "Convert the text with float(), int() and str() instead of typing the results.",
-              "failure_message_tr": "Sonuçları elle yazma; float(), int() ve str() ile dönüştür."
+              "failure_message": "weekly_pay must be computed from the two texts.",
+              "failure_message_tr": "weekly_pay iki metinden hesaplanmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^hours_text[ \\t]*=.*$', \"hours_text = '0'\", __s, count=1)\nassert __n == 1, 'line hours_text = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['weekly_pay'] == 0",
+              "visible": false,
+              "failure_message": "Edge case: 0 hours means 0 pay.",
+              "failure_message_tr": "Uç durum: 0 saat 0 kazanç demektir."
             }
           ],
           "hints": [
-            "Declare text first.",
-            "Chain: convert the text with float, cut it with int, then turn that into text with str.",
-            "Write text, then three assignments each applying one conversion function to the previous variable, then print as_int + 1."
+            "Keep the two text variables exactly as given; they imitate input().",
+            "Multiplying two strings fails, so each needs int() first.",
+            "print() gets the label text and weekly_pay as two arguments."
+          ],
+          "hints_tr": [
+            "İki metin değişkenini verildiği gibi bırak; input()'u taklit ediyorlar.",
+            "İki metni çarpmak hata verir; her biri önce int() ister.",
+            "print() etiket metnini ve weekly_pay'i iki argüman olarak alır."
           ],
           "solution": {
-            "approach": "Convert step by step: str -> float -> int -> str.",
-            "code": "text = '42.7'\nas_float = float(text)\nas_int = int(as_float)\nas_str = str(as_int)\nprint(as_int + 1)",
-            "approach_tr": "Adım adım dönüştür: str -> float -> int -> str."
+            "approach": "Convert both texts with int(), multiply, print with a label.",
+            "approach_tr": "İki metni int() ile çevir, çarp, etiketle yazdır.",
+            "code": "hours_text = '40'\nrate_text = '28'\nhours = int(hours_text)\nrate = int(rate_text)\nweekly_pay = hours * rate\nprint('Haftalık kazanç:', weekly_pay)"
           },
-          "twin": "d02-b3-e4",
-          "hints_tr": [
-            "Önce text'i tanımla.",
-            "Zincir: metni float ile çevir, int ile kes, sonra str ile tekrar metne çevir.",
-            "text'i yaz, sonra her biri bir önceki değişkene bir dönüştürme fonksiyonu uygulayan üç atama yap, sonra as_int + 1 yazdır."
-          ]
+          "twin": "d02-b5-e8"
         },
         {
-          "id": "d02-b3-e4",
+          "id": "d02-b5-e8",
           "type": "write",
-          "prompt": "Start with code = 2024. Create code_text (code as a string), digits (the list of characters of code_text) and year_float (code_text converted to a float). Print digits.",
-          "prompt_tr": "code = 2024 ile başla. code_text (code'un metin hali), digits (code_text'in karakter listesi) ve year_float (code_text'in float hali) değişkenlerini oluştur. digits'i yazdır.",
+          "prompt": "Simulate input(): create years_text = '100' on its own line. Convert it with int() into years and compute seconds = years * 365 * 24 * 60 * 60. Print exactly: 3153600000 saniye",
+          "prompt_tr": "input()'u taklit et: years_text = '100' değişkenini ayrı satırda oluştur. int() ile years'a çevir ve seconds = years * 365 * 24 * 60 * 60 hesapla. Tam olarak şunu yazdır: 3153600000 saniye",
           "starter_code": "",
           "tests": [
             {
-              "code": "assert code_text == '2024'",
+              "code": "assert __stdout__.rstrip() == '3153600000 saniye', repr(__stdout__)",
               "visible": true,
-              "failure_message": "code_text must be the string '2024'.",
-              "failure_message_tr": "code_text '2024' metni olmalı.",
-              "label_tr": "code_text doğru"
+              "label": "Output is exactly right",
+              "label_tr": "Çıktı tam olarak doğru",
+              "failure_message": "The printed output must be exactly: 3153600000 saniye",
+              "failure_message_tr": "Yazdırılan çıktı tam olarak şu olmalı: 3153600000 saniye"
             },
             {
-              "code": "assert digits == ['2', '0', '2', '4']",
+              "code": "assert years == 100 and type(years) is int",
               "visible": true,
-              "failure_message": "digits should be the list ['2', '0', '2', '4'].",
-              "failure_message_tr": "digits ['2', '0', '2', '4'] listesi olmalı.",
-              "label_tr": "digits doğru"
+              "label": "years is the int 100",
+              "label_tr": "years int 100",
+              "failure_message": "Convert years_text with int().",
+              "failure_message_tr": "years_text'i int() ile çevir."
             },
             {
-              "code": "assert year_float == 2024.0 and type(year_float) is float",
-              "visible": false,
-              "failure_message": "year_float must be the float 2024.0.",
-              "failure_message_tr": "year_float 2024.0 (float) olmalı."
-            },
-            {
-              "code": "assert code == 2024",
-              "visible": false,
-              "failure_message": "Start with code = 2024.",
-              "failure_message_tr": "code = 2024 ile başla."
-            },
-            {
-              "code": "assert __stdout__.strip() == \"['2', '0', '2', '4']\"",
-              "visible": false,
-              "failure_message": "Print digits.",
-              "failure_message_tr": "digits'i yazdır."
-            },
-            {
-              "code": "import io, contextlib, re\n__ns = {}\n__o = io.StringIO()\n__s = __source__.replace('2024', '1987')\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['code_text'] == '1987' and __ns['digits'] == ['1', '9', '8', '7'] and __ns['year_float'] == 1987.0, 'rerun mismatch'",
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^years_text[ \\t]*=.*$', \"years_text = '2'\", __s, count=1)\nassert __n == 1, 'line years_text = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['seconds'] == 63072000 and __out.strip() == '63072000 saniye'",
               "visible": false,
               "anti_hardcode": true,
-              "failure_message": "Build the values with str(), list() and float() instead of typing them.",
-              "failure_message_tr": "Değerleri elle yazma; str(), list() ve float() ile üret."
+              "failure_message": "seconds must be computed from years_text.",
+              "failure_message_tr": "seconds, years_text üzerinden hesaplanmalı."
+            },
+            {
+              "code": "import io, contextlib, re\n__s = __source__\n__s, __n = re.subn(r'(?m)^years_text[ \\t]*=.*$', \"years_text = '1'\", __s, count=1)\nassert __n == 1, 'line years_text = ... not found'\n__ns = {}\n__o = io.StringIO()\nwith contextlib.redirect_stdout(__o):\n    exec(__s, __ns)\n__out = __o.getvalue()\nassert __ns['seconds'] == 31536000",
+              "visible": false,
+              "failure_message": "One year must be 31536000 seconds.",
+              "failure_message_tr": "Bir yıl 31536000 saniye olmalı."
             }
           ],
           "hints": [
-            "Declare code first.",
-            "str() makes text, list() splits text into characters, float() makes a decimal.",
-            "Write code, then three assignments: one converts code to text, one splits that text, one converts that text to a decimal; finally print digits."
+            "A year has 365 days, a day 24 hours, an hour 60 minutes, a minute 60 seconds.",
+            "Convert the text first, then multiply years by all four factors.",
+            "print() gets seconds and the word saniye as two arguments."
+          ],
+          "hints_tr": [
+            "Bir yılda 365 gün, bir günde 24 saat, bir saatte 60 dakika, bir dakikada 60 saniye var.",
+            "Önce metni çevir, sonra years'ı dört çarpanın hepsiyle çarp.",
+            "print() seconds'ı ve 'saniye' kelimesini iki argüman olarak alır."
           ],
           "solution": {
-            "approach": "str, then list and float of the string.",
-            "code": "code = 2024\ncode_text = str(code)\ndigits = list(code_text)\nyear_float = float(code_text)\nprint(digits)",
-            "approach_tr": "Önce str, sonra string'in list ve float hali."
+            "approach": "Convert with int(), multiply the unit factors, print with the word saniye.",
+            "approach_tr": "int() ile çevir, birim çarpanlarını çarp, 'saniye' kelimesiyle yazdır.",
+            "code": "years_text = '100'\nyears = int(years_text)\nseconds = years * 365 * 24 * 60 * 60\nprint(seconds, 'saniye')"
           },
-          "twin": "d02-b3-e3",
-          "hints_tr": [
-            "Önce code'u tanımla.",
-            "str() metin yapar, list() metni karakterlere böler, float() ondalık sayı yapar.",
-            "code'u yaz, sonra üç atama yap: biri code'u metne çevirir, biri o metni böler, biri o metni ondalık sayıya çevirir; en sonda digits'i yazdır."
-          ]
+          "twin": "d02-b5-e7"
         },
         {
-          "id": "d02-b3-e5",
+          "id": "d02-b5-e9",
           "type": "explain",
-          "prompt": "In your own words: why does '5' + 3 fail in Python while int('5') + 3 works?",
-          "prompt_tr": "Kendi cümlelerinle: Python'da '5' + 3 neden hata verir ama int('5') + 3 çalışır?",
-          "model_answer": "'5' is a string and 3 is an integer, and + cannot join two different types. int('5') converts the text to the number 5 first, so + can add two integers.",
+          "prompt": "In your own words: why does int('10.6') fail while int(10.6) and int(float('10.6')) work?",
+          "prompt_tr": "Kendi cümlelerinle: int('10.6') neden hata verir de int(10.6) ve int(float('10.6')) çalışır?",
+          "model_answer": "int() can convert a float by dropping its decimals, but when it gets a string it only accepts a plain whole number written as text. '10.6' contains a dot, so it raises a ValueError. float('10.6') first turns the text into the float 10.6, and then int() drops the decimals and gives 10.",
+          "model_answer_tr": "int() bir float'ı ondalığını atarak çevirebilir; ama bir metin aldığında yalnızca metin olarak yazılmış düz bir tam sayıyı kabul eder. '10.6' nokta içerdiği için ValueError verir. float('10.6') önce metni 10.6 float'ına çevirir, sonra int() ondalığı atıp 10 verir.",
           "keywords": [
             "string",
-            "int",
-            "convert",
-            "type",
-            "different"
+            "float",
+            "dot",
+            "decimal",
+            "ValueError"
           ],
-          "model_answer_tr": "'5' bir string, 3 ise bir integer'dır ve + farklı iki türü birleştiremez. int('5') önce metni 5 sayısına çevirir, böylece + iki integer'ı toplayabilir.",
           "keywords_tr": [
-            "string",
             "metin",
-            "int",
-            "dönüştür",
-            "çevir",
-            "tür",
-            "tip",
-            "farklı"
+            "string",
+            "float",
+            "nokta",
+            "ondalık",
+            "ValueError"
           ],
-          "min_words": 6
+          "min_words": 12
         }
       ]
     }
   ],
   "review_pool": [
     "d02-b1-e1",
-    "d02-b2-e1",
-    "d02-b2-e3",
-    "d02-b3-e1",
-    "d02-b3-e3"
+    "d02-b1-e6",
+    "d02-b3-e4",
+    "d02-b3-e6",
+    "d02-b4-e4",
+    "d02-b5-e1",
+    "d02-b5-e8"
   ]
 }
