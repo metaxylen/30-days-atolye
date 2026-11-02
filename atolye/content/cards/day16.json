@@ -2,242 +2,408 @@
   "day": 16,
   "title_tr": "Tarih ve Saat (datetime)",
   "title": "Date and Time (datetime)",
-  "est_minutes": 20,
+  "est_minutes": 45,
   "cards": [
     {
       "id": "d16-c01",
       "type": "explain",
       "section": "Python *datetime*",
-      "title_tr": "datetime modülü",
-      "title": "The datetime module",
-      "body_tr": "Tarih ve saat işleri için `datetime` modülü var. Dört ana parçası: `date`, `datetime`, `time`, `timedelta`. Hepsini sırayla göreceğiz.",
-      "body": "The `datetime` module handles dates and times. Its four main pieces: `date`, `datetime`, `time`, `timedelta`. We will meet each.",
-      "code": "import datetime\n\nprint('date' in dir(datetime), 'timedelta' in dir(datetime))",
-      "expected_output": "True True"
+      "title_tr": "Tarihi neden string olarak tutmayız?",
+      "title": "Why not keep dates as strings?",
+      "body_tr": "Bir kargo sitesinde teslim tarihi `'05/12/2019'` olarak yazıyor. Bu 5 Aralık mı, 12 Mayıs mı? Türkiye'de birincisi, ABD'de ikincisi. Üstelik string ile hesap yapamazsın: 'üç gün sonrası hangi gün?' sorusunun cevabı ay sonunu, artık yılı bilmeyi gerektirir. Bu yüzden Python'da tarih bir string değil, bir **nesne**dir. Nesne yılı, ayı, günü ayrı ayrı bilir; çıkarma, toplama, karşılaştırma yapabilir. Yazıya çevirme işini en sonda, ekrana basarken yaparsın. Kodda iki string'i karşılaştırmak harf harf yapılır, bu yüzden aşağıdaki sonuç yanıltıcıdır.",
+      "body": "A shipping site shows a delivery date as `'05/12/2019'`. Is that 5 December or 12 May? In Turkey the first, in the US the second. Worse, you cannot calculate with a string: 'which day is three days later?' needs to know about month ends and leap years. That is why in Python a date is not a string but an **object**. The object knows its year, month and day separately and can subtract, add and compare. You turn it into text only at the very end, when you display it. Comparing two strings goes letter by letter, so the result below is misleading.",
+      "code": "a = '05/12/2019'   # 5 Aralık 2019\nb = '20/01/2019'   # 20 Ocak 2019\nprint(a < b)       # 'is a earlier?'",
+      "expected_output": "True",
+      "hide_output": true
     },
     {
       "id": "d16-c02",
       "type": "explain",
-      "section": "Getting *datetime* Information",
-      "title_tr": "Şu anki zaman",
-      "title": "The current time",
-      "body_tr": "`datetime.now()` şu anı verir; `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second` ile parçalarına ulaşılır. `.timestamp()` 1 Ocak 1970 UTC'den beri geçen saniyedir. Sonuç her an değiştiği için burada türleri ve sınırları kontrol ediyoruz.",
-      "body": "`datetime.now()` gives the present moment; use `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second` for parts. `.timestamp()` is seconds since 1 Jan 1970 UTC. It changes every moment, so we check types and ranges.",
-      "code": "from datetime import datetime\n\nnow = datetime.now()\nprint(type(now).__name__)\nprint(now.year >= 2024, 1 <= now.month <= 12)\nprint(type(now.timestamp()).__name__)",
-      "expected_output": "datetime\nTrue True\nfloat"
+      "section": "Python *datetime*",
+      "title_tr": "datetime modülünün dört sınıfı",
+      "title": "The four classes of the datetime module",
+      "body_tr": "Standart kütüphanedeki `datetime` modülü (modül: Day 12) dört ana sınıf sunar. `date` yalnızca gün bilgisidir (yıl, ay, gün). `time` yalnızca saattir (saat, dakika, saniye). `datetime` ikisinin birleşimidir: belirli bir gündeki belirli bir an. `timedelta` ise bir süredir: '3 gün 4 saat' gibi, takvimde bir nokta değil iki nokta arasındaki mesafe. `dir(modül)` modülün içindeki isimleri listeler; büyük harfle başlamayan ve alt çizgisiz olanlar işimize yarayanlardır. Bugün bu dört sınıfı sırayla göreceğiz.",
+      "body": "The standard library's `datetime` module (modules: Day 12) offers four main classes. `date` is only a day (year, month, day). `time` is only a clock time (hour, minute, second). `datetime` combines them: a specific moment on a specific day. `timedelta` is a duration: something like '3 days 4 hours', not a point on the calendar but the distance between two points. `dir(module)` lists the names inside a module; the lowercase names without underscores are the useful ones here. Today we meet these four classes one by one.",
+      "code": "import datetime\n\nnames = [n for n in dir(datetime) if not n.startswith('_')]\nprint(names)",
+      "expected_output": "['MAXYEAR', 'MINYEAR', 'UTC', 'date', 'datetime', 'datetime_CAPI', 'time', 'timedelta', 'timezone', 'tzinfo']"
     },
     {
       "id": "d16-c03",
-      "type": "truefalse",
-      "section": "Getting *datetime* Information",
-      "statement_tr": "`timestamp()` 1 Ocak 1970'ten beri geçen saniyeyi verir.",
-      "statement": "`timestamp()` gives the seconds since 1 January 1970.",
-      "answer": true,
-      "why_tr": "Unix timestamp tam olarak budur.",
-      "why": "That is exactly a Unix timestamp."
+      "type": "explain",
+      "section": "Python *datetime*",
+      "title_tr": "Sık hata: modül adıyla sınıf adı aynı",
+      "title": "Common mistake: the module and the class share a name",
+      "body_tr": "Modülün adı `datetime`, içindeki sınıflardan birinin adı da `datetime`. `import datetime` yazarsan `datetime` ismi **modüle** bağlanır ve `datetime.now()` şu hatayı verir: `AttributeError: module 'datetime' has no attribute 'now'`. Mesajı oku: 'modülde now yok' diyor, çünkü `now` modülde değil, sınıfta. İki doğru yol var: `from datetime import datetime` yazıp `datetime.now()` demek, ya da `import datetime` yazıp `datetime.datetime.now()` demek. Bir dosyada birini seç ve hep onu kullan. Bu derste genelde ilkini kullanacağız.",
+      "body": "The module is called `datetime`, and one of the classes inside it is also called `datetime`. If you write `import datetime`, the name `datetime` is bound to the **module**, and `datetime.now()` fails with `AttributeError: module 'datetime' has no attribute 'now'`. Read the message: it says 'the module has no now', because `now` lives on the class, not the module. There are two correct ways: write `from datetime import datetime` and call `datetime.now()`, or write `import datetime` and call `datetime.datetime.now()`. Pick one per file and stick to it. In this lesson we mostly use the first.",
+      "code": "import datetime\nprint(type(datetime.datetime.now()).__name__)\n\nfrom datetime import datetime\nprint(type(datetime.now()).__name__)",
+      "expected_output": "datetime\ndatetime"
     },
     {
       "id": "d16-c04",
-      "type": "explain",
-      "section": "Formatting Date Output Using *strftime*",
-      "title_tr": "Belirli bir tarih oluştur",
-      "title": "Create a specific date",
-      "body_tr": "`datetime(yıl, ay, gün, saat, dakika, saniye)` ile kendi tarihini yaratırsın. Verilmeyen saat bilgileri 0 olur.",
-      "body": "`datetime(year, month, day, hour, minute, second)` builds your own date. Missing time parts default to 0.",
-      "code": "from datetime import datetime\n\nnew_year = datetime(2020, 1, 1)\nprint(new_year)\nprint(new_year.day, new_year.month, new_year.year, new_year.hour)",
-      "expected_output": "2020-01-01 00:00:00\n1 1 2020 0",
-      "hide_output": true
+      "type": "predict",
+      "section": "Python *datetime*",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "import datetime\nprint(type(datetime).__name__)\nfrom datetime import datetime\nprint(type(datetime).__name__)",
+      "choices": [
+        "module\ntype",
+        "module\nmodule",
+        "type\ntype",
+        "AttributeError"
+      ],
+      "answer": "module\ntype",
+      "why_tr": "İlk satırda `datetime` ismi modüle bağlı; `from datetime import datetime` aynı ismi sınıfa yeniden bağlar. Sınıfların türü `type`'tır.",
+      "why": "First the name `datetime` is bound to the module; `from datetime import datetime` rebinds the same name to the class. A class has type `type`."
     },
     {
       "id": "d16-c05",
       "type": "explain",
-      "section": "Formatting Date Output Using *strftime*",
-      "title_tr": "strftime: tarihi yazıya çevir",
-      "title": "strftime: date to text",
-      "body_tr": "`strftime(biçim)` tarihi istediğin görünüme sokar. `%d` gün, `%m` ay, `%Y` yıl, `%H:%M:%S` saat:dakika:saniye. Aynı tarih, iki farklı sıra.",
-      "body": "`strftime(format)` renders a date your way. `%d` day, `%m` month, `%Y` year, `%H:%M:%S` time. Same date, two orders.",
-      "code": "from datetime import datetime\n\nt = datetime(2022, 6, 28, 18, 21, 40)\nprint(t.strftime('%H:%M:%S'))\nprint(t.strftime('%m/%d/%Y, %H:%M:%S'))\nprint(t.strftime('%d/%m/%Y, %H:%M:%S'))",
-      "expected_output": "18:21:40\n06/28/2022, 18:21:40\n28/06/2022, 18:21:40",
+      "section": "Getting *datetime* Information",
+      "title_tr": "Bir anın parçaları",
+      "title": "The parts of a moment",
+      "body_tr": "`datetime.now()` bilgisayarın saatine bakıp şu anı bir `datetime` nesnesi olarak döndürür. Sonucu her saniye değiştiği için örneklerde sabit bir an kullanacağız: `datetime(2021, 7, 8, 7, 34, 46)`. Nesnenin parçaları nitelik (attribute) olarak durur: `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second`. Bunlar metot değil, parantez yok. Hepsi `int`'tir, yani doğrudan hesapta kullanabilirsin. Çıktıdaki ilk satıra dikkat et: `print` nesneyi `YYYY-MM-DD HH:MM:SS` biçiminde yazar, bu uluslararası ISO 8601 standardıdır.",
+      "body": "`datetime.now()` reads the computer clock and returns the present moment as a `datetime` object. Because the result changes every second, the examples use a fixed moment: `datetime(2021, 7, 8, 7, 34, 46)`. The parts of the object are attributes: `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second`. They are not methods, so no parentheses. All of them are `int`, so you can calculate with them directly. Look at the first output line: `print` writes the object as `YYYY-MM-DD HH:MM:SS`, which is the international ISO 8601 standard.",
+      "code": "from datetime import datetime\n\nnow = datetime(2021, 7, 8, 7, 34, 46)\nprint(now)\nprint(now.day, now.month, now.year)\nprint(now.hour, now.minute, now.second)\nprint(now.year + 1, type(now.month).__name__)",
+      "expected_output": "2021-07-08 07:34:46\n8 7 2021\n7 34 46\n2022 int",
       "trace": true
     },
     {
       "id": "d16-c06",
-      "type": "predict",
-      "section": "Formatting Date Output Using *strftime*",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "from datetime import datetime\n\nprint(datetime(2024, 3, 9).strftime('%d.%m.%Y'))",
-      "choices": [
-        "09.03.2024",
-        "03.09.2024",
-        "2024.03.09",
-        "9.3.2024"
-      ],
-      "answer": "09.03.2024",
-      "why_tr": "`%d` gün (09), `%m` ay (03), `%Y` yıl.",
-      "why": "`%d` is the day (09), `%m` the month (03), `%Y` the year."
+      "type": "explain",
+      "section": "Getting *datetime* Information",
+      "title_tr": "Timestamp: 1970'ten beri geçen saniye",
+      "title": "Timestamp: seconds since 1970",
+      "body_tr": "Bilgisayarlar zamanı içeride tek bir sayı olarak tutar: 1 Ocak 1970 00:00 UTC'den beri geçen saniye. Buna **Unix timestamp** denir. `.timestamp()` bu sayıyı `float` olarak verir; `datetime.fromtimestamp(sayı, timezone.utc)` ters yöne çevirir. Bir tuzak var: saat dilimi (timezone) belirtmeden oluşturulan nesne 'yerel saat' sayılır, bu yüzden aynı kod İstanbul'da ve Londra'da farklı timestamp üretir. Örnekte `tzinfo=timezone.utc` vererek sonucu her yerde aynı yaptık. Log kayıtlarında, veritabanlarında ve API'lerde zaman çoğunlukla böyle sayı olarak saklanır.",
+      "body": "Computers store time internally as a single number: the seconds elapsed since 1 January 1970 00:00 UTC. This is the **Unix timestamp**. `.timestamp()` returns that number as a `float`; `datetime.fromtimestamp(number, timezone.utc)` converts back. One trap: an object created without a timezone counts as 'local time', so the same code gives different timestamps in Istanbul and in London. In the example we pass `tzinfo=timezone.utc` so the result is the same everywhere. Logs, databases and APIs usually store time as such a number.",
+      "code": "from datetime import datetime, timezone\n\nepoch = datetime(1970, 1, 1, tzinfo=timezone.utc)\nprint(epoch.timestamp())\nday2 = datetime(1970, 1, 2, tzinfo=timezone.utc)\nprint(day2.timestamp())\nprint(datetime.fromtimestamp(1_000_000_000, timezone.utc))",
+      "expected_output": "0.0\n86400.0\n2001-09-09 01:46:40+00:00"
     },
     {
       "id": "d16-c07",
-      "type": "fill",
-      "section": "Formatting Date Output Using *strftime*",
-      "prompt_tr": "Çıktı `2024-03-09` olsun.",
-      "code": "from datetime import datetime\n\nprint(datetime(2024, 3, 9).strftime('%___-%m-%d'))",
-      "answers": [
-        "Y"
-      ],
-      "expected_output": "2024-03-09",
-      "why_tr": "`%Y` dört haneli yıl verir.",
-      "why": "`%Y` gives the four-digit year."
+      "type": "truefalse",
+      "section": "Getting *datetime* Information",
+      "statement_tr": "`now.month` yazmak doğrudur; `now.month()` yazarsan hata alırsın.",
+      "statement": "Writing `now.month` is correct; `now.month()` raises an error.",
+      "answer": true,
+      "why_tr": "`month` bir nitelik ve değeri `int`. `int`'i fonksiyon gibi çağırmak `TypeError: 'int' object is not callable` verir.",
+      "why": "`month` is an attribute holding an `int`. Calling an `int` like a function raises `TypeError: 'int' object is not callable`."
     },
     {
       "id": "d16-c08",
       "type": "explain",
-      "section": "String to Time Using *strptime*",
-      "title_tr": "strptime: yazıdan tarihe",
-      "title": "strptime: text to date",
-      "body_tr": "`strptime(yazı, biçim)` ters yönde çalışır: yazıyı `datetime` nesnesine çevirir. Biçim yazıyla birebir uymalı. `%B` ay adı.",
-      "body": "`strptime(text, format)` goes the other way: text to a `datetime`. The format must match the text exactly. `%B` is the month name.",
-      "code": "from datetime import datetime\n\ndate_string = '5 December, 2019'\ndate_object = datetime.strptime(date_string, '%d %B, %Y')\nprint(date_object)",
-      "expected_output": "2019-12-05 00:00:00",
-      "trace": true
+      "section": "Formatting Date Output Using *strftime*",
+      "title_tr": "Elle biçimlendirmenin sorunu",
+      "title": "The problem with formatting by hand",
+      "body_tr": "Belirli bir tarih oluşturmak için `datetime(yıl, ay, gün, saat, dakika, saniye)` yazarsın; verilmeyen saat parçaları 0 olur. Parçaları alıp f-string ile birleştirmek ilk akla gelen yoldur. Ama sonuca bak: `1/1/2020, 0:0`. Sayılar `int` olduğu için başlarındaki sıfır kaybolur; `0:0` kimsenin okumak istemediği bir saat. Sıfır eklemek için `f'{day:02d}'` yazabilirsin (Day 4'teki biçim belirteci), ama bunu her parça için tekrar etmek yorucu ve hataya açık. Python'un bunun için hazır bir aracı var: bir sonraki kartta.",
+      "body": "To build a specific date you write `datetime(year, month, day, hour, minute, second)`; missing time parts become 0. Taking the parts and joining them with an f-string is the first idea that comes to mind. But look at the result: `1/1/2020, 0:0`. Because the parts are `int`, their leading zeros disappear; `0:0` is a time nobody wants to read. You could add zeros with `f'{day:02d}'` (the format spec from Day 4), but repeating that for every part is tedious and error-prone. Python has a ready-made tool for this: next card.",
+      "code": "from datetime import datetime\n\nnew_year = datetime(2020, 1, 1)\nprint(new_year)\nd, m, y = new_year.day, new_year.month, new_year.year\nprint(f'{d}/{m}/{y}, {new_year.hour}:{new_year.minute}')\nprint(f'{d:02d}/{m:02d}/{y}')",
+      "expected_output": "2020-01-01 00:00:00\n1/1/2020, 0:0\n01/01/2020",
+      "hide_output": true
     },
     {
       "id": "d16-c09",
-      "type": "predict",
-      "section": "String to Time Using *strptime*",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "from datetime import datetime\n\nd = datetime.strptime('2020-02-14', '%Y-%m-%d')\nprint(d.month)",
-      "choices": [
-        "2",
-        "14",
-        "2020",
-        "Hata verir"
-      ],
-      "answer": "2",
-      "why_tr": "Biçime göre ay 02'dir.",
-      "why": "By the format the month is 02."
+      "type": "explain",
+      "section": "Formatting Date Output Using *strftime*",
+      "title_tr": "strftime: tarihten yazıya",
+      "title": "strftime: from date to text",
+      "body_tr": "`strftime` 'string format time' demektir: nesneyi, verdiğin kalıba göre bir string'e çevirir. Kalıp sıradan bir metindir; içindeki `%` ile başlayan kodlar yerine değer konur, geri kalan karakterler (`/`, `.`, `:` , boşluk) olduğu gibi kalır. `%d` gün, `%m` ay, `%Y` dört haneli yıl, `%H` 24 saatlik saat, `%M` dakika, `%S` saniye. Sayısal kodlar her zaman iki haneye sıfırla tamamlanır, yani elle `:02d` yazmana gerek kalmaz. Aynı nesne, sadece kalıp değişerek ABD sırasıyla da Türkiye sırasıyla da yazılabilir.",
+      "body": "`strftime` stands for 'string format time': it turns the object into a string following the pattern you give. The pattern is ordinary text; the codes that start with `%` are replaced by values, and every other character (`/`, `.`, `:`, space) stays as it is. `%d` day, `%m` month, `%Y` four-digit year, `%H` 24-hour hour, `%M` minute, `%S` second. Numeric codes are always zero-padded to two digits, so no manual `:02d`. The same object can be written in US order or Turkish order just by changing the pattern.",
+      "code": "from datetime import datetime\n\nt = datetime(2022, 6, 28, 18, 21, 40)\nprint(t.strftime('%H:%M:%S'))\nprint(t.strftime('%m/%d/%Y, %H:%M:%S'))\nprint(t.strftime('%d/%m/%Y, %H:%M:%S'))\nprint(t.strftime('%d.%m.%Y'))",
+      "expected_output": "18:21:40\n06/28/2022, 18:21:40\n28/06/2022, 18:21:40\n28.06.2022"
     },
     {
       "id": "d16-c10",
-      "type": "truefalse",
-      "section": "String to Time Using *strptime*",
-      "statement_tr": "`strftime` tarihi yazıya, `strptime` yazıyı tarihe çevirir.",
-      "statement": "`strftime` turns a date into text, `strptime` turns text into a date.",
-      "answer": true,
-      "why_tr": "f = format (biçimle yaz), p = parse (ayrıştır).",
-      "why": "f = format, p = parse."
+      "type": "predict",
+      "section": "Formatting Date Output Using *strftime*",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "from datetime import datetime\n\nt = datetime(2024, 3, 9, 7, 5)\nprint(t.strftime('%d.%m.%Y %H:%M'))",
+      "choices": [
+        "09.03.2024 07:05",
+        "9.3.2024 7:5",
+        "03.09.2024 07:05",
+        "09.05.2024 07:03"
+      ],
+      "answer": "09.03.2024 07:05",
+      "why_tr": "`%d` günü (09), `%m` ayı (03) iki haneye sıfırla tamamlar; `%H:%M` saat ve dakikadır.",
+      "why": "`%d` (09) and `%m` (03) are zero-padded to two digits; `%H:%M` are hour and minute."
     },
     {
       "id": "d16-c11",
       "type": "explain",
-      "section": "Using *date* from *datetime*",
-      "title_tr": "date: yalnız tarih",
-      "title": "date: date only",
-      "body_tr": "`date(yıl, ay, gün)` saat içermez. `date.today()` bugünü verir.",
-      "body": "`date(year, month, day)` has no time part. `date.today()` gives today.",
-      "code": "from datetime import date\n\nd = date(2020, 1, 1)\nprint(d)\ntoday = date.today()\nprint(today.year >= 2024)",
-      "expected_output": "2020-01-01\nTrue"
+      "section": "Formatting Date Output Using *strftime*",
+      "title_tr": "Sık hata: %m ile %M",
+      "title": "Common mistake: %m versus %M",
+      "body_tr": "Kodlar büyük/küçük harfe duyarlıdır ve en sık karışan ikili `%m` (ay, month) ile `%M` (dakika, minute)'dir. Aşağıdaki kod hata vermez; sadece yanlış sonuç üretir, bu da onu daha tehlikeli yapar: 30 dakika, ay yerine yazılmış. Hata mesajı olmadığı için tek savunman çıktıyı okumaktır. Akılda tutmak için: büyük harfli kodlar saat tarafında (`%H`, `%M`, `%S`), küçük harfli `%d`, `%m` takvim tarafında. `%Y` istisna: küçük `%y` yılı iki haneyle (`24`) yazar. Tam liste için Python belgelerindeki 'strftime and strptime Format Codes' tablosuna bak.",
+      "body": "Codes are case-sensitive, and the pair most often mixed up is `%m` (month) and `%M` (minute). The code below raises no error; it just produces a wrong result, which makes it more dangerous: 30 minutes printed in place of the month. With no error message, your only defence is reading the output. A memory aid: the uppercase codes are on the clock side (`%H`, `%M`, `%S`), lowercase `%d`, `%m` on the calendar side. `%Y` is the exception: lowercase `%y` writes a two-digit year (`24`). For the full list see the 'strftime and strptime Format Codes' table in the Python docs.",
+      "code": "from datetime import datetime\n\nt = datetime(2024, 3, 9, 14, 30)\nprint(t.strftime('%d/%M/%Y'))   # wrong: minute\nprint(t.strftime('%d/%m/%Y'))   # right: month\nprint(t.strftime('%d/%m/%y'))   # two-digit year",
+      "expected_output": "09/30/2024\n09/03/2024\n09/03/24"
     },
     {
       "id": "d16-c12",
       "type": "explain",
-      "section": "Time Objects to Represent Time",
-      "title_tr": "time: yalnız saat",
-      "title": "time: time of day only",
-      "body_tr": "`time(saat, dakika, saniye, mikrosaniye)`; hepsi isteğe bağlı, verilmeyen 0 olur.",
-      "body": "`time(hour, minute, second, microsecond)`; all optional, missing ones are 0.",
-      "code": "from datetime import time\n\nprint(time())\nprint(time(10, 30, 50))\nprint(time(hour=10, minute=30, second=50))\nprint(time(10, 30, 50, 200555))",
-      "expected_output": "00:00:00\n10:30:50\n10:30:50\n10:30:50.200555"
+      "section": "Formatting Date Output Using *strftime*",
+      "title_tr": "İsimler ve f-string kısayolu",
+      "title": "Names and the f-string shortcut",
+      "body_tr": "Bazı kodlar sayı değil isim üretir: `%A` haftanın günü (`Saturday`), `%B` ayın adı (`March`), `%a` ve `%b` bunların kısaltmaları. Bu isimler İngilizce gelir; Türkçe ay adı istiyorsan kendi listeni kullanırsın (`aylar[t.month - 1]`). Bir de kısayol var: f-string'de iki noktadan sonra doğrudan strftime kalıbı yazabilirsin: `f'{t:%d.%m.%Y}'`. Python bunu arka planda `t.strftime('%d.%m.%Y')` olarak çalıştırır. Uzun bir cümlenin ortasına tarih koyarken bu yazım çok daha okunaklıdır.",
+      "body": "Some codes produce names instead of numbers: `%A` is the weekday (`Saturday`), `%B` the month name (`March`), `%a` and `%b` their short forms. These names come out in English; if you want Turkish month names you use your own list (`months[t.month - 1]`). There is also a shortcut: in an f-string you can write a strftime pattern right after the colon: `f'{t:%d.%m.%Y}'`. Python runs it as `t.strftime('%d.%m.%Y')` behind the scenes. When a date sits in the middle of a longer sentence, this form reads much better.",
+      "code": "from datetime import datetime\n\nt = datetime(2024, 3, 9)\nprint(t.strftime('%A, %d %B %Y'))\nprint(t.strftime('%a %b'))\naylar = ['Ocak', 'Şubat', 'Mart', 'Nisan']\nprint(t.day, aylar[t.month - 1], t.year)\nprint(f'Teslim tarihi: {t:%d.%m.%Y}')",
+      "expected_output": "Saturday, 09 March 2024\nSat Mar\n9 Mart 2024\nTeslim tarihi: 09.03.2024"
     },
     {
       "id": "d16-c13",
-      "type": "predict",
-      "section": "Time Objects to Represent Time",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "from datetime import time\n\nprint(time(7, 5))",
-      "choices": [
-        "07:05:00",
-        "7:5",
-        "07:05",
-        "7:05:00"
+      "type": "fill",
+      "section": "Formatting Date Output Using *strftime*",
+      "prompt_tr": "Çıktı `2023-10-29 09:00` olsun diye kalıbı yaz.",
+      "prompt": "Write the pattern so the output is `2023-10-29 09:00`.",
+      "code": "from datetime import datetime\n\nt = datetime(2023, 10, 29, 9, 0)\nprint(t.strftime('___'))",
+      "answers": [
+        "%Y-%m-%d %H:%M"
       ],
-      "answer": "07:05:00",
-      "why_tr": "Eksik saniye 0 olur, her parça iki haneli yazılır.",
-      "why": "Missing seconds become 0 and each part is two digits."
+      "expected_output": "2023-10-29 09:00",
+      "why_tr": "`%Y-%m-%d` takvim kısmı, `%H:%M` saat kısmı; aradaki `-`, boşluk ve `:` olduğu gibi kopyalanır.",
+      "why": "`%Y-%m-%d` is the calendar part, `%H:%M` the clock part; the `-`, the space and the `:` are copied as they are."
     },
     {
       "id": "d16-c14",
       "type": "explain",
-      "section": "Difference Between Two Points in Time Using",
-      "title_tr": "İki tarih farkı",
-      "title": "Difference between two dates",
-      "body_tr": "İki tarihi çıkarırsan `timedelta` (süre) elde edersin. `date` farkı gün, `datetime` farkı gün ve saat verir.",
-      "body": "Subtracting two dates gives a `timedelta` (duration). A `date` difference gives days; a `datetime` difference gives days and time.",
-      "code": "from datetime import date, datetime\n\ntoday = date(2019, 12, 5)\nnew_year = date(2020, 1, 1)\nprint(new_year - today)\nt1 = datetime(2019, 12, 5, 0, 59, 0)\nt2 = datetime(2020, 1, 1, 0, 0, 0)\nprint(t2 - t1)",
-      "expected_output": "27 days, 0:00:00\n26 days, 23:01:00",
+      "section": "String to Time Using *strptime*",
+      "title_tr": "strptime: yazıdan tarihe",
+      "title": "strptime: from text to date",
+      "body_tr": "Ters yön de gerekir: bir formdan, dosyadan ya da API'den tarih hep string olarak gelir. `datetime.strptime(metin, kalıp)` ('string parse time') metni okuyup bir `datetime` nesnesi kurar. Kalıp, metnin nasıl yazıldığını tarif eder ve aynı `%` kodlarını kullanır. Ayırt etmek için: strf**t**ime **f**ormat eder (nesneden metne), strp**t**ime **p**arse eder (metinden nesneye). `strptime` sınıfa ait bir metottur, bu yüzden `datetime.strptime(...)` diye çağrılır. Sonuçta saat verilmediyse 00:00:00 olur. Artık bu nesneyle hesap yapabilirsin.",
+      "body": "You also need the other direction: dates from a form, a file or an API always arrive as strings. `datetime.strptime(text, pattern)` ('string parse time') reads the text and builds a `datetime` object. The pattern describes how the text is written and uses the same `%` codes. To tell them apart: strftime **f**ormats (object to text), strptime **p**arses (text to object). `strptime` belongs to the class, so you call it as `datetime.strptime(...)`. If no time was given, the result has 00:00:00. Now you can calculate with this object.",
+      "code": "from datetime import datetime\n\ntext = '5 December, 2019'\nd = datetime.strptime(text, '%d %B, %Y')\nprint(d)\nprint(d.month, d.strftime('%d.%m.%Y'))\nlog = datetime.strptime('2024-03-09 14:05', '%Y-%m-%d %H:%M')\nprint(log.hour, log.minute)",
+      "expected_output": "2019-12-05 00:00:00\n12 05.12.2019\n14 5",
       "trace": true
     },
     {
       "id": "d16-c15",
-      "type": "predict",
-      "section": "Difference Between Two Points in Time Using",
-      "prompt_tr": "Bu kodun çıktısı ne olur?",
-      "code": "from datetime import date\n\nprint((date(2024, 3, 1) - date(2024, 2, 1)).days)",
-      "choices": [
-        "29",
-        "28",
-        "30",
-        "1"
-      ],
-      "answer": "29",
-      "why_tr": "2024 artık yıl, şubat 29 gün.",
-      "why": "2024 is a leap year; February has 29 days."
+      "type": "explain",
+      "section": "String to Time Using *strptime*",
+      "title_tr": "Sık hata: kalıp metne uymuyor",
+      "title": "Common mistake: the pattern does not match the text",
+      "body_tr": "`strptime` katıdır: kalıp metni harfi harfine tarif etmelidir. `datetime.strptime('2019-12-05', '%d/%m/%Y')` şu hatayı verir: `ValueError: time data '2019-12-05' does not match format '%d/%m/%Y'`. Mesaj sana iki şeyi birden gösterir: elindeki veri ve beklediğin kalıp. Onları alt alta koy ve karakter karakter karşılaştır: metinde `-` var, kalıpta `/`; metin yılla başlıyor, kalıp günle. `%b` kısa ay adı (`Dec`) bekler, `%B` uzun adı (`December`). Geçersiz bir tarih de (`30 Şubat`) `ValueError: day is out of range for month` verir. Düzeltme: kalıbı veriye uydur.",
+      "body": "`strptime` is strict: the pattern must describe the text exactly. `datetime.strptime('2019-12-05', '%d/%m/%Y')` raises `ValueError: time data '2019-12-05' does not match format '%d/%m/%Y'`. The message shows you both things at once: the data you had and the pattern you expected. Put them one under the other and compare character by character: the text has `-`, the pattern `/`; the text starts with the year, the pattern with the day. `%b` expects a short month name (`Dec`), `%B` the long one (`December`). An impossible date (`30 February`) gives `ValueError: day is out of range for month`. The fix: make the pattern match the data.",
+      "code": "from datetime import datetime\n\ntext = '2019-12-05'\n# datetime.strptime(text, '%d/%m/%Y')  -> ValueError\nd = datetime.strptime(text, '%Y-%m-%d')\nprint(d.day, d.month, d.year)",
+      "expected_output": "5 12 2019"
     },
     {
       "id": "d16-c16",
-      "type": "explain",
-      "section": "Difference Between Two Points in Time Using *timedelta*",
-      "title_tr": "timedelta ile süre",
-      "title": "Durations with timedelta",
-      "body_tr": "`timedelta(weeks, days, hours, minutes, seconds...)` bir süre tanımlar; süreler çıkarılıp toplanabilir. Çıktıda gün ve saat ayrı gösterilir.",
-      "body": "`timedelta(weeks, days, hours, minutes, seconds...)` defines a duration; durations can be added and subtracted. Output shows days and time separately.",
-      "code": "from datetime import timedelta\n\nt1 = timedelta(weeks=12, days=10, hours=4, seconds=20)\nt2 = timedelta(days=7, hours=5, minutes=3, seconds=30)\nprint('t3 =', t1 - t2)",
-      "expected_output": "t3 = 86 days, 22:56:50"
+      "type": "predict",
+      "section": "String to Time Using *strptime*",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "from datetime import datetime\n\nd = datetime.strptime('03/04/2024', '%m/%d/%Y')\nprint(d.strftime('%d %B'))",
+      "choices": [
+        "04 March",
+        "03 April",
+        "3 April",
+        "ValueError"
+      ],
+      "answer": "04 March",
+      "why_tr": "Kalıp `%m/%d/%Y`: ilk sayı ay (03 = Mart), ikinci sayı gün (04). Sonra `%d %B` gün ve ay adını yazar.",
+      "why": "The pattern is `%m/%d/%Y`: the first number is the month (03 = March), the second the day (04). Then `%d %B` writes the day and the month name."
     },
     {
       "id": "d16-c17",
-      "type": "fill",
-      "section": "Difference Between Two Points in Time Using *timedelta*",
-      "prompt_tr": "Çıktı `2024-01-11 00:00:00` olsun.",
-      "code": "from datetime import datetime, timedelta\n\nstart = datetime(2024, 1, 1)\nprint(start + ___(days=10))",
-      "answers": [
-        "timedelta"
-      ],
-      "expected_output": "2024-01-11 00:00:00",
-      "why_tr": "Bir tarihe `timedelta` ekleyerek ileri gidersin.",
-      "why": "Add a `timedelta` to a date to move forward."
+      "type": "explain",
+      "section": "Using *date* from *datetime*",
+      "title_tr": "date: sadece gün",
+      "title": "date: only the day",
+      "body_tr": "Doğum günü, fatura tarihi, tatil günü: çoğu zaman saatle işin yoktur. `date(yıl, ay, gün)` sadece takvim bilgisini tutar ve `2020-01-01` diye yazdırılır. `date.today()` bugünün tarihini verir (sonucu güne göre değişir). `weekday()` haftanın gününü sayı olarak döndürür: Pazartesi 0, Pazar 6. `isoformat()` ISO metnini, `date.fromisoformat('2024-03-09')` ise ters yönü verir; ISO biçimindeki metinler için `strptime`'dan daha kısadır. Elinde bir `datetime` varsa `.date()` saat kısmını atıp bir `date` döndürür.",
+      "body": "Birthdays, invoice dates, holidays: often you do not care about the clock. `date(year, month, day)` holds only the calendar part and prints as `2020-01-01`. `date.today()` gives today's date (the result depends on the day). `weekday()` returns the day of the week as a number: Monday 0, Sunday 6. `isoformat()` gives the ISO text and `date.fromisoformat('2024-03-09')` the other direction; for ISO text it is shorter than `strptime`. If you hold a `datetime`, `.date()` drops the clock part and returns a `date`.",
+      "code": "from datetime import date, datetime\n\nd = date(2024, 3, 9)\nprint(d, d.year, d.month, d.day)\nprint(d.weekday())\nprint(date.fromisoformat('2024-10-29').strftime('%A'))\nprint(datetime(2024, 3, 9, 14, 30).date())\nprint(type(date.today()).__name__)",
+      "expected_output": "2024-03-09 2024 3 9\n5\nTuesday\n2024-03-09\ndate"
     },
     {
       "id": "d16-c18",
+      "type": "predict",
+      "section": "Using *date* from *datetime*",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "from datetime import date\n\ngunler = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']\nd = date(2024, 1, 1)\nprint(gunler[d.weekday()])",
+      "choices": [
+        "Pzt",
+        "Sal",
+        "Paz",
+        "Cmt"
+      ],
+      "answer": "Pzt",
+      "why_tr": "1 Ocak 2024 bir pazartesidir ve `weekday()` pazartesi için 0 döndürür; `gunler[0]` de 'Pzt'.",
+      "why": "1 January 2024 is a Monday and `weekday()` returns 0 for Monday; `gunler[0]` is 'Pzt'."
+    },
+    {
+      "id": "d16-c19",
+      "type": "explain",
+      "section": "Using *date* from *datetime*",
+      "title_tr": "Tarihleri karşılaştırmak ve sıralamak",
+      "title": "Comparing and sorting dates",
+      "body_tr": "İlk kartta string'ler harf harf karşılaştırıldığı için yanlış sonuç vermişti. Nesnelerde bu sorun yok: `<`, `>`, `==` gerçek takvim sırasına göre çalışır, `sorted()`, `min()` ve `max()` de doğrudan kullanılabilir. Bu yüzden kural basittir: string'i dosyadan ya da formdan alır almaz nesneye çevir, tüm karşılaştırmayı nesneyle yap. Bir `date`'i bir string ile karşılaştırmaya kalkarsan Python tahmin yürütmez: `TypeError: '<' not supported between instances of 'datetime.date' and 'str'`. Aşağıda Day 13'teki comprehension ile önce dönüştürüyor, sonra sıralıyoruz.",
+      "body": "On the first card, strings compared letter by letter gave a wrong answer. Objects do not have that problem: `<`, `>`, `==` follow the real calendar order, and `sorted()`, `min()` and `max()` work directly. So the rule is simple: as soon as a string arrives from a file or a form, turn it into an object, and do all comparing with objects. If you compare a `date` with a string, Python does not guess: `TypeError: '<' not supported between instances of 'datetime.date' and 'str'`. Below, a Day 13 comprehension converts first, then we sort.",
+      "code": "from datetime import datetime\n\nraw = ['05/12/2019', '20/01/2019', '01/03/2020']\nds = [datetime.strptime(s, '%d/%m/%Y').date() for s in raw]\nprint(ds[0] < ds[1])\nprint([d.isoformat() for d in sorted(ds)])\nprint(max(ds))",
+      "expected_output": "False\n['2019-01-20', '2019-12-05', '2020-03-01']\n2020-03-01",
+      "trace": true
+    },
+    {
+      "id": "d16-c20",
+      "type": "explain",
+      "section": "Time Objects to Represent Time",
+      "title_tr": "time: sadece saat",
+      "title": "time: only the clock",
+      "body_tr": "`time(saat, dakika, saniye, mikrosaniye)` takvimden bağımsız bir saati temsil eder: bir dükkânın açılış saati ya da her gün çalan bir alarm gibi. Hiç argüman vermezsen gece yarısı `00:00:00` olur; argümanları isimle de verebilirsin: `time(hour=10, minute=30)`. Saat 0-23, dakika ve saniye 0-59 aralığında olmalı; `time(24, 0)` `ValueError: hour must be in 0..23` verir. `time` nesneleri de karşılaştırılabilir, bu yüzden 'dükkân açık mı?' sorusu tek satırdır. `strftime` burada da çalışır.",
+      "body": "`time(hour, minute, second, microsecond)` represents a clock time independent of the calendar: like a shop's opening time or an alarm that rings every day. With no arguments you get midnight `00:00:00`; you can also pass arguments by name: `time(hour=10, minute=30)`. Hour must be 0-23, minute and second 0-59; `time(24, 0)` raises `ValueError: hour must be in 0..23`. `time` objects can be compared too, so 'is the shop open?' is one line. `strftime` works here as well.",
+      "code": "from datetime import time\n\nprint(time())\nprint(time(10, 30, 50), time(hour=10, minute=30, second=50))\nprint(time(10, 30, 50, 200555))\nopen_, close = time(9, 0), time(18, 30)\nnow = time(19, 5)\nprint(open_ <= now < close)\nprint(close.strftime('%H.%M'))",
+      "expected_output": "00:00:00\n10:30:50 10:30:50\n10:30:50.200555\nFalse\n18.30"
+    },
+    {
+      "id": "d16-c21",
+      "type": "explain",
+      "section": "Time Objects to Represent Time",
+      "title_tr": "Sık hata: iki time'ı çıkarmak",
+      "title": "Common mistake: subtracting two times",
+      "body_tr": "Mesaiye 09:15'te girip 17:45'te çıktın; kaç saat çalıştın? İlk deneme `time(17, 45) - time(9, 15)` olur ve şu hatayı verir: `TypeError: unsupported operand type(s) for -: 'datetime.time' and 'datetime.time'`. Neden? Bir `time` hangi güne ait olduğunu bilmez; 23:00 ile 01:00 arasında 2 saat mi var, 22 saat mi, söylenemez. Çözüm: saatleri bir güne yerleştir. `datetime.combine(gün, saat)` bir `date` ile bir `time`'ı birleştirip `datetime` yapar; iki `datetime`'ı çıkarmak serbesttir.",
+      "body": "You started work at 09:15 and left at 17:45; how many hours did you work? The first attempt is `time(17, 45) - time(9, 15)`, which raises `TypeError: unsupported operand type(s) for -: 'datetime.time' and 'datetime.time'`. Why? A `time` does not know which day it belongs to; between 23:00 and 01:00 there could be 2 hours or 22, nobody can tell. The fix: place the times on a day. `datetime.combine(day, time)` joins a `date` and a `time` into a `datetime`, and subtracting two `datetime` objects is allowed.",
+      "code": "from datetime import date, time, datetime\n\nday = date(2024, 3, 11)\nstart = datetime.combine(day, time(9, 15))\nend = datetime.combine(day, time(17, 45))\nprint(start)\nprint(end - start)",
+      "expected_output": "2024-03-11 09:15:00\n8:30:00"
+    },
+    {
+      "id": "d16-c22",
+      "type": "predict",
+      "section": "Time Objects to Represent Time",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "from datetime import time\n\nalarm = time(7, 5)\nprint(alarm, alarm.hour + 1)",
+      "choices": [
+        "07:05:00 8",
+        "7:05 8",
+        "07:05:00 08",
+        "07:05 8"
+      ],
+      "answer": "07:05:00 8",
+      "why_tr": "`time` yazdırılırken her zaman `HH:MM:SS` biçimini kullanır; `hour` ise sıradan bir `int`'tir, 7 + 1 = 8.",
+      "why": "A `time` always prints as `HH:MM:SS`; `hour` is a plain `int`, so 7 + 1 = 8."
+    },
+    {
+      "id": "d16-c23",
+      "type": "explain",
+      "section": "Difference Between Two Points in Time Using",
+      "title_tr": "İki tarihin farkı",
+      "title": "The difference between two dates",
+      "body_tr": "Yılbaşına kaç gün kaldı? İki `date`'i birbirinden çıkarırsan sonuç bir sayı değil, bir **timedelta** olur: iki an arasındaki süre. Yazdırıldığında `27 days, 0:00:00` görünür. Sadece gün sayısı lazımsa `.days` niteliğini kullan, bu bir `int`'tir. Çıkarmanın yönü önemlidir: geçmişteki tarihten gelecektekini çıkarırsan sonuç negatif olur (`-27 days`). Python ay uzunluklarını ve artık yılları kendisi hesaba katar; 2024'te şubatın 29 çektiğini senin hatırlamana gerek yok.",
+      "body": "How many days until New Year? If you subtract one `date` from another, the result is not a number but a **timedelta**: the duration between two moments. Printed, it looks like `27 days, 0:00:00`. If you only need the day count, use the `.days` attribute, which is an `int`. The direction matters: subtract a future date from a past one and the result is negative (`-27 days`). Python accounts for month lengths and leap years itself; you do not have to remember that February 2024 had 29 days.",
+      "code": "from datetime import date\n\ntoday = date(2019, 12, 5)\nnew_year = date(2020, 1, 1)\nleft = new_year - today\nprint(left)\nprint(left.days, type(left).__name__)\nprint((today - new_year).days)\nprint((date(2024, 3, 1) - date(2024, 2, 1)).days)",
+      "expected_output": "27 days, 0:00:00\n27 timedelta\n-27\n29",
+      "trace": true
+    },
+    {
+      "id": "d16-c24",
+      "type": "explain",
+      "section": "Difference Between Two Points in Time Using",
+      "title_tr": "Saatli fark ve toplam saniye",
+      "title": "Differences with a clock and total seconds",
+      "body_tr": "İki `datetime`'ı çıkarınca fark saat, dakika ve saniyeyi de içerir. Örnekteki `26 days, 23:01:00` şöyle okunur: 26 tam gün ve 23 saat 1 dakika. Bir timedelta içeride yalnızca üç parça saklar: `days`, `seconds` (0 ile 86399 arası) ve `microseconds`. Dikkat: `.seconds` toplam saniye değildir, sadece gün dışında kalan kısımdır. Toplam saniye için `.total_seconds()` metodunu çağır; saate çevirmek için 3600'e böl. Bir yarışın, bir oturumun ya da bir indirmenin süresini ölçerken hep bunu kullanırsın.",
+      "body": "Subtracting two `datetime` objects gives a difference that includes hours, minutes and seconds. The example's `26 days, 23:01:00` reads: 26 whole days and 23 hours 1 minute. Inside, a timedelta stores only three parts: `days`, `seconds` (from 0 to 86399) and `microseconds`. Careful: `.seconds` is not the total, only the part left over after the days. For the total call the `.total_seconds()` method; divide by 3600 for hours. You use this whenever you measure how long a race, a session or a download took.",
+      "code": "from datetime import datetime\n\nt1 = datetime(2019, 12, 5, 0, 59, 0)\nt2 = datetime(2020, 1, 1, 0, 0, 0)\ndiff = t2 - t1\nprint(diff)\nprint(diff.days, diff.seconds)\nprint(diff.total_seconds())\nprint(round(diff.total_seconds() / 3600, 2))",
+      "expected_output": "26 days, 23:01:00\n26 82860\n2329260.0\n647.02"
+    },
+    {
+      "id": "d16-c25",
+      "type": "predict",
+      "section": "Difference Between Two Points in Time Using",
+      "prompt_tr": "Bu kodun çıktısı ne olur?",
+      "prompt": "What does this print?",
+      "code": "from datetime import datetime\n\na = datetime(2024, 5, 1, 8, 0)\nb = datetime(2024, 5, 3, 10, 30)\nd = b - a\nprint(d.days, d.seconds)",
+      "choices": [
+        "2 9000",
+        "2 183000",
+        "50 1800",
+        "2 30"
+      ],
+      "answer": "2 9000",
+      "why_tr": "Fark 2 gün 2 saat 30 dakikadır. `.days` 2; `.seconds` gün dışında kalan 2 saat 30 dakikanın saniyesidir: 9000.",
+      "why": "The difference is 2 days 2 hours 30 minutes. `.days` is 2; `.seconds` is only the leftover 2 h 30 min in seconds: 9000."
+    },
+    {
+      "id": "d16-c26",
+      "type": "explain",
+      "section": "Difference Between Two Points in Time Using *timedelta*",
+      "title_tr": "timedelta: süreyi kendin yaz",
+      "title": "timedelta: write a duration yourself",
+      "body_tr": "`timedelta`'yı çıkarma sonucu olarak almak zorunda değilsin, kendin de kurabilirsin: `timedelta(weeks=12, days=10, hours=4, seconds=20)`. Python bu parçaları hemen normalleştirir: haftaları güne, saatleri ve dakikaları saniyeye çevirip sadece `days` ve `seconds` olarak saklar. Bu yüzden iki süreyi toplayıp çıkarmak güvenlidir; taşmalar kendiliğinden ayarlanır. Orijinal dersteki örneği izle: 12 hafta 10 gün 4 saat 20 saniyeden 7 gün 5 saat 3 dakika 30 saniye çıkınca sonuç `86 days, 22:56:50` olur.",
+      "body": "You do not have to get a `timedelta` from a subtraction; you can build one: `timedelta(weeks=12, days=10, hours=4, seconds=20)`. Python normalises the parts right away: it turns weeks into days, hours and minutes into seconds, and stores only `days` and `seconds`. That is why adding and subtracting durations is safe; carries are handled for you. Trace the example from the original lesson: 12 weeks 10 days 4 hours 20 seconds minus 7 days 5 hours 3 minutes 30 seconds gives `86 days, 22:56:50`.",
+      "code": "from datetime import timedelta\n\nt1 = timedelta(weeks=12, days=10, hours=4, seconds=20)\nt2 = timedelta(days=7, hours=5, minutes=3, seconds=30)\nprint(t1.days, t1.seconds)\nt3 = t1 - t2\nprint('t3 =', t3)\nprint(timedelta(minutes=90))",
+      "expected_output": "94 14420\nt3 = 86 days, 22:56:50\n1:30:00",
+      "trace": true
+    },
+    {
+      "id": "d16-c27",
+      "type": "explain",
+      "section": "Difference Between Two Points in Time Using *timedelta*",
+      "title_tr": "Tarihe süre eklemek",
+      "title": "Adding a duration to a date",
+      "body_tr": "Kütüphaneden bugün aldığın kitabı 14 gün içinde geri getirmelisin; son gün hangisi? `date + timedelta` yeni bir `date` verir ve ay ya da yıl sonunu kendisi aşar. Çıkarma da çalışır: `bugün - timedelta(days=7)` bir hafta öncesidir. Ama `date(2024, 1, 1) + 5` çalışmaz: `TypeError: unsupported operand type(s) for +: 'datetime.date' and 'int'`, çünkü 5'in gün mü saat mi olduğu belli değil. Aynı şekilde `date` ile `datetime` birbirinden çıkarılamaz; önce `.date()` ile türleri eşitle. Sonuç her zaman yeni bir nesnedir, eskisi değişmez.",
+      "body": "You borrowed a book today and must return it within 14 days; which day is the last? `date + timedelta` gives a new `date` and crosses month or year ends by itself. Subtraction works too: `today - timedelta(days=7)` is a week ago. But `date(2024, 1, 1) + 5` fails with `TypeError: unsupported operand type(s) for +: 'datetime.date' and 'int'`, because nobody knows whether 5 means days or hours. Likewise a `date` and a `datetime` cannot be subtracted; make the types equal with `.date()` first. The result is always a new object; the old one does not change.",
+      "code": "from datetime import date, timedelta\n\nborrowed = date(2024, 12, 24)\ndue = borrowed + timedelta(days=14)\nprint(due, due.strftime('%A'))\nprint(borrowed)\nprint(date(2024, 3, 1) - timedelta(days=1))",
+      "expected_output": "2025-01-07 Tuesday\n2024-12-24\n2024-02-29"
+    },
+    {
+      "id": "d16-c28",
+      "type": "fill",
+      "section": "Difference Between Two Points in Time Using *timedelta*",
+      "prompt_tr": "Çıktı `2024-02-01` olsun.",
+      "prompt": "Make the output `2024-02-01`.",
+      "code": "from datetime import date, timedelta\n\nstart = date(2024, 1, 29)\nprint(start + timedelta(___))",
+      "answers": [
+        "days=3",
+        "3"
+      ],
+      "expected_output": "2024-02-01",
+      "why_tr": "`timedelta`'nın ilk konumsal argümanı gündür; 29 Ocak'a 3 gün eklenince ay devrilir ve 1 Şubat olur.",
+      "why": "The first positional argument of `timedelta` is days; adding 3 days to 29 January rolls over to 1 February."
+    },
+    {
+      "id": "d16-c29",
+      "type": "order",
+      "section": "Difference Between Two Points in Time Using *timedelta*",
+      "prompt_tr": "Yılbaşına kalan günü yazan programı kur.",
+      "prompt": "Build the program that prints the days left until New Year.",
+      "lines": [
+        "left = new_year - today",
+        "from datetime import date",
+        "print(f'{left.days} gün kaldı')",
+        "new_year = date(today.year + 1, 1, 1)",
+        "today = date(2024, 12, 25)"
+      ],
+      "correct_order": [
+        1,
+        4,
+        3,
+        0,
+        2
+      ],
+      "expected_output": "7 gün kaldı"
+    },
+    {
+      "id": "d16-c30",
       "type": "recap",
       "section": "Recap",
       "title_tr": "Özet",
       "title": "Summary",
       "points_tr": [
-        "`datetime.now()` şu anı, `datetime(...)` verdiğin tarihi oluşturur.",
-        "`strftime` tarihi yazıya, `strptime` yazıyı tarihe çevirir.",
-        "`date` yalnız tarih, `time` yalnız saat taşır.",
-        "Tarih çıkarmak `timedelta` verir; `timedelta` ile tarih öteleyebilirsin."
+        "Tarihleri string olarak değil `date`/`datetime` nesnesi olarak tut; karşılaştırma, sıralama ve hesap ancak nesnelerde doğru çalışır.",
+        "`strftime` nesneyi kalıba göre metne çevirir, `strptime` metni kalıba göre nesneye; kalıp metinle harfi harfine aynı olmalıdır (`%m` ay, `%M` dakika).",
+        "`date` gün, `time` saat, `datetime` ikisi birden tutar; `datetime.combine(gün, saat)` ikisini birleştirir ve iki `time` doğrudan çıkarılamaz.",
+        "İki tarihin farkı bir `timedelta`'dır: gün için `.days`, toplam süre için `.total_seconds()` kullan; `.seconds` toplam değildir.",
+        "`tarih + timedelta(days=n)` ay ve yıl sonlarını kendisi aşar; tarihe düz bir sayı eklenemez."
       ],
       "points": [
-        "`datetime.now()` gives the present; `datetime(...)` builds a given date.",
-        "`strftime` formats a date as text; `strptime` parses text into a date.",
-        "`date` holds only the date, `time` only the time.",
-        "Subtracting dates gives a `timedelta`; you can shift dates with it."
+        "Keep dates as `date`/`datetime` objects, not strings; comparing, sorting and arithmetic only work correctly on objects.",
+        "`strftime` turns an object into text by a pattern, `strptime` turns text into an object; the pattern must match the text exactly (`%m` month, `%M` minute).",
+        "`date` holds a day, `time` a clock time, `datetime` both; `datetime.combine(day, time)` joins them, and two `time` objects cannot be subtracted directly.",
+        "The difference of two dates is a `timedelta`: use `.days` for days and `.total_seconds()` for the whole duration; `.seconds` is not the total.",
+        "`date + timedelta(days=n)` crosses month and year ends by itself; you cannot add a plain number to a date."
       ],
-      "link": "learn",
-      "link_label_tr": "Şimdi alıştırmalara geç",
-      "link_label": "Go to the exercises"
+      "link": "learn"
     }
   ]
 }
