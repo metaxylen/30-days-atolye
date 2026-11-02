@@ -1,670 +1,1480 @@
 {
- "day": 30,
- "title": "Conclusions (course review)",
- "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
- "blocks": [
-  {
-   "id": "d30-b1",
-   "concept": "review-dicts-counting",
-   "tags": [
-    "review",
-    "dictionaries",
-    "loops",
-    "strings"
-   ],
-   "worked_example": {
-    "code": "words = ['to', 'be', 'or', 'not', 'to', 'be']\ncounts = {}\nfor w in words:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts)",
-    "notes": [
-     "counts.get(w, 0) + 1 is the standard way to count items with a dict.",
-     "This mixes lists, dicts and loops from the first weeks of the course."
-    ],
-    "notes_tr": [
-     "counts.get(w, 0) + 1, bir dict ile öğeleri saymanın standart yoludur.",
-     "Bu örnek, kursun ilk haftalarındaki liste, dict ve döngüleri birleştirir."
-    ]
-   },
-   "exercises": [
+  "day": 30,
+  "title": "Conclusions: Six Models and One Project",
+  "title_tr": "Sonuç: Altı Model ve Bir Proje",
+  "test_conventions": "Tests are Python assert snippets run AFTER the learner's code in the same namespace. The learner's stdout is available to tests as the string variable __stdout__. expected_output comparisons are exact after stripping trailing whitespace on each line. Tests with visible:false are hidden and each carries a failure_message. Everything runs offline in Pyodide; no input(), network or pip. The learner's own source code is also available to tests as the string variable __source__ (use it for AST/source checks that catch hard-coded answers).",
+  "blocks": [
     {
-     "id": "d30-b1-e1",
-     "type": "predict",
-     "concept": "review-dicts-counting",
-     "tags": [
-      "review",
-      "dictionaries",
-      "loops",
-      "strings"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "text = 'a b a c b a'\ncounts = {}\nfor w in text.split():\n    counts[w] = counts.get(w, 0) + 1\ntop = max(counts, key=counts.get)\nprint(counts, top)",
-     "choices": [
-      "{'a': 3, 'b': 2, 'c': 1} a",
-      "{'a': 3, 'b': 2, 'c': 1} 3",
-      "{'a': 1, 'b': 1, 'c': 1} a",
-      "{'a': 3, 'b': 2, 'c': 1} c"
-     ],
-     "expected_output": "{'a': 3, 'b': 2, 'c': 1} a",
-     "explanation": "The loop counts each word: a appears 3 times, b twice, c once. max(counts, key=counts.get) returns the KEY with the largest count, which is 'a'.",
-     "misconceptions": {
-      "{'a': 3, 'b': 2, 'c': 1} 3": "max(counts, key=counts.get) returns the key ('a'), not the count.",
-      "{'a': 1, 'b': 1, 'c': 1} a": "counts.get(w, 0) + 1 increases the stored number each time a word repeats.",
-      "{'a': 3, 'b': 2, 'c': 1} c": "max picks the key with the largest value (3), not the last key."
-     },
-     "explanation_tr": "Döngü her kelimeyi sayar: a 3 kez, b iki kez, c bir kez geçer. max(counts, key=counts.get) en büyük sayıya sahip ANAHTARI döndürür; bu da 'a'dır.",
-     "misconceptions_tr": {
-      "{'a': 3, 'b': 2, 'c': 1} 3": "max(counts, key=counts.get) sayıyı değil anahtarı ('a') döndürür.",
-      "{'a': 1, 'b': 1, 'c': 1} a": "counts.get(w, 0) + 1, bir kelime tekrar ettikçe saklanan sayıyı artırır.",
-      "{'a': 3, 'b': 2, 'c': 1} c": "max, son anahtarı değil en büyük değere (3) sahip anahtarı seçer."
-     }
+      "id": "d30-b1",
+      "concept": "names-and-collections",
+      "concept_tr": "İsimler, kopyalar ve koleksiyonlar",
+      "tags": [
+        "review",
+        "lists",
+        "dicts",
+        "aliasing",
+        "comprehensions"
+      ],
+      "worked_example": {
+        "code": "scores = [90, 85]\nalias = scores\ncopy_ = list(scores)\nscores.append(70)\nprint(alias, copy_, alias is scores)\nby_city = {}\nfor name, city in [('Ece', 'İzmir'), ('Can', 'Bursa'), ('Ali', 'İzmir')]:\n    by_city.setdefault(city, []).append(name)\nprint(by_city)",
+        "notes": [
+          "`alias` is a second tag on the same list, so it sees the append; `list(scores)` made a new list before the change.",
+          "`setdefault(city, [])` returns the list for that city, creating an empty one the first time, so `.append` always has a list to work on.",
+          "Grouping into a dict of lists is one of the most common patterns in real code (Days 8, 26, 27)."
+        ],
+        "notes_tr": [
+          "`alias` aynı list'e takılı ikinci bir etikettir, bu yüzden eklemeyi görür; `list(scores)` değişiklikten önce yeni bir list kurdu.",
+          "`setdefault(city, [])` o şehrin list'ini döndürür, ilk seferde boş bir list oluşturur; böylece `.append`'in her zaman üzerinde çalışacağı bir list olur.",
+          "Bir dict içinde list'lere gruplamak gerçek koddaki en yaygın kalıplardan biridir (Gün 8, 26, 27)."
+        ]
+      },
+      "exercises": [
+        {
+          "id": "d30-b1-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "a = [1, 2]\nb = a\na = a + [3]\nc = b\nc += [4]\nprint(a, b)",
+          "choices": [
+            "[1, 2, 3] [1, 2, 4]",
+            "[1, 2, 3, 4] [1, 2, 3, 4]",
+            "[1, 2, 3] [1, 2]",
+            "[1, 2, 3, 4] [1, 2, 4]"
+          ],
+          "expected_output": "[1, 2, 3] [1, 2, 4]",
+          "explanation": "`a = a + [3]` builds a new list and moves only the `a` tag; `b` keeps the old [1, 2]. `c` is a tag on that old list, and `+=` on a list changes it in place, so `b` becomes [1, 2, 4].",
+          "explanation_tr": "`a = a + [3]` yeni bir list kurar ve yalnızca `a` etiketini taşır; `b` eski [1, 2]'de kalır. `c` o eski list'e takılı bir etikettir ve list'te `+=` yerinde değiştirir; `b` [1, 2, 4] olur.",
+          "misconceptions": {
+            "[1, 2, 3, 4] [1, 2, 3, 4]": "`a + [3]` creates a new list, so after that line a and b are different objects.",
+            "[1, 2, 3] [1, 2]": "For lists `c += [4]` is in place (like extend), and c and b are the same list.",
+            "[1, 2, 3, 4] [1, 2, 4]": "`a` was moved to a new list before `c += [4]`, so the 4 does not reach `a`."
+          },
+          "misconceptions_tr": {
+            "[1, 2, 3, 4] [1, 2, 3, 4]": "`a + [3]` yeni bir list oluşturur; o satırdan sonra a ve b farklı nesnelerdir.",
+            "[1, 2, 3] [1, 2]": "List'lerde `c += [4]` yerinde çalışır (extend gibi) ve c ile b aynı list'tir.",
+            "[1, 2, 3, 4] [1, 2, 4]": "`a`, `c += [4]`'ten önce yeni bir list'e taşındı; 4 `a`'ya ulaşmaz."
+          },
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        },
+        {
+          "id": "d30-b1-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the loop so `by_city` maps each city to the list of names living there.",
+          "prompt_tr": "Döngüyü tamamla: `by_city` her şehri orada yaşayan isimlerin list'ine eşlesin.",
+          "starter_code": "people = [('Ece', 'İzmir'), ('Can', 'Bursa'), ('Ali', 'İzmir')]\nby_city = {}\nfor name, city in people:\n    by_city.___(city, []).___(name)",
+          "blanks": [
+            {
+              "answer": [
+                "setdefault"
+              ]
+            },
+            {
+              "answer": [
+                "append"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert by_city == {'İzmir': ['Ece', 'Ali'], 'Bursa': ['Can']}",
+              "visible": true,
+              "label": "Names grouped by city",
+              "label_tr": "İsimler şehre göre gruplandı"
+            }
+          ],
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        },
+        {
+          "id": "d30-b1-e3",
+          "type": "modify",
+          "prompt": "`ranked(scores)` sorts the caller's list in place and returns None, which surprises its callers. Change it so it returns a new list sorted from highest to lowest and leaves the given list unchanged.",
+          "prompt_tr": "`ranked(scores)` çağıranın list'ini yerinde sıralıyor ve None döndürüyor; bu, onu çağıranları şaşırtıyor. Onu değiştir: en yüksekten en düşüğe sıralı yeni bir list döndürsün ve verilen list'i değiştirmesin.",
+          "starter_code": "def ranked(scores):\n    return scores.sort(reverse=True)",
+          "tests": [
+            {
+              "code": "s = [70, 95, 80]\nassert ranked(s) == [95, 80, 70]",
+              "visible": true,
+              "label": "Returns the sorted list",
+              "label_tr": "Sıralı list'i döndürüyor"
+            },
+            {
+              "code": "assert s == [70, 95, 80]",
+              "visible": true,
+              "label": "The original order is kept",
+              "label_tr": "Orijinal sıra korunuyor"
+            },
+            {
+              "code": "t = [3, 1, 2]\nr = ranked(t)\nassert r is not t and r == [3, 2, 1] and t == [3, 1, 2]",
+              "visible": false,
+              "failure_message": "Return a new list object; the caller's list must keep its order.",
+              "failure_message_tr": "Yeni bir list nesnesi döndür; çağıranın list'i sırasını korumalı."
+            },
+            {
+              "code": "assert ranked([]) == []",
+              "visible": false,
+              "failure_message": "An empty list gives an empty list.",
+              "failure_message_tr": "Boş list boş list verir."
+            }
+          ],
+          "hints": [
+            "`list.sort()` works in place and returns None. Which built-in sorts without changing its input?",
+            "`sorted(iterable, reverse=True)` returns a new list.",
+            "Replace the method call with the built-in, passing the same `reverse` argument, and return its result."
+          ],
+          "hints_tr": [
+            "`list.sort()` yerinde çalışır ve None döndürür. Hangi yerleşik fonksiyon girdisini değiştirmeden sıralar?",
+            "`sorted(iterable, reverse=True)` yeni bir list döndürür.",
+            "Metot çağrısını aynı `reverse` argümanını veren yerleşik fonksiyonla değiştir ve onun sonucunu döndür."
+          ],
+          "solution": {
+            "approach": "Use sorted(), which returns a new list, instead of the in-place sort().",
+            "approach_tr": "Yerinde çalışan sort() yerine yeni bir list döndüren sorted() kullan.",
+            "code": "def ranked(scores):\n    return sorted(scores, reverse=True)"
+          },
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        },
+        {
+          "id": "d30-b1-e4",
+          "type": "debug",
+          "prompt": "This should print a 3x3 seating plan where only the middle seat is 'X', but every row gets an 'X'. Fix how `grid` is built.",
+          "prompt_tr": "Bu kod yalnızca ortadaki koltuğun 'X' olduğu 3x3'lük bir oturma planı yazdırmalı, ama her satıra bir 'X' geliyor. `grid`'in kuruluşunu düzelt.",
+          "starter_code": "grid = [['.'] * 3] * 3\ngrid[1][1] = 'X'\nfor row in grid:\n    print(''.join(row))",
+          "tests": [
+            {
+              "code": "assert grid[0] is not grid[1] and grid[1] is not grid[2]",
+              "visible": true,
+              "label": "Three separate row lists",
+              "label_tr": "Üç ayrı satır list'i"
+            }
+          ],
+          "hints": [
+            "How many row lists does `[row] * 3` create? Check with `grid[0] is grid[1]`.",
+            "Multiplying the outer list copies the tag three times, not the row; all three rows are one list.",
+            "Build the rows with a list comprehension so a new `['.'] * 3` list is created for every row."
+          ],
+          "hints_tr": [
+            "`[row] * 3` kaç satır list'i oluşturur? `grid[0] is grid[1]` ile kontrol et.",
+            "Dıştaki list'i çarpmak satırı değil etiketi üç kez kopyalar; üç satır da tek bir list'tir.",
+            "Satırları bir list comprehension ile kur, böylece her satır için yeni bir `['.'] * 3` list'i oluşturulsun."
+          ],
+          "solution": {
+            "approach": "Create each row separately with a comprehension; * on the outer list repeats one shared row.",
+            "approach_tr": "Her satırı bir comprehension ile ayrı oluştur; dıştaki list'te * tek bir ortak satırı tekrarlar.",
+            "code": "grid = [['.'] * 3 for _ in range(3)]\ngrid[1][1] = 'X'\nfor row in grid:\n    print(''.join(row))"
+          },
+          "expected_output": "...\n.X.\n...",
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        },
+        {
+          "id": "d30-b1-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "scores = {'Ece': 85, 'Can': 92, 'Ali': 85, 'Zeynep': 92}\norder = sorted(scores, key=lambda name: (-scores[name], name))\nprint(order)",
+          "choices": [
+            "['Can', 'Zeynep', 'Ali', 'Ece']",
+            "['Can', 'Zeynep', 'Ece', 'Ali']",
+            "['Ali', 'Ece', 'Can', 'Zeynep']",
+            "['Zeynep', 'Can', 'Ece', 'Ali']"
+          ],
+          "expected_output": "['Can', 'Zeynep', 'Ali', 'Ece']",
+          "explanation": "The key is a tuple: first the negative score (so higher scores come first), then the name (alphabetical on ties). 92s first: Can, Zeynep; then 85s: Ali, Ece.",
+          "explanation_tr": "Anahtar bir tuple: önce eksi puan (yüksek puanlar önce gelsin diye), sonra isim (eşitlikte alfabetik). Önce 92'ler: Can, Zeynep; sonra 85'ler: Ali, Ece.",
+          "misconceptions": {
+            "['Can', 'Zeynep', 'Ece', 'Ali']": "Ties are broken by the name in ascending order, so Ali comes before Ece.",
+            "['Ali', 'Ece', 'Can', 'Zeynep']": "The minus sign makes higher scores sort first.",
+            "['Zeynep', 'Can', 'Ece', 'Ali']": "The name part of the key is not reversed; only the score is negated."
+          },
+          "misconceptions_tr": {
+            "['Can', 'Zeynep', 'Ece', 'Ali']": "Eşitlikler isme göre artan sırayla bozulur; Ali, Ece'den önce gelir.",
+            "['Ali', 'Ece', 'Can', 'Zeynep']": "Eksi işareti yüksek puanların önce sıralanmasını sağlar.",
+            "['Zeynep', 'Can', 'Ece', 'Ali']": "Anahtarın isim kısmı ters çevrilmez; yalnızca puan eksiyle çarpılır."
+          },
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        },
+        {
+          "id": "d30-b1-e6",
+          "type": "write",
+          "prompt": "Write `group_by(items, key)` where `items` is a list of dicts and `key` a field name. Return a dict mapping each value of that field to the list of items having it, in their original order; items without the field are skipped. Example: `group_by([{'c': 'TR', 'n': 1}, {'c': 'UK', 'n': 2}, {'c': 'TR', 'n': 3}], 'c')` returns `{'TR': [{'c': 'TR', 'n': 1}, {'c': 'TR', 'n': 3}], 'UK': [{'c': 'UK', 'n': 2}]}`.",
+          "prompt_tr": "`items` bir dict list'i, `key` bir alan adı olmak üzere `group_by(items, key)` yaz. O alanın her değerini, o değere sahip öğelerin list'ine (orijinal sıralarıyla) eşleyen bir dict döndür; alanı olmayan öğeler atlanır. Örnek: `group_by([{'c': 'TR', 'n': 1}, {'c': 'UK', 'n': 2}, {'c': 'TR', 'n': 3}], 'c')` `{'TR': [{'c': 'TR', 'n': 1}, {'c': 'TR', 'n': 3}], 'UK': [{'c': 'UK', 'n': 2}]}` döndürür.",
+          "starter_code": "",
+          "signature": "def group_by(items, key):",
+          "tests": [
+            {
+              "code": "assert group_by([{'c': 'TR', 'n': 1}, {'c': 'UK', 'n': 2}, {'c': 'TR', 'n': 3}], 'c') == {'TR': [{'c': 'TR', 'n': 1}, {'c': 'TR', 'n': 3}], 'UK': [{'c': 'UK', 'n': 2}]}",
+              "visible": true,
+              "label": "Two groups in order",
+              "label_tr": "Sırayla iki grup"
+            },
+            {
+              "code": "assert group_by([], 'c') == {}",
+              "visible": true,
+              "label": "No items",
+              "label_tr": "Öğe yok"
+            },
+            {
+              "code": "assert group_by([{'city': 'İzmir'}, {'name': 'x'}, {'city': 'Bursa'}], 'city') == {'İzmir': [{'city': 'İzmir'}], 'Bursa': [{'city': 'Bursa'}]}",
+              "visible": false,
+              "failure_message": "Skip items that do not have the field instead of crashing.",
+              "failure_message_tr": "Alanı olmayan öğeleri çökmek yerine atla."
+            },
+            {
+              "code": "a = {'g': 1}\nr = group_by([a, {'g': 1}], 'g')\nassert len(r[1]) == 2 and r[1][0] is a",
+              "visible": false,
+              "failure_message": "Put the original item objects into the lists (no copies), and collect every item of a group.",
+              "failure_message_tr": "List'lere orijinal öğe nesnelerini koy (kopya değil) ve bir grubun her öğesini topla."
+            }
+          ],
+          "hints": [
+            "Loop over the items; skip an item when `key not in item`.",
+            "`groups.setdefault(item[key], []).append(item)` creates and fills each group in one line.",
+            "Start with an empty dict, loop with a `continue` for missing fields, add each item to its group with setdefault, and return the dict."
+          ],
+          "hints_tr": [
+            "Öğeler üzerinde dön; `key not in item` ise öğeyi atla.",
+            "`groups.setdefault(item[key], []).append(item)` her grubu tek satırda oluşturur ve doldurur.",
+            "Boş bir dict'le başla, eksik alanlar için `continue` içeren bir döngü kur, her öğeyi setdefault ile grubuna ekle ve dict'i döndür."
+          ],
+          "solution": {
+            "approach": "Loop over the items, skip those without the field, and append each to its group with setdefault.",
+            "approach_tr": "Öğeler üzerinde dön, alanı olmayanları atla ve her birini setdefault ile grubuna ekle.",
+            "code": "def group_by(items, key):\n    groups = {}\n    for item in items:\n        if key not in item:\n            continue\n        groups.setdefault(item[key], []).append(item)\n    return groups"
+          },
+          "twin": "d30-b1-e7",
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        },
+        {
+          "id": "d30-b1-e7",
+          "type": "write",
+          "prompt": "Write `leaderboard(scores)` where `scores` maps names to lists of ints. Return a list of `(name, average)` tuples, the average rounded to 1 decimal with `round`, sorted by average from highest to lowest and, on equal averages, by name A to Z. Names with an empty list are left out. Example: `leaderboard({'Ece': [90, 85], 'Can': [100]})` returns `[('Can', 100.0), ('Ece', 87.5)]`.",
+          "prompt_tr": "`scores` isimleri int list'lerine eşlemek üzere `leaderboard(scores)` yaz. `(isim, ortalama)` tuple'larından oluşan bir list döndür; ortalama `round` ile 1 ondalığa yuvarlansın, ortalamaya göre yüksekten düşüğe ve eşit ortalamalarda isme göre A'dan Z'ye sıralansın. Boş list'i olan isimler dışarıda kalsın. Örnek: `leaderboard({'Ece': [90, 85], 'Can': [100]})` `[('Can', 100.0), ('Ece', 87.5)]` döndürür.",
+          "starter_code": "",
+          "signature": "def leaderboard(scores):",
+          "tests": [
+            {
+              "code": "assert leaderboard({'Ece': [90, 85], 'Can': [100]}) == [('Can', 100.0), ('Ece', 87.5)]",
+              "visible": true,
+              "label": "Highest average first",
+              "label_tr": "En yüksek ortalama önde"
+            },
+            {
+              "code": "assert leaderboard({}) == []",
+              "visible": true,
+              "label": "No students",
+              "label_tr": "Öğrenci yok"
+            },
+            {
+              "code": "assert leaderboard({'Zeynep': [80], 'Ali': [70, 90], 'Deniz': []}) == [('Ali', 80.0), ('Zeynep', 80.0)]",
+              "visible": false,
+              "failure_message": "Equal averages are ordered by name, and names with no scores are skipped.",
+              "failure_message_tr": "Eşit ortalamalar isme göre sıralanır ve notu olmayan isimler atlanır."
+            },
+            {
+              "code": "assert leaderboard({'A': [1, 2, 2]}) == [('A', 1.7)]",
+              "visible": false,
+              "failure_message": "Round the average to one decimal with round(value, 1).",
+              "failure_message_tr": "Ortalamayı round(value, 1) ile bir ondalığa yuvarla."
+            }
+          ],
+          "hints": [
+            "First build the (name, average) pairs, then sort them.",
+            "Skip empty lists in the comprehension; sort with `key=lambda p: (-p[1], p[0])` so higher averages come first and ties go by name.",
+            "Make a list comprehension of `(name, round(sum(s) / len(s), 1))` for non-empty lists and return it sorted with the tuple key."
+          ],
+          "hints_tr": [
+            "Önce (isim, ortalama) çiftlerini kur, sonra sırala.",
+            "Comprehension'da boş list'leri atla; yüksek ortalamalar önce gelsin ve eşitlikler isme göre gitsin diye `key=lambda p: (-p[1], p[0])` ile sırala.",
+            "Boş olmayan list'ler için `(name, round(sum(s) / len(s), 1))` öğelerinden bir list comprehension kur ve onu tuple anahtarıyla sıralayıp döndür."
+          ],
+          "solution": {
+            "approach": "Build rounded averages for non-empty lists and sort by (-average, name).",
+            "approach_tr": "Boş olmayan list'ler için yuvarlanmış ortalamaları kur ve (-ortalama, isim) ile sırala.",
+            "code": "def leaderboard(scores):\n    pairs = [(name, round(sum(s) / len(s), 1)) for name, s in scores.items() if s]\n    return sorted(pairs, key=lambda pair: (-pair[1], pair[0]))"
+          },
+          "twin": "d30-b1-e6",
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        },
+        {
+          "id": "d30-b1-e8",
+          "type": "explain",
+          "prompt": "Explain with the name-tag model why `b = a; a.append(4)` changes what `b` shows, but `b = a; a = a + [4]` does not.",
+          "prompt_tr": "İsim etiketi modeliyle açıkla: `b = a; a.append(4)` neden `b`'nin gösterdiğini değiştirir de `b = a; a = a + [4]` değiştirmez?",
+          "model_answer": "After b = a both names are tags on the same list object. append changes that object in place, so b sees the change. a + [4] builds a new list and the assignment moves only the a tag onto it, so b still points to the old, unchanged list.",
+          "model_answer_tr": "b = a'dan sonra iki isim de aynı list nesnesine takılı etiketlerdir. append o nesneyi yerinde değiştirir, bu yüzden b değişikliği görür. a + [4] ise yeni bir list kurar ve atama yalnızca a etiketini ona taşır; b hâlâ eski, değişmemiş list'i gösterir.",
+          "keywords": [
+            "same",
+            "in place",
+            "new list"
+          ],
+          "keywords_tr": [
+            "aynı",
+            "yerinde",
+            "yeni bir list"
+          ],
+          "min_words": 12,
+          "concept": "names-and-collections",
+          "tags": [
+            "review",
+            "lists",
+            "dicts",
+            "aliasing",
+            "comprehensions"
+          ]
+        }
+      ]
     },
     {
-     "id": "d30-b1-e2",
-     "type": "fill_blank",
-     "concept": "review-dicts-counting",
-     "tags": [
-      "review",
-      "dictionaries",
-      "loops",
-      "strings"
-     ],
-     "prompt": "Collect the names of countries with a population above 5.45 million.",
-     "prompt_tr": "Nüfusu 5,45 milyonun üstünde olan ülkelerin adlarını topla.",
-     "starter_code": "countries = {'Finland': 5.5, 'Sweden': 10.4, 'Norway': 5.4}\nbig = [name for name, pop in countries.___() if pop ___ 5.45]",
-     "blanks": [
-      {
-       "answer": [
-        "items"
-       ]
+      "id": "d30-b2",
+      "concept": "functions-and-errors",
+      "concept_tr": "Fonksiyonlar ve hatalar",
+      "tags": [
+        "review",
+        "functions",
+        "exceptions",
+        "defaults"
+      ],
+      "worked_example": {
+        "code": "def safe_int(text, default=None):\n    try:\n        return int(text)\n    except ValueError:\n        return default\nprint([safe_int(t) for t in ['90', 'x', ' 75 ', '']])\nprint(safe_int('x', 0))",
+        "notes": [
+          "Only the conversion is inside `try`, and only `ValueError` is caught, so real bugs still show up.",
+          "The default parameter is `None` (immutable), which is safe; a mutable default would be shared between calls.",
+          "Returning a value from both branches means every call gives the caller something to use."
+        ],
+        "notes_tr": [
+          "`try` içinde yalnızca dönüşüm var ve yalnızca `ValueError` yakalanıyor; gerçek hatalar yine görünür.",
+          "Varsayılan parametre `None` (değiştirilemez), bu güvenlidir; değiştirilebilir bir varsayılan çağrılar arasında paylaşılırdı.",
+          "İki daldan da bir değer döndürmek, her çağrının çağırana kullanacak bir şey vermesi demektir."
+        ]
       },
-      {
-       "answer": [
-        ">"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert big == ['Finland', 'Sweden']",
-       "visible": true,
-       "label_tr": "Büyük ülkelerin adları doğru toplanıyor"
-      }
-     ]
+      "exercises": [
+        {
+          "id": "d30-b2-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def add_score(score, scores=[]):\n    scores.append(score)\n    return len(scores)\n\nprint(add_score(90), add_score(80), add_score(70, []), add_score(60))",
+          "choices": [
+            "1 2 1 3",
+            "1 1 1 1",
+            "1 2 3 4",
+            "1 2 1 1"
+          ],
+          "expected_output": "1 2 1 3",
+          "explanation": "The default list is created once, when the function is defined, and shared by every call that does not pass its own list. The call with `[]` uses a fresh list, and the last call continues the shared one: 3.",
+          "explanation_tr": "Varsayılan list fonksiyon tanımlanırken bir kez oluşturulur ve kendi list'ini vermeyen her çağrı onu paylaşır. `[]` verilen çağrı yeni bir list kullanır, son çağrı ise paylaşılan list'ten devam eder: 3.",
+          "misconceptions": {
+            "1 1 1 1": "The default `[]` is not rebuilt on every call; it keeps growing.",
+            "1 2 3 4": "The third call passes its own empty list, which does not touch the shared default.",
+            "1 2 1 1": "The last call uses the shared default again, which already holds two scores."
+          },
+          "misconceptions_tr": {
+            "1 1 1 1": "Varsayılan `[]` her çağrıda yeniden kurulmaz; büyümeye devam eder.",
+            "1 2 3 4": "Üçüncü çağrı kendi boş list'ini verir; bu, paylaşılan varsayılana dokunmaz.",
+            "1 2 1 1": "Son çağrı yine paylaşılan varsayılanı kullanır ve onda zaten iki not var."
+          },
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        },
+        {
+          "id": "d30-b2-e2",
+          "type": "parsons",
+          "prompt": "Put the lines in order: `to_number(text)` returns an int, or None when the text is not a number, using try/except/else.",
+          "prompt_tr": "Satırları sırala: `to_number(text)` bir int, metin sayı değilse None döndürür; try/except/else kullanır.",
+          "lines": [
+            "    else:",
+            "        value = int(text)",
+            "print(to_number('42'), to_number('kırk'))",
+            "def to_number(text):",
+            "        return None",
+            "    try:",
+            "        return value",
+            "    except ValueError:"
+          ],
+          "correct_order": [
+            3,
+            5,
+            1,
+            7,
+            4,
+            0,
+            6,
+            2
+          ],
+          "distractors": [
+            "    except:"
+          ],
+          "expected_output": "42 None",
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        },
+        {
+          "id": "d30-b2-e3",
+          "type": "modify",
+          "prompt": "`average(numbers)` crashes with ZeroDivisionError on an empty list. Change it to return None for an empty list, and to ignore values that are not int or float (such as strings or None) when computing the average.",
+          "prompt_tr": "`average(numbers)` boş bir list'te ZeroDivisionError ile çöküyor. Onu değiştir: boş list için None döndürsün ve ortalamayı hesaplarken int ya da float olmayan değerleri (string ya da None gibi) yok saysın.",
+          "starter_code": "def average(numbers):\n    return sum(numbers) / len(numbers)",
+          "tests": [
+            {
+              "code": "assert average([]) is None",
+              "visible": true,
+              "label": "Empty list gives None",
+              "label_tr": "Boş list None veriyor"
+            },
+            {
+              "code": "assert average([90, 'x', 70, None]) == 80",
+              "visible": true,
+              "label": "Non-numbers are ignored",
+              "label_tr": "Sayı olmayanlar yok sayılıyor"
+            },
+            {
+              "code": "assert average(['a', None]) is None and average([2.5, 3.5]) == 3.0",
+              "visible": false,
+              "failure_message": "If nothing numeric is left, return None; floats count as numbers.",
+              "failure_message_tr": "Geriye sayısal bir şey kalmazsa None döndür; float'lar da sayıdır."
+            },
+            {
+              "code": "assert average([True, 10]) == 10",
+              "visible": false,
+              "failure_message": "bool is a subclass of int, but True is not a score: also skip booleans (check `type(v) in (int, float)`).",
+              "failure_message_tr": "bool, int'in bir alt sınıfıdır ama True bir not değildir: boolean'ları da atla (`type(v) in (int, float)` ile kontrol et)."
+            }
+          ],
+          "hints": [
+            "First keep only the numbers, then decide whether anything is left.",
+            "`[v for v in numbers if type(v) in (int, float)]` keeps ints and floats but not strings, None or booleans.",
+            "Filter into a new list; return None if it is empty; otherwise return its sum divided by its length."
+          ],
+          "hints_tr": [
+            "Önce yalnızca sayıları tut, sonra geriye bir şey kalıp kalmadığına karar ver.",
+            "`[v for v in numbers if type(v) in (int, float)]` int ve float'ları tutar; string'leri, None'ı ve boolean'ları tutmaz.",
+            "Yeni bir list'e süz; boşsa None döndür; değilse toplamını uzunluğuna bölüp döndür."
+          ],
+          "solution": {
+            "approach": "Filter the numeric values first and guard the empty case before dividing.",
+            "approach_tr": "Önce sayısal değerleri süz ve bölmeden önce boş durumu kontrol et.",
+            "code": "def average(numbers):\n    values = [v for v in numbers if type(v) in (int, float)]\n    if not values:\n        return None\n    return sum(values) / len(values)"
+          },
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        },
+        {
+          "id": "d30-b2-e4",
+          "type": "debug",
+          "prompt": "This should print `86` (the total plus a 1-point bonus), but it prints `85` and then crashes with `TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'`. Fix `total`.",
+          "prompt_tr": "Bu kod `86` (toplam artı 1 puanlık bonus) yazdırmalı, ama önce `85` yazdırıyor, sonra `TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'` ile çöküyor. `total`'ı düzelt.",
+          "starter_code": "def total(scores):\n    print(sum(scores))\n\nprint(total([40, 45]) + 1)",
+          "tests": [
+            {
+              "code": "assert total([1, 2, 3]) == 6",
+              "visible": true,
+              "label": "total returns the sum",
+              "label_tr": "total toplamı döndürüyor"
+            }
+          ],
+          "hints": [
+            "The left side of `+` is None. Which expression produced that None?",
+            "`total` prints the sum but returns nothing, so the call's value is None.",
+            "Change the one line inside `total` so the sum is handed back to the caller instead of being printed."
+          ],
+          "hints_tr": [
+            "`+`'nın sol tarafı None. O None'ı hangi ifade üretti?",
+            "`total` toplamı yazdırıyor ama hiçbir şey döndürmüyor; çağrının değeri None.",
+            "`total` içindeki tek satırı, toplam yazdırılmak yerine çağırana geri verilecek şekilde değiştir."
+          ],
+          "solution": {
+            "approach": "A function that computes must return its result; printing is the caller's job.",
+            "approach_tr": "Hesaplayan bir fonksiyon sonucunu döndürmeli; yazdırmak çağıranın işidir.",
+            "code": "def total(scores):\n    return sum(scores)\n\nprint(total([40, 45]) + 1)"
+          },
+          "expected_output": "86",
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        },
+        {
+          "id": "d30-b2-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "def inner():\n    print('inner start')\n    raise KeyError('id')\n\ndef outer():\n    try:\n        inner()\n        print('after inner')\n    finally:\n        print('outer cleanup')\n\ntry:\n    outer()\nexcept KeyError as err:\n    print('caught', err)",
+          "choices": [
+            "inner start\nouter cleanup\ncaught 'id'",
+            "inner start\nafter inner\nouter cleanup\ncaught 'id'",
+            "inner start\ncaught 'id'\nouter cleanup",
+            "inner start\nouter cleanup"
+          ],
+          "expected_output": "inner start\nouter cleanup\ncaught 'id'",
+          "explanation": "The exception leaves `inner` immediately, so 'after inner' never runs. On its way up it passes through `outer`'s `finally`, which runs, and is caught at the top. A KeyError's message shows the key in quotes.",
+          "explanation_tr": "İstisna `inner`'dan hemen çıkar, bu yüzden 'after inner' hiç çalışmaz. Yukarı çıkarken `outer`'daki `finally`'den geçer, o çalışır, ve en üstte yakalanır. Bir KeyError'ın mesajı anahtarı tırnak içinde gösterir.",
+          "misconceptions": {
+            "inner start\nafter inner\nouter cleanup\ncaught 'id'": "A raised exception skips the rest of the try block; the next line never runs.",
+            "inner start\ncaught 'id'\nouter cleanup": "`finally` runs while the exception is still on its way up, before the outer except catches it.",
+            "inner start\nouter cleanup": "`finally` does not stop the exception; it continues up and the outer except catches it."
+          },
+          "misconceptions_tr": {
+            "inner start\nafter inner\nouter cleanup\ncaught 'id'": "Fırlatılan bir istisna try bloğunun geri kalanını atlar; sonraki satır hiç çalışmaz.",
+            "inner start\ncaught 'id'\nouter cleanup": "`finally`, istisna hâlâ yukarı çıkarken, dıştaki except onu yakalamadan önce çalışır.",
+            "inner start\nouter cleanup": "`finally` istisnayı durdurmaz; istisna yukarı devam eder ve dıştaki except onu yakalar."
+          },
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        },
+        {
+          "id": "d30-b2-e6",
+          "type": "write",
+          "prompt": "Write `parse_scores(text)` for input like `'Ece:90, Can:x, Ali:75'`. Split on commas, then each part on ':'; strip spaces. Return a dict of name to int score, skipping parts whose score is not an int and parts without a ':'. Example: `parse_scores('Ece:90, Can:x, Ali:75')` returns `{'Ece': 90, 'Ali': 75}`.",
+          "prompt_tr": "`'Ece:90, Can:x, Ali:75'` gibi bir girdi için `parse_scores(text)` yaz. Virgüllerden, sonra her parçayı ':' işaretinden böl; boşlukları sil. İsimden int nota giden bir dict döndür; notu int olmayan parçaları ve ':' içermeyen parçaları atla. Örnek: `parse_scores('Ece:90, Can:x, Ali:75')` `{'Ece': 90, 'Ali': 75}` döndürür.",
+          "starter_code": "",
+          "signature": "def parse_scores(text):",
+          "tests": [
+            {
+              "code": "assert parse_scores('Ece:90, Can:x, Ali:75') == {'Ece': 90, 'Ali': 75}",
+              "visible": true,
+              "label": "Invalid score skipped",
+              "label_tr": "Geçersiz not atlandı"
+            },
+            {
+              "code": "assert parse_scores('') == {}",
+              "visible": true,
+              "label": "Empty text",
+              "label_tr": "Boş metin"
+            },
+            {
+              "code": "assert parse_scores(' Zeynep : 100 ,Deniz,Mert:') == {'Zeynep': 100}",
+              "visible": false,
+              "failure_message": "Strip the name and the score; a part without ':' or with an empty score is skipped.",
+              "failure_message_tr": "İsmi ve notu strip ile temizle; ':' içermeyen ya da notu boş olan parça atlanır."
+            },
+            {
+              "code": "assert parse_scores('A:1,B:2,A:3') == {'A': 3, 'B': 2}",
+              "visible": false,
+              "failure_message": "A later score for the same name replaces the earlier one.",
+              "failure_message_tr": "Aynı isim için sonraki not öncekinin yerine geçer."
+            }
+          ],
+          "hints": [
+            "Loop over `text.split(',')`; use `partition(':')` so a missing ':' does not crash.",
+            "Convert with `int(score.strip())` inside `try`, and `continue` on `ValueError`.",
+            "For each part, partition it; skip it when the separator is empty; try to convert the stripped score and store it under the stripped name; skip on ValueError."
+          ],
+          "hints_tr": [
+            "`text.split(',')` üzerinde dön; eksik bir ':' çöküşe yol açmasın diye `partition(':')` kullan.",
+            "`try` içinde `int(score.strip())` ile çevir ve `ValueError`'da `continue` yap.",
+            "Her parçayı partition ile böl; ayırıcı boşsa atla; strip edilmiş notu çevirmeyi dene ve strip edilmiş ismin altına sakla; ValueError'da atla."
+          ],
+          "solution": {
+            "approach": "Partition each part at ':', skip parts without it, and convert the score inside try/except ValueError.",
+            "approach_tr": "Her parçayı ':' işaretinden partition ile böl, onsuz parçaları atla ve notu try/except ValueError içinde çevir.",
+            "code": "def parse_scores(text):\n    result = {}\n    for part in text.split(','):\n        name, sep, score = part.partition(':')\n        if not sep:\n            continue\n        try:\n            result[name.strip()] = int(score.strip())\n        except ValueError:\n            continue\n    return result"
+          },
+          "twin": "d30-b2-e7",
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        },
+        {
+          "id": "d30-b2-e7",
+          "type": "write",
+          "prompt": "Write `transfer(accounts, src, dst, amount)`. `accounts` maps names to balances. Raise `ValueError('amount must be positive')` if amount <= 0, `KeyError` if src or dst is not an account, and `ValueError('insufficient funds')` if src has less than amount. Only when everything is valid, move the money and return the accounts dict. Example: `transfer({'Ece': 100, 'Can': 0}, 'Ece', 'Can', 30)` returns `{'Ece': 70, 'Can': 30}`.",
+          "prompt_tr": "`transfer(accounts, src, dst, amount)` yaz. `accounts` isimleri bakiyelere eşler. amount <= 0 ise `ValueError('amount must be positive')`, src ya da dst bir hesap değilse `KeyError`, src'de amount'tan az para varsa `ValueError('insufficient funds')` fırlat. Yalnızca her şey geçerliyse parayı aktar ve accounts dict'ini döndür. Örnek: `transfer({'Ece': 100, 'Can': 0}, 'Ece', 'Can', 30)` `{'Ece': 70, 'Can': 30}` döndürür.",
+          "starter_code": "",
+          "signature": "def transfer(accounts, src, dst, amount):",
+          "tests": [
+            {
+              "code": "assert transfer({'Ece': 100, 'Can': 0}, 'Ece', 'Can', 30) == {'Ece': 70, 'Can': 30}",
+              "visible": true,
+              "label": "A valid transfer",
+              "label_tr": "Geçerli bir aktarım"
+            },
+            {
+              "code": "try:\n    transfer({'Ece': 10, 'Can': 0}, 'Ece', 'Can', 50)\n    ok = False\nexcept ValueError as e:\n    ok = str(e) == 'insufficient funds'\nassert ok",
+              "visible": true,
+              "label": "Not enough money raises ValueError",
+              "label_tr": "Yetersiz bakiye ValueError fırlatıyor"
+            },
+            {
+              "code": "acc = {'Ece': 10}\ntry:\n    transfer(acc, 'Ece', 'Ali', 5)\n    ok = False\nexcept KeyError:\n    ok = True\nassert ok and acc == {'Ece': 10}",
+              "visible": false,
+              "failure_message": "An unknown account raises KeyError, and no balance may change before that.",
+              "failure_message_tr": "Bilinmeyen bir hesap KeyError fırlatır ve ondan önce hiçbir bakiye değişmemeli."
+            },
+            {
+              "code": "acc = {'A': 5, 'B': 5}\ntry:\n    transfer(acc, 'A', 'B', 0)\n    ok = False\nexcept ValueError as e:\n    ok = str(e) == 'amount must be positive'\nassert ok and acc == {'A': 5, 'B': 5}",
+              "visible": false,
+              "failure_message": "Zero or negative amounts raise ValueError('amount must be positive').",
+              "failure_message_tr": "Sıfır ya da negatif miktarlar ValueError('amount must be positive') fırlatır."
+            },
+            {
+              "code": "acc = {'A': 50, 'B': 1}\nassert transfer(acc, 'A', 'B', 50) is acc and acc == {'A': 0, 'B': 51}",
+              "visible": false,
+              "failure_message": "Moving the whole balance is allowed; change and return the same dict.",
+              "failure_message_tr": "Bakiyenin tamamını aktarmak serbesttir; aynı dict'i değiştir ve döndür."
+            }
+          ],
+          "hints": [
+            "Do every check first and change balances only at the end, so a failed transfer leaves nothing half done.",
+            "`raise ValueError('...')` stops the function; `if src not in accounts or dst not in accounts: raise KeyError(...)`.",
+            "Write the three checks in the given order with `raise`, then subtract from src, add to dst and return the dict."
+          ],
+          "hints_tr": [
+            "Önce bütün kontrolleri yap, bakiyeleri yalnızca en sonda değiştir; böylece başarısız bir aktarım yarım iş bırakmaz.",
+            "`raise ValueError('...')` fonksiyonu durdurur; `if src not in accounts or dst not in accounts: raise KeyError(...)`.",
+            "Üç kontrolü verilen sırayla `raise` ile yaz, sonra src'den çıkar, dst'ye ekle ve dict'i döndür."
+          ],
+          "solution": {
+            "approach": "Validate amount, accounts and balance with raise before touching any balance.",
+            "approach_tr": "Herhangi bir bakiyeye dokunmadan önce miktarı, hesapları ve bakiyeyi raise ile doğrula.",
+            "code": "def transfer(accounts, src, dst, amount):\n    if amount <= 0:\n        raise ValueError('amount must be positive')\n    if src not in accounts or dst not in accounts:\n        raise KeyError(src if src not in accounts else dst)\n    if accounts[src] < amount:\n        raise ValueError('insufficient funds')\n    accounts[src] -= amount\n    accounts[dst] += amount\n    return accounts"
+          },
+          "twin": "d30-b2-e6",
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        },
+        {
+          "id": "d30-b2-e8",
+          "type": "explain",
+          "prompt": "A traceback ends with `ValueError: invalid literal for int() with base 10: 'x'` and above it shows three functions. In which order do you read it, and what does each part tell you?",
+          "prompt_tr": "Bir hata izi `ValueError: invalid literal for int() with base 10: 'x'` ile bitiyor ve üstünde üç fonksiyon gösteriyor. Onu hangi sırayla okursun ve her parça sana ne söyler?",
+          "model_answer": "Read it from the bottom up. The last line gives the error type and message: int() received the text 'x'. The line just above is where it happened, inside the innermost function. The lines further up show the chain of calls that led there, which tells you where the bad value came from and where you could catch or fix it.",
+          "model_answer_tr": "Aşağıdan yukarı okursun. Son satır hatanın tipini ve mesajını verir: int() 'x' metnini aldı. Hemen üstündeki satır hatanın oluştuğu yerdir, en içteki fonksiyonun içinde. Daha yukarıdaki satırlar oraya götüren çağrı zincirini gösterir; bu da kötü değerin nereden geldiğini ve onu nerede yakalayabileceğini ya da düzeltebileceğini söyler.",
+          "keywords": [
+            "bottom",
+            "type",
+            "call"
+          ],
+          "keywords_tr": [
+            "aşağıdan",
+            "tipini",
+            "çağrı"
+          ],
+          "min_words": 12,
+          "concept": "functions-and-errors",
+          "tags": [
+            "review",
+            "functions",
+            "exceptions",
+            "defaults"
+          ]
+        }
+      ]
     },
     {
-     "id": "d30-b1-e3",
-     "type": "write",
-     "concept": "review-dicts-counting",
-     "tags": [
-      "review",
-      "dictionaries",
-      "loops",
-      "strings"
-     ],
-     "prompt": "Write word_frequency(text). Split text on whitespace, ignore upper/lower case, and return a dict {word: how many times it appears}. Empty text gives {}.",
-     "prompt_tr": "word_frequency(text) yaz. Metni boşluklardan böl, büyük/küçük harfi yok say ve {kelime: kaç kez geçtiği} dict'ini döndür. Boş metin {} verir.",
-     "starter_code": "",
-     "signature": "def word_frequency(text):",
-     "tests": [
-      {
-       "code": "assert word_frequency('to be or not to be') == {'to': 2, 'be': 2, 'or': 1, 'not': 1}",
-       "visible": true,
-       "label_tr": "Kelime sayıları doğru"
+      "id": "d30-b3",
+      "concept": "classes-review",
+      "concept_tr": "Sınıflar: plan ve self",
+      "tags": [
+        "review",
+        "classes",
+        "methods",
+        "repr"
+      ],
+      "worked_example": {
+        "code": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner, self.balance = owner, balance\n    def deposit(self, amount):\n        self.balance += amount\n    def __repr__(self):\n        return f'Account({self.owner!r}, {self.balance})'\na, b = Account('Ece'), Account('Can', 50)\na.deposit(30)\nprint(a, b)",
+        "notes": [
+          "Each call to `Account(...)` runs `__init__` with `self` set to the new object, so each account has its own balance.",
+          "`a.deposit(30)` is `Account.deposit(a, 30)`: `self` is `a`, and only `a` changes.",
+          "`__repr__` decides how the object looks when printed; `!r` adds quotes around the owner's name."
+        ],
+        "notes_tr": [
+          "`Account(...)` her çağrıldığında `self` yeni nesne olacak şekilde `__init__` çalışır; her hesabın kendi bakiyesi olur.",
+          "`a.deposit(30)`, `Account.deposit(a, 30)` demektir: `self` `a`'dır ve yalnızca `a` değişir.",
+          "`__repr__` nesnenin yazdırılınca nasıl görüneceğine karar verir; `!r` sahibin adının çevresine tırnak ekler."
+        ]
       },
-      {
-       "code": "assert word_frequency('') == {}",
-       "visible": true,
-       "label_tr": "Boş metin boş sözlük veriyor"
-      },
-      {
-       "code": "assert word_frequency('The the THE') == {'the': 3}",
-       "visible": false,
-       "failure_message": "Lower-case every word before counting.",
-       "failure_message_tr": "Saymadan önce her kelimeyi küçük harfe çevir."
-      },
-      {
-       "code": "assert word_frequency('a  b   a') == {'a': 2, 'b': 1}",
-       "visible": false,
-       "failure_message": "Several spaces in a row must not create empty words; split() without arguments handles that.",
-       "failure_message_tr": "Arka arkaya birkaç boşluk boş kelime yaratmamalı; argümansız split() bunu halleder."
-      }
-     ],
-     "hints": [
-      "Loop over the words and keep a dict of counts.",
-      "Use text.lower().split() and counts[w] = counts.get(w, 0) + 1.",
-      "Last step: start with an empty dict, loop over the lower-cased split words, and for each word store its old count (default ___) plus one; return the dict."
-     ],
-     "solution": {
-      "approach": "Lower-case, split, and count with dict.get.",
-      "code": "def word_frequency(text):\n    counts = {}\n    for w in text.lower().split():\n        counts[w] = counts.get(w, 0) + 1\n    return counts",
-      "approach_tr": "Küçük harfe çevir, böl ve dict.get ile say."
-     },
-     "twin": "d30-b1-e4",
-     "hints_tr": [
-      "Kelimeler üzerinde dön ve sayıları bir dict'te tut.",
-      "text.lower().split() kullan ve counts[w] = counts.get(w, 0) + 1 yaz.",
-      "Son adım: boş bir dict ile başla, küçük harfli bölünmüş kelimeler üzerinde dön ve her kelime için eski sayısını (varsayılan ___) artı bir olarak sakla; dict'i döndür."
-     ]
+      "exercises": [
+        {
+          "id": "d30-b3-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "class Cart:\n    items = []\n\n    def add(self, item):\n        self.items.append(item)\n\na, b = Cart(), Cart()\na.add('çay')\nb.add('simit')\nprint(a.items, b.items is a.items)",
+          "choices": [
+            "['çay', 'simit'] True",
+            "['çay'] False",
+            "['çay'] True",
+            "['çay', 'simit'] False"
+          ],
+          "expected_output": "['çay', 'simit'] True",
+          "explanation": "`items` is a class attribute: one list created once and shared by every Cart. `self.items` finds it on the class, and `append` changes that single shared list.",
+          "explanation_tr": "`items` bir sınıf niteliğidir: bir kez oluşturulan ve her Cart tarafından paylaşılan tek bir list. `self.items` onu sınıfta bulur ve `append` o tek ortak list'i değiştirir.",
+          "misconceptions": {
+            "['çay'] False": "That would need `self.items = []` inside `__init__`; here the list belongs to the class.",
+            "['çay'] True": "If both names refer to one list, it also contains b's 'simit'.",
+            "['çay', 'simit'] False": "Both carts read the same class attribute, so `is` is True."
+          },
+          "misconceptions_tr": {
+            "['çay'] False": "Bunun için `__init__` içinde `self.items = []` gerekirdi; burada list sınıfa ait.",
+            "['çay'] True": "İki isim tek bir list'i gösteriyorsa, içinde b'nin 'simit'i de vardır.",
+            "['çay', 'simit'] False": "İki sepet de aynı sınıf niteliğini okur; `is` True'dur."
+          },
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        },
+        {
+          "id": "d30-b3-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the method so a deposit increases this account's balance.",
+          "prompt_tr": "Metodu tamamla: para yatırma bu hesabın bakiyesini artırsın.",
+          "starter_code": "class Account:\n    def __init__(self, balance=0):\n        self.balance = balance\n\n    def deposit(self, amount):\n        ___.balance += amount\n\nacc = Account(10)\nacc.deposit(5)",
+          "blanks": [
+            {
+              "answer": [
+                "self"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert acc.balance == 15",
+              "visible": true,
+              "label": "The balance grew",
+              "label_tr": "Bakiye arttı"
+            }
+          ],
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        },
+        {
+          "id": "d30-b3-e3",
+          "type": "modify",
+          "prompt": "`Account` lets you withdraw more than the balance. Add a `withdraw(amount)` method that raises `ValueError('insufficient funds')` when amount is larger than the balance, raises `ValueError('amount must be positive')` when amount <= 0, and otherwise subtracts the amount and returns the new balance.",
+          "prompt_tr": "`Account` bakiyeden fazlasını çekmeye izin veriyor. Bir `withdraw(amount)` metodu ekle: amount bakiyeden büyükse `ValueError('insufficient funds')`, amount <= 0 ise `ValueError('amount must be positive')` fırlatsın, aksi halde miktarı düşüp yeni bakiyeyi döndürsün.",
+          "starter_code": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        self.balance += amount\n        return self.balance",
+          "tests": [
+            {
+              "code": "acc = Account('Ece', 100)\nassert acc.withdraw(30) == 70 and acc.balance == 70",
+              "visible": true,
+              "label": "A valid withdrawal",
+              "label_tr": "Geçerli bir çekim"
+            },
+            {
+              "code": "try:\n    acc.withdraw(500)\n    ok = False\nexcept ValueError as e:\n    ok = str(e) == 'insufficient funds'\nassert ok and acc.balance == 70",
+              "visible": true,
+              "label": "Too much raises and changes nothing",
+              "label_tr": "Fazlası hata verir ve hiçbir şey değişmez"
+            },
+            {
+              "code": "b = Account('Can', 5)\ntry:\n    b.withdraw(-1)\n    ok = False\nexcept ValueError as e:\n    ok = str(e) == 'amount must be positive'\nassert ok and b.balance == 5",
+              "visible": false,
+              "failure_message": "Zero or negative amounts raise ValueError('amount must be positive').",
+              "failure_message_tr": "Sıfır ya da negatif miktarlar ValueError('amount must be positive') fırlatır."
+            },
+            {
+              "code": "c = Account('Ali', 40)\nassert c.withdraw(40) == 0 and c.deposit(10) == 10",
+              "visible": false,
+              "failure_message": "Withdrawing the whole balance is allowed, and deposit still works.",
+              "failure_message_tr": "Bakiyenin tamamını çekmek serbesttir ve deposit hâlâ çalışır."
+            }
+          ],
+          "hints": [
+            "The new method needs `self` as its first parameter and two checks before changing anything.",
+            "`raise ValueError('...')` stops the method before the balance changes.",
+            "Define `withdraw(self, amount)`: raise for a non-positive amount, raise when `amount > self.balance`, then subtract and return `self.balance`."
+          ],
+          "hints_tr": [
+            "Yeni metodun ilk parametresi `self` olmalı ve bir şeyi değiştirmeden önce iki kontrol yapmalı.",
+            "`raise ValueError('...')`, bakiye değişmeden önce metodu durdurur.",
+            "`withdraw(self, amount)` tanımla: pozitif olmayan miktar için raise yap, `amount > self.balance` ise raise yap, sonra düş ve `self.balance` döndür."
+          ],
+          "solution": {
+            "approach": "Add a method that validates with raise before changing self.balance.",
+            "approach_tr": "self.balance'ı değiştirmeden önce raise ile doğrulayan bir metot ekle.",
+            "code": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        self.balance += amount\n        return self.balance\n\n    def withdraw(self, amount):\n        if amount <= 0:\n            raise ValueError('amount must be positive')\n        if amount > self.balance:\n            raise ValueError('insufficient funds')\n        self.balance -= amount\n        return self.balance"
+          },
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        },
+        {
+          "id": "d30-b3-e4",
+          "type": "debug",
+          "prompt": "This should print `1` and then `2`, but it crashes with `TypeError: Counter.increment() takes 0 positional arguments but 1 was given`. Fix the class.",
+          "prompt_tr": "Bu kod önce `1`, sonra `2` yazdırmalı ama `TypeError: Counter.increment() takes 0 positional arguments but 1 was given` ile çöküyor. Sınıfı düzelt.",
+          "starter_code": "class Counter:\n    def __init__(self):\n        self.count = 0\n\n    def increment():\n        self.count += 1\n        return self.count\n\nc = Counter()\nprint(c.increment())\nprint(c.increment())",
+          "tests": [
+            {
+              "code": "d = Counter()\nd.increment()\nassert d.count == 1 and c.count == 2",
+              "visible": true,
+              "label": "Each counter keeps its own count",
+              "label_tr": "Her sayaç kendi sayısını tutuyor"
+            }
+          ],
+          "hints": [
+            "The message says one positional argument was given. Which argument does Python pass automatically when you call `c.increment()`?",
+            "Python passes the object itself as the first argument; the method must have a parameter to receive it.",
+            "Add the conventional first parameter to the method's definition; the body already uses that name."
+          ],
+          "hints_tr": [
+            "Mesaj bir konumsal argüman verildiğini söylüyor. `c.increment()` çağırdığında Python hangi argümanı kendiliğinden geçirir?",
+            "Python nesnenin kendisini ilk argüman olarak geçirir; metodun onu alacak bir parametresi olmalı.",
+            "Metodun tanımına alışılmış ilk parametreyi ekle; gövde o ismi zaten kullanıyor."
+          ],
+          "solution": {
+            "approach": "Methods receive the object as their first parameter, self.",
+            "approach_tr": "Metotlar nesneyi ilk parametreleri olan self ile alır.",
+            "code": "class Counter:\n    def __init__(self):\n        self.count = 0\n\n    def increment(self):\n        self.count += 1\n        return self.count\n\nc = Counter()\nprint(c.increment())\nprint(c.increment())"
+          },
+          "expected_output": "1\n2",
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        },
+        {
+          "id": "d30-b3-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "class Rectangle:\n    def __init__(self, w, h):\n        self.w, self.h = w, h\n\n    @property\n    def area(self):\n        return self.w * self.h\n\nr = Rectangle(2, 3)\nbefore = r.area\nr.w = 10\nprint(before, r.area)",
+          "choices": [
+            "6 30",
+            "6 6",
+            "30 30",
+            "TypeError"
+          ],
+          "expected_output": "6 30",
+          "explanation": "A property is computed each time it is read. `before` saved the number 6; after `r.w = 10` the next read computes 10 * 3 = 30.",
+          "explanation_tr": "Bir property her okunduğunda yeniden hesaplanır. `before` 6 sayısını sakladı; `r.w = 10`'dan sonraki okuma 10 * 3 = 30 hesaplar.",
+          "misconceptions": {
+            "6 6": "A property is not stored once; it runs again on every read and sees the new width.",
+            "30 30": "`before` holds the number computed at that moment; changing `w` later does not change it.",
+            "TypeError": "With @property you read `r.area` without parentheses; that is correct here."
+          },
+          "misconceptions_tr": {
+            "6 6": "Property bir kez saklanmaz; her okumada yeniden çalışır ve yeni genişliği görür.",
+            "30 30": "`before` o anda hesaplanan sayıyı tutar; `w`'yu sonradan değiştirmek onu değiştirmez.",
+            "TypeError": "@property ile `r.area` parantezsiz okunur; burada doğru kullanım bu."
+          },
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        },
+        {
+          "id": "d30-b3-e6",
+          "type": "write",
+          "prompt": "Write a class `Book` with `__init__(self, title, author, pages)` storing the three attributes, a method `is_long(self)` that returns True when pages > 300, and `__repr__` returning `Book('<title>', '<author>')` (use `!r`). Example: `Book('Tutunamayanlar', 'Oğuz Atay', 724).is_long()` is True.",
+          "prompt_tr": "Üç niteliği saklayan `__init__(self, title, author, pages)`, sayfa sayısı 300'den fazlaysa True döndüren `is_long(self)` metodu ve `Book('<başlık>', '<yazar>')` döndüren `__repr__` (`!r` kullan) içeren bir `Book` sınıfı yaz. Örnek: `Book('Tutunamayanlar', 'Oğuz Atay', 724).is_long()` True'dur.",
+          "starter_code": "",
+          "signature": "class Book:",
+          "tests": [
+            {
+              "code": "assert Book('Tutunamayanlar', 'Oğuz Atay', 724).is_long() is True",
+              "visible": true,
+              "label": "A long book",
+              "label_tr": "Uzun bir kitap"
+            },
+            {
+              "code": "assert repr(Book('Kuyucaklı Yusuf', 'Sabahattin Ali', 200)) == \"Book('Kuyucaklı Yusuf', 'Sabahattin Ali')\"",
+              "visible": true,
+              "label": "Readable repr",
+              "label_tr": "Okunur repr"
+            },
+            {
+              "code": "b = Book('X', 'Y', 300)\nassert b.is_long() is False and b.pages == 300 and b.title == 'X' and b.author == 'Y'",
+              "visible": false,
+              "failure_message": "Exactly 300 pages is not long (pages > 300), and the attributes must be stored.",
+              "failure_message_tr": "Tam 300 sayfa uzun değildir (pages > 300) ve nitelikler saklanmalı."
+            },
+            {
+              "code": "a, c = Book('A', 'B', 400), Book('C', 'D', 10)\nassert a.is_long() and not c.is_long() and str([a, c]) == \"[Book('A', 'B'), Book('C', 'D')]\"",
+              "visible": false,
+              "failure_message": "Each book keeps its own attributes, and __repr__ is used inside lists too.",
+              "failure_message_tr": "Her kitap kendi niteliklerini tutar ve __repr__ list'lerin içinde de kullanılır."
+            }
+          ],
+          "hints": [
+            "Three parts: store the attributes on `self`, compare in `is_long`, format in `__repr__`.",
+            "`return self.pages > 300` is already a boolean; `f'Book({self.title!r}, {self.author!r})'` adds the quotes.",
+            "Write `__init__` with three `self.` assignments, `is_long` returning the comparison, and `__repr__` returning the f-string with `!r`."
+          ],
+          "hints_tr": [
+            "Üç bölüm: nitelikleri `self` üzerinde sakla, `is_long`'da karşılaştır, `__repr__`'de biçimlendir.",
+            "`return self.pages > 300` zaten bir boolean'dır; `f'Book({self.title!r}, {self.author!r})'` tırnakları ekler.",
+            "Üç `self.` atamasıyla `__init__`, karşılaştırmayı döndüren `is_long` ve `!r` içeren f-string'i döndüren `__repr__` yaz."
+          ],
+          "solution": {
+            "approach": "Store the attributes in __init__, compare pages in is_long and format with !r in __repr__.",
+            "approach_tr": "Nitelikleri __init__'te sakla, is_long'da sayfaları karşılaştır ve __repr__'de !r ile biçimlendir.",
+            "code": "class Book:\n    def __init__(self, title, author, pages):\n        self.title = title\n        self.author = author\n        self.pages = pages\n\n    def is_long(self):\n        return self.pages > 300\n\n    def __repr__(self):\n        return f'Book({self.title!r}, {self.author!r})'"
+          },
+          "twin": "d30-b3-e7",
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        },
+        {
+          "id": "d30-b3-e7",
+          "type": "write",
+          "prompt": "Write a class `Library` with: `__init__(self)` starting with no books; `add(self, title)` adding an available book; `borrow(self, title)` that raises `KeyError` for an unknown title, raises `ValueError('already borrowed')` if it is out, and otherwise marks it borrowed; `give_back(self, title)` marking it available again; and `available(self)` returning a sorted list of available titles. Each Library has its own books.",
+          "prompt_tr": "Şunları içeren bir `Library` sınıfı yaz: kitapsız başlayan `__init__(self)`; mevcut bir kitap ekleyen `add(self, title)`; bilinmeyen başlık için `KeyError`, kitap dışarıdaysa `ValueError('already borrowed')` fırlatan, aksi halde onu ödünç verilmiş olarak işaretleyen `borrow(self, title)`; onu yeniden mevcut yapan `give_back(self, title)`; ve mevcut başlıkların sıralı list'ini döndüren `available(self)`. Her Library'nin kendi kitapları olur.",
+          "starter_code": "",
+          "signature": "class Library:",
+          "tests": [
+            {
+              "code": "lib = Library()\nlib.add('Saatleri Ayarlama Enstitüsü')\nlib.add('Bereketli Topraklar Üzerinde')\nlib.borrow('Saatleri Ayarlama Enstitüsü')\nassert lib.available() == ['Bereketli Topraklar Üzerinde']",
+              "visible": true,
+              "label": "A borrowed book is not available",
+              "label_tr": "Ödünç verilen kitap mevcut değil"
+            },
+            {
+              "code": "lib.give_back('Saatleri Ayarlama Enstitüsü')\nassert lib.available() == ['Bereketli Topraklar Üzerinde', 'Saatleri Ayarlama Enstitüsü']",
+              "visible": true,
+              "label": "Returned books come back, sorted",
+              "label_tr": "İade edilen kitaplar sıralı geri geliyor"
+            },
+            {
+              "code": "l2 = Library()\nl2.add('A')\nl2.borrow('A')\ntry:\n    l2.borrow('A')\n    ok = False\nexcept ValueError as e:\n    ok = str(e) == 'already borrowed'\nassert ok",
+              "visible": false,
+              "failure_message": "Borrowing a book that is already out raises ValueError('already borrowed').",
+              "failure_message_tr": "Zaten dışarıda olan bir kitabı ödünç almak ValueError('already borrowed') fırlatır."
+            },
+            {
+              "code": "l3 = Library()\ntry:\n    l3.borrow('Yok')\n    ok = False\nexcept KeyError:\n    ok = True\nassert ok and l3.available() == []",
+              "visible": false,
+              "failure_message": "An unknown title raises KeyError.",
+              "failure_message_tr": "Bilinmeyen bir başlık KeyError fırlatır."
+            },
+            {
+              "code": "x, y = Library(), Library()\nx.add('Only X')\nassert y.available() == [] and x.available() == ['Only X']",
+              "visible": false,
+              "failure_message": "Create the book storage in __init__ so libraries do not share books.",
+              "failure_message_tr": "Kitap deposunu __init__ içinde oluştur ki kütüphaneler kitap paylaşmasın."
+            }
+          ],
+          "hints": [
+            "A dict from title to a boolean 'is borrowed' is enough state; create it in `__init__` on `self`.",
+            "`if title not in self.books: raise KeyError(title)`; `sorted(t for t, out in self.books.items() if not out)` lists the available ones.",
+            "Write the five methods: store False on add, check and raise before setting True in borrow, set False in give_back, and build the sorted list in available."
+          ],
+          "hints_tr": [
+            "Başlıktan 'ödünç verildi mi' boolean'ına giden bir dict yeterli durumdur; onu `__init__` içinde `self` üzerinde oluştur.",
+            "`if title not in self.books: raise KeyError(title)`; `sorted(t for t, out in self.books.items() if not out)` mevcut olanları listeler.",
+            "Beş metodu yaz: add'de False sakla, borrow'da True yapmadan önce kontrol edip raise yap, give_back'te False yap ve available'da sıralı list'i kur."
+          ],
+          "solution": {
+            "approach": "Keep a per-instance dict of title to borrowed flag, validate in borrow, and sort the available titles.",
+            "approach_tr": "Örneğe özel bir başlık -> ödünç bayrağı dict'i tut, borrow'da doğrula ve mevcut başlıkları sırala.",
+            "code": "class Library:\n    def __init__(self):\n        self.books = {}\n\n    def add(self, title):\n        self.books[title] = False\n\n    def borrow(self, title):\n        if title not in self.books:\n            raise KeyError(title)\n        if self.books[title]:\n            raise ValueError('already borrowed')\n        self.books[title] = True\n\n    def give_back(self, title):\n        self.books[title] = False\n\n    def available(self):\n        return sorted(t for t, out in self.books.items() if not out)"
+          },
+          "twin": "d30-b3-e6",
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        },
+        {
+          "id": "d30-b3-e8",
+          "type": "explain",
+          "prompt": "What is `self` in a method, and why do two instances created from the same class not share their instance attributes?",
+          "prompt_tr": "Bir metottaki `self` nedir ve aynı sınıftan oluşturulan iki örnek neden örnek niteliklerini paylaşmaz?",
+          "model_answer": "self is the specific object the method was called on: a.deposit(5) runs deposit with self set to a. Instance attributes are created on self inside __init__, so every call to the class builds a new object with its own attributes. Only class attributes, defined in the class body, are shared by all instances.",
+          "model_answer_tr": "self, metodun çağrıldığı belirli nesnedir: a.deposit(5), deposit'i self a olacak şekilde çalıştırır. Örnek nitelikleri __init__ içinde self üzerinde oluşturulur; bu yüzden sınıfın her çağrılışı kendi nitelikleri olan yeni bir nesne kurar. Yalnızca sınıf gövdesinde tanımlanan sınıf nitelikleri bütün örnekler tarafından paylaşılır.",
+          "keywords": [
+            "specific",
+            "__init__",
+            "class attributes"
+          ],
+          "keywords_tr": [
+            "belirli",
+            "__init__",
+            "sınıf nitelikleri"
+          ],
+          "min_words": 12,
+          "concept": "classes-review",
+          "tags": [
+            "review",
+            "classes",
+            "methods",
+            "repr"
+          ]
+        }
+      ]
     },
     {
-     "id": "d30-b1-e4",
-     "type": "write",
-     "concept": "review-dicts-counting",
-     "tags": [
-      "review",
-      "dictionaries",
-      "loops",
-      "strings"
-     ],
-     "prompt": "Write most_common_word(text). Return the word that appears most often (ignore upper/lower case). If several words tie, return the one that appears first in the text. Return None for empty text.",
-     "prompt_tr": "most_common_word(text) yaz. En sık geçen kelimeyi döndür (büyük/küçük harfi yok say). Birkaç kelime eşitse metinde ilk geçeni döndür. Boş metin için None döndür.",
-     "starter_code": "",
-     "signature": "def most_common_word(text):",
-     "tests": [
-      {
-       "code": "assert most_common_word('a b a c b a') == 'a'",
-       "visible": true,
-       "label_tr": "En sık geçen kelime bulunuyor"
+      "id": "d30-b4",
+      "concept": "capstone-pipeline",
+      "concept_tr": "Proje: ham metinden rapora",
+      "tags": [
+        "review",
+        "parsing",
+        "json",
+        "functions",
+        "sorting"
+      ],
+      "worked_example": {
+        "code": "import json\ntext = 'Ece,90\\nCan,70\\nEce,80\\nAli,x'\nbook = {}\nfor line in text.splitlines():\n    name, score = line.split(',')\n    if score.isdigit():\n        book.setdefault(name, []).append(int(score))\naverages = {n: sum(s) / len(s) for n, s in book.items()}\nprint(json.dumps(averages))",
+        "notes": [
+          "Parse first: each line becomes a name and a score, and bad scores are skipped instead of crashing the whole report.",
+          "Group with setdefault so a name that appears twice collects both scores.",
+          "Compute with a dict comprehension, then serialise with json.dumps: the same steps a Day 29 API would run before answering."
+        ],
+        "notes_tr": [
+          "Önce ayrıştır: her satır bir isim ve bir not olur, hatalı notlar bütün raporu çökertmek yerine atlanır.",
+          "İki kez geçen bir isim iki notu da toplasın diye setdefault ile grupla.",
+          "Bir dict comprehension ile hesapla, sonra json.dumps ile serileştir: Gün 29'daki bir API'nin yanıt vermeden önce çalıştıracağı adımların aynısı."
+        ]
       },
-      {
-       "code": "assert most_common_word('') is None",
-       "visible": true,
-       "label_tr": "Boş metin için None dönüyor"
-      },
-      {
-       "code": "assert most_common_word('Go go GO stop') == 'go'",
-       "visible": false,
-       "failure_message": "Count words without regard to case.",
-       "failure_message_tr": "Kelimeleri büyük/küçük harf farkı olmadan say."
-      },
-      {
-       "code": "assert most_common_word('x y y x') == 'x'",
-       "visible": false,
-       "failure_message": "On a tie return the word that appears first in the text.",
-       "failure_message_tr": "Eşitlikte metinde ilk geçen kelimeyi döndür."
-      }
-     ],
-     "hints": [
-      "First count the words, then pick the one with the largest count.",
-      "max(counts, key=counts.get) returns the first key with the largest count in insertion order.",
-      "Last step: count the lower-cased words into a dict, return None if the dict is empty, otherwise return max over the dict with the counts as the key function."
-     ],
-     "solution": {
-      "approach": "Count, then take the key with the maximum count.",
-      "code": "def most_common_word(text):\n    counts = {}\n    for w in text.lower().split():\n        counts[w] = counts.get(w, 0) + 1\n    if not counts:\n        return None\n    return max(counts, key=counts.get)",
-      "approach_tr": "Say, sonra en büyük sayıya sahip anahtarı al."
-     },
-     "twin": "d30-b1-e3",
-     "hints_tr": [
-      "Önce kelimeleri say, sonra en büyük sayıya sahip olanı seç.",
-      "max(counts, key=counts.get) ekleme sırasına göre en büyük sayıya sahip ilk anahtarı döndürür.",
-      "Son adım: küçük harfli kelimeleri bir dict'e say, dict boşsa None döndür, değilse sayıları anahtar fonksiyonu olarak kullanan max sonucunu döndür."
-     ]
+      "exercises": [
+        {
+          "id": "d30-b4-e1",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "text = 'Ece,90\\nCan,x\\nEce,70\\n\\nAli,60'\nbook = {}\nfor line in text.splitlines():\n    if not line:\n        continue\n    name, score = line.split(',')\n    if score.isdigit():\n        book.setdefault(name, []).append(int(score))\nprint(book, len(book))",
+          "choices": [
+            "{'Ece': [90, 70], 'Ali': [60]} 2",
+            "{'Ece': [90, 70], 'Can': [], 'Ali': [60]} 3",
+            "{'Ece': [70], 'Ali': [60]} 2",
+            "ValueError"
+          ],
+          "expected_output": "{'Ece': [90, 70], 'Ali': [60]} 2",
+          "explanation": "The empty line is skipped by `continue`. Can's score 'x' is not digits, so setdefault is never called for Can and he gets no key. Ece's two scores are collected in one list.",
+          "explanation_tr": "Boş satır `continue` ile atlanır. Can'in notu 'x' rakam değil; Can için setdefault hiç çağrılmaz ve anahtarı olmaz. Ece'nin iki notu tek bir list'te toplanır.",
+          "misconceptions": {
+            "{'Ece': [90, 70], 'Can': [], 'Ali': [60]} 3": "setdefault is inside the `if`, so a name with only bad scores never gets a key.",
+            "{'Ece': [70], 'Ali': [60]} 2": "setdefault returns the existing list, so the second score is appended, not replacing the first.",
+            "ValueError": "The empty line is skipped before split, and 'x' is filtered by isdigit before int."
+          },
+          "misconceptions_tr": {
+            "{'Ece': [90, 70], 'Can': [], 'Ali': [60]} 3": "setdefault `if`'in içinde; yalnızca hatalı notu olan bir isim anahtar almaz.",
+            "{'Ece': [70], 'Ali': [60]} 2": "setdefault var olan list'i döndürür; ikinci not birincinin yerine geçmez, eklenir.",
+            "ValueError": "Boş satır split'ten önce atlanır, 'x' de int'ten önce isdigit ile elenir."
+          },
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d30-b4-e2",
+          "type": "fill_blank",
+          "prompt": "Complete the code so the report is JSON text with Turkish letters kept as they are.",
+          "prompt_tr": "Kodu tamamla: rapor, Türkçe harfleri olduğu gibi koruyan bir JSON metni olsun.",
+          "starter_code": "import json\n\nreport = {'best': 'Şule', 'average': 87.5}\ntext = json.___(report, ensure_ascii=___)",
+          "blanks": [
+            {
+              "answer": [
+                "dumps"
+              ]
+            },
+            {
+              "answer": [
+                "False"
+              ]
+            }
+          ],
+          "tests": [
+            {
+              "code": "assert text == '{\"best\": \"Şule\", \"average\": 87.5}'",
+              "visible": true,
+              "label": "Readable JSON",
+              "label_tr": "Okunur JSON"
+            }
+          ],
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d30-b4-e3",
+          "type": "modify",
+          "prompt": "`parse_rows(text)` turns lines 'name,score' into (name, int) tuples but crashes on blank lines, on a header line 'name,score' and on scores that are not numbers. Change it to skip all three kinds of lines.",
+          "prompt_tr": "`parse_rows(text)` 'isim,not' satırlarını (isim, int) tuple'larına çeviriyor ama boş satırlarda, 'name,score' başlık satırında ve sayı olmayan notlarda çöküyor. Onu bu üç tür satırı da atlayacak şekilde değiştir.",
+          "starter_code": "def parse_rows(text):\n    rows = []\n    for line in text.splitlines():\n        name, score = line.split(',')\n        rows.append((name, int(score)))\n    return rows",
+          "tests": [
+            {
+              "code": "assert parse_rows('name,score\\nEce,90\\n\\nCan,x\\nAli,75') == [('Ece', 90), ('Ali', 75)]",
+              "visible": true,
+              "label": "Header, blank and bad rows skipped",
+              "label_tr": "Başlık, boş ve hatalı satırlar atlandı"
+            },
+            {
+              "code": "assert parse_rows('') == []",
+              "visible": true,
+              "label": "Empty text",
+              "label_tr": "Boş metin"
+            },
+            {
+              "code": "assert parse_rows('Zeynep,100\\n  \\nDeniz,') == [('Zeynep', 100)]",
+              "visible": false,
+              "failure_message": "A line with only spaces is blank too, and an empty score is not a number.",
+              "failure_message_tr": "Yalnızca boşluk içeren satır da boştur ve boş bir not sayı değildir."
+            },
+            {
+              "code": "assert parse_rows('Mert,7\\nname,score') == [('Mert', 7)]",
+              "visible": false,
+              "failure_message": "The header 'name,score' must be skipped wherever it appears, because 'score' is not a number.",
+              "failure_message_tr": "'name,score' başlığı nerede görünürse görünsün atlanmalı, çünkü 'score' bir sayı değildir."
+            }
+          ],
+          "hints": [
+            "All three bad kinds fail in one of two places: the line is blank, or the score is not an int.",
+            "`if not line.strip(): continue` handles blank lines; `int(score)` inside `try` with `except ValueError: continue` handles the rest, header included.",
+            "Add the blank check at the top of the loop and wrap the conversion and append in try/except ValueError that continues."
+          ],
+          "hints_tr": [
+            "Üç kötü tür de iki yerden birinde başarısız olur: satır boştur ya da not bir int değildir.",
+            "`if not line.strip(): continue` boş satırları halleder; `try` içindeki `int(score)` ve `except ValueError: continue` başlık dahil gerisini halleder.",
+            "Boşluk kontrolünü döngünün başına ekle ve dönüşümü ve eklemeyi, continue yapan bir try/except ValueError ile sar."
+          ],
+          "solution": {
+            "approach": "Skip blank lines first, then let try/except ValueError skip the header and bad scores.",
+            "approach_tr": "Önce boş satırları atla, sonra try/except ValueError'ın başlığı ve hatalı notları atlamasına izin ver.",
+            "code": "def parse_rows(text):\n    rows = []\n    for line in text.splitlines():\n        if not line.strip():\n            continue\n        name, score = line.split(',')\n        try:\n            rows.append((name, int(score)))\n        except ValueError:\n            continue\n    return rows"
+          },
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d30-b4-e4",
+          "type": "debug",
+          "prompt": "This should print the best student's name, `Zeynep`, but it crashes with `TypeError: 'NoneType' object is not subscriptable`. Fix the ranking line.",
+          "prompt_tr": "Bu kod en iyi öğrencinin adını, `Zeynep`'i yazdırmalı ama `TypeError: 'NoneType' object is not subscriptable` ile çöküyor. Sıralama satırını düzelt.",
+          "starter_code": "averages = [('Ece', 87.5), ('Zeynep', 97.5), ('Ali', 67.5)]\nranked = averages.sort(key=lambda pair: pair[1], reverse=True)\nprint(ranked[0][0])",
+          "tests": [
+            {
+              "code": "assert ranked == [('Zeynep', 97.5), ('Ece', 87.5), ('Ali', 67.5)]",
+              "visible": true,
+              "label": "ranked holds the sorted list",
+              "label_tr": "ranked sıralı list'i tutuyor"
+            }
+          ],
+          "hints": [
+            "'NoneType' object is not subscriptable means `ranked` is None. What does `list.sort()` return?",
+            "`sort()` works in place and returns None; the built-in that returns a new sorted list takes the list as its first argument.",
+            "Use the built-in sorting function with the same `key` and `reverse` arguments and assign its result to `ranked`."
+          ],
+          "hints_tr": [
+            "'NoneType' object is not subscriptable, `ranked`'in None olduğu anlamına gelir. `list.sort()` ne döndürür?",
+            "`sort()` yerinde çalışır ve None döndürür; yeni bir sıralı list döndüren yerleşik fonksiyon list'i ilk argüman olarak alır.",
+            "Aynı `key` ve `reverse` argümanlarıyla yerleşik sıralama fonksiyonunu kullan ve sonucunu `ranked`'e ata."
+          ],
+          "solution": {
+            "approach": "Use sorted(), which returns the new list; list.sort() returns None.",
+            "approach_tr": "Yeni list'i döndüren sorted() kullan; list.sort() None döndürür.",
+            "code": "averages = [('Ece', 87.5), ('Zeynep', 97.5), ('Ali', 67.5)]\nranked = sorted(averages, key=lambda pair: pair[1], reverse=True)\nprint(ranked[0][0])"
+          },
+          "expected_output": "Zeynep",
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d30-b4-e5",
+          "type": "predict",
+          "prompt": "What does this code print?",
+          "prompt_tr": "Bu kod ne yazdırır?",
+          "code": "import json\n\naverages = {'Ece': 87.5, 'Can': 70.0, 'Ali': 67.5}\nreport = {'passed': [n for n, a in averages.items() if a >= 70],\n          'count': len(averages)}\nprint(json.dumps(report))",
+          "choices": [
+            "{\"passed\": [\"Ece\", \"Can\"], \"count\": 3}",
+            "{\"passed\": [\"Ece\"], \"count\": 3}",
+            "{'passed': ['Ece', 'Can'], 'count': 3}",
+            "{\"passed\": [\"Ece\", \"Can\"], \"count\": 2}"
+          ],
+          "expected_output": "{\"passed\": [\"Ece\", \"Can\"], \"count\": 3}",
+          "explanation": "70.0 >= 70 is True, so Can passes. `count` is the number of students, 3. json.dumps writes double quotes.",
+          "explanation_tr": "70.0 >= 70 True'dur, bu yüzden Can geçer. `count` öğrenci sayısıdır: 3. json.dumps çift tırnak yazar.",
+          "misconceptions": {
+            "{\"passed\": [\"Ece\"], \"count\": 3}": ">= includes equality, so an average of exactly 70 passes.",
+            "{'passed': ['Ece', 'Can'], 'count': 3}": "That is how print shows a dict; json.dumps produces JSON with double quotes.",
+            "{\"passed\": [\"Ece\", \"Can\"], \"count\": 2}": "count is len(averages), all students, not only those who passed."
+          },
+          "misconceptions_tr": {
+            "{\"passed\": [\"Ece\"], \"count\": 3}": ">= eşitliği de kapsar; tam 70 ortalama geçer.",
+            "{'passed': ['Ece', 'Can'], 'count': 3}": "print bir dict'i böyle gösterir; json.dumps çift tırnaklı JSON üretir.",
+            "{\"passed\": [\"Ece\", \"Can\"], \"count\": 2}": "count, yalnızca geçenlerin değil, tüm öğrencilerin sayısı olan len(averages)'tır."
+          },
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d30-b4-e6",
+          "type": "write",
+          "prompt": "Write `averages_from_text(text)`. Each non-blank line is 'name,score'; a name may appear on several lines. Skip lines whose score is not an int. Return a dict of name to the average of that name's scores, rounded to 1 decimal. Example: `averages_from_text('Ece,90\\nCan,70\\nEce,85')` returns `{'Ece': 87.5, 'Can': 70.0}`.",
+          "prompt_tr": "`averages_from_text(text)` yaz. Boş olmayan her satır 'isim,not' biçimindedir; bir isim birkaç satırda geçebilir. Notu int olmayan satırları atla. İsimden, o ismin notlarının 1 ondalığa yuvarlanmış ortalamasına giden bir dict döndür. Örnek: `averages_from_text('Ece,90\\nCan,70\\nEce,85')` `{'Ece': 87.5, 'Can': 70.0}` döndürür.",
+          "starter_code": "",
+          "signature": "def averages_from_text(text):",
+          "tests": [
+            {
+              "code": "assert averages_from_text('Ece,90\\nCan,70\\nEce,85') == {'Ece': 87.5, 'Can': 70.0}",
+              "visible": true,
+              "label": "Repeated name averaged",
+              "label_tr": "Tekrar eden ismin ortalaması alındı"
+            },
+            {
+              "code": "assert averages_from_text('') == {}",
+              "visible": true,
+              "label": "Empty text",
+              "label_tr": "Boş metin"
+            },
+            {
+              "code": "assert averages_from_text('A,1\\nA,2\\nA,2\\n\\nB,x\\nC,100') == {'A': 1.7, 'C': 100.0}",
+              "visible": false,
+              "failure_message": "Round to one decimal, skip blank lines, and leave out names whose only score was invalid.",
+              "failure_message_tr": "Bir ondalığa yuvarla, boş satırları atla ve tek notu geçersiz olan isimleri dışarıda bırak."
+            },
+            {
+              "code": "assert averages_from_text('Şule,80\\nŞule,x\\nŞule,100') == {'Şule': 90.0}",
+              "visible": false,
+              "failure_message": "An invalid line is skipped without losing the name's other scores.",
+              "failure_message_tr": "Geçersiz bir satır, ismin diğer notları kaybolmadan atlanır."
+            }
+          ],
+          "hints": [
+            "Two steps: collect the scores per name, then average them.",
+            "Skip `not line.strip()` lines first; convert with `int(score)` inside try/except ValueError (continue on error), and only then add the value with `book.setdefault(name, []).append(value)`.",
+            "After the collection loop, return a dict comprehension mapping each name to `round(sum(s) / len(s), 1)`."
+          ],
+          "hints_tr": [
+            "İki adım: notları isim başına topla, sonra ortalamalarını al.",
+            "Önce `not line.strip()` satırlarını atla; try/except ValueError içinde `int(score)` ile çevir (hatada continue), değeri ancak ondan sonra `book.setdefault(name, []).append(value)` ile ekle.",
+            "Toplama döngüsünden sonra her ismi `round(sum(s) / len(s), 1)` değerine eşleyen bir dict comprehension döndür."
+          ],
+          "solution": {
+            "approach": "Collect scores per name with setdefault (skipping bad lines), then average each list with round(..., 1).",
+            "approach_tr": "Notları setdefault ile isim başına topla (hatalı satırları atlayarak), sonra her list'in ortalamasını round(..., 1) ile al.",
+            "code": "def averages_from_text(text):\n    book = {}\n    for line in text.splitlines():\n        if not line.strip():\n            continue\n        name, score = line.split(',')\n        try:\n            value = int(score)\n        except ValueError:\n            continue\n        book.setdefault(name, []).append(value)\n    return {name: round(sum(s) / len(s), 1) for name, s in book.items()}"
+          },
+          "twin": "d30-b4-e7",
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d30-b4-e7",
+          "type": "write",
+          "prompt": "Write `report_json(averages, passing)`. `averages` maps names to numbers. Return JSON text (made with `json.dumps(..., ensure_ascii=False)`) of a dict with keys in this order: 'passed' (names with average >= passing, sorted A to Z), 'failed' (the others, sorted A to Z) and 'class_average' (the mean of all averages rounded to 1 decimal, or None when there are no students). Example: `report_json({'Ece': 90, 'Can': 60}, 70)` returns `'{\"passed\": [\"Ece\"], \"failed\": [\"Can\"], \"class_average\": 75.0}'`.",
+          "prompt_tr": "`report_json(averages, passing)` yaz. `averages` isimleri sayılara eşler. Anahtarları şu sırada olan bir dict'in JSON metnini (`json.dumps(..., ensure_ascii=False)` ile) döndür: 'passed' (ortalaması >= passing olan isimler, A'dan Z'ye), 'failed' (diğerleri, A'dan Z'ye) ve 'class_average' (tüm ortalamaların 1 ondalığa yuvarlanmış ortalaması, öğrenci yoksa None). Örnek: `report_json({'Ece': 90, 'Can': 60}, 70)` `'{\"passed\": [\"Ece\"], \"failed\": [\"Can\"], \"class_average\": 75.0}'` döndürür.",
+          "starter_code": "",
+          "signature": "def report_json(averages, passing):",
+          "tests": [
+            {
+              "code": "assert report_json({'Ece': 90, 'Can': 60}, 70) == '{\"passed\": [\"Ece\"], \"failed\": [\"Can\"], \"class_average\": 75.0}'",
+              "visible": true,
+              "label": "One pass, one fail",
+              "label_tr": "Bir geçen, bir kalan"
+            },
+            {
+              "code": "assert report_json({}, 50) == '{\"passed\": [], \"failed\": [], \"class_average\": null}'",
+              "visible": true,
+              "label": "No students",
+              "label_tr": "Öğrenci yok"
+            },
+            {
+              "code": "assert report_json({'Şule': 70, 'Ali': 69.9, 'Zeynep': 100, 'Can': 70}, 70) == '{\"passed\": [\"Can\", \"Zeynep\", \"Şule\"], \"failed\": [\"Ali\"], \"class_average\": 77.5}'",
+              "visible": false,
+              "failure_message": "An average equal to the pass mark passes; sort names with sorted(); keep Turkish letters (ensure_ascii=False).",
+              "failure_message_tr": "Geçme notuna eşit ortalama geçer; isimleri sorted() ile sırala; Türkçe harfleri koru (ensure_ascii=False)."
+            },
+            {
+              "code": "assert report_json({'A': 1, 'B': 2, 'C': 2}, 3) == '{\"passed\": [], \"failed\": [\"A\", \"B\", \"C\"], \"class_average\": 1.7}'",
+              "visible": false,
+              "failure_message": "Round the class average to one decimal with round(value, 1).",
+              "failure_message_tr": "Sınıf ortalamasını round(value, 1) ile bir ondalığa yuvarla."
+            }
+          ],
+          "hints": [
+            "Build the report dict first, in the required key order, then dump it once.",
+            "`sorted(n for n, a in averages.items() if a >= passing)` gives 'passed'; the class average needs a guard for an empty dict.",
+            "Import json, compute the two sorted lists and the rounded mean (None when `averages` is empty), put them in a dict literal and return `json.dumps(..., ensure_ascii=False)` of it."
+          ],
+          "hints_tr": [
+            "Önce rapor dict'ini istenen anahtar sırasıyla kur, sonra onu bir kez dök.",
+            "`sorted(n for n, a in averages.items() if a >= passing)` 'passed'ı verir; sınıf ortalaması boş dict için bir koruma ister.",
+            "json'u içe aktar, iki sıralı list'i ve yuvarlanmış ortalamayı (`averages` boşsa None) hesapla, bir dict'e koy ve onun `json.dumps(..., ensure_ascii=False)` sonucunu döndür."
+          ],
+          "solution": {
+            "approach": "Split names by the pass mark, sort each list, compute the guarded rounded mean and dump the dict with ensure_ascii=False.",
+            "approach_tr": "İsimleri geçme notuna göre ayır, her list'i sırala, korumalı yuvarlanmış ortalamayı hesapla ve dict'i ensure_ascii=False ile dök.",
+            "code": "import json\n\ndef report_json(averages, passing):\n    values = list(averages.values())\n    report = {\n        'passed': sorted(n for n, a in averages.items() if a >= passing),\n        'failed': sorted(n for n, a in averages.items() if a < passing),\n        'class_average': round(sum(values) / len(values), 1) if values else None,\n    }\n    return json.dumps(report, ensure_ascii=False)"
+          },
+          "twin": "d30-b4-e6",
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        },
+        {
+          "id": "d30-b4-e8",
+          "type": "explain",
+          "prompt": "Why is it better to build the grade report from several small functions (parse, average, rank, to JSON) than to write one long function?",
+          "prompt_tr": "Not raporunu tek uzun bir fonksiyon yazmak yerine birkaç küçük fonksiyondan (ayrıştır, ortalama al, sırala, JSON'a çevir) kurmak neden daha iyidir?",
+          "model_answer": "Each small function does one job, so it is easy to read, to test with a few asserts and to fix when something breaks. The same functions can be reused, for example the average in a class or the JSON step in an API. A long function mixes all steps, so a bug in one step is hard to find and nothing can be reused.",
+          "model_answer_tr": "Her küçük fonksiyon tek bir iş yapar; okuması, birkaç assert ile test etmesi ve bir şey bozulduğunda düzeltmesi kolaydır. Aynı fonksiyonlar yeniden kullanılabilir; örneğin ortalama bir sınıfta, JSON adımı bir API'de. Uzun bir fonksiyon bütün adımları karıştırır; bir adımdaki hatayı bulmak zorlaşır ve hiçbir şey yeniden kullanılamaz.",
+          "keywords": [
+            "one job",
+            "test",
+            "reuse"
+          ],
+          "keywords_tr": [
+            "tek bir iş",
+            "test",
+            "yeniden kullan"
+          ],
+          "min_words": 12,
+          "concept": "capstone-pipeline",
+          "tags": [
+            "review",
+            "parsing",
+            "json",
+            "functions",
+            "sorting"
+          ]
+        }
+      ]
     }
-   ],
-   "concept_tr": "Tekrar: dict ve sayma"
-  },
-  {
-   "id": "d30-b2",
-   "concept": "review-functions-errors",
-   "tags": [
-    "review",
-    "functions",
-    "try-except",
-    "default-values"
-   ],
-   "worked_example": {
-    "code": "def safe_divide(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None\nprint(safe_divide(6, 3), safe_divide(1, 0))",
-    "notes": [
-     "try runs the risky code; except catches one kind of error and lets the program go on.",
-     "Catch the specific error you expect, not every error."
-    ],
-    "notes_tr": [
-     "try riskli kodu çalıştırır; except belirli bir hata türünü yakalar ve programın devam etmesini sağlar.",
-     "Her hatayı değil, beklediğin belirli hatayı yakala."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d30-b2-e1",
-     "type": "predict",
-     "concept": "review-functions-errors",
-     "tags": [
-      "review",
-      "functions",
-      "try-except",
-      "default-values"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "def to_int(text, default=0):\n    try:\n        return int(text)\n    except ValueError:\n        return default\n\nprint(to_int('42'), to_int('4x2'), to_int('', -1))",
-     "choices": [
-      "42 0 -1",
-      "42 0 0",
-      "42 4 -1",
-      "42 0 Error"
-     ],
-     "expected_output": "42 0 -1",
-     "explanation": "int('42') works. '4x2' raises ValueError, so the default 0 is returned. The empty string also raises ValueError, and the second argument -1 is the default there.",
-     "misconceptions": {
-      "42 0 0": "The third call passes -1 as the default, so that is what is returned.",
-      "42 4 -1": "int('4x2') does not stop at the x; it raises ValueError.",
-      "42 0 Error": "The ValueError for '' is caught too and replaced by the default."
-     },
-     "explanation_tr": "int('42') çalışır. '4x2' ValueError verir, bu yüzden varsayılan 0 döner. Boş metin de ValueError verir ve orada ikinci argüman olan -1 varsayılandır.",
-     "misconceptions_tr": {
-      "42 0 0": "Üçüncü çağrı varsayılan olarak -1 verir, bu yüzden o döndürülür.",
-      "42 4 -1": "int('4x2') x'te durmaz; ValueError verir.",
-      "42 0 Error": "'' için ValueError de yakalanır ve varsayılanla değiştirilir."
-     }
-    },
-    {
-     "id": "d30-b2-e2",
-     "type": "parsons",
-     "concept": "review-functions-errors",
-     "tags": [
-      "review",
-      "functions",
-      "try-except",
-      "default-values"
-     ],
-     "prompt": "Put the lines in order: average of a list that returns 0 for an empty list.",
-     "prompt_tr": "Satırları sırala: boş liste için 0 döndüren bir liste ortalaması.",
-     "lines": [
-      "    return sum(numbers) / len(numbers)",
-      "def average(numbers):",
-      "print(average([2, 4, 9]), average([]))",
-      "        return 0",
-      "    if not numbers:"
-     ],
-     "correct_order": [
-      1,
-      4,
-      3,
-      0,
-      2
-     ],
-     "distractors": [
-      "    return sum(numbers) // len(numbers)"
-     ],
-     "expected_output": "5.0 0"
-    },
-    {
-     "id": "d30-b2-e3",
-     "type": "write",
-     "concept": "review-functions-errors",
-     "tags": [
-      "review",
-      "functions",
-      "try-except",
-      "default-values"
-     ],
-     "prompt": "Write parse_ints(items). items is a list of strings. Return a list with the integer value of every item that is a valid integer, skipping the others (use try/except).",
-     "prompt_tr": "parse_ints(items) yaz. items, metinlerden oluşan bir listedir. Geçerli tam sayı olan her öğenin tam sayı değerini içeren bir liste döndür, diğerlerini atla (try/except kullan).",
-     "starter_code": "",
-     "signature": "def parse_ints(items):",
-     "tests": [
-      {
-       "code": "assert parse_ints(['1', '2', '3']) == [1, 2, 3]",
-       "visible": true,
-       "label_tr": "Geçerli sayılar listeye çevriliyor"
-      },
-      {
-       "code": "assert parse_ints([]) == []",
-       "visible": true,
-       "label_tr": "Boş liste boş liste veriyor"
-      },
-      {
-       "code": "assert parse_ints(['10', 'abc', '-3', '3.5', '']) == [10, -3]",
-       "visible": false,
-       "failure_message": "Skip invalid items ('abc', '3.5', ''), but keep negative integers like '-3'.",
-       "failure_message_tr": "Geçersiz öğeleri ('abc', '3.5', '') atla ama '-3' gibi negatif tam sayıları tut."
-      },
-      {
-       "code": "assert parse_ints(['x', 'y']) == []",
-       "visible": false,
-       "failure_message": "If nothing is valid the result is an empty list.",
-       "failure_message_tr": "Hiçbir öğe geçerli değilse sonuç boş listedir."
-      }
-     ],
-     "hints": [
-      "Each item may fail to convert.",
-      "Loop, try int(item) and append, except ValueError: continue.",
-      "Last step: loop over items; inside try append int(item) to a result list; in except ValueError do nothing; return the list after the loop."
-     ],
-     "solution": {
-      "approach": "Try int() on each item and ignore ValueError.",
-      "code": "def parse_ints(items):\n    result = []\n    for item in items:\n        try:\n            result.append(int(item))\n        except ValueError:\n            pass\n    return result",
-      "approach_tr": "Her öğede int() dene ve ValueError'u yok say."
-     },
-     "twin": "d30-b2-e4",
-     "hints_tr": [
-      "Her öğenin dönüştürülmesi başarısız olabilir.",
-      "Dön, int(item) dene ve ekle; except ValueError: ile devam et.",
-      "Son adım: items üzerinde dön; try içinde int(item) değerini bir sonuç listesine ekle; except ValueError içinde hiçbir şey yapma; döngüden sonra listeyi döndür."
-     ]
-    },
-    {
-     "id": "d30-b2-e4",
-     "type": "write",
-     "concept": "review-functions-errors",
-     "tags": [
-      "review",
-      "functions",
-      "try-except",
-      "default-values"
-     ],
-     "prompt": "Write sum_valid(items). items is a list of strings. Return the sum of the items that are valid integers, ignoring the others. An empty or all-invalid list gives 0.",
-     "prompt_tr": "sum_valid(items) yaz. items, metinlerden oluşan bir listedir. Geçerli tam sayı olan öğelerin toplamını döndür, diğerlerini yok say. Boş ya da tamamı geçersiz bir liste 0 verir.",
-     "starter_code": "",
-     "signature": "def sum_valid(items):",
-     "tests": [
-      {
-       "code": "assert sum_valid(['1', '2', '3']) == 6",
-       "visible": true,
-       "label_tr": "Geçerli sayıların toplamı doğru"
-      },
-      {
-       "code": "assert sum_valid([]) == 0",
-       "visible": true,
-       "label_tr": "Boş liste için toplam 0"
-      },
-      {
-       "code": "assert sum_valid(['10', 'abc', '-3', '3.5']) == 7",
-       "visible": false,
-       "failure_message": "Skip 'abc' and '3.5', but count negative integers like '-3'.",
-       "failure_message_tr": "'abc' ve '3.5' öğelerini atla ama '-3' gibi negatif tam sayıları say."
-      },
-      {
-       "code": "assert sum_valid(['x', '']) == 0",
-       "visible": false,
-       "failure_message": "If nothing is valid the sum is 0.",
-       "failure_message_tr": "Hiçbir öğe geçerli değilse toplam 0 olur."
-      }
-     ],
-     "hints": [
-      "Same idea as parse_ints, but keep a running total.",
-      "total = 0; in the try block do total += int(item).",
-      "Last step: start total at ___, loop over items, add int(item) to total inside try, ignore ValueError in except, and return total."
-     ],
-     "solution": {
-      "approach": "Add each valid integer to a running total.",
-      "code": "def sum_valid(items):\n    total = 0\n    for item in items:\n        try:\n            total += int(item)\n        except ValueError:\n            pass\n    return total",
-      "approach_tr": "Her geçerli tam sayıyı bir toplama ekle."
-     },
-     "twin": "d30-b2-e3",
-     "hints_tr": [
-      "parse_ints ile aynı fikir, ama bir toplam tut.",
-      "total = 0; try bloğunda total += int(item) yap.",
-      "Son adım: total'ı ___ ile başlat, items üzerinde dön, try içinde total'a int(item) ekle, except içinde ValueError'u yok say ve total'ı döndür."
-     ]
-    }
-   ],
-   "concept_tr": "Tekrar: fonksiyonlar ve hata yakalama"
-  },
-  {
-   "id": "d30-b3",
-   "concept": "review-classes-json",
-   "tags": [
-    "review",
-    "classes",
-    "json",
-    "inheritance"
-   ],
-   "worked_example": {
-    "code": "import json\nclass Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    def to_dict(self):\n        return {'name': self.name, 'age': self.age}\nprint(json.dumps(Student('Ada', 20).to_dict()))",
-    "notes": [
-     "to_dict turns an object into plain data that json.dumps can write.",
-     "This joins classes (Day 21), dicts and JSON (APIs, Days 27-29)."
-    ],
-    "notes_tr": [
-     "to_dict bir nesneyi json.dumps'ın yazabileceği düz veriye çevirir.",
-     "Bu, sınıfları (21. gün), dict'leri ve JSON'u (API'ler, 27-29. günler) birleştirir."
-    ]
-   },
-   "exercises": [
-    {
-     "id": "d30-b3-e1",
-     "type": "predict",
-     "concept": "review-classes-json",
-     "tags": [
-      "review",
-      "classes",
-      "json",
-      "inheritance"
-     ],
-     "prompt": "What does this code print?",
-     "prompt_tr": "Bu kod ne yazdırır?",
-     "code": "import json\nclass Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    def to_dict(self):\n        return {'name': self.name, 'age': self.age}\n\nclass Graduate(Student):\n    def to_dict(self):\n        data = super().to_dict()\n        data['graduated'] = True\n        return data\n\npeople = [Student('Ada', 20), Graduate('Ben', 25)]\nprint(json.dumps([p.to_dict() for p in people]))",
-     "choices": [
-      "[{\"name\": \"Ada\", \"age\": 20}, {\"name\": \"Ben\", \"age\": 25, \"graduated\": true}]",
-      "[{\"name\": \"Ada\", \"age\": 20, \"graduated\": true}, {\"name\": \"Ben\", \"age\": 25, \"graduated\": true}]",
-      "[{\"name\": \"Ada\", \"age\": 20}, {\"name\": \"Ben\", \"age\": 25}]",
-      "[{'name': 'Ada', 'age': 20}, {'name': 'Ben', 'age': 25, 'graduated': True}]"
-     ],
-     "expected_output": "[{\"name\": \"Ada\", \"age\": 20}, {\"name\": \"Ben\", \"age\": 25, \"graduated\": true}]",
-     "explanation": "Graduate overrides to_dict: it calls the parent's version with super() and adds a key. Student keeps the plain version. json.dumps writes true in lower case.",
-     "misconceptions": {
-      "[{\"name\": \"Ada\", \"age\": 20, \"graduated\": true}, {\"name\": \"Ben\", \"age\": 25, \"graduated\": true}]": "Only Graduate adds 'graduated'. Ada is a plain Student.",
-      "[{\"name\": \"Ada\", \"age\": 20}, {\"name\": \"Ben\", \"age\": 25}]": "Graduate.to_dict overrides the parent method and adds the key 'graduated'.",
-      "[{'name': 'Ada', 'age': 20}, {'name': 'Ben', 'age': 25, 'graduated': True}]": "json.dumps produces JSON text: double quotes and lowercase true."
-     },
-     "explanation_tr": "Graduate to_dict'i ezer: ebeveynin sürümünü super() ile çağırır ve bir anahtar ekler. Student düz sürümü korur. json.dumps true'yu küçük harfle yazar.",
-     "misconceptions_tr": {
-      "[{\"name\": \"Ada\", \"age\": 20, \"graduated\": true}, {\"name\": \"Ben\", \"age\": 25, \"graduated\": true}]": "'graduated' anahtarını yalnızca Graduate ekler. Ada düz bir Student'tır.",
-      "[{\"name\": \"Ada\", \"age\": 20}, {\"name\": \"Ben\", \"age\": 25}]": "Graduate.to_dict ebeveyn metodu ezer ve 'graduated' anahtarını ekler.",
-      "[{'name': 'Ada', 'age': 20}, {'name': 'Ben', 'age': 25, 'graduated': True}]": "json.dumps JSON metni üretir: çift tırnak ve küçük harfli true."
-     }
-    },
-    {
-     "id": "d30-b3-e2",
-     "type": "fill_blank",
-     "concept": "review-classes-json",
-     "tags": [
-      "review",
-      "classes",
-      "json",
-      "inheritance"
-     ],
-     "prompt": "Read a student from JSON text and build the object.",
-     "prompt_tr": "JSON metninden bir öğrenci oku ve nesneyi kur.",
-     "starter_code": "import json\nclass Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\ntext = '{\"name\": \"Ada\", \"age\": 20}'\ndata = json.___(text)\ns = Student(data[___], data['age'])",
-     "blanks": [
-      {
-       "answer": [
-        "loads"
-       ]
-      },
-      {
-       "answer": [
-        "'name'"
-       ]
-      }
-     ],
-     "tests": [
-      {
-       "code": "assert s.name == 'Ada' and s.age == 20",
-       "visible": true,
-       "label_tr": "Öğrencinin adı ve yaşı JSON'dan doğru okunuyor"
-      }
-     ]
-    },
-    {
-     "id": "d30-b3-e3",
-     "type": "write",
-     "concept": "review-classes-json",
-     "tags": [
-      "review",
-      "classes",
-      "json",
-      "inheritance"
-     ],
-     "prompt": "Write average_age(json_text). json_text is JSON text for a list of objects like {\"name\": \"Ada\", \"age\": 20}. Return the average age as a float, or 0 for an empty list.",
-     "prompt_tr": "average_age(json_text) yaz. json_text, {\"name\": \"Ada\", \"age\": 20} gibi nesnelerden oluşan bir listenin JSON metnidir. Ortalama yaşı float olarak döndür; liste boşsa 0 döndür.",
-     "starter_code": "",
-     "signature": "def average_age(json_text):",
-     "tests": [
-      {
-       "code": "assert average_age('[{\"name\": \"Ada\", \"age\": 20}, {\"name\": \"Ben\", \"age\": 30}]') == 25",
-       "visible": true,
-       "label_tr": "İki kişinin ortalama yaşı doğru"
-      },
-      {
-       "code": "assert average_age('[]') == 0",
-       "visible": true,
-       "label_tr": "Boş liste için 0"
-      },
-      {
-       "code": "assert average_age('[{\"name\": \"A\", \"age\": 31}, {\"name\": \"B\", \"age\": 26}, {\"name\": \"C\", \"age\": 27}]') == 28",
-       "visible": false,
-       "failure_message": "Add all ages and divide by how many people there are.",
-       "failure_message_tr": "Tüm yaşları topla ve kişi sayısına böl."
-      },
-      {
-       "code": "assert abs(average_age('[{\"age\": 1}, {\"age\": 2}]') - 1.5) < 1e-9",
-       "visible": false,
-       "failure_message": "The result may be a fraction; use / and not //.",
-       "failure_message_tr": "Sonuç kesirli olabilir; // değil / kullan."
-      }
-     ],
-     "hints": [
-      "First turn the text into Python data.",
-      "json.loads gives a list of dicts; sum the ages and divide by len. Handle the empty list first.",
-      "Last step: load the text with json.loads, return 0 when the list is empty, otherwise return the sum of every person's age divided by the number of people."
-     ],
-     "solution": {
-      "approach": "Parse with json.loads, then average the 'age' values.",
-      "code": "import json\n\ndef average_age(json_text):\n    people = json.loads(json_text)\n    if not people:\n        return 0\n    return sum(p['age'] for p in people) / len(people)",
-      "approach_tr": "json.loads ile ayrıştır, sonra 'age' değerlerinin ortalamasını al."
-     },
-     "twin": "d30-b3-e4",
-     "hints_tr": [
-      "Önce metni Python verisine çevir.",
-      "json.loads dict listesi verir; yaşları topla ve len'e böl. Önce boş listeyi ele al.",
-      "Son adım: metni json.loads ile yükle, liste boşsa 0 döndür, değilse her kişinin yaşının toplamını kişi sayısına bölerek döndür."
-     ]
-    },
-    {
-     "id": "d30-b3-e4",
-     "type": "write",
-     "concept": "review-classes-json",
-     "tags": [
-      "review",
-      "classes",
-      "json",
-      "inheritance"
-     ],
-     "prompt": "Write names_older_than(json_text, limit). json_text is JSON text for a list of objects like {\"name\": \"Ada\", \"age\": 20}. Return the names of people whose age is greater than limit, in the original order.",
-     "prompt_tr": "names_older_than(json_text, limit) yaz. json_text, {\"name\": \"Ada\", \"age\": 20} gibi nesnelerden oluşan bir listenin JSON metnidir. Yaşı limit'ten büyük olan kişilerin adlarını özgün sırayla döndür.",
-     "starter_code": "",
-     "signature": "def names_older_than(json_text, limit):",
-     "tests": [
-      {
-       "code": "assert names_older_than('[{\"name\": \"Ada\", \"age\": 20}, {\"name\": \"Ben\", \"age\": 30}]', 25) == ['Ben']",
-       "visible": true,
-       "label_tr": "Limitten yaşlı kişi bulunuyor"
-      },
-      {
-       "code": "assert names_older_than('[]', 10) == []",
-       "visible": true,
-       "label_tr": "Boş liste boş liste veriyor"
-      },
-      {
-       "code": "assert names_older_than('[{\"name\": \"A\", \"age\": 30}, {\"name\": \"B\", \"age\": 30}]', 30) == []",
-       "visible": false,
-       "failure_message": "The comparison is strictly greater than the limit.",
-       "failure_message_tr": "Karşılaştırma limitten kesinlikle büyüktür."
-      },
-      {
-       "code": "assert names_older_than('[{\"name\": \"C\", \"age\": 40}, {\"name\": \"A\", \"age\": 50}]', 18) == ['C', 'A']",
-       "visible": false,
-       "failure_message": "Keep the original order; do not sort.",
-       "failure_message_tr": "Özgün sırayı koru; sıralama yapma."
-      }
-     ],
-     "hints": [
-      "Parse the JSON first, then filter.",
-      "A list comprehension: [p['name'] for p in people if p['age'] > limit].",
-      "Last step: load the text with json.loads, then return a list comprehension over the people that keeps the name when the age passes the limit test."
-     ],
-     "solution": {
-      "approach": "json.loads, then a filtering comprehension.",
-      "code": "import json\n\ndef names_older_than(json_text, limit):\n    people = json.loads(json_text)\n    return [p['name'] for p in people if p['age'] > limit]",
-      "approach_tr": "json.loads kullan, sonra filtreleyen bir liste kapsamı yaz."
-     },
-     "twin": "d30-b3-e3",
-     "hints_tr": [
-      "Önce JSON'u ayrıştır, sonra filtrele.",
-      "Bir liste kapsamı: [p['name'] for p in people if p['age'] > limit].",
-      "Son adım: metni json.loads ile yükle, sonra yaş limit testini geçince adı tutan, kişiler üzerinde bir liste kapsamı döndür."
-     ]
-    },
-    {
-     "id": "d30-b3-e5",
-     "type": "debug",
-     "concept": "review-classes-json",
-     "tags": [
-      "review",
-      "classes",
-      "json",
-      "inheritance"
-     ],
-     "prompt": "Ben's skills list should be empty, but it contains Ada's skill. Fix the class.",
-     "prompt_tr": "Ben'in beceri listesi boş olmalı ama Ada'nın becerisini içeriyor. Sınıfı düzelt.",
-     "starter_code": "class Student:\n    def __init__(self, name, skills=[]):\n        self.name = name\n        self.skills = skills\n\na = Student('Ada')\nb = Student('Ben')\na.skills.append('Python')\nprint(b.skills)",
-     "hints": [
-      "Print a.skills is b.skills. What does that tell you?",
-      "A default value like [] is created ONCE and shared by every object that uses the default.",
-      "Last step: change the default of skills to None, and inside __init__ assign a fresh empty list when skills is None."
-     ],
-     "solution": {
-      "approach": "Do not use a mutable default; create a fresh list for each object.",
-      "code": "class Student:\n    def __init__(self, name, skills=None):\n        self.name = name\n        self.skills = [] if skills is None else skills\n\na = Student('Ada')\nb = Student('Ben')\na.skills.append('Python')\nprint(b.skills)",
-      "approach_tr": "Değiştirilebilir (mutable) varsayılan değer kullanma; her nesne için yeni bir liste oluştur."
-     },
-     "expected_output": "[]",
-     "hints_tr": [
-      "a.skills is b.skills ifadesini yazdır. Bu sana ne söylüyor?",
-      "[] gibi bir varsayılan değer BİR KEZ oluşturulur ve varsayılanı kullanan her nesne tarafından paylaşılır.",
-      "Son adım: skills varsayılanını None yap ve __init__ içinde skills None ise yeni bir boş liste ata."
-     ]
-    },
-    {
-     "id": "d30-b3-e6",
-     "type": "explain",
-     "concept": "review-classes-json",
-     "tags": [
-      "review",
-      "classes",
-      "json",
-      "inheritance"
-     ],
-     "prompt": "You finished the course. Pick one path from the conclusion (web development or data analysis) and name two things from the course you would use first, and why.",
-     "prompt_tr": "Kursu bitirdin. Sonuç bölümünden bir yol seç (web geliştirme ya da veri analizi) ve kursta öğrendiklerinden ilk kullanacağın iki şeyi, nedenleriyle söyle.",
-     "model_answer": "For web development I would use Flask to define routes and view functions, and MongoDB to store the data as documents. For data analysis I would use pandas to read and filter tables and NumPy for fast array maths. In both paths I would rely on functions, dicts and classes first, because they are the base of all of it.",
-     "keywords": [
-      "Flask",
-      "pandas",
-      "functions"
-     ],
-     "model_answer_tr": "Web geliştirme için route'ları ve view fonksiyonlarını tanımlamak üzere Flask'ı, veriyi doküman olarak saklamak için MongoDB'yi kullanırdım. Veri analizi için tabloları okuyup filtrelemek üzere pandas'ı, hızlı dizi matematiği için NumPy'ı kullanırdım. İki yolda da önce fonksiyonlara, dict'lere ve sınıflara dayanırdım, çünkü hepsinin temeli onlardır.",
-     "keywords_tr": [
-      "flask",
-      "pandas",
-      "fonksiyon"
-     ],
-     "min_words": 6
-    }
-   ],
-   "concept_tr": "Tekrar: sınıflar ve JSON"
-  }
- ],
- "review_pool": [
-  "d30-b1-e1",
-  "d30-b1-e3",
-  "d30-b2-e1",
-  "d30-b2-e3",
-  "d30-b3-e1",
-  "d30-b3-e3"
- ],
- "title_tr": "Sonuç: Kursun Tekrarı"
+  ],
+  "review_pool": [
+    "d30-b1-e1",
+    "d30-b1-e7",
+    "d30-b2-e5",
+    "d30-b2-e6",
+    "d30-b3-e1",
+    "d30-b4-e7"
+  ]
 }
